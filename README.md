@@ -4,18 +4,18 @@ Sippy Cup tracks and reminds you of your roleplay consumables, helping keep you 
 ## How it works
 Once enabled, Sippy Cup will display a reminder popup when your consumable runs out or when your current stack count falls below your desired amount.
 
-![popup](images/popup.png)
+![popup](Images/popup.png)
 
 Note: To minimize login popups, only active consumables with stack counts below your desired amount will display reminders on login.
 
 If multiple consumables expire simultaneously, Sippy Cup will display multiple popups.  
 Due to WoW's limit of four simultaneous pop-ups, the oldest reminder will be dismissed if a fifth one appears.
 
-![popup](images/multi-popups.png)
+![multi-popups](Images/multi-popups.png)
 
 If an item cannot be refreshed due to its absence from your inventory, a notification message will appear.
 
-![popup](images/missing-item.png)
+![missing-item](Images/missing-item.png)
 
 ## Reminder Settings
 
