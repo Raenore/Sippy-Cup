@@ -1,5 +1,4 @@
-# VS Code
+.idea
+.venv
 .vscode
-
-# WoW Libs (generated)
-/libs
+Libs/
