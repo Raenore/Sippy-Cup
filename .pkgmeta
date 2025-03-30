@@ -10,6 +10,7 @@ ignore:
   - Libs/*/examples
   - Libs/*/README.*
   - Libs/*/tests
+  - Images/*
   - README.md
   - LICENSE
 
