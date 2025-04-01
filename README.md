@@ -32,7 +32,7 @@ Examples:
 - [Inky Black Potion](https://www.wowhead.com/item=124640/inky-black-potion)
 - [Sacredite's Ledger](https://www.wowhead.com/item=234527/sacredites-ledger)
 
-![category-effect](Images\category-effect.png)
+![category-effect](Images/category-effect.png)
 
 ### Size
 Manage reminders for consumables that alter your character's size.
@@ -42,4 +42,4 @@ Examples:
 - [Elixir of Giant Growth](https://www.wowhead.com/item=6662/elixir-of-giant-growth)
 - [Pygmy Oil](https://www.wowhead.com/item=40195/pygmy-oil)
 
-![category-size](Images\category-size.png)
+![category-size](Images/category-size.png)
