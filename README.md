@@ -17,7 +17,12 @@ If an item cannot be refreshed due to its absence from your inventory, a notific
 
 ![missing-item](Images/missing-item.png)
 
-## Reminder Settings
+## General Settings
+Adjust Sippy Cup's settings to match your personal preferences.
+
+![general](Images/general.png)
+
+## Reminder Categories
 
 ### Effect
 Manage reminders for consumables that apply effects to your character or the environment.
@@ -27,6 +32,8 @@ Examples:
 - [Inky Black Potion](https://www.wowhead.com/item=124640/inky-black-potion)
 - [Sacredite's Ledger](https://www.wowhead.com/item=234527/sacredites-ledger)
 
+![category-effect](Images\category-effect.png)
+
 ### Size
 Manage reminders for consumables that alter your character's size.
 
@@ -34,3 +41,5 @@ Examples:
 - [Darkmoon Firewater](https://www.wowhead.com/item=124671/darkmoon-firewater)
 - [Elixir of Giant Growth](https://www.wowhead.com/item=6662/elixir-of-giant-growth)
 - [Pygmy Oil](https://www.wowhead.com/item=40195/pygmy-oil)
+
+![category-size](Images\category-size.png)
