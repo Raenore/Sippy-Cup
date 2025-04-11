@@ -1,4 +1,24 @@
-.idea
-.venv
-.vscode
+# VS Code and JetBrains
+.vscode/
+.idea/
+
+# Python virtual env (if used for tooling)
+.venv/
+
+# Lua LS metadata
+.luarc.json
+.luacheckrc
+
+# WoW build output (if using tooling like WowPackager, wow-addon-tools, etc.)
+*.zip
+release/
+dist/
+pkg/
+
+# Common vendor folder (for embedded libs)
 Libs/
+libs/
+
+# Mac and Windows junk
+.DS_Store
+Thumbs.db
