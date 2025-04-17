@@ -1,30 +1,55 @@
 # Sippy Cup 🥤
-Sippy Cup tracks and reminds you of your roleplay consumables, helping keep you focused on what matters most: Roleplay.
 
-## How it works
-Once enabled, Sippy Cup will display a reminder popup when your consumable runs out or when your current stack count falls below your desired amount.
+**Sippy Cup** tracks and reminds you of your roleplay consumables, helping keep you focused on what matters most: *Roleplay*.
 
-![popup](Images/popup.png)
+## 🛠️ How It Works
 
-Note: To minimize login popups, only active consumables with stack counts below your desired amount will display reminders on login.
+Once enabled, Sippy Cup will display a reminder popup when:
+- Your consumable runs out.
+- Your current stack count falls below your desired amount.
+
+<table>
+  <tr>
+    <td><img src="Images/popup.png" alt="Popup Example"></td>
+    <td><img src="Images/popup-icon.png" alt="Popup Icon"></td>
+  </tr>
+</table>
+
+**Note:** To minimize login popups, only active consumables with stack counts below your desired amount will display reminders on login.
 
 If multiple consumables expire simultaneously, Sippy Cup will display multiple popups.  
 Due to WoW's limit of four simultaneous pop-ups, the oldest reminder will be dismissed if a fifth one appears.
 
-![multi-popups](Images/multi-popups.png)
+<table>
+  <tr>
+    <td><img src="Images/multi-popups.png" alt="Multi popup Example"></td>
+    <td><img src="Images/multi-popups-icon.png" alt="Multi popup Icon"></td>
+  </tr>
+</table>
 
 If an item cannot be refreshed due to its absence from your inventory, a notification message will appear.
 
-![missing-item](Images/missing-item.png)
+<table>
+  <tr>
+    <td><img src="Images/missing-item.png" alt="Missing Item Example"></td>
+    <td><img src="Images/missing-item-icon.png" alt="Missing Item Icon"></td>
+  </tr>
+</table>
 
-## General Settings
+## ⚙️ General Settings
+
 Adjust Sippy Cup's settings to match your personal preferences.
+
+You can adjust general settings like showing a message at startup or having a minimap icon.
+The "Reminder Popups" section lets you customize how those helpful reminders appear, including where they show up, if they make a sound, or even flash your taskbar.
+At the bottom, you'll find some info about your current version of Sippy Cup.
 
 ![general](Images/general.png)
 
-## Reminder Categories
+## 📦 Reminder Categories
 
-### Effect
+### 🧪 Effect
+
 Manage reminders for consumables that apply effects to your character or the environment.
 
 Examples:
@@ -34,7 +59,8 @@ Examples:
 
 ![category-effect](Images/category-effect.png)
 
-### Size
+### 📏 Size
+
 Manage reminders for consumables that alter your character's size.
 
 Examples:
