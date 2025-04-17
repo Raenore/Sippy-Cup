@@ -10,8 +10,8 @@ Once enabled, Sippy Cup will display a reminder popup when:
 
 <table>
   <tr>
-    <td><img src="Images/popup.png" alt="Popup Example"></td>
-    <td><img src="Images/popup-icon.png" alt="Popup Icon"></td>
+    <td><img src="https://i.imgur.com/OFCrTbe.png" alt="Popup Example"></td>
+    <td><img src="https://i.imgur.com/8IKpY0y.png" alt="Popup Icon"></td>
   </tr>
 </table>
 
@@ -22,8 +22,8 @@ Due to WoW's limit of four simultaneous pop-ups, the oldest reminder will be dis
 
 <table>
   <tr>
-    <td><img src="Images/multi-popups.png" alt="Multi popup Example"></td>
-    <td><img src="Images/multi-popups-icon.png" alt="Multi popup Icon"></td>
+    <td><img src="https://i.imgur.com/XCdEoWK.png" alt="Multi popup Example"></td>
+    <td><img src="https://i.imgur.com/gDuqWNk.png" alt="Multi popup Icon"></td>
   </tr>
 </table>
 
@@ -31,8 +31,8 @@ If an item cannot be refreshed due to its absence from your inventory, a notific
 
 <table>
   <tr>
-    <td><img src="Images/missing-item.png" alt="Missing Item Example"></td>
-    <td><img src="Images/missing-item-icon.png" alt="Missing Item Icon"></td>
+    <td><img src="https://i.imgur.com/Ap9v2hW.png" alt="Missing Item Example"></td>
+    <td><img src="https://i.imgur.com/9eS0w7x.png" alt="Missing Item Icon"></td>
   </tr>
 </table>
 
@@ -44,7 +44,7 @@ You can adjust general settings like showing a message at startup or having a mi
 The "Reminder Popups" section lets you customize how those helpful reminders appear, including where they show up, if they make a sound, or even flash your taskbar.
 At the bottom, you'll find some info about your current version of Sippy Cup.
 
-![general](Images/general.png)
+![general](https://i.imgur.com/cd4EQxF.png)
 
 ## 📦 Reminder Categories
 
@@ -57,7 +57,7 @@ Examples:
 - [Inky Black Potion](https://www.wowhead.com/item=124640/inky-black-potion)
 - [Sacredite's Ledger](https://www.wowhead.com/item=234527/sacredites-ledger)
 
-![category-effect](Images/category-effect.png)
+![category-effect](https://i.imgur.com/Kf1Xsfk.png)
 
 ### 📏 Size
 
@@ -68,4 +68,4 @@ Examples:
 - [Elixir of Giant Growth](https://www.wowhead.com/item=6662/elixir-of-giant-growth)
 - [Pygmy Oil](https://www.wowhead.com/item=40195/pygmy-oil)
 
-![category-size](Images/category-size.png)
+![category-size](https://i.imgur.com/IynqJTI.png)
