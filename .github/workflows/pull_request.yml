@@ -1,0 +1,26 @@
+---
+name: Pull Request
+on: pull_request
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v4
+      - uses: actions/setup-ruby@v1
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Run Luacheck
+        uses: nebularg/actions-luacheck@v1
+        with:
+          args: --no-color -q
+          files: $(git ls-files '*.lua' ':!:Locales/????.lua')
+          annotate: warning
+
+      - name: Run editorconfig-checker
+        uses: wow-rp-addons/actions-editorconfig-check@v1.0.2
+        with:
+          args: -no-color
+          files: $(git ls-files '*.lua' '*.sh' '*.xml' ':!:Locales/*.lua')
