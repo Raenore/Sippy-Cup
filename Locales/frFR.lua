@@ -33,14 +33,10 @@ L.TATTERED_ARATHI_PRAYER_SCROLL = "Parchemin de prière arathi en lambeaux";
 L.WINTERFALL_FIREWATER = "Eau-de-feu des Tombe-hiver";
 
 --/ Popup dialog /--
-L.POPUP_ITEM_NAME = "|cnGREEN_FONT_COLOR:%s|r ";
-L.POPUP_ITEM_ICON = "|TInterface\\Icons\\%s:%d|t |cnGREEN_FONT_COLOR:%s|r|n|n";
-
 L.POPUP_LACKING_TEXT = "introuvable dans votre inventaire.";
 L.POPUP_TEXT = "en-dessous du nombre de stacks voulus!";
 L.POPUP_IGNORE_TT = IGNORE .. "|r |cnWHITE_FONT_COLOR:bloque les rappels jusqu'à la prochaine session.|r";
 
-L.POPUP_BUTTON_REFRESH = REFRESH .. " (%dx)";
 L.POPUP_LINK = "|n|nAppuyez sur |cnGREEN_FONT_COLOR:CTRL-C|r pour copier le texte surligné, puis copiez dans votre navigateur avec |cnGREEN_FONT_COLOR:CTRL-V|r.";
 L.COPY_SYSTEM_MESSAGE = "Copié dans le presse-papiers.";
 
@@ -61,9 +57,7 @@ L.OPTIONS_GENERAL_POPUPS_ICON_ENABLE = "Icône";
 L.OPTIONS_GENERAL_POPUPS_ICON_ENABLE_DESC = "Affiche ou cache l'icône du consommable dans la fenêtre de rappel.|n|n|cnWARNING_FONT_COLOR:Gardez en tête que l'activation de cette option augmente la hauteur de la fenêtre.|r";
 L.OPTIONS_GENERAL_POPUPS_IGNORES = "Réinitialiser fenêtres ignorées";
 L.OPTIONS_GENERAL_POPUPS_IGNORES_TEXT = "Réinitialise toutes les fenêtres de rappel ignorées durant cette session afin qu'elles soient à nouveau visibles.";
-L.OPTIONS_GENERAL_POPUPS_ALERT_SOUND = SOUND;
 L.OPTIONS_GENERAL_POPUPS_ALERT_SOUND_DESC = "Choisit quel son est joué lorsque la fenêtre de rappel est affichée.";
-L.OPTIONS_GENERAL_POPUPS_SOUND_ENABLE = BINDING_NAME_TOGGLESOUND;
 L.OPTIONS_GENERAL_POPUPS_SOUND_ENABLE_DESC = "Active ou désactive si un son est joué lorsque la fenêtre de rappel est affichée.";
 L.OPTIONS_GENERAL_POPUPS_FLASHTASKBAR_ENABLE = "Flash barre des tâches";
 L.OPTIONS_GENERAL_POPUPS_FLASHTASKBAR_ENABLE_DESC = "Active ou désactive le flash sur la barre des tâches lorsque la fenêtre de rappel est affichée.";
