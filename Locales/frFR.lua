@@ -6,8 +6,8 @@ local L = LibStub("AceLocale-3.0"):NewLocale("SippyCup", "frFR", false);
 if not L then return; end
 
 --/ Welcome message /--
-L.WELCOMEMSG_VERSION = "Prepared with flavor |cnGREEN_FONT_COLOR:%s|r!";
-L.WELCOMEMSG_OPTIONS = "Options available through |cnGREEN_FONT_COLOR:/sc|r or |cnGREEN_FONT_COLOR:/sippycup|r.";
+L.WELCOMEMSG_VERSION = "Préparé à la saveur |cnGREEN_FONT_COLOR:%s|r!";
+L.WELCOMEMSG_OPTIONS = "Options accessibles via |cnGREEN_FONT_COLOR:/sc|r ou |cnGREEN_FONT_COLOR:/sippycup|r.";
 
 --/ Consumable names /--
 L.ARCHIVISTS_CODEX = "Codex des archivistes";
@@ -36,60 +36,60 @@ L.WINTERFALL_FIREWATER = "Eau-de-feu des Tombe-hiver";
 L.POPUP_ITEM_NAME = "|cnGREEN_FONT_COLOR:%s|r ";
 L.POPUP_ITEM_ICON = "|TInterface\\Icons\\%s:%d|t |cnGREEN_FONT_COLOR:%s|r|n|n";
 
-L.POPUP_LACKING_TEXT = "not found in your inventory.";
-L.POPUP_TEXT = "not at desired stack size!";
-L.POPUP_IGNORE_TT = IGNORE .. "|r |cnWHITE_FONT_COLOR:blocks reminders until next session.|r";
+L.POPUP_LACKING_TEXT = "introuvable dans votre inventaire.";
+L.POPUP_TEXT = "en-dessous du nombre de stacks voulus!";
+L.POPUP_IGNORE_TT = IGNORE .. "|r |cnWHITE_FONT_COLOR:bloque les rappels jusqu'à la prochaine session.|r";
 
 L.POPUP_BUTTON_REFRESH = REFRESH .. " (%dx)";
-L.POPUP_LINK = "|n|nPress |cnGREEN_FONT_COLOR:CTRL-C|r to copy the highlighted, then paste it in your web browser with |cnGREEN_FONT_COLOR:CTRL-V|r.";
-L.COPY_SYSTEM_MESSAGE = "Copied to clipboard.";
+L.POPUP_LINK = "|n|nAppuyez sur |cnGREEN_FONT_COLOR:CTRL-C|r pour copier le texte surligné, puis copiez dans votre navigateur avec |cnGREEN_FONT_COLOR:CTRL-V|r.";
+L.COPY_SYSTEM_MESSAGE = "Copié dans le presse-papiers.";
 
 --/ Options /--
 
 -- General options
-L.OPTIONS_GENERAL_WELCOME_NAME = "Startup message";
-L.OPTIONS_GENERAL_WELCOME_DESC = "Toggles the display of the welcome message.";
-L.OPTIONS_GENERAL_MINIMAPBUTTON_NAME = "Minimap button";
-L.OPTIONS_GENERAL_MINIMAPBUTTON_DESC = "Toggles the display of the minimap button.";
-L.OPTIONS_GENERAL_ADDONCOMPARTMENT_NAME = "Addon compartment";
-L.OPTIONS_GENERAL_ADDONCOMPARTMENT_DESC = "Toggles the display of the addon compartment button.";
+L.OPTIONS_GENERAL_WELCOME_NAME = "Message au démarrage";
+L.OPTIONS_GENERAL_WELCOME_DESC = "Affiche ou cache le message d'accueil.";
+L.OPTIONS_GENERAL_MINIMAPBUTTON_NAME = "Bouton minicarte";
+L.OPTIONS_GENERAL_MINIMAPBUTTON_DESC = "Affiche ou cache le bouton de la minicarte.";
+L.OPTIONS_GENERAL_ADDONCOMPARTMENT_NAME = "Compartiment d'addon";
+L.OPTIONS_GENERAL_ADDONCOMPARTMENT_DESC = "Affiche ou cache le bouton dans le compartiment d'addon.";
 
-L.OPTIONS_GENERAL_POPUPS_HEADER = "Reminder popups";
+L.OPTIONS_GENERAL_POPUPS_HEADER = "Fenêtre de rappel";
 L.OPTIONS_GENERAL_POPUPS_POSITION_NAME = "Position";
-L.OPTIONS_GENERAL_POPUPS_POSITION_DESC = "Select where you want the reminder popups to display on your screen.";
-L.OPTIONS_GENERAL_POPUPS_ICON_ENABLE = "Popup icon";
-L.OPTIONS_GENERAL_POPUPS_ICON_ENABLE_DESC = "Toggles whether the consumable icon is shown in the reminder popup.|n|n|cnWARNING_FONT_COLOR:Keep in mind that enabling this option will make the popup taller.|r";
-L.OPTIONS_GENERAL_POPUPS_IGNORES = "Reset ignored popups";
-L.OPTIONS_GENERAL_POPUPS_IGNORES_TEXT = "Reset all the reminder popups that were ignored in this session so that they are visible again.";
+L.OPTIONS_GENERAL_POPUPS_POSITION_DESC = "Sélectionne où vous souhaitez que les fenêtres de rappel s'affichent sur votre écran.";
+L.OPTIONS_GENERAL_POPUPS_ICON_ENABLE = "Icône";
+L.OPTIONS_GENERAL_POPUPS_ICON_ENABLE_DESC = "Affiche ou cache l'icône du consommable dans la fenêtre de rappel.|n|n|cnWARNING_FONT_COLOR:Gardez en tête que l'activation de cette option augmente la hauteur de la fenêtre.|r";
+L.OPTIONS_GENERAL_POPUPS_IGNORES = "Réinitialiser fenêtres ignorées";
+L.OPTIONS_GENERAL_POPUPS_IGNORES_TEXT = "Réinitialise toutes les fenêtres de rappel ignorées durant cette session afin qu'elles soient à nouveau visibles.";
 L.OPTIONS_GENERAL_POPUPS_ALERT_SOUND = SOUND;
-L.OPTIONS_GENERAL_POPUPS_ALERT_SOUND_DESC = "Choose which sound you want to play when the reminder popup is shown.";
+L.OPTIONS_GENERAL_POPUPS_ALERT_SOUND_DESC = "Choisit quel son est joué lorsque la fenêtre de rappel est affichée.";
 L.OPTIONS_GENERAL_POPUPS_SOUND_ENABLE = BINDING_NAME_TOGGLESOUND;
-L.OPTIONS_GENERAL_POPUPS_SOUND_ENABLE_DESC = "Toggles playing a sound when the reminder popup is shown.";
-L.OPTIONS_GENERAL_POPUPS_FLASHTASKBAR_ENABLE = "Flash Taskbar";
-L.OPTIONS_GENERAL_POPUPS_FLASHTASKBAR_ENABLE_DESC = "Toggles flashing the taskbar when a reminder popup is shown.";
+L.OPTIONS_GENERAL_POPUPS_SOUND_ENABLE_DESC = "Active ou désactive si un son est joué lorsque la fenêtre de rappel est affichée.";
+L.OPTIONS_GENERAL_POPUPS_FLASHTASKBAR_ENABLE = "Flash barre des tâches";
+L.OPTIONS_GENERAL_POPUPS_FLASHTASKBAR_ENABLE_DESC = "Active ou désactive le flash sur la barre des tâches lorsque la fenêtre de rappel est affichée.";
 
 
-L.OPTIONS_GENERAL_ADDONINFO_HEADER = "Addon Info";
-L.OPTIONS_GENERAL_ADDONINFO_VERSION = "|cnNORMAL_FONT_COLOR:Version:|r %s";
-L.OPTIONS_GENERAL_ADDONINFO_AUTHOR = "|cnNORMAL_FONT_COLOR:Author:|r %s";
-L.OPTIONS_GENERAL_ADDONINFO_BUILD = "|cnNORMAL_FONT_COLOR:Build:|r %s";
-L.OPTIONS_GENERAL_ADDONINFO_BUILD_OUTDATED = title .. " is not optimized for this game build.|n|n|cnWARNING_FONT_COLOR:If you notice unexpected behavior, this might be the cause.|r";
-L.OPTIONS_GENERAL_ADDONINFO_BUILD_CURRENT = title .. " is optimized for your current game build.|n|n|cnGREEN_FONT_COLOR:Everything should function as expected.|r";
-L.OPTIONS_GENERAL_BLUESKY_SHILL_DESC = "Follow me on Bluesky!";
+L.OPTIONS_GENERAL_ADDONINFO_HEADER = "Info de l'addon";
+L.OPTIONS_GENERAL_ADDONINFO_VERSION = "|cnNORMAL_FONT_COLOR:Version :|r %s";
+L.OPTIONS_GENERAL_ADDONINFO_AUTHOR = "|cnNORMAL_FONT_COLOR:Auteur :|r %s";
+L.OPTIONS_GENERAL_ADDONINFO_BUILD = "|cnNORMAL_FONT_COLOR:Build :|r %s";
+L.OPTIONS_GENERAL_ADDONINFO_BUILD_OUTDATED = title .. " n'est pas optimisé pour cette version du jeu.|n|n|cnWARNING_FONT_COLOR:Si vous rencontrez un comportement inattendu, ceci peut en être la cause.|r";
+L.OPTIONS_GENERAL_ADDONINFO_BUILD_CURRENT = title .. " est optimisé pour la version du jeu actuelle.|n|n|cnGREEN_FONT_COLOR:Tout devrait fonctionner comme prévu.|r";
+L.OPTIONS_GENERAL_BLUESKY_SHILL_DESC = "Suivez-moi sur Bluesky!";
 
 -- Generic
-L.OPTIONS_ENABLE_TEXT = "Enable consumable reminders for |cnGREEN_FONT_COLOR:%s|r.";
-L.OPTIONS_SLIDER_TEXT = "Set the desired stack count for |cnGREEN_FONT_COLOR:%s|r.|n|nReminders will continue to show up until desired stack count is reached.";
-L.OPTIONS_DESIRED_STACKS = "|cnWHITE_FONT_COLOR:Desired stacks|r";
-L.OPTIONS_TITLE_EXTRA = "|n|nNote: On login, only consumables that have active stacks that are lower than your desired stacks will show a reminder popup.";
+L.OPTIONS_ENABLE_TEXT = "Active les rappels de consommable pour |cnGREEN_FONT_COLOR:%s|r.";
+L.OPTIONS_SLIDER_TEXT = "Définit le nombre de stacks désirés pour |cnGREEN_FONT_COLOR:%s|r.|n|nLes rappels continueront de s'afficher jusqu'à ce que le nombre de stacks désirés soit atteint.";
+L.OPTIONS_DESIRED_STACKS = "|cnWHITE_FONT_COLOR:Stacks désirés|r";
+L.OPTIONS_TITLE_EXTRA = "|n|nNote : Au login, seuls les consommables qui ont des stacks actifs inférieurs au nombre désiré afficheront une fenêtre de rappel.";
 
 -- Effect
-L.OPTIONS_CONSUMABLE_EFFECT_TITLE = "Effect";
-L.OPTIONS_CONSUMABLE_EFFECT_INSTRUCTION = "These options control all reminders for consumables that cast an effect.";
+L.OPTIONS_CONSUMABLE_EFFECT_TITLE = "Effet";
+L.OPTIONS_CONSUMABLE_EFFECT_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables qui ont un effet.";
 
 -- Size
-L.OPTIONS_CONSUMABLE_SIZE_TITLE = "Size";
-L.OPTIONS_CONSUMABLE_SIZE_INSTRUCTION = "These options control all reminders for consumables that change the character's size.";
+L.OPTIONS_CONSUMABLE_SIZE_TITLE = "Taille";
+L.OPTIONS_CONSUMABLE_SIZE_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables qui changent la taille d'un personnage.";
 
 --/ Addon Compartment /--
-L.ADDON_COMPARTMENT_DESC = "|cnGREEN_FONT_COLOR:Left-Click: Open options|nRight-Click: Open profiles|r";
+L.ADDON_COMPARTMENT_DESC = "|cnGREEN_FONT_COLOR:Clic gauche : Ouvrir les options|nClic droit : Ouvrir les profils|r";
