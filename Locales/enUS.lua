@@ -33,14 +33,10 @@ L.TATTERED_ARATHI_PRAYER_SCROLL = "Tattered Arathi Prayer Scroll";
 L.WINTERFALL_FIREWATER = "Winterfall Firewater";
 
 --/ Popup dialog /--
-L.POPUP_ITEM_NAME = "|cnGREEN_FONT_COLOR:%s|r ";
-L.POPUP_ITEM_ICON = "|TInterface\\Icons\\%s:%d|t |cnGREEN_FONT_COLOR:%s|r|n|n";
-
 L.POPUP_LACKING_TEXT = "not found in your inventory.";
 L.POPUP_TEXT = "not at desired stack size!";
 L.POPUP_IGNORE_TT = IGNORE .. "|r |cnWHITE_FONT_COLOR:blocks reminders until next session.|r";
 
-L.POPUP_BUTTON_REFRESH = REFRESH .. " (%dx)";
 L.POPUP_LINK = "|n|nPress |cnGREEN_FONT_COLOR:CTRL-C|r to copy the highlighted, then paste it in your web browser with |cnGREEN_FONT_COLOR:CTRL-V|r.";
 L.COPY_SYSTEM_MESSAGE = "Copied to clipboard.";
 
@@ -61,9 +57,7 @@ L.OPTIONS_GENERAL_POPUPS_ICON_ENABLE = "Popup icon";
 L.OPTIONS_GENERAL_POPUPS_ICON_ENABLE_DESC = "Toggles whether the consumable icon is shown in the reminder popup.|n|n|cnWARNING_FONT_COLOR:Keep in mind that enabling this option will make the popup taller.|r";
 L.OPTIONS_GENERAL_POPUPS_IGNORES = "Reset ignored popups";
 L.OPTIONS_GENERAL_POPUPS_IGNORES_TEXT = "Reset all the reminder popups that were ignored in this session so that they are visible again.";
-L.OPTIONS_GENERAL_POPUPS_ALERT_SOUND = SOUND;
 L.OPTIONS_GENERAL_POPUPS_ALERT_SOUND_DESC = "Choose which sound you want to play when the reminder popup is shown.";
-L.OPTIONS_GENERAL_POPUPS_SOUND_ENABLE = BINDING_NAME_TOGGLESOUND;
 L.OPTIONS_GENERAL_POPUPS_SOUND_ENABLE_DESC = "Toggles playing a sound when the reminder popup is shown.";
 L.OPTIONS_GENERAL_POPUPS_FLASHTASKBAR_ENABLE = "Flash Taskbar";
 L.OPTIONS_GENERAL_POPUPS_FLASHTASKBAR_ENABLE_DESC = "Toggles flashing the taskbar when a reminder popup is shown.";
