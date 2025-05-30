@@ -34,6 +34,7 @@ L.WINTERFALL_FIREWATER = "Winterfall Firewater";
 
 --/ Popup dialog /--
 L.POPUP_LACKING_TEXT = "not found in your inventory.";
+L.POPUP_LACKING_TEXT_AMOUNT = "not enough in your inventory.";
 L.POPUP_TEXT = "not at desired stack size!";
 L.POPUP_IGNORE_TT = IGNORE .. "|r |cnWHITE_FONT_COLOR:blocks reminders until next session.|r";
 

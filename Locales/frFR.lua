@@ -34,6 +34,7 @@ L.WINTERFALL_FIREWATER = "Eau-de-feu des Tombe-hiver";
 
 --/ Popup dialog /--
 L.POPUP_LACKING_TEXT = "introuvable dans votre inventaire.";
+L.POPUP_LACKING_TEXT_AMOUNT = "insuffisant dans votre inventaire.";
 L.POPUP_TEXT = "en-dessous du nombre de stacks voulus!";
 L.POPUP_IGNORE_TT = IGNORE .. "|r |cnWHITE_FONT_COLOR:bloque les rappels jusqu'à la prochaine session.|r";
 
