@@ -17,7 +17,5 @@ SIPPYCUP.AddonMetadata = {
     version = C_AddOns.GetAddOnMetadata("SippyCup", "Version"),
 }
 
-SIPPYCUP.L = LibStub("AceLocale-3.0"):GetLocale("SippyCup", true);
-
 ---@type SIPPYCUP
 _G.SIPPYCUP = SIPPYCUP;
