@@ -14,7 +14,7 @@ SIPPYCUP.AddonMetadata = {
 	iconTexture = C_AddOns.GetAddOnMetadata("SippyCup", "IconTexture"),
 	notes = C_AddOns.GetAddOnMetadata("SippyCup", "Notes"),
 	title = C_AddOns.GetAddOnMetadata("SippyCup", "Title"),
-    version = C_AddOns.GetAddOnMetadata("SippyCup", "Version"),
+	version = C_AddOns.GetAddOnMetadata("SippyCup", "Version"),
 }
 
 --@debug@
