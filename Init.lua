@@ -17,5 +17,15 @@ SIPPYCUP.AddonMetadata = {
     version = C_AddOns.GetAddOnMetadata("SippyCup", "Version"),
 }
 
+--@debug@
+-- Debug mode is enable when the add-on has not been packaged by Curse
+SIPPYCUP.IS_DEV_BUILD = true;
+--@end-debug@
+
+--[===[@non-debug@
+-- Debug mode is disabled when the add-on has been packaged by Curse
+SIPPYCUP.IS_DEV_BUILD = false;
+--@end-non-debug@]===]
+
 ---@type SIPPYCUP
 _G.SIPPYCUP = SIPPYCUP;
