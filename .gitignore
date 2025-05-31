@@ -14,9 +14,11 @@ release/
 dist/
 pkg/
 
-# Common vendor folder (for embedded libs)
-Libs/
-libs/
+# Ignore everything under Libs/
+Libs/**
+
+# But allow only Libs.xml at the top level
+!Libs/Libs.xml
 
 # Mac and Windows junk
 .DS_Store
