@@ -122,11 +122,11 @@ local BaseConsumablePopupTemplate = {
 ---@param template table The base popup template to clone.
 ---@return table copy A new table cloned from the base template.
 local function ClonePopupTemplate(template)
-	local copy = {}
+	local copy = {};
 	for k, v in pairs(template) do
-		copy[k] = v
+		copy[k] = v;
 	end
-	return copy
+	return copy;
 end
 
 ---CreateConsumablePopup creates a consumable popup with dynamic button behavior and customized output.
