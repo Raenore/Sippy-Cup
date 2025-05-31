@@ -27,12 +27,12 @@ Due to WoW's limit of four simultaneous pop-ups, the oldest reminder will be dis
   </tr>
 </table>
 
-If an item cannot be refreshed due to its absence from your inventory, a notification message will appear.
+If an item cannot be refreshed because it's either absent from your inventory or you don't have enough units/stacks to reach your desired amount, the refresh button will display a warning-colored tooltip.
 
 <table>
   <tr>
-    <td><img src="https://i.imgur.com/Ap9v2hW.png" alt="Missing Item Example"></td>
-    <td><img src="https://i.imgur.com/9eS0w7x.png" alt="Missing Item Icon"></td>
+    <td><img src="https://i.imgur.com/OGa57N7.png" alt="Missing Item Example"></td>
+    <td><img src="https://i.imgur.com/dn1xWvA.png" alt="Low Amount Icon"></td>
   </tr>
 </table>
 
