@@ -15,20 +15,20 @@ function SIPPYCUP_Addon:ExecuteCommand(msg)
 	msg = (msg:match("^%s*(.-)%s*$") or ""):lower();
 
 	if msg == "auras" and SIPPYCUP.IS_DEV_BUILD then
-        SIPPYCUP.Auras.DebugEnabledAuras();
-    else
+		SIPPYCUP.Auras.DebugEnabledAuras();
+	else
 		if InterfaceOptionsFrame_OpenToCategory then
 			InterfaceOptionsFrame_OpenToCategory(SIPPYCUP.AddonMetadata.title);
 		else
 			Settings.OpenToCategory(SIPPYCUP.AddonMetadata.title);
 		end
-    end
+	end
 end
 
 function SIPPYCUP_Addon:OnEnable()
 	self:RegisterEvent("UNIT_AURA");
 	self:RegisterEvent("PLAYER_REGEN_DISABLED");
-    self:RegisterEvent("PLAYER_REGEN_ENABLED");
+	self:RegisterEvent("PLAYER_REGEN_ENABLED");
 	self:RegisterEvent("PLAYER_FLAGS_CHANGED");
 
 	SIPPYCUP.Minimap:SetupMinimapButtons();
@@ -58,17 +58,17 @@ function SIPPYCUP_Addon:StartAuraCheck()
 		return;
 	end
 
-    if not self.timer then
-        -- schedule and keep the handle so we can cancel it later
-        self.timer = self:ScheduleRepeatingTimer(SIPPYCUP.Auras.CheckStackMismatchInDB, AURA_CHECK_INTERVAL);
-    end
+	if not self.timer then
+		-- schedule and keep the handle so we can cancel it later
+		self.timer = self:ScheduleRepeatingTimer(SIPPYCUP.Auras.CheckStackMismatchInDB, AURA_CHECK_INTERVAL);
+	end
 end
 
 function SIPPYCUP_Addon:StopAuraCheck()
-    if self.timer then
-        self:CancelTimer(self.timer, true);  -- silent = true
-        self.timer = nil;
-    end
+	if self.timer then
+		self:CancelTimer(self.timer, true);  -- silent = true
+		self.timer = nil;
+	end
 end
 
 function SIPPYCUP_Addon:PLAYER_REGEN_DISABLED()
