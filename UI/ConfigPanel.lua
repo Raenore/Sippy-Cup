@@ -13,20 +13,20 @@ local QUARTER_WIDTH = 0.625; --luacheck: no unused
 local ICON_SIZE = 22; --luacheck: no unused
 
 local defaultSounds = {
-    { key = "aggro_enter_warning_state", fid = 567401 },
-    { key = "belltollhorde", fid = 565853 },
-    { key = "belltolltribal", fid = 566027 },
-    { key = "belltollnightelf", fid = 566558 },
-    { key = "belltollalliance", fid = 566564 },
+	{ key = "aggro_enter_warning_state", fid = 567401 },
+	{ key = "belltollhorde", fid = 565853 },
+	{ key = "belltolltribal", fid = 566027 },
+	{ key = "belltollnightelf", fid = 566558 },
+	{ key = "belltollalliance", fid = 566564 },
 	{ key = "fx_darkmoonfaire_bell", fid = 1100031 },
 	{ key = "fx_ship_bell_chime_01", fid = 1129273 },
 	{ key = "fx_ship_bell_chime_02", fid = 1129274 },
 	{ key = "fx_ship_bell_chime_03", fid = 1129275 },
-    { key = "raidwarning", fid = 567397 },
+	{ key = "raidwarning", fid = 567397 },
 }
 
 for _, sound in ipairs(defaultSounds) do
-    SharedMedia:Register("sound", sound.key, sound.fid);
+	SharedMedia:Register("sound", sound.key, sound.fid);
 end
 
 local soundList = {};
@@ -40,9 +40,9 @@ local optionOrder = 1;
 ---@param amount number The amount to increment the option order by (optional, default is 1).
 ---@return number The current option order value before it is incremented.
 local function autoOrder(amount)
-    local current = optionOrder;
-    optionOrder = optionOrder + (amount or 1);
-    return current;
+	local current = optionOrder;
+	optionOrder = optionOrder + (amount or 1);
+	return current;
 end
 
 ---CreateGeneralOptions creates and returns the options table for the general configuration of the addon.
@@ -303,7 +303,7 @@ end
 ---@param order number The current order value.
 ---@return number order The incremented order value.
 local function IncrementOrder(order)
-    return order + 1;
+	return order + 1;
 end
 
 ---GenerateCategory generates options for a specific consumable category.
