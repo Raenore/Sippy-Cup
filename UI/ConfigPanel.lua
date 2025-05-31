@@ -143,7 +143,7 @@ function SIPPYCUP_CONFIG.GenerateGeneral()
 				  "center",
 				},
 				get = function()
-				  return SIPPYCUP.db.global.PopupPosition;
+					return SIPPYCUP.db.global.PopupPosition;
 				end,
 				set = function(_, value)
 					SIPPYCUP.db.global.PopupPosition = value;
@@ -205,7 +205,7 @@ function SIPPYCUP_CONFIG.GenerateGeneral()
 					return not SIPPYCUP.db.global.AlertSound;
 				end,
 				get = function()
-				  return SIPPYCUP.db.global.AlertSoundID;
+					return SIPPYCUP.db.global.AlertSoundID;
 				end,
 				set = function(_, value)
 					local soundPath = SharedMedia:Fetch("sound", value);
@@ -288,7 +288,7 @@ function SIPPYCUP_CONFIG.GenerateGeneral()
 				desc = L.OPTIONS_GENERAL_BLUESKY_SHILL_DESC,
 				func = function()
 					SIPPYCUP.LinkDialog.CreateExternalLinkDialog("https://bsky.app/profile/dawnsong.me");
-				 end,
+				end,
 				width = THIRD_WIDTH,
 				order = autoOrder(),
 			},
