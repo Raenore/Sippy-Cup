@@ -1,0 +1,111 @@
+-- Copyright The Sippy Cup Authors
+-- SPDX-License-Identifier: Apache-2.0
+
+local L = SIPPYCUP.L;
+
+function SIPPYCUP_Addon:OnInitialize()
+	SIPPYCUP.Database.Setup();
+
+	SIPPYCUP_Addon:RegisterChatCommand("sippycup", "ExecuteCommand");
+	SIPPYCUP_Addon:RegisterChatCommand("sc", "ExecuteCommand");
+end
+
+function SIPPYCUP_Addon:ExecuteCommand(msg)
+	-- Trim leading and trailing whitespaces if msg exists, otherwise empty msg.
+	msg = (msg:match("^%s*(.-)%s*$") or ""):lower();
+
+	if msg == "auras" and SIPPYCUP.IS_DEV_BUILD then
+		SIPPYCUP.Auras.DebugEnabledAuras();
+	else
+		if InterfaceOptionsFrame_OpenToCategory then
+			InterfaceOptionsFrame_OpenToCategory(SIPPYCUP.AddonMetadata.title);
+		else
+			Settings.OpenToCategory(SIPPYCUP.AddonMetadata.title);
+		end
+	end
+end
+
+function SIPPYCUP_Addon:OnEnable()
+	self:RegisterEvent("UNIT_AURA");
+	self:RegisterEvent("PLAYER_REGEN_DISABLED");
+	self:RegisterEvent("PLAYER_REGEN_ENABLED");
+	self:RegisterEvent("PLAYER_FLAGS_CHANGED");
+
+	SIPPYCUP.Minimap:SetupMinimapButtons();
+
+	self:StartAuraCheck();
+	-- Check if any enabled consumables are active, run the required popup logic.
+	SIPPYCUP.Auras.CheckedEnabledAurasForConsumables();
+
+	if SIPPYCUP.db.global.WelcomeMessage then
+		SIPPYCUP_OUTPUT.Write(L.WELCOMEMSG_VERSION:format(SIPPYCUP.AddonMetadata.version));
+		SIPPYCUP_OUTPUT.Write(L.WELCOMEMSG_OPTIONS);
+	end
+end
+
+function SIPPYCUP_Addon:UNIT_AURA(_, unitTarget, updateInfo)
+	if unitTarget ~= "player" then
+		return;
+	end
+
+	SIPPYCUP.Auras.Convert(1, updateInfo);
+end
+
+local AURA_CHECK_INTERVAL = 5.0;
+function SIPPYCUP_Addon:StartAuraCheck()
+	-- Should never happen, but just in case.
+	if InCombatLockdown() then
+		return;
+	end
+
+	if not self.timer then
+		-- schedule and keep the handle so we can cancel it later
+		self.timer = self:ScheduleRepeatingTimer(SIPPYCUP.Auras.CheckStackMismatchInDB, AURA_CHECK_INTERVAL);
+	end
+end
+
+function SIPPYCUP_Addon:StopAuraCheck()
+	if self.timer then
+		self:CancelTimer(self.timer, true);  -- silent = true
+		self.timer = nil;
+	end
+end
+
+function SIPPYCUP_Addon:PLAYER_REGEN_DISABLED()
+	-- Combat is entered when regen is disabled.
+	self:StopAuraCheck();
+end
+
+function SIPPYCUP_Addon:PLAYER_REGEN_ENABLED()
+	-- Combat is left when regen is enabled.
+	self:StartAuraCheck();
+end
+
+local hiddenAFKPopups = {};
+
+function SIPPYCUP_Addon:PLAYER_FLAGS_CHANGED(_, unitTarget)
+	-- ElvUI has the chance to cause errors when AFK Mode is enabled.
+	if unitTarget ~= "player" or not C_AddOns.IsAddOnLoaded("ElvUI") then
+		return;
+	end
+
+	local isAFK = UnitIsAFK("player");
+
+	if isAFK then
+		-- On AFK, we save the poupups that were visible and then kill them.
+		wipe(hiddenAFKPopups);
+		for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
+			local popupKey = "SIPPYCUP_REFRESH_" .. consumable.loc;
+			if StaticPopup_Visible(popupKey) then
+				hiddenAFKPopups[#hiddenAFKPopups + 1] = consumable.name;
+				StaticPopup_Hide(popupKey);
+			end
+		end
+	else
+		-- On returning from AFK, we re-spawn the killed popups if any have to be.
+		for _, popupName in ipairs(hiddenAFKPopups) do
+			SIPPYCUP.Popups.Toggle(popupName, true);
+		end
+		wipe(hiddenAFKPopups);
+	end
+end

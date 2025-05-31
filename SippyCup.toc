@@ -1,0 +1,31 @@
+## Interface: 110105
+## Title: |cnCONTEXT_FEEDBACK_COLOR:Sippy Cup|r
+## Author: Raenore (Argent Dawn EU)
+## Version: @project-version@
+## Notes: Sippy Cup tracks and reminds you of your roleplay consumables, helping keep you focused on what matters most: Roleplay.
+## IconTexture: 4621578
+
+## Notes-deDE: Sippy Cup hilft euch, eure Rollenspiel-Verbrauchsgüter im Blick zu behalten und erinnert euch daran, damit ihr euch aufs Wesentliche konzentrieren könnt: Rollenspiel.
+## Notes-frFR: Sippy Cup garde un oeil sur vos consommables pour le jeu de rôle et vous les rappelle quand nécessaire, vous permettant de vous concentrer sur ce qui compte le plus: le jeu de rôle.
+## Category-enUS: Roleplay
+## Category-deDE: Rollenspiel
+## Category-esES: Juego de rol
+## Category-esMX: Juego de rol
+## Category-frFR: Jeu de rôle
+## Category-itIT: Gioco di Ruolo
+## Category-koKR: 롤플레잉
+## Category-ptBR: Interpretação de Papel
+## Category-ruRU: Ролевая игра
+## Category-zhCN: 角色扮演
+## Category-zhTW: 角色扮演
+
+## OptionalDeps: Ace3, ElvUI
+## SavedVariables: SippyCupDB
+
+## X-Build: 110105
+## X-Category: Roleplay
+## X-Curse-Project-ID: 1245290
+
+Libs\Libs.xml
+
+SippyCup.xml

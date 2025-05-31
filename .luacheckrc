@@ -22,6 +22,7 @@ globals = {
 
 read_globals = {
 	-- Libraries/AddOns
+	"ElvUI",
 	"LibStub",
 
 	-- Common protocol globals
@@ -549,6 +550,7 @@ stds.wow = {
 		"ShowUIPanel",
 		"StaticPopup_Show",
 		"StaticPopup_Hide",
+		"StaticPopup_Visible",
 		"StopMusic",
 		"StopSound",
 		"strcmputf8i",
