@@ -41,6 +41,18 @@ function SIPPYCUP_Addon:OnEnable()
 		SIPPYCUP_OUTPUT.Write(L.WELCOMEMSG_VERSION:format(SIPPYCUP.AddonMetadata.version));
 		SIPPYCUP_OUTPUT.Write(L.WELCOMEMSG_OPTIONS);
 	end
+
+	GameMenuFrame:HookScript("OnShow", function()
+		if not SIPPYCUP.Popups.SuppressGameMenuCallback then
+			SIPPYCUP.Popups.SaveOpenedPopups(true);
+		end
+	end);
+
+	GameMenuFrame:HookScript("OnHide", function()
+		if not SIPPYCUP.Popups.SuppressGameMenuCallback then
+			SIPPYCUP.Popups.LoadOpenedPopups(true);
+		end
+	end);
 end
 
 function SIPPYCUP_Addon:UNIT_AURA(_, unitTarget, updateInfo)
@@ -81,8 +93,6 @@ function SIPPYCUP_Addon:PLAYER_REGEN_ENABLED()
 	self:StartAuraCheck();
 end
 
-local hiddenAFKPopups = {};
-
 function SIPPYCUP_Addon:PLAYER_FLAGS_CHANGED(_, unitTarget)
 	-- ElvUI has the chance to cause errors when AFK Mode is enabled.
 	if unitTarget ~= "player" or not C_AddOns.IsAddOnLoaded("ElvUI") then
@@ -93,19 +103,9 @@ function SIPPYCUP_Addon:PLAYER_FLAGS_CHANGED(_, unitTarget)
 
 	if isAFK then
 		-- On AFK, we save the poupups that were visible and then kill them.
-		wipe(hiddenAFKPopups);
-		for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
-			local popupKey = "SIPPYCUP_REFRESH_" .. consumable.loc;
-			if StaticPopup_Visible(popupKey) then
-				hiddenAFKPopups[#hiddenAFKPopups + 1] = consumable.name;
-				StaticPopup_Hide(popupKey);
-			end
-		end
+		SIPPYCUP.Popups.SaveOpenedPopups();
 	else
 		-- On returning from AFK, we re-spawn the killed popups if any have to be.
-		for _, popupName in ipairs(hiddenAFKPopups) do
-			SIPPYCUP.Popups.Toggle(popupName, true);
-		end
-		wipe(hiddenAFKPopups);
+		SIPPYCUP.Popups.LoadOpenedPopups();
 	end
 end
