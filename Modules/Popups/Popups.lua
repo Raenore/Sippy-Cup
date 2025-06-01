@@ -135,13 +135,7 @@ function SIPPYCUP.Popups.LoadOpenedPopups(mainMenu)
 
 	for _, popupName in ipairs(hiddenAFKPopups) do
 		-- On MainMenu, we spawn the popups a second after to allow the logout popup to still show.
-		if mainMenu then
-			C_Timer.After(1, function()
-				SIPPYCUP.Popups.Toggle(popupName, true, mainMenu);
-			end);
-		else
-			SIPPYCUP.Popups.Toggle(popupName, true);
-		end
+		SIPPYCUP.Popups.Toggle(popupName, true, mainMenu);
 	end
 	wipe(hiddenAFKPopups);
 end
@@ -171,14 +165,10 @@ local BaseConsumablePopupTemplate = {
 	end,
 
 	OnHide = function(popup)
-		if popup.popupButton then
+		if popup and popup.popupButton then
 			popup.popupButton:Hide();
 			popup.popupButton:SetParent(nil);
 			popup.popupButton = nil;
-		end
-
-		if popup.popupKey and StaticPopupDialogs[popup.popupKey] then
-			StaticPopupDialogs[popup.popupKey] = nil;
 		end
 	end,
 }
