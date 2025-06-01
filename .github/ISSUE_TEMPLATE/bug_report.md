@@ -28,7 +28,7 @@ Give us a list of steps to reproduce the issue with.
 4. See error
 
 ## Additional files
-Please attach any additional applicable files such as screenshots, [error logs], or [profile data files]. Files can be dragged and dropped into this report to attach them for upload.
+Please attach any additional applicable files such as screenshots, [error logs]. Files can be dragged and dropped into this report to attach them for upload.
 
 ---
 
