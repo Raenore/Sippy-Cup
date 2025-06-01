@@ -159,11 +159,15 @@ local BaseConsumablePopupTemplate = {
 	showAlert = true,
 
 	OnCancel = function(self, data)
-		HandleAlerts(data.loc, true);
+		if data then
+			HandleAlerts(data.loc, true);
+		end
 	end,
 
 	OnAlt = function(self, data)
-		sessionData[data.profile] = true;
+		if data then
+			sessionData[data.profile] = true;
+		end
 	end,
 
 	OnHide = function(popup)
