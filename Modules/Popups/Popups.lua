@@ -134,7 +134,14 @@ function SIPPYCUP.Popups.LoadOpenedPopups(mainMenu)
 	end
 
 	for _, popupName in ipairs(hiddenAFKPopups) do
-		SIPPYCUP.Popups.Toggle(popupName, true, mainMenu);
+		-- On MainMenu, we spawn the popups a second after to allow the logout popup to still show.
+		if mainMenu then
+			C_Timer.After(1, function()
+				SIPPYCUP.Popups.Toggle(popupName, true, mainMenu);
+			end);
+		else
+			SIPPYCUP.Popups.Toggle(popupName, true);
+		end
 	end
 	wipe(hiddenAFKPopups);
 end
