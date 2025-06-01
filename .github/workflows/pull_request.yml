@@ -24,3 +24,14 @@ jobs:
         with:
           args: -no-color
           files: $(git ls-files '*.lua' '*.sh' '*.xml' ':!:Locales/*.lua')
+
+      - name: Create Package
+        uses: BigWigsMods/packager@v2
+        with:
+          args: -dz
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SippyCup-PR-${{ github.event.number }}
+          path: .release/
+          include-hidden-files: true
