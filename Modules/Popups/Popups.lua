@@ -84,6 +84,62 @@ function SIPPYCUP.Popups.IsIgnored(profile)
 	return sessionData[profile] == true;
 end
 
+local hiddenAFKPopups = {};
+SIPPYCUP.Popups.SuppressGameMenuCallback = false;
+
+---SaveOpenedPopups Handles saving all opened popups before hiding them.
+---@param mainMenu boolean? If true, triggered by the Main Menu.
+---@return nil
+function SIPPYCUP.Popups.SaveOpenedPopups(mainMenu)
+	if mainMenu and SIPPYCUP.Popups.SuppressGameMenuCallback then
+		return;
+	end
+	if mainMenu then
+		SIPPYCUP.Popups.SuppressGameMenuCallback = true;
+	end
+
+	wipe(hiddenAFKPopups);
+
+	for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
+		local popupKey = "SIPPYCUP_REFRESH_" .. consumable.loc;
+		if StaticPopup_Visible(popupKey) then
+			-- Game Main Menu needs to be hidden if our popups are visible.
+			if mainMenu and GameMenuFrame:IsShown() then
+				GameMenuFrame:Hide();
+			end
+
+			hiddenAFKPopups[#hiddenAFKPopups + 1] = consumable.name;
+			StaticPopup_Hide(popupKey);
+		end
+	end
+
+	-- After we've cleaned our popups, we re-show the game's Main Menu.
+	if mainMenu and not GameMenuFrame:IsShown() then
+		GameMenuFrame:Show();
+		RunNextFrame(function()
+			SIPPYCUP.Popups.SuppressGameMenuCallback = false;
+		end);
+	elseif mainMenu then
+		-- Edge case: no need to call :Show(), but still reset the flag
+		SIPPYCUP.Popups.SuppressGameMenuCallback = false;
+	end
+end
+
+---LoadOpenedPopups Handles reopening all the prior saved and hidden popups.
+---@param mainMenu boolean? If true, triggered by the Main Menu.
+---@return nil
+function SIPPYCUP.Popups.LoadOpenedPopups(mainMenu)
+	if mainMenu and SIPPYCUP.Popups.SuppressGameMenuCallback then
+		return;
+	end
+
+	for _, popupName in ipairs(hiddenAFKPopups) do
+		-- On MainMenu, we spawn the popups a second after to allow the logout popup to still show.
+		SIPPYCUP.Popups.Toggle(popupName, true, mainMenu);
+	end
+	wipe(hiddenAFKPopups);
+end
+
 ---BaseConsumablePopupTemplate defines the default behavior and appearance of the consumable popup.
 ---@type table<string, any>
 local BaseConsumablePopupTemplate = {
@@ -97,22 +153,22 @@ local BaseConsumablePopupTemplate = {
 	showAlert = true,
 
 	OnCancel = function(self, data)
-		HandleAlerts(data.loc, true);
+		if data then
+			HandleAlerts(data.loc, true);
+		end
 	end,
 
 	OnAlt = function(self, data)
-		sessionData[data.profile] = true;
+		if data then
+			sessionData[data.profile] = true;
+		end
 	end,
 
 	OnHide = function(popup)
-		if popup.popupButton then
+		if popup and popup.popupButton then
 			popup.popupButton:Hide();
 			popup.popupButton:SetParent(nil);
 			popup.popupButton = nil;
-		end
-
-		if popup.popupKey and StaticPopupDialogs[popup.popupKey] then
-			StaticPopupDialogs[popup.popupKey] = nil;
 		end
 	end,
 }
@@ -223,8 +279,9 @@ end
 ---Toggle handles what should happen after a consumable is enabled or disabled in regards to popup logic.
 ---@param itemName string The toggled consumable's name.
 ---@param enabled boolean Whether the consumable tracking is enabled or disabled.
+---@param mainMenu boolean? Whether this was triggered from the Main Menu hide or not.
 ---@return nil
-function SIPPYCUP.Popups.Toggle(itemName, enabled)
+function SIPPYCUP.Popups.Toggle(itemName, enabled, mainMenu)
 	-- Grab the right consumable by name, and check if aura exists.
 	local consumable = SIPPYCUP.Consumables.ByName[itemName];
 	if not consumable then
@@ -245,7 +302,7 @@ function SIPPYCUP.Popups.Toggle(itemName, enabled)
 	-- Check if the aura is active, and use that further information later.
 	local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(consumable.auraID);
 
-	SIPPYCUP.Popups.QueuePopupAction(not auraInfo, consumable.auraID, auraInfo, auraInfo and auraInfo.auraInstanceID);
+	SIPPYCUP.Popups.QueuePopupAction(not auraInfo, consumable.auraID, auraInfo, auraInfo and auraInfo.auraInstanceID, mainMenu);
 end
 
 local DEBOUNCE_DELAY = 0.05;
@@ -256,11 +313,12 @@ local pendingCalls = {};
 ---@param auraID number The aura ID.
 ---@param auraInfo table|nil Information about the aura, or nil if not present.
 ---@param auraInstanceID number|nil The instance ID of the aura, or nil if not applicable.
+---@param mainMenu boolean? Whether this was triggered from the Main Menu hide or not.
 ---@return nil
-function SIPPYCUP.Popups.QueuePopupAction(removal, auraID, auraInfo, auraInstanceID)
+function SIPPYCUP.Popups.QueuePopupAction(removal, auraID, auraInfo, auraInstanceID, mainMenu)
 	if InCombatLockdown() then return; end
 
-	local args = { removal, auraID, auraInfo, auraInstanceID };
+	local args = { removal, auraID, auraInfo, auraInstanceID, mainMenu };
 
 	if pendingCalls[auraID] then
 		-- Update the existing entry with the latest arguments
@@ -278,8 +336,8 @@ function SIPPYCUP.Popups.QueuePopupAction(removal, auraID, auraInfo, auraInstanc
 			return;
 		end
 
-		local rem, aID, aI, aIID = unpack(entry.args)
-		SIPPYCUP.Popups.HandlePopupAction(rem, aID, aI, aIID);
+		local rem, aID, aI, aIID, mM = unpack(entry.args)
+		SIPPYCUP.Popups.HandlePopupAction(rem, aID, aI, aIID, mM);
 	end)
 end
 
@@ -288,8 +346,9 @@ end
 ---@param auraID number The aura ID.
 ---@param auraInfo table|nil Information about the aura, or nil if not present.
 ---@param auraInstanceID number|nil The instance ID of the aura, or nil if not applicable.
+---@param mainMenu boolean? Whether this was triggered from the Main Menu hide or not.
 ---@return nil
-function SIPPYCUP.Popups.HandlePopupAction(removal, auraID, auraInfo, auraInstanceID)
+function SIPPYCUP.Popups.HandlePopupAction(removal, auraID, auraInfo, auraInstanceID, mainMenu)
 	if InCombatLockdown() then return end
 
 	local consumableData = SIPPYCUP.Consumables.ByAuraID[auraID];
@@ -318,7 +377,7 @@ function SIPPYCUP.Popups.HandlePopupAction(removal, auraID, auraInfo, auraInstan
 		StaticPopup_Hide(popupKey);
 	end
 
-	if removal and not isShown then
+	if removal and not isShown and mainMenu ~= true then
 		HandleAlerts(consumableData.loc, true);
 	end
 

@@ -645,6 +645,7 @@ stds.wow = {
 		"GameFontNormalHuge",
 		"GameFontNormalHuge3",
 		"GameFontNormalLarge",
+		"GameMenuFrame",
 		"GameTooltip",
 		"GameTooltipHeaderText",
 		"GameTooltipText",
