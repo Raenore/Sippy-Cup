@@ -1,6 +1,7 @@
 # Sippy Cup 🥤
 
-**Sippy Cup** tracks and reminds you of your roleplay consumables, helping keep you focused on what matters most: *Roleplay*.
+**Sippy Cup** tracks and reminds you of your roleplay consumables, helping keep you focused on what matters most: *Roleplay*.  
+Available on [CurseForge](https://www.curseforge.com/wow/addons/sippy-cup), [Wago.io](https://addons.wago.io/addons/sippy-cup)!  
 
 ## 🛠️ How It Works
 
