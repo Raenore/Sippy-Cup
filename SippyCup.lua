@@ -30,6 +30,9 @@ function SIPPYCUP_Addon:OnEnable()
 	self:RegisterEvent("PLAYER_REGEN_DISABLED");
 	self:RegisterEvent("PLAYER_REGEN_ENABLED");
 	self:RegisterEvent("PLAYER_FLAGS_CHANGED");
+	self:RegisterEvent("PLAYER_ENTERING_WORLD");
+	self:RegisterEvent("PLAYER_LEAVING_WORLD");
+	self:RegisterEvent("ZONE_CHANGED_NEW_AREA");
 
 	SIPPYCUP.Minimap:SetupMinimapButtons();
 
@@ -72,12 +75,14 @@ function SIPPYCUP_Addon:StartAuraCheck()
 
 	if not self.timer then
 		-- schedule and keep the handle so we can cancel it later
+		SIPPYCUP_OUTPUT.Debug("Starting aura check timer.");
 		self.timer = self:ScheduleRepeatingTimer(SIPPYCUP.Auras.CheckStackMismatchInDB, AURA_CHECK_INTERVAL);
 	end
 end
 
 function SIPPYCUP_Addon:StopAuraCheck()
 	if self.timer then
+		SIPPYCUP_OUTPUT.Debug("Stopping aura check timer.");
 		self:CancelTimer(self.timer, true);  -- silent = true
 		self.timer = nil;
 	end
@@ -108,4 +113,21 @@ function SIPPYCUP_Addon:PLAYER_FLAGS_CHANGED(_, unitTarget)
 		-- On returning from AFK, we re-spawn the killed popups if any have to be.
 		SIPPYCUP.Popups.LoadOpenedPopups();
 	end
+end
+
+function SIPPYCUP_Addon:PLAYER_ENTERING_WORLD(_, isInitialLogin, isReloadingUi)
+	if not isInitialLogin and not isReloadingUi then
+		SIPPYCUP.Auras.InLoadingScreen = true;
+		self:StopAuraCheck();
+	end
+end
+
+function SIPPYCUP_Addon:PLAYER_LEAVING_WORLD()
+    SIPPYCUP.Auras.InLoadingScreen = true;
+    self:StopAuraCheck();
+end
+
+function SIPPYCUP_Addon:ZONE_CHANGED_NEW_AREA()
+	SIPPYCUP.Auras.InLoadingScreen = false;
+	self:StartAuraCheck();
 end

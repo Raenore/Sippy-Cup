@@ -2,6 +2,7 @@
 -- SPDX-License-Identifier: Apache-2.0
 
 SIPPYCUP.Auras = {};
+SIPPYCUP.Auras.InLoadingScreen = false;
 
 ---CheckedEnabledAurasForConsumables iterates over all the enabled Sippy Cup consumables to see if they are active and passes that to Popup handling.
 ---@return nil
@@ -69,7 +70,6 @@ end
 ---@return nil
 local function ParseAura(updateInfo)
 	local GetAuraDataByAuraInstanceID = C_UnitAuras.GetAuraDataByAuraInstanceID;
-	local GetPlayerAuraBySpellID = C_UnitAuras.GetPlayerAuraBySpellID;
 
 	-- On aura application.
 	if updateInfo.addedAuras then
@@ -99,56 +99,7 @@ local function ParseAura(updateInfo)
 		for _, auraInstanceID in ipairs(updateInfo.removedAuraInstanceIDs) do
 			local match = FindMatchingConsumable(nil, auraInstanceID);
 			if match then
-				-- Unfortunately there are situations where if a user teleports, the client will send a removedAuraInstanceIDs.
-				-- This will contain an aura that is not actually removed, but it seems to happen when PLAYER_ENTERING_WORLD is triggered.
-				-- Below we try three times to see if we can find the associated aura in case it's a missfire, before we assume it's gone.
-
-				-- First, immediate check:
-				local auraInfoNow = GetPlayerAuraBySpellID(match.aura);
-				SIPPYCUP_OUTPUT.Debug("First attempt at missfire check on auraInfo.");
-				if auraInfoNow then
-					-- Found immediately: treat as update, no removal.
-					SIPPYCUP_OUTPUT.Debug("AuraInfo received in first attempt.");
-					SIPPYCUP.Popups.QueuePopupAction(false,
-						auraInfoNow.spellId,
-						auraInfoNow,
-						auraInfoNow.auraInstanceID
-					);
-				else
-					-- Second check after 0.30s:
-					C_Timer.After(0.30, function()
-						local auraInfoLater = GetPlayerAuraBySpellID(match.aura);
-						SIPPYCUP_OUTPUT.Debug("Second attempt at missfire check on auraInfo.");
-						if auraInfoLater then
-							-- It re-appeared (zoning delay). Queue as an update:
-							SIPPYCUP_OUTPUT.Debug("AuraInfo received in second attempt.");
-							SIPPYCUP.Popups.QueuePopupAction(false,
-								auraInfoLater.spellId,
-								auraInfoLater,
-								auraInfoLater.auraInstanceID
-							);
-						else
-							-- Third (final) check after 0.60s more:
-							C_Timer.After(0.60, function()
-								local auraInfoLast = GetPlayerAuraBySpellID(match.aura);
-								SIPPYCUP_OUTPUT.Debug("Third (and final) attempt at missfire check on auraInfo.");
-								if auraInfoLast then
-									-- Found on third pass: treat as update.
-									SIPPYCUP_OUTPUT.Debug("AuraInfo received in third attempt.");
-									SIPPYCUP.Popups.QueuePopupAction(false,
-										auraInfoLast.spellId,
-										auraInfoLast,
-										auraInfoLast.auraInstanceID
-									);
-								else
-									-- Still not found: queue the removal popup.
-									SIPPYCUP_OUTPUT.Debug("AuraInfo was not found, aura expired for real.");
-									SIPPYCUP.Popups.QueuePopupAction(true, match.aura, nil, auraInstanceID);
-								end
-							end);
-						end
-					end);
-				end
+				SIPPYCUP.Popups.QueuePopupAction(true, match.aura, nil, auraInstanceID);
 			end
 		end
 	end
@@ -176,8 +127,9 @@ function SIPPYCUP.Auras.Convert(source, data)
 		elseif data[1] == "SPELL_AURA_REMOVED" and auraInfo then
 			updateInfo.removedAuraInstanceIDs = { auraInfo.auraInstanceID };
 		end
-	elseif source == 3 then
+	elseif source == 3 and not SIPPYCUP.Auras.InLoadingScreen then
 		-- Source 3: DB mismatch — simulate expired aura using its last known instance ID.
+		-- Data sent through/around loading screens will not be reliable, so skip that.
 		updateInfo.removedAuraInstanceIDs = { data[1] };
 	else
 		-- Unknown source passed in — log to user so they can let us know.
@@ -195,6 +147,11 @@ end
 ---This can happen in the rare (but possible) case where UNIT_AURA did not catch a consumable expiration.
 ---@return nil
 function SIPPYCUP.Auras.CheckStackMismatchInDB()
+	-- Data sent through/around loading screens will not be reliable, so skip that.
+	if SIPPYCUP.Auras.InLoadingScreen then
+		return;
+	end
+
 	local GetPlayerAuraBySpellID = C_UnitAuras.GetPlayerAuraBySpellID;
 
 	for _, profileConsumableData in pairs(SIPPYCUP.db.profile) do
