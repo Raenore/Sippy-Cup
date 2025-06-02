@@ -123,8 +123,8 @@ function SIPPYCUP_Addon:PLAYER_ENTERING_WORLD(_, isInitialLogin, isReloadingUi)
 end
 
 function SIPPYCUP_Addon:PLAYER_LEAVING_WORLD()
-    SIPPYCUP.Auras.InLoadingScreen = true;
-    self:StopAuraCheck();
+	SIPPYCUP.Auras.InLoadingScreen = true;
+	self:StopAuraCheck();
 end
 
 function SIPPYCUP_Addon:ZONE_CHANGED_NEW_AREA()
