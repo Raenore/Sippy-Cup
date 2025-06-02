@@ -75,3 +75,20 @@ function SIPPYCUP_OUTPUT.Write(output, command)
 
 	SIPPYCUP_Addon:Print(formattedOutput);
 end
+
+---Write prints formatted output with an optional command prefix, only works when IS_DEV_BUILD is true.
+---@param output string|table The output to be printed, either a string or a table.
+---@param command? string The optional command prefix to display before the output.
+function SIPPYCUP_OUTPUT.Debug(output, command)
+	if not SIPPYCUP.IS_DEV_BUILD then
+		return;
+	end
+
+	if type(output) == "table" then
+		output = table.concat(output, "|n");
+	end
+
+	local formattedOutput = ("|cnGREEN_FONT_COLOR:%s|r|cnTRANSMOGRIFY_FONT_COLOR:%s|r"):format(command and (command .. " ") or "", output);
+
+	SIPPYCUP_Addon:Print(formattedOutput);
+end
