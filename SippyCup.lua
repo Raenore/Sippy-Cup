@@ -75,14 +75,12 @@ function SIPPYCUP_Addon:StartAuraCheck()
 
 	if not self.timer then
 		-- schedule and keep the handle so we can cancel it later
-		SIPPYCUP_OUTPUT.Debug("Starting aura check timer.");
 		self.timer = self:ScheduleRepeatingTimer(SIPPYCUP.Auras.CheckStackMismatchInDB, AURA_CHECK_INTERVAL);
 	end
 end
 
 function SIPPYCUP_Addon:StopAuraCheck()
 	if self.timer then
-		SIPPYCUP_OUTPUT.Debug("Stopping aura check timer.");
 		self:CancelTimer(self.timer, true);  -- silent = true
 		self.timer = nil;
 	end
