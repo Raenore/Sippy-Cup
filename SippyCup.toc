@@ -26,6 +26,7 @@
 ## X-Category: Roleplay
 ## X-Curse-Project-ID: 1245290
 ## X-Wago-ID: 96doOnNO
+## X-WoWI-ID: 26933
 
 Libs\Libs.xml
 
