@@ -242,13 +242,47 @@ function SIPPYCUP_CONFIG.GenerateGeneral()
 				width = "full",
 				order = autoOrder(),
 			},
+			integrationsHeader = {
+				type = "header",
+				name = L.OPTIONS_GENERAL_ADDONINTEGRATIONS_HEADER,
+				order = autoOrder(),
+			},
+			-------------------------------------------------
+			blank7 = {
+				type = "description",
+				name = " ",
+				width = "full",
+				order = autoOrder(),
+			},
+			alertMSPStatusCheckEnable = {
+				type = "toggle",
+				name = L.OPTIONS_GENERAL_MSP_STATUSCHECK_ENABLE,
+				desc = L.OPTIONS_GENERAL_MSP_STATUSCHECK_DESC,
+				disabled = function()
+					return not msp or not msp.my;
+				end,
+				get = function()
+					return SIPPYCUP.db.global.MSPStatusCheck;
+				end,
+				set = function(_, val)
+					SIPPYCUP.db.global.MSPStatusCheck = val;
+				end,
+				width = THIRD_WIDTH,
+				order = autoOrder(),
+			},
+			blank8 = {
+				type = "description",
+				name = " ",
+				width = "full",
+				order = autoOrder(),
+			},
 			addInfoHeader = {
 				type = "header",
 				name = L.OPTIONS_GENERAL_ADDONINFO_HEADER,
 				order = autoOrder(),
 			},
 			-------------------------------------------------
-			blank7 = {
+			blank9 = {
 				type = "description",
 				name = " ",
 				width = "full",

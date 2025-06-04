@@ -24,6 +24,7 @@ read_globals = {
 	-- Libraries/AddOns
 	"ElvUI",
 	"LibStub",
+	"msp",
 
 	-- Common protocol globals
 	"CUSTOM_CLASS_COLORS",

@@ -63,6 +63,10 @@ L.OPTIONS_GENERAL_POPUPS_SOUND_ENABLE_DESC = "Active ou désactive si un son est
 L.OPTIONS_GENERAL_POPUPS_FLASHTASKBAR_ENABLE = "Flash barre des tâches";
 L.OPTIONS_GENERAL_POPUPS_FLASHTASKBAR_ENABLE_DESC = "Active ou désactive le flash sur la barre des tâches lorsque la fenêtre de rappel est affichée.";
 
+L.OPTIONS_GENERAL_ADDONINTEGRATIONS_HEADER = "Intégrations addon";
+L.OPTIONS_GENERAL_MSP_STATUSCHECK_ENABLE = "Seulement quand le personnage est joué";
+L.OPTIONS_GENERAL_MSP_STATUSCHECK_DESC = "N'affiche les fenêtres de rappel que lorsque votre personnage est indiqué comme |cnGREEN_FONT_COLOR:joué|r.|n|n|cnWARNING_FONT_COLOR:Notez que ceci nécessite qu'un addon de profil RP (e.g., TRP, MRP, XRP) soit actif.|r";
+
 
 L.OPTIONS_GENERAL_ADDONINFO_HEADER = "Info de l'addon";
 L.OPTIONS_GENERAL_ADDONINFO_VERSION = "|cnNORMAL_FONT_COLOR:Version :|r %s";
