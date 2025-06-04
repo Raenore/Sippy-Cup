@@ -63,6 +63,10 @@ L.OPTIONS_GENERAL_POPUPS_SOUND_ENABLE_DESC = "Toggles playing a sound when the r
 L.OPTIONS_GENERAL_POPUPS_FLASHTASKBAR_ENABLE = "Flash Taskbar";
 L.OPTIONS_GENERAL_POPUPS_FLASHTASKBAR_ENABLE_DESC = "Toggles flashing the taskbar when a reminder popup is shown.";
 
+L.OPTIONS_GENERAL_ADDONINTEGRATIONS_HEADER = "Addon Integrations";
+L.OPTIONS_GENERAL_MSP_STATUSCHECK_ENABLE = "Only when \"In Character\"";
+L.OPTIONS_GENERAL_MSP_STATUSCHECK_DESC = "Only show popups when your character is marked as |cnGREEN_FONT_COLOR:In Character|r.|n|n|cnWARNING_FONT_COLOR:Note that this requires an addon using the MSP protocol to be running (TRP, MRP, XRP, etc.).|r";
+
 
 L.OPTIONS_GENERAL_ADDONINFO_HEADER = "Addon Info";
 L.OPTIONS_GENERAL_ADDONINFO_VERSION = "|cnNORMAL_FONT_COLOR:Version:|r %s";
