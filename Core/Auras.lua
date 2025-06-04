@@ -2,6 +2,7 @@
 -- SPDX-License-Identifier: Apache-2.0
 
 SIPPYCUP.Auras = {};
+SIPPYCUP.Auras.InLoadingScreen = false;
 
 ---CheckedEnabledAurasForConsumables iterates over all the enabled Sippy Cup consumables to see if they are active and passes that to Popup handling.
 ---@return nil
@@ -31,7 +32,8 @@ function SIPPYCUP.Auras.DebugEnabledAuras()
 				SIPPYCUP_OUTPUT.Write("AuraID: " .. consumableData.auraID ..
 					" - Name: " .. consumableData.name ..
 					" - Desired Stacks: " .. profileConsumableInfo.desiredStacks ..
-					" - Current Stacks: " .. profileConsumableInfo.currentStacks);
+					" - Current Stacks: " .. profileConsumableInfo.currentStacks ..
+					" - AuraInstanceID: " .. tostring(profileConsumableInfo.currentInstanceID));
 			else
 				SIPPYCUP_OUTPUT.Write("Missing data for auraID: " .. tostring(profileConsumableData.aura));
 			end
@@ -125,8 +127,9 @@ function SIPPYCUP.Auras.Convert(source, data)
 		elseif data[1] == "SPELL_AURA_REMOVED" and auraInfo then
 			updateInfo.removedAuraInstanceIDs = { auraInfo.auraInstanceID };
 		end
-	elseif source == 3 then
+	elseif source == 3 and not SIPPYCUP.Auras.InLoadingScreen then
 		-- Source 3: DB mismatch — simulate expired aura using its last known instance ID.
+		-- Data sent through/around loading screens will not be reliable, so skip that.
 		updateInfo.removedAuraInstanceIDs = { data[1] };
 	else
 		-- Unknown source passed in — log to user so they can let us know.
@@ -144,6 +147,11 @@ end
 ---This can happen in the rare (but possible) case where UNIT_AURA did not catch a consumable expiration.
 ---@return nil
 function SIPPYCUP.Auras.CheckStackMismatchInDB()
+	-- Data sent through/around loading screens will not be reliable, so skip that.
+	if SIPPYCUP.Auras.InLoadingScreen then
+		return;
+	end
+
 	local GetPlayerAuraBySpellID = C_UnitAuras.GetPlayerAuraBySpellID;
 
 	for _, profileConsumableData in pairs(SIPPYCUP.db.profile) do
