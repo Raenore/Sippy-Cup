@@ -266,6 +266,9 @@ function SIPPYCUP_CONFIG.GenerateGeneral()
 				end,
 				set = function(_, val)
 					SIPPYCUP.db.global.MSPStatusCheck = val;
+					if val then
+						SIPPYCUP.Auras.CheckConsumableStackSizes(val);
+					end
 				end,
 				width = THIRD_WIDTH,
 				order = autoOrder(),

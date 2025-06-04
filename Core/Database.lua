@@ -95,7 +95,7 @@ local function RefreshConfig()
 	AceConfigRegistry:RegisterOptionsTable(title .. "_Size", SIPPYCUP_CONFIG.GenerateCategory("SIZE"));
 
 	-- Check if any enabled consumables are active, run the required popup logic.
-	SIPPYCUP.Auras.CheckedEnabledAurasForConsumables();
+	SIPPYCUP.Auras.CheckConsumableStackSizes(SIPPYCUP.db.global.MSPStatusCheck);
 end
 
 ---Setup initializes the database, registers callbacks, and configures options tables for the addon.

@@ -4,18 +4,22 @@
 SIPPYCUP.Auras = {};
 SIPPYCUP.Auras.InLoadingScreen = false;
 
----CheckedEnabledAurasForConsumables iterates over all the enabled Sippy Cup consumables to see if they are active and passes that to Popup handling.
+---CheckCurrentConsumablesForDesiredStacks iterates over all the ACTIVE enabled Sippy Cup consumables to see if they are at the correct stack size.
+---@param checkAll boolean? If set and true, the check will also go over all the non-active enabled consumables.
 ---@return nil
-function SIPPYCUP.Auras.CheckedEnabledAurasForConsumables()
+function SIPPYCUP.Auras.CheckConsumableStackSizes(checkAll)
 	local GetPlayerAuraBySpellID = C_UnitAuras.GetPlayerAuraBySpellID;
 
 	for _, profileConsumableData in pairs(SIPPYCUP.db.profile) do
 		if profileConsumableData.enable and profileConsumableData.aura then
 			local auraInfo = GetPlayerAuraBySpellID(profileConsumableData.aura);
 
-			if auraInfo then
-				SIPPYCUP.Popups.QueuePopupAction(false, profileConsumableData.aura, auraInfo, auraInfo.auraInstanceID);
+			-- If checkAll is not true, and auraInfo is not found, then we stop.
+			if not checkAll and not auraInfo then
+				return;
 			end
+
+			SIPPYCUP.Popups.QueuePopupAction(false, profileConsumableData.aura, auraInfo, auraInfo and auraInfo.auraInstanceID or nil);
 		end
 	end
 end

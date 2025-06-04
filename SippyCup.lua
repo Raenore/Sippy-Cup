@@ -37,8 +37,14 @@ function SIPPYCUP_Addon:OnEnable()
 	SIPPYCUP.Minimap:SetupMinimapButtons();
 
 	self:StartAuraCheck();
-	-- Check if any enabled consumables are active, run the required popup logic.
-	SIPPYCUP.Auras.CheckedEnabledAurasForConsumables();
+	-- Check all enabled consumables to see if we have to track any (or enable if setting is set).
+	SIPPYCUP.Auras.CheckConsumableStackSizes(SIPPYCUP.db.global.MSPStatusCheck);
+
+	if msp and msp.my then
+		table.insert(msp.callback["updated"], function()
+			SIPPYCUP.Auras.CheckConsumableStackSizes(SIPPYCUP.db.global.MSPStatusCheck)
+		end)
+	end
 
 	if SIPPYCUP.db.global.WelcomeMessage then
 		SIPPYCUP_OUTPUT.Write(L.WELCOMEMSG_VERSION:format(SIPPYCUP.AddonMetadata.version));
