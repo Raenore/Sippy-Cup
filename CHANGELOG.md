@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.2] - 2025-06-xx
+
+### Fixed
+- Fixed some errors in regards to the "In Character" integration not properly firing when it should (fixed in [#19](https://github.com/Raenore/Sippy-Cup/pull/19)).
+
 ## [0.1.1] - 2025-06-05
 
 ### Added
