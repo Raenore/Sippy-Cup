@@ -14,14 +14,6 @@ if C_AddOns.IsAddOnLoaded('ElvUI') then
 	S = E:GetModule("Skins");
 end
 
-local function IsOutOfCharacter()
-	if not msp or not msp.my then
-		return false;
-	end
-
-	return msp.my.FC == "1";
-end
-
 ---PlayPopupSound plays the chosen alert sound during a popup.
 ---@return nil
 local function PlayPopupSound()
@@ -326,7 +318,7 @@ local pendingCalls = {};
 function SIPPYCUP.Popups.QueuePopupAction(removal, auraID, auraInfo, auraInstanceID, mainMenu)
 	if InCombatLockdown() then return; end
 
-	if SIPPYCUP.db.global.MSPStatusCheck and IsOutOfCharacter() then
+	if SIPPYCUP.db.global.MSPStatusCheck and SIPPYCUP_PLAYER.IsOutOfCharacter() then
 		return;
 	end
 
