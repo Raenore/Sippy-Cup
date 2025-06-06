@@ -36,7 +36,7 @@ L.WINTERFALL_FIREWATER = "Огненная вода Зимней Спячки";
 L.POPUP_LACKING_TEXT = "не найден в вашем инвентаре.";
 L.POPUP_LACKING_TEXT_AMOUNT = "недостаточно в вашем инвентаре.";
 L.POPUP_TEXT = "не соответствует желаемому количеству в стопке!";
-L.POPUP_IGNORE_TT = ИГНОРИРОВАТЬ .. "|r |cnWHITE_FONT_COLOR: блокирует напоминания до следующей сессии.|r";
+L.POPUP_IGNORE_TT = IGNORE .. "|r |cnWHITE_FONT_COLOR: блокирует напоминания до следующей сессии.|r";
 
 L.POPUP_LINK = "|n|nНажмите |cnGREEN_FONT_COLOR:CTRL-C|r, чтобы скопировать выделенное, затем вставьте в браузер с помощью |cnGREEN_FONT_COLOR:CTRL-V|r.";
 L.COPY_SYSTEM_MESSAGE = "Скопировано в буфер обмена.";
