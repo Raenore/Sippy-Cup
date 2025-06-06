@@ -2,7 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.1.2] - 2025-06-xx
+## [0.1.3] - 2025-06-xx
+
+### Fixed
+- Fixed an issue in the Russian translation where the `IGNORE` GlobalString was mistakingly translated as well (fixed in [#23](https://github.com/Raenore/Sippy-Cup/pull/23)).
+
+## [0.1.2] - 2025-06-06
 
 ### Added
 - Russian translation added thanks to [Hubbotu](https://github.com/Hubbotu), with proofreading by Lord_Papalus and another anonymous user on Discord (see [#21](https://github.com/Raenore/Sippy-Cup/pull/21) and [#22](https://github.com/Raenore/Sippy-Cup/pull/22)).
