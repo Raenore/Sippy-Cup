@@ -14,12 +14,13 @@ function SIPPYCUP.Auras.CheckConsumableStackSizes(checkAll)
 		if profileConsumableData.enable and profileConsumableData.aura then
 			local auraInfo = GetPlayerAuraBySpellID(profileConsumableData.aura);
 
-			-- If checkAll is not true, and auraInfo is not found, then we stop.
-			if not checkAll and not auraInfo then
-				return;
+			if auraInfo then
+				-- When the aura is enabled and active
+				SIPPYCUP.Popups.QueuePopupAction(false, profileConsumableData.aura, auraInfo, auraInfo.auraInstanceID );
+			elseif checkAll then
+				-- The aura is enabled, not active. But CheckAll is on, so we still run it.
+				SIPPYCUP.Popups.QueuePopupAction(true, profileConsumableData.aura, nil, nil);
 			end
-
-			SIPPYCUP.Popups.QueuePopupAction(false, profileConsumableData.aura, auraInfo, auraInfo and auraInfo.auraInstanceID or nil);
 		end
 	end
 end

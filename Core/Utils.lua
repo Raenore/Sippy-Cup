@@ -92,3 +92,20 @@ function SIPPYCUP_OUTPUT.Debug(output, command)
 
 	SIPPYCUP_Addon:Print(formattedOutput);
 end
+
+SIPPYCUP.Player = {};
+SIPPYCUP.Player.FullName = "";
+SIPPYCUP.Player.OOC = true;
+
+SIPPYCUP_PLAYER = {};
+
+function SIPPYCUP_PLAYER.GetFullName()
+	local name, realm = UnitFullName("player");
+	SIPPYCUP.Player.FullName = format("%s-%s", name, realm);
+end
+
+function SIPPYCUP_PLAYER.IsOutOfCharacter()
+	local isOOC = msp and msp.my and msp.my.FC == "1";
+	SIPPYCUP.Player.OOC = isOOC or false;
+	return SIPPYCUP.Player.OOC;
+end

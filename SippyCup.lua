@@ -37,12 +37,19 @@ function SIPPYCUP_Addon:OnEnable()
 	SIPPYCUP.Minimap:SetupMinimapButtons();
 
 	self:StartAuraCheck();
-	-- Check all enabled consumables to see if we have to track any (or enable if setting is set).
-	SIPPYCUP.Auras.CheckConsumableStackSizes(SIPPYCUP.db.global.MSPStatusCheck);
 
+	SIPPYCUP_PLAYER.GetFullName();
+
+	-- Check all enabled consumables to see if we have to track any (or enable if setting is set).
+	SIPPYCUP.Auras.CheckConsumableStackSizes(false);
+
+	-- We only listen for the callbacks if we even can, so check for msp and msp.my
 	if msp and msp.my then
-		table.insert(msp.callback["updated"], function()
-			SIPPYCUP.Auras.CheckConsumableStackSizes(SIPPYCUP.db.global.MSPStatusCheck)
+		table.insert(msp.callback["updated"], function(senderID)
+			-- Then we check if MSP status is even checked, if it's the PLAYER self sending an update and that we're not OOC.
+			if SIPPYCUP.db.global.MSPStatusCheck and SIPPYCUP.Player.FullName == senderID and not SIPPYCUP_PLAYER.IsOutOfCharacter() then
+				SIPPYCUP.Auras.CheckConsumableStackSizes(SIPPYCUP.db.global.MSPStatusCheck)
+			end
 		end)
 	end
 
