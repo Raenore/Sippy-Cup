@@ -7,4 +7,5 @@
 	<Include file="enUS.lua"/>
 	<!-- <Include file="deDE.lua"/> SOON(TM)? -->
 	<Include file="frFR.lua"/>
+	<Include file="ruRU.lua"/>
 </Ui>
