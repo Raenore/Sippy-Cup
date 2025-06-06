@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [0.1.2] - 2025-06-xx
 
+### Added
+- Russian translation added thanks to [Hubbotu](https://github.com/Hubbotu), with proofreading by Lord_Papalus and another anonymous user on Discord (see [#21](https://github.com/Raenore/Sippy-Cup/pull/21) and [#22](https://github.com/Raenore/Sippy-Cup/pull/22)).
+
 ### Fixed
 - Fixed some errors in regards to the "In Character" integration not properly firing when it should (fixed in [#19](https://github.com/Raenore/Sippy-Cup/pull/19)).
 
