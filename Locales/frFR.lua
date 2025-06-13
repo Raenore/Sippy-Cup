@@ -50,12 +50,12 @@ L.WEARY_SANDS = "Sables éreintés";
 L.WINTERFALL_FIREWATER = "Eau-de-feu des Tombe-hiver";
 
 --/ Popup dialog /--
-L.POPUP_COOLDOWN_TEXT = "currently on cooldown."; -- NEW
+L.POPUP_COOLDOWN_TEXT = "actuellement en recharge.";
 L.POPUP_LACKING_TEXT = "introuvable dans votre inventaire.";
 L.POPUP_LACKING_TEXT_AMOUNT = "insuffisant dans votre inventaire.";
-L.POPUP_STACK_TEXT = "en-dessous du nombre de stacks voulus!";
-L.POPUP_MISSING_TEXT = "is not active!"; -- NEW
-L.POPUP_EXPIRING_SOON_TEXT = "is expiring soon!"; -- NEW
+L.POPUP_STACK_TEXT = "en-dessous du nombre de stacks voulus !";
+L.POPUP_MISSING_TEXT = "n'est pas actif !";
+L.POPUP_EXPIRING_SOON_TEXT = "expire bientôt !";
 L.POPUP_IGNORE_TT = IGNORE .. "|r |cnWHITE_FONT_COLOR:bloque les rappels jusqu'à la prochaine session.|r";
 L.POPUP_LINK = "|n|nAppuyez sur |cnGREEN_FONT_COLOR:CTRL-C|r pour copier le texte surligné, puis copiez dans votre navigateur avec |cnGREEN_FONT_COLOR:CTRL-V|r.";
 L.COPY_SYSTEM_MESSAGE = "Copié dans le presse-papiers.";
@@ -75,8 +75,8 @@ L.OPTIONS_GENERAL_POPUPS_POSITION_NAME = "Position";
 L.OPTIONS_GENERAL_POPUPS_POSITION_DESC = "Sélectionne où vous souhaitez que les fenêtres de rappel s'affichent sur votre écran.";
 L.OPTIONS_GENERAL_POPUPS_ICON_ENABLE = "Icône";
 L.OPTIONS_GENERAL_POPUPS_ICON_ENABLE_DESC = "Affiche ou cache l'icône du consommable dans la fenêtre de rappel.|n|n|cnWARNING_FONT_COLOR:Gardez en tête que l'activation de cette option augmente la hauteur de la fenêtre.|r";
-L.OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE = "Pre-Expiration Reminder"; -- NEW
-L.OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE_DESC = "Toggles whether pre-expiration reminders should show close to the consumable expiring.|n|n|cnWARNING_FONT_COLOR:Keep in mind that not all items support this (it will be displayed on the enable tooltip).|r"; -- NEW
+L.OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE = "Rappel pré-expiration";
+L.OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE_DESC = "Active l'affiche des rappels pré-expiration lorsque le consommable est sur le point d'expirer.|n|n|cnWARNING_FONT_COLOR:Gardez en tête que tous les objets ne supportent pas cette option (le support est affiché dans l'infobulle d'activation du consommable).|r";
 L.OPTIONS_GENERAL_POPUPS_IGNORES = "Réinitialiser fenêtres ignorées";
 L.OPTIONS_GENERAL_POPUPS_IGNORES_TEXT = "Réinitialise toutes les fenêtres de rappel ignorées durant cette session afin qu'elles soient à nouveau visibles.";
 L.OPTIONS_GENERAL_POPUPS_ALERT_SOUND_DESC = "Choisit quel son est joué lorsque la fenêtre de rappel est affichée.";
@@ -98,28 +98,28 @@ L.OPTIONS_GENERAL_BLUESKY_SHILL_DESC = "Suivez-moi sur Bluesky!";
 
 -- Generic
 L.OPTIONS_ENABLE_TEXT = "Active les rappels de consommable pour |cnGREEN_FONT_COLOR:%s|r.";
-L.OPTIONS_ENABLE_PREXPIRE_TEXT = "|n|nNote that this consumable |cnGREEN_FONT_COLOR:supports pre-expiration reminders|r. When this feature is enabled, it will remind you close to it expiring."; -- NEW
-L.OPTIONS_ENABLE_NON_REFRESHABLE_TEXT = "|n|n|cnWARNING_FONT_COLOR:Note that you should not refresh this consumable before it expires, as the stack will be lost without any effects.|r"; -- NEW
-L.OPTIONS_ENABLE_NON_STACKABLE_TEXT = "|n|n|cnWARNING_FONT_COLOR:Note that this consumable is harder to track, resulting in possible irregularities from time to time.|r"; -- NEW
+L.OPTIONS_ENABLE_PREXPIRE_TEXT = "|n|nNotez que ce consommable |cnGREEN_FONT_COLOR:supporte les rappels pré-expiration|r. Lorsque cette fonctionnalité est activée, elle vous rappelera lorsque le consommable est sur le point d'expirer.";
+L.OPTIONS_ENABLE_NON_REFRESHABLE_TEXT = "|n|n|cnWARNING_FONT_COLOR:Notez que vous ne devriez pas rafraîchir ce consommable avant qu'il n'expire, ou le stack sera perdu sans effet.|r";
+L.OPTIONS_ENABLE_NON_STACKABLE_TEXT = "|n|n|cnWARNING_FONT_COLOR:Notez que ce consommable est difficile à suivre, ce qui peut causer des irrégularités de temps en temps.|r";
 L.OPTIONS_SLIDER_TEXT = "Définit le nombre de stacks désirés pour |cnGREEN_FONT_COLOR:%s|r.|n|nLes rappels continueront de s'afficher jusqu'à ce que le nombre de stacks désirés soit atteint.";
 L.OPTIONS_DESIRED_STACKS = "|cnWHITE_FONT_COLOR:Stacks désirés|r";
 L.OPTIONS_TITLE_EXTRA = "|n|nNote : Au login, seuls les consommables qui ont des stacks actifs inférieurs au nombre désiré afficheront une fenêtre de rappel.";
 
 -- Appearance
-L.OPTIONS_CONSUMABLE_APPEARANCE_TITLE = "Appearance"; -- NEW
-L.OPTIONS_CONSUMABLE_APPEARANCE_INSTRUCTION = "These options control all reminders for consumables that alter your appearance."; -- NEW
+L.OPTIONS_CONSUMABLE_APPEARANCE_TITLE = "Apparence";
+L.OPTIONS_CONSUMABLE_APPEARANCE_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables qui altèrent votre apparence.";
 
 -- Effect
 L.OPTIONS_CONSUMABLE_EFFECT_TITLE = "Effet";
 L.OPTIONS_CONSUMABLE_EFFECT_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables qui ont un effet.";
 
 -- Handheld
-L.OPTIONS_CONSUMABLE_HANDHELD_TITLE = "Handheld"; -- NEW
-L.OPTIONS_CONSUMABLE_HANDHELD_INSTRUCTION = "These options control all reminders for consumables that make the character hold something."; -- NEW
+L.OPTIONS_CONSUMABLE_HANDHELD_TITLE = "En main";
+L.OPTIONS_CONSUMABLE_HANDHELD_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables qui font porter quelque chose à votre personnage.";
 
 -- Placement
-L.OPTIONS_CONSUMABLE_PLACEMENT_TITLE = "Placement"; -- NEW
-L.OPTIONS_CONSUMABLE_PLACEMENT_INSTRUCTION = "These options control all reminders for consumables that can be placed on the ground."; -- NEW
+L.OPTIONS_CONSUMABLE_PLACEMENT_TITLE = "Placement";
+L.OPTIONS_CONSUMABLE_PLACEMENT_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables qui peuvent être placés au sol.";
 
 -- Size
 L.OPTIONS_CONSUMABLE_SIZE_TITLE = "Taille";
