@@ -6,6 +6,7 @@
 ..\FrameXML\UI.xsd">
 	<Include file="Utils.lua"/>
 	<Include file="Auras.lua"/>
+	<Include file="Items.lua"/>
 	<Include file="Consumables.lua"/>
 	<Include file="Database.lua"/>
 
