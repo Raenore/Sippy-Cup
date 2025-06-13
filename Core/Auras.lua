@@ -98,7 +98,7 @@ local function flushAuraQueue()
 		removedAuraInstanceIDs = {},
 	};
 
-	 -- Deduplication arrays
+	-- Deduplication arrays
 	local seenAdd, seenUpdate, seenRemoval = {}, {}, {};
 
 	-- 1) harvest everything into seenAdd / seenUpdate / seenRemoval
@@ -219,7 +219,7 @@ function SIPPYCUP.Auras.Convert(source, data)
 		return;
 	end
 
-	 -- buffer it instead of parsing immediately
+	-- buffer it instead of parsing immediately
 	table.insert(SIPPYCUP.Auras.auraQueue, updateInfo);
 
 	-- flush on the next frame (which will run the batched UNIT_AURAs)
