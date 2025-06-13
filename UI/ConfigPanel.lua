@@ -164,6 +164,31 @@ function SIPPYCUP_CONFIG.GenerateGeneral()
 				width = THIRD_WIDTH,
 				order = autoOrder(),
 			},
+			blankSmall1 = {
+				type = "description",
+				name = " ",
+				width = "full",
+				order = autoOrder(),
+			},
+			PreExpirationChecksEnable = {
+				type = "toggle",
+				name = L.OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE,
+				desc = L.OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE_DESC,
+				get = function()
+					return SIPPYCUP.db.global.PreExpirationChecks;
+				end,
+				set = function(_, val)
+					SIPPYCUP.db.global.PreExpirationChecks = val;
+					-- If we disable it, cancel all pre-expiration timers that exist.
+					if not val then
+						SIPPYCUP.Auras.CancelAllPreExpirationTimers();
+						-- reason 2 = pre-expiration for items
+						SIPPYCUP.Items.CancelAllItemTimers(2);
+					end
+				end,
+				width = THIRD_WIDTH,
+				order = autoOrder(),
+			},
 			resetIgnoresButton = {
 				type = "execute",
 				name = L.OPTIONS_GENERAL_POPUPS_IGNORES,
@@ -266,8 +291,9 @@ function SIPPYCUP_CONFIG.GenerateGeneral()
 				end,
 				set = function(_, val)
 					SIPPYCUP.db.global.MSPStatusCheck = val;
+					SIPPYCUP.Player.OOC = SIPPYCUP_PLAYER.CheckOOCStatus();
 					if val then
-						SIPPYCUP.Auras.CheckConsumableStackSizes(val);
+						SIPPYCUP.Consumables.RefreshStackSizes(val);
 					end
 				end,
 				width = THIRD_WIDTH,
@@ -377,6 +403,17 @@ function SIPPYCUP_CONFIG.GenerateCategory(category)
 
 			local consumableProfile = SIPPYCUP.db.profile[consumable.profile];
 
+			local enableDesc = L.OPTIONS_ENABLE_TEXT:format(consumable.name);
+			if consumable.preExpiration ~= 0 then
+				enableDesc = enableDesc .. L.OPTIONS_ENABLE_PREXPIRE_TEXT;
+			end
+
+			if consumable.unrefreshable then
+				enableDesc = enableDesc .. L.OPTIONS_ENABLE_NON_REFRESHABLE_TEXT;
+			elseif consumable.nonTrackable then
+				enableDesc = enableDesc .. L.OPTIONS_ENABLE_NON_STACKABLE_TEXT;
+			end
+
 			-- Then we set the Enable button.
 			order = IncrementOrder(order);
 			args[consumable.profile .. "Enable"] = {
@@ -389,7 +426,7 @@ function SIPPYCUP_CONFIG.GenerateCategory(category)
 						return "|cffb8b8b8" .. enableStr .. "|r";
 					end
 				end,
-				desc = L.OPTIONS_ENABLE_TEXT:format(consumable.name),
+				desc = enableDesc,
 				get = function()
 					return consumableProfile.enable;
 				end,

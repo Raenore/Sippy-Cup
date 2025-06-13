@@ -148,6 +148,12 @@ stds.wow = {
 			},
 		},
 
+		C_Container = {
+			fields = {
+				"GetItemCooldown",
+			},
+		},
+
 		C_CVar = {
 			fields = {
 				"GetCVarBool",
@@ -474,6 +480,7 @@ stds.wow = {
 		"GetNumLanguages",
 		"GetPlayerInfoByGUID",
 		"GetRealmName",
+		"GetSpellBaseCooldown",
 		"GetSpellDescription",
 		"GetSpellInfo",
 		"GetSpellTexture",
@@ -777,6 +784,7 @@ stds.wow = {
 		"SOUL_SHARDS",
 		"SOUND",
 		"SOUNDKIT",
+		"STATICPOPUP_NUMDIALOGS",
 		"TARGET_TOKEN_NOT_FOUND",
 		"TOOLTIP_DEFAULT_BACKGROUND_COLOR",
 		"TOOLTIP_DEFAULT_COLOR",
