@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [0.2.0] - 2025-06-xx
 
+### Changed
+- Update TOC for 11.1.7.
+
 ### Fixed
 - Fixed an issue in the Russian translation where the `IGNORE` GlobalString was mistakingly translated as well (fixed in [#23](https://github.com/Raenore/Sippy-Cup/pull/23)).
 
