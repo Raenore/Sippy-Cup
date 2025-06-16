@@ -5,13 +5,16 @@ All notable changes to this project will be documented in this file.
 ## [0.2.0] - 2025-06-xx
 
 ### Added
-- Pre-expiration reminders for consumables, support for non-trackable consumables, MSP fix-up, and various related enhancements (see [#25](https://github.com/Raenore/Sippy-Cup/pull/25)).
+- Added pre-expiration reminders for consumables to alert users before consumables expire (see [#25](https://github.com/Raenore/Sippy-Cup/pull/25)).
+- Support for non-trackable consumables, allowing reminders to be used for non-aura items (see [#25](https://github.com/Raenore/Sippy-Cup/pull/25)).
+- MSP fix-up regarding toggling OOC/IC and some incorrect edge cases (see [#25](https://github.com/Raenore/Sippy-Cup/pull/25)).
+- Various enhancements to the consumable reminder and tracking system (see [#25](https://github.com/Raenore/Sippy-Cup/pull/25)).
 
 ### Changed
 - Update TOC for 11.1.7.
 
 ### Fixed
-- Fixed an issue in the Russian translation where the `IGNORE` GlobalString was mistakingly translated as well (fixed in [#23](https://github.com/Raenore/Sippy-Cup/pull/23)).
+- Fixed an issue in the Russian translation where the `IGNORE` GlobalString was mistakenly translated as well (fixed in [#23](https://github.com/Raenore/Sippy-Cup/pull/23)).
 
 ## [0.1.2] - 2025-06-06
 
