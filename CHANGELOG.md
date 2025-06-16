@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [0.2.0] - 2025-06-xx
 
+### Added
+- Pre-expiration reminders for consumables, support for non-trackable consumables, MSP fix-up, and various related enhancements (see [#25](https://github.com/Raenore/Sippy-Cup/pull/25)).
+
 ### Changed
 - Update TOC for 11.1.7.
 
