@@ -67,20 +67,7 @@ SIPPYCUP_OUTPUT = {};
 ---@param output string|table The output to be printed, either a string or a table.
 ---@param command? string The optional command prefix to display before the output.
 function SIPPYCUP_OUTPUT.Write(output, command)
-	if type(output) == "table" then
-		output = table.concat(output, "|n");
-	end
-
-	local formattedOutput = ("|cnGREEN_FONT_COLOR:%s|r|cnTRANSMOGRIFY_FONT_COLOR:%s|r"):format(command and (command .. " ") or "", output);
-
-	SIPPYCUP_Addon:Print(formattedOutput);
-end
-
----Write prints formatted output with an optional command prefix, only works when IS_DEV_BUILD is true.
----@param output string|table The output to be printed, either a string or a table.
----@param command? string The optional command prefix to display before the output.
-function SIPPYCUP_OUTPUT.Debug(output, command)
-	if not SIPPYCUP.IS_DEV_BUILD then
+	if not output then
 		return;
 	end
 
@@ -91,6 +78,38 @@ function SIPPYCUP_OUTPUT.Debug(output, command)
 	local formattedOutput = ("|cnGREEN_FONT_COLOR:%s|r|cnTRANSMOGRIFY_FONT_COLOR:%s|r"):format(command and (command .. " ") or "", output);
 
 	SIPPYCUP_Addon:Print(formattedOutput);
+end
+
+---Debug prints formatted output, only works when IS_DEV_BUILD is true.
+---Accepts any number of arguments and joins them with space.
+---@param ... any Values to print (strings, numbers, tables, etc.)
+function SIPPYCUP_OUTPUT.Debug(...)
+	if not SIPPYCUP.IS_DEV_BUILD then
+		return;
+	end
+
+	local args = { ... };
+	local outputLines = {};
+
+	for _, arg in ipairs(args) do
+		if type(arg) == "table" then
+			local isArray = (#arg > 0);
+			if isArray then
+				for _, v in ipairs(arg) do
+					table.insert(outputLines, tostring(v));
+				end
+			else
+				for k, v in pairs(arg) do
+					table.insert(outputLines, tostring(k) .. ": " .. tostring(v));
+				end
+			end
+		else
+			table.insert(outputLines, tostring(arg));
+		end
+	end
+
+	local finalOutput = table.concat(outputLines, " ");
+	SIPPYCUP_Addon:Print("|cnTRANSMOGRIFY_FONT_COLOR:" .. finalOutput .. "|r");
 end
 
 SIPPYCUP.Player = {};
@@ -104,8 +123,29 @@ function SIPPYCUP_PLAYER.GetFullName()
 	SIPPYCUP.Player.FullName = format("%s-%s", name, realm);
 end
 
-function SIPPYCUP_PLAYER.IsOutOfCharacter()
-	local isOOC = msp and msp.my and msp.my.FC == "1";
-	SIPPYCUP.Player.OOC = isOOC or false;
-	return SIPPYCUP.Player.OOC;
+function SIPPYCUP_PLAYER.CheckOOCStatus()
+	-- msp.my.FC can be nil sometimes, mostly on login.
+	if not (msp and msp.my and msp.my.FC) then
+		return nil;
+	end
+
+	return (msp.my.FC == "1");
+end
+
+SIPPYCUP_TEXT = {};
+
+function SIPPYCUP_TEXT.Normalize(str)
+	return str
+		:gsub("á", "a"):gsub("à", "a"):gsub("ã", "a"):gsub("ä", "a"):gsub("â", "a")
+		:gsub("é", "e"):gsub("è", "e"):gsub("ê", "e"):gsub("ë", "e")
+		:gsub("í", "i"):gsub("ì", "i"):gsub("î", "i"):gsub("ï", "i")
+		:gsub("ó", "o"):gsub("ò", "o"):gsub("õ", "o"):gsub("ö", "o"):gsub("ô", "o")
+		:gsub("ú", "u"):gsub("ù", "u"):gsub("û", "u"):gsub("ü", "u")
+		:gsub("ç", "c"):gsub("ñ", "n")
+		:gsub("Á", "A"):gsub("À", "A"):gsub("Ã", "A"):gsub("Ä", "A"):gsub("Â", "A")
+		:gsub("É", "E"):gsub("È", "E"):gsub("Ê", "E"):gsub("Ë", "E")
+		:gsub("Í", "I"):gsub("Ì", "I"):gsub("Î", "I"):gsub("Ï", "I")
+		:gsub("Ó", "O"):gsub("Ò", "O"):gsub("Õ", "O"):gsub("Ö", "O"):gsub("Ô", "O")
+		:gsub("Ú", "U"):gsub("Ù", "U"):gsub("Û", "U"):gsub("Ü", "U")
+		:gsub("Ç", "C"):gsub("Ñ", "N");
 end

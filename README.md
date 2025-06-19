@@ -6,7 +6,7 @@ Available on [CurseForge](https://www.curseforge.com/wow/addons/sippy-cup), [Wag
 ## 🛠️ How It Works
 
 Once enabled, Sippy Cup will display a reminder popup when:
-- Your consumable runs out.
+- Your consumable runs out (or is about to if enabled).
 - Your current stack count falls below your desired amount.
 
 <table>
@@ -16,9 +16,9 @@ Once enabled, Sippy Cup will display a reminder popup when:
   </tr>
 </table>
 
-**Note:** To minimize login popups, only active consumables with stack counts below your desired amount will display reminders on login.
+**Note:** To minimize login popups, only active consumables with stack counts below your desired amount will display reminders on login (unless you in "In Character" with the RP Profile addon option enabled).
 
-If multiple consumables expire simultaneously, Sippy Cup will display multiple popups.  
+If multiple consumables expire simultaneously, Sippy Cup will display multiple popups.
 Due to WoW's limit of four simultaneous pop-ups, the oldest reminder will be dismissed if a fifth one appears.
 
 <table>
@@ -41,32 +41,37 @@ If an item cannot be refreshed because it's either absent from your inventory or
 
 Adjust Sippy Cup's settings to match your personal preferences.
 
-You can adjust general settings like showing a message at startup or having a minimap icon.
-The "Reminder Popups" section lets you customize how those helpful reminders appear, including where they show up, if they make a sound, or even flash your taskbar.
-At the bottom, you'll find some info about your current version of Sippy Cup.
+Here you can:  
+- Toggle a **Startup message** at login.
+- Control the visibility of the **Minimap button**.
+- Configure integration with the **Addon compartment** of UI mods.
 
-![general](https://i.imgur.com/cd4EQxF.png)
+The "Reminder Popups" section offers detailed control over how reminders appear:  
+- **Customize their position** on screen.
+- Enable **pre-expiration reminders** to fire a reminder before they expire (only for supported consumables).
+- Choose a **sound** for reminders and decide if they should **flash your taskbar**.
+
+Sippy Cup also offers special integration:  
+- **Only when "In Character"**: Limits Sippy Cup's checks and reminders to only when your character is recognized as "In Character".  
+(Requires an RP Profile addon like TRP3, MRP, XRP, etc.)
+
+At the bottom of this page, you'll find information about your current version of Sippy Cup.
+
+![general](https://i.imgur.com/RzNr551.png)
 
 ## 📦 Reminder Categories
 
-### 🧪 Effect
+![categories](https://i.imgur.com/OKvfkdU.png)
 
-Manage reminders for consumables that apply effects to your character or the environment.
+Sippy Cup supports a multitude of consumable categories:
+- **Appearance:** These alter your character's visual appearance.
+- **Effect:** These apply a temporary effect to your character or the environment.
+- **Handheld:** These place an item in your character's hand(s).
+- **Placement:** These create objects in the game world.
+- **Size:** These alter your character's size.
 
-Examples:
-- [Elixir of Tongues](https://www.wowhead.com/item=2460/elixir-of-tongues)
-- [Inky Black Potion](https://www.wowhead.com/item=124640/inky-black-potion)
-- [Sacredite's Ledger](https://www.wowhead.com/item=234527/sacredites-ledger)
+[Click here for a complete list of supported consumables](https://github.com/Raenore/Sippy-Cup/wiki#supported-consumables).
 
-![category-effect](https://i.imgur.com/Kf1Xsfk.png)
-
-### 📏 Size
-
-Manage reminders for consumables that alter your character's size.
-
-Examples:
-- [Darkmoon Firewater](https://www.wowhead.com/item=124671/darkmoon-firewater)
-- [Elixir of Giant Growth](https://www.wowhead.com/item=6662/elixir-of-giant-growth)
-- [Pygmy Oil](https://www.wowhead.com/item=40195/pygmy-oil)
+Below you can find a screenshot of the Size category for reference.
 
 ![category-size](https://i.imgur.com/IynqJTI.png)
