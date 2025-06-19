@@ -99,24 +99,8 @@ for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
 	SIPPYCUP.Consumables.ByName[consumable.name] = consumable;
 end
 
-local function normalize(str)
-	return str
-		:gsub("á", "a"):gsub("à", "a"):gsub("ã", "a"):gsub("ä", "a"):gsub("â", "a")
-		:gsub("é", "e"):gsub("è", "e"):gsub("ê", "e"):gsub("ë", "e")
-		:gsub("í", "i"):gsub("ì", "i"):gsub("î", "i"):gsub("ï", "i")
-		:gsub("ó", "o"):gsub("ò", "o"):gsub("õ", "o"):gsub("ö", "o"):gsub("ô", "o")
-		:gsub("ú", "u"):gsub("ù", "u"):gsub("û", "u"):gsub("ü", "u")
-		:gsub("ç", "c"):gsub("ñ", "n")
-		:gsub("Á", "A"):gsub("À", "A"):gsub("Ã", "A"):gsub("Ä", "A"):gsub("Â", "A")
-		:gsub("É", "E"):gsub("È", "E"):gsub("Ê", "E"):gsub("Ë", "E")
-		:gsub("Í", "I"):gsub("Ì", "I"):gsub("Î", "I"):gsub("Ï", "I")
-		:gsub("Ó", "O"):gsub("Ò", "O"):gsub("Õ", "O"):gsub("Ö", "O"):gsub("Ô", "O")
-		:gsub("Ú", "U"):gsub("Ù", "U"):gsub("Û", "U"):gsub("Ü", "U")
-		:gsub("Ç", "C"):gsub("Ñ", "N");
-end
-
 table.sort(SIPPYCUP.Consumables.Data, function(a, b)
-	return normalize(a.name:lower()) < normalize(b.name:lower());
+	return SIPPYCUP_TEXT.Normalize(a.name:lower()) < SIPPYCUP_TEXT.Normalize(b.name:lower());
 end);
 
 ---RefreshStackSizes iterates over all enabled Sippy Cup consumables to set the correct stack sizes (startup / profile change / etc).

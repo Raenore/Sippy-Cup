@@ -149,15 +149,23 @@ function SIPPYCUP.Database.FindMatchingConsumable(spellId, instanceID, itemID)
 	return nil;
 end
 
+local categories = { "Appearance", "Effect", "Handheld", "Placement", "Size" };
+
+-- Sort `categories` in-place by their localized title:
+table.sort(categories, function(a, b)
+	local locA = L["OPTIONS_CONSUMABLE_" .. string.upper(a) .. "_TITLE"];
+    local locB = L["OPTIONS_CONSUMABLE_" .. string.upper(b) .. "_TITLE"];
+	return SIPPYCUP_TEXT.Normalize(locA:lower()) < SIPPYCUP_TEXT.Normalize(locB:lower());
+end);
+
 ---RefreshConfig updates the options tables and handles checking stacks on enabled and active consumables.
 ---@return nil
 local function RefreshConfig()
 	local title = SIPPYCUP.AddonMetadata.title;
 
 	-- Register the options tables anew to update its values after something gets changed profile-wise.
-	local categories = { "Appearance", "Effect", "Handheld", "Placement", "Size" };
 	for _, cat in ipairs(categories) do
-		AceConfigRegistry:RegisterOptionsTable(title.."_"..cat, SIPPYCUP_CONFIG.GenerateCategory(cat));
+		AceConfigRegistry:RegisterOptionsTable(title .. "_" .. cat, SIPPYCUP_CONFIG.GenerateCategory(cat:upper()));
 	end
 
 	-- On profile switch, we do a full stacksize check (which will also rebuild the auramap) on all active (and non-active on MSP true) enabled.
@@ -178,7 +186,6 @@ function SIPPYCUP.Database.Setup()
 	AceConfigRegistry:RegisterOptionsTable(title, SIPPYCUP_CONFIG.GenerateGeneral());
 	AceConfigDialog:AddToBlizOptions(title, title);
 
-	local categories = { "Appearance", "Effect", "Handheld", "Placement", "Size" };
 	for _, cat in ipairs(categories) do
 		AceConfigRegistry:RegisterOptionsTable(title .. "_" .. cat, SIPPYCUP_CONFIG.GenerateCategory(cat:upper()));
 		AceConfigDialog:AddToBlizOptions(title .. "_" .. cat, L["OPTIONS_CONSUMABLE_" .. cat:upper() .. "_TITLE"], title);
