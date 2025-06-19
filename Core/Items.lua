@@ -134,8 +134,8 @@ function SIPPYCUP.Items.CheckNonTrackableSingleConsumable(profileConsumableData,
 		profileConsumableData = SIPPYCUP.Database.FindMatchingConsumable(spellID);
 	end
 
-	-- Make sure this came from an actual nontrackable item (sanity check).
-	if not profileConsumableData.nonTrackable then
+	-- Sanity check: if profileConsumableData is nil or not nonTrackable, bail out
+	if not profileConsumableData or not profileConsumableData.nonTrackable then
 		return preExpireFired;
 	end
 
