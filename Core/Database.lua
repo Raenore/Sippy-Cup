@@ -154,7 +154,7 @@ local categories = { "Appearance", "Effect", "Handheld", "Placement", "Size" };
 -- Sort `categories` in-place by their localized title:
 table.sort(categories, function(a, b)
 	local locA = L["OPTIONS_CONSUMABLE_" .. string.upper(a) .. "_TITLE"];
-    local locB = L["OPTIONS_CONSUMABLE_" .. string.upper(b) .. "_TITLE"];
+	local locB = L["OPTIONS_CONSUMABLE_" .. string.upper(b) .. "_TITLE"];
 	return SIPPYCUP_TEXT.Normalize(locA:lower()) < SIPPYCUP_TEXT.Normalize(locB:lower());
 end);
 
