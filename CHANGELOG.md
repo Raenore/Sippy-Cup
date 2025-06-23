@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] - 2025-06-xx
+
+### Added
+- Allow pre-expiration reminders for some stackable consumables when they are at max stack (see [#27](https://github.com/Raenore/Sippy-Cup/pull/27)).
+
 ## [0.2.0] - 2025-06-23
 
 ### Added
