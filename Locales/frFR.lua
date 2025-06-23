@@ -99,6 +99,7 @@ L.OPTIONS_GENERAL_BLUESKY_SHILL_DESC = "Suivez-moi sur Bluesky!";
 -- Generic
 L.OPTIONS_ENABLE_TEXT = "Active les rappels de consommable pour |cnGREEN_FONT_COLOR:%s|r.";
 L.OPTIONS_ENABLE_PREXPIRE_TEXT = "|n|nNotez que ce consommable |cnGREEN_FONT_COLOR:supporte les rappels pré-expiration|r. Lorsque cette fonctionnalité est activée, elle vous rappelera lorsque le consommable est sur le point d'expirer.";
+L.OPTIONS_ENABLE_PREXPIRE_MAXSTACKS_TEXT = "|n|nNotez que ce consommable |cnGREEN_FONT_COLOR:supporte les rappels pré-expiration pour le nombre maximum de stacks|r. Lorsque cette fonctionnalité est activée, elle vous rappelera lorsque le consommable est sur le point d'expirer.";
 L.OPTIONS_ENABLE_NON_REFRESHABLE_TEXT = "|n|n|cnWARNING_FONT_COLOR:Notez que vous ne devriez pas rafraîchir ce consommable avant qu'il n'expire, ou le stack sera perdu sans effet.|r";
 L.OPTIONS_ENABLE_NON_STACKABLE_TEXT = "|n|n|cnWARNING_FONT_COLOR:Notez que ce consommable est difficile à suivre, ce qui peut causer des irrégularités de temps en temps.|r";
 L.OPTIONS_SLIDER_TEXT = "Définit le nombre de stacks désirés pour |cnGREEN_FONT_COLOR:%s|r.|n|nLes rappels continueront de s'afficher jusqu'à ce que le nombre de stacks désirés soit atteint.";
