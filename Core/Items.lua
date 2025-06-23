@@ -115,6 +115,10 @@ end
 ---@param minSeconds number? The minimum amount of seconds the duration should be above before it starts handling more, default is 180 (3 minutes).
 ---@return nil
 function SIPPYCUP.Items.CheckNonTrackableItemUsage(minSeconds)
+	-- Data sent through/around loading screens will not be reliable, so skip that.
+	if SIPPYCUP.InLoadingScreen then
+		return;
+	end
 
 	-- nontrackableProfile holds only enabled nontrackable consumables.
 	for _, profileConsumableData in pairs(SIPPYCUP.Database.nonTrackableProfile) do
@@ -130,6 +134,12 @@ function SIPPYCUP.Items.CheckNonTrackableSingleConsumable(profileConsumableData,
 	end
 
 	local preExpireFired = false;
+
+	-- Data sent through/around loading screens will not be reliable, so skip that.
+	if SIPPYCUP.InLoadingScreen then
+		return preExpireFired;
+	end
+
 	if not profileConsumableData then
 		profileConsumableData = SIPPYCUP.Database.FindMatchingConsumable(spellID);
 	end
