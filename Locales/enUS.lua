@@ -101,6 +101,7 @@ L.OPTIONS_GENERAL_BLUESKY_SHILL_DESC = "Follow me on Bluesky!";
 -- Generic
 L.OPTIONS_ENABLE_TEXT = "Enable consumable reminders for |cnGREEN_FONT_COLOR:%s|r.";
 L.OPTIONS_ENABLE_PREXPIRE_TEXT = "|n|nNote that this consumable |cnGREEN_FONT_COLOR:supports pre-expiration reminders|r. When this feature is enabled, it will remind you close to it expiring.";
+L.OPTIONS_ENABLE_PREXPIRE_MAXSTACKS_TEXT = "|n|nNote that this consumable |cnGREEN_FONT_COLOR:supports pre-expiration reminders on maximum stacks|r. When this feature is enabled, it will remind you close to it expiring.";
 L.OPTIONS_ENABLE_NON_REFRESHABLE_TEXT = "|n|n|cnWARNING_FONT_COLOR:Note that you should not refresh this consumable before it expires, as the stack will be lost without any effects.|r";
 L.OPTIONS_ENABLE_NON_STACKABLE_TEXT = "|n|n|cnWARNING_FONT_COLOR:Note that this consumable is harder to track, resulting in possible irregularities from time to time.|r";
 L.OPTIONS_SLIDER_TEXT = "Set the desired stack count for |cnGREEN_FONT_COLOR:%s|r.|n|nReminders will continue to show up until desired stack count is reached.";

@@ -391,6 +391,11 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleConsumable(profileConsumableD
 		return preExpireFired;
 	end
 
+	-- Some stack items can be pre-expired for refresh but ONLY if the current stacks == maxStacks
+	if consumableData.stacks and profileConsumableData.currentStacks ~= consumableData.maxStacks then
+		return preExpireFired;
+	end
+
 	local now = GetTime();
 	local remaining = auraInfo.expirationTime - now;
 	local duration = auraInfo.duration;

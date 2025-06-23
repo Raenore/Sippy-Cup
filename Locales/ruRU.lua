@@ -100,6 +100,7 @@ L.OPTIONS_GENERAL_BLUESKY_SHILL_DESC = "Подписывайтесь на мен
 -- Generic
 L.OPTIONS_ENABLE_TEXT = "Включить напоминания о расходуемых предметах для |cnGREEN_FONT_COLOR:%s|r.";
 L.OPTIONS_ENABLE_PREXPIRE_TEXT = "|n|nNote that this consumable |cnGREEN_FONT_COLOR:supports pre-expiration reminders|r. When this feature is enabled, it will remind you close to it expiring."; -- NEW
+L.OPTIONS_ENABLE_PREXPIRE_MAXSTACKS_TEXT = "|n|nNote that this consumable |cnGREEN_FONT_COLOR:supports pre-expiration reminders on maximum stacks|r. When this feature is enabled, it will remind you close to it expiring."; -- NEW
 L.OPTIONS_ENABLE_NON_REFRESHABLE_TEXT = "|n|n|cnWARNING_FONT_COLOR:Note that you should not refresh this consumable before it expires, as the stack will be lost without any effects.|r"; -- NEW
 L.OPTIONS_ENABLE_NON_STACKABLE_TEXT = "|n|n|cnWARNING_FONT_COLOR:Note that this consumable is harder to track, resulting in possible irregularities from time to time.|r"; -- NEW
 L.OPTIONS_SLIDER_TEXT = "Установить желаемое количество в стопке для |cnGREEN_FONT_COLOR:%s|r.|n|nНапоминания будут появляться, пока не будет достигнуто желаемое количество в стопке.";

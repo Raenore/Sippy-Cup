@@ -389,37 +389,41 @@ function SIPPYCUP_CONFIG.GenerateCategory(category)
 		order = order,
 	};
 
-	for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
-		if consumable.category == category then
+	for _, consumableData in ipairs(SIPPYCUP.Consumables.Data) do
+		if consumableData.category == category then
 
 			-- First we create a Header.
 			order = IncrementOrder(order);
-			args[consumable.profile .. "Header"] = {
+			args[consumableData.profile .. "Header"] = {
 				type = "header",
 				name = "",
 				order = order,
 			};
 			-------------------------------------------------
 
-			local consumableProfile = SIPPYCUP.db.profile[consumable.profile];
+			local consumableProfile = SIPPYCUP.db.profile[consumableData.profile];
 
-			local enableDesc = L.OPTIONS_ENABLE_TEXT:format(consumable.name);
-			if consumable.preExpiration ~= 0 then
-				enableDesc = enableDesc .. L.OPTIONS_ENABLE_PREXPIRE_TEXT;
+			local enableDesc = L.OPTIONS_ENABLE_TEXT:format(consumableData.name);
+			if consumableData.preExpiration ~= 0 then
+				if not consumableData.stacks then
+					enableDesc = enableDesc .. L.OPTIONS_ENABLE_PREXPIRE_TEXT;
+				else
+					enableDesc = enableDesc .. L.OPTIONS_ENABLE_PREXPIRE_MAXSTACKS_TEXT;
+				end
 			end
 
-			if consumable.unrefreshable then
+			if consumableData.unrefreshable then
 				enableDesc = enableDesc .. L.OPTIONS_ENABLE_NON_REFRESHABLE_TEXT;
-			elseif consumable.nonTrackable then
+			elseif consumableData.nonTrackable then
 				enableDesc = enableDesc .. L.OPTIONS_ENABLE_NON_STACKABLE_TEXT;
 			end
 
 			-- Then we set the Enable button.
 			order = IncrementOrder(order);
-			args[consumable.profile .. "Enable"] = {
+			args[consumableData.profile .. "Enable"] = {
 				type = "toggle",
 				name = function()
-					local enableStr = "|TInterface\\Icons\\" .. SIPPYCUP_ICON.RetrieveIcon(consumable.name) .. ":" .. ICON_SIZE .. "|t " .. consumable.name;
+					local enableStr = "|TInterface\\Icons\\" .. SIPPYCUP_ICON.RetrieveIcon(consumableData.name) .. ":" .. ICON_SIZE .. "|t " .. consumableData.name;
 					if consumableProfile.enable then
 						return "|cnWHITE_FONT_COLOR:" .. enableStr .. "|r";
 					else
@@ -432,7 +436,7 @@ function SIPPYCUP_CONFIG.GenerateCategory(category)
 				end,
 				set = function(_, val)
 					consumableProfile.enable = val;
-					SIPPYCUP.Popups.Toggle(consumable.name, val);
+					SIPPYCUP.Popups.Toggle(consumableData.name, val);
 				end,
 				width = HALF_WIDTH,
 				order = order,
@@ -440,13 +444,13 @@ function SIPPYCUP_CONFIG.GenerateCategory(category)
 
 			order = IncrementOrder(order);
 			-- If a consumable has stacks, we add a stacks slider.
-			if consumable.stacks then
-				args[consumable.profile .. "DesiredStacksSlider"] = {
+			if consumableData.stacks then
+				args[consumableData.profile .. "DesiredStacksSlider"] = {
 					type = "range",
 					name = L.OPTIONS_DESIRED_STACKS,
-					desc = L.OPTIONS_SLIDER_TEXT:format(consumable.name),
+					desc = L.OPTIONS_SLIDER_TEXT:format(consumableData.name),
 					min = 1,
-					max = consumable.maxStacks,
+					max = consumableData.maxStacks,
 					step = 1,
 					get = function()
 						return consumableProfile.desiredStacks;
@@ -455,14 +459,14 @@ function SIPPYCUP_CONFIG.GenerateCategory(category)
 						consumableProfile.desiredStacks = val;
 						-- Only show a popup if the consumable popups are enabled in the first place.
 						if consumableProfile.enable then
-							SIPPYCUP.Popups.Toggle(consumable.name, true);
+							SIPPYCUP.Popups.Toggle(consumableData.name, true);
 						end
 					end,
 					width = THIRD_WIDTH,
 					order = order,
 				};
 			else
-				args[consumable.profile .. "HeightFix"] = {
+				args[consumableData.profile .. "HeightFix"] = {
 					type = "description",
 					name = "|TInterface\\AddOns\\SippyCup\\Resources\\UI\\transparent:51:10|t",
 					width = 0.1,
