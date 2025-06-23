@@ -188,8 +188,9 @@ end
 ---CreateConsumablePopup creates a consumable popup with dynamic button behavior and customized output.
 ---@param consumableData table A table containing the consumable's data (itemID, loc, profile, etc.).
 ---@param requiredStacks number The number of stacks the user required for the consumable.
+---@param reason number The consumable's reason.
 ---@return nil
-local function CreateConsumablePopup(consumableData, requiredStacks)
+local function CreateConsumablePopup(consumableData, requiredStacks, reason)
 	local popupKey = "SIPPYCUP_REFRESH_" .. consumableData.loc;
 	local popupData = ClonePopupTemplate(BaseConsumablePopupTemplate);
 
@@ -198,46 +199,55 @@ local function CreateConsumablePopup(consumableData, requiredStacks)
 		popupButton:SetAttribute("type", "item");
 		popupButton:SetAttribute("item", data.item);
 		popupButton:RegisterForClicks("AnyUp", "AnyDown");
-
 		popupButton:SetAllPoints(popup.button1);
 		popupButton:SetText(data.buttonText);
+		popupButton:SetMotionScriptsWhileDisabled(true);
 
 		if S and S.HandleButton then
 			S:HandleButton(popupButton);
 		end
 
-		popup.popupButton = popupButton;
-
-		popup.button1:Hide();
-
-		local button = popup.button3;
-		if button then
-			button:HookScript("OnEnter", function()
-				GameTooltip:SetOwner(button, "ANCHOR_BOTTOM", 0, -5);
-				GameTooltip:SetText(L.POPUP_IGNORE_TT, nil, nil, nil, nil, true);
-				GameTooltip:Show();
-			end)
-			button:HookScript("OnLeave", function()
-				GameTooltip:Hide();
-			end)
-		end
-
-		popupButton:Show();
+		popup.popupButton = popupButton
+		popup.button1:Hide()
+		popupButton:Show()
 
 		-- Handle missing item situation after popup has already spawned, as button will do nothing.
 		if popupButton then
-			popupButton:HookScript("OnEnter", function()
-				local itemCount = C_Item.GetItemCount(consumableData.itemID);
+			-- Normally we don't want to use duration as it can also just show a GCD instead of spell, but that's okay because we want that.
+			local startTime, duration = C_Container.GetItemCooldown(consumableData.itemID);
+			if duration > 0 then
+				-- Calculate how many seconds are left on cooldown right now, to use that to disable & re-enable the button.
+				local expiresAt = startTime + duration;
+				local remaining = expiresAt - GetTime();
+				if remaining > 0 then
+					popupButton:Disable();
+					popupButton:EnableMouse(true);
+					C_Timer.After(remaining, function()
+						if popupButton and popupButton:IsShown() then
+							GameTooltip:Hide();
+							popupButton:Enable();
+						end
+					end);
+				end
+			end
+
+			popupButton:HookScript("OnEnter", function(self)
 				local tooltipText;
 
-				if itemCount == 0 then
-					tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_LACKING_TEXT:gsub("^%l", string.upper) .. "|r";
-				elseif itemCount < requiredStacks then
-					tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_LACKING_TEXT_AMOUNT:gsub("^%l", string.upper) .. "|n(" .. itemCount .. " / " .. requiredStacks .. ")|r";
+				if not self:IsEnabled() then
+					tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_COOLDOWN_TEXT:gsub("^%l", string.upper) .. "|r";
+				else
+					local itemCount = C_Item.GetItemCount(consumableData.itemID);
+
+					if itemCount == 0 then
+						tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_LACKING_TEXT:gsub("^%l", string.upper) .. "|r";
+					elseif itemCount < requiredStacks then
+						tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_LACKING_TEXT_AMOUNT:gsub("^%l", string.upper) .. "|n(" .. itemCount .. " / " .. requiredStacks .. ")|r";
+					end
 				end
 
 				if tooltipText then
-					GameTooltip:SetOwner(popupButton, "ANCHOR_BOTTOM", 0, -5);
+					GameTooltip:SetOwner(self, "ANCHOR_BOTTOM", 0, -5);
 					GameTooltip:SetText(tooltipText, nil, nil, nil, nil, true);
 					GameTooltip:Show();
 				end
@@ -246,17 +256,34 @@ local function CreateConsumablePopup(consumableData, requiredStacks)
 				GameTooltip:Hide();
 			end)
 		end
+
+		if popup.button3 then
+			popup.button3:HookScript("OnEnter", function()
+				GameTooltip:SetOwner(popup.button3, "ANCHOR_BOTTOM", 0, -5);
+				GameTooltip:SetText(L.POPUP_IGNORE_TT, nil, nil, nil, nil, true);
+				GameTooltip:Show();
+			end);
+			popup.button3:HookScript("OnLeave", function()
+				GameTooltip:Hide();
+			end);
+		end
 	end
 
 	StaticPopupDialogs[popupKey] = popupData;
 
 	local text = SIPPYCUP.AddonMetadata.title;
+	local popupText = L.POPUP_STACK_TEXT;
+	if reason == 2 then
+		popupText = L.POPUP_EXPIRING_SOON_TEXT;
+	elseif not consumableData.stacks then
+		popupText = L.POPUP_MISSING_TEXT;
+	end
 
 	-- Builds the popup message with optional item icon and capitalizes the first letter of the follow-up text if enabled.
 	if SIPPYCUP.db.global.PopupIcon then
-		text = text .. "|n|n|TInterface\\Icons\\" .. SIPPYCUP_ICON.RetrieveIcon(consumableData.name) .. ":" .. ICON_SIZE .. "|t |cnGREEN_FONT_COLOR:" .. consumableData.name .. "|r|n|n" .. L.POPUP_TEXT:gsub("^%l", string.upper);
+		text = text .. "|n|n|TInterface\\Icons\\" .. SIPPYCUP_ICON.RetrieveIcon(consumableData.name) .. ":" .. ICON_SIZE .. "|t |cnGREEN_FONT_COLOR:" .. consumableData.name .. "|r|n|n" .. popupText:gsub("^%l", string.upper);
 	else
-		text = text .. "|n|n|cnGREEN_FONT_COLOR:" .. consumableData.name .. "|r " .. L.POPUP_TEXT;
+		text = text .. "|n|n|cnGREEN_FONT_COLOR:" .. consumableData.name .. "|r " .. popupText;
 	end
 
 	local dialog = StaticPopup_Show(popupKey, text, nil, {
@@ -283,116 +310,193 @@ end
 ---@return nil
 function SIPPYCUP.Popups.Toggle(itemName, enabled, mainMenu)
 	-- Grab the right consumable by name, and check if aura exists.
-	local consumable = SIPPYCUP.Consumables.ByName[itemName];
-	if not consumable then
+	local consumableData = SIPPYCUP.Consumables.ByName[itemName];
+	if not consumableData then
 		return;
 	end
+	SIPPYCUP.Database.RebuildAuraMap();
 
-	-- If the consumable is not enabled, kill all its associated popups.
+	-- If the consumable is not enabled, kill all its associated popups and timers!
 	if not enabled then
-		local popupKey = "SIPPYCUP_REFRESH_" .. consumable.loc;
-		HandleAlerts(consumable.loc, true);
+		local popupKey = "SIPPYCUP_REFRESH_" .. consumableData.loc;
+		HandleAlerts(consumableData.loc, true);
 
 		if StaticPopup_Visible(popupKey) then
 			StaticPopup_Hide(popupKey);
 		end
+
+		if consumableData.nonTrackable then
+			SIPPYCUP.Items.CancelItemTimer(nil, consumableData.auraID);
+		else
+			SIPPYCUP.Auras.CancelPreExpirationTimer(nil, consumableData.auraID);
+		end
+
 		return;
 	end
 
-	-- Check if the aura is active, and use that further information later.
-	local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(consumable.auraID);
+	-- For the enabled case: we need to check auraInfo and possibly cooldown. We'll define continuation logic.
+	local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(consumableData.auraID);
+		-- continuation: runs after we know `active` value
+	local function continueToggle(active, startTimer)
+		-- Check potential pre-expiration timers that might be relevant for the newly enabled consumable.
+		local profileConsumableData = SIPPYCUP.db.profile[consumableData.profile];
+		local preExpireFired;
+		if consumableData.nonTrackable then
+			preExpireFired = SIPPYCUP.Items.CheckNonTrackableSingleConsumable(profileConsumableData, nil, nil, startTimer);
+		else
+			preExpireFired = SIPPYCUP.Auras.CheckPreExpirationForSingleConsumable(profileConsumableData);
+		end
 
-	SIPPYCUP.Popups.QueuePopupAction(not auraInfo, consumable.auraID, auraInfo, auraInfo and auraInfo.auraInstanceID, mainMenu);
+		-- Only queue popup if no pre-expiration has already fired
+		if not preExpireFired then
+			-- auraInfo may be truthy/table; active is boolean from cooldown check
+			SIPPYCUP.Popups.QueuePopupAction((auraInfo or active) and 0 or 1, consumableData.auraID, auraInfo, auraInfo and auraInfo.auraInstanceID, mainMenu, "Toggle");
+		end
+	end
+
+	-- If non-trackable, do cooldown check with retry; otherwise we can continue immediately with active=false if no aura.
+	if consumableData.nonTrackable then
+		-- Start with active=false; callback will override if startTime>0
+		SIPPYCUP.Items.GetItemCooldownWithRetry(consumableData.itemID, 2, 0.2, function(startTime)
+			local active = false;
+			if startTime and startTime > 0 then
+				active = true;
+			end
+			continueToggle(active, startTime);
+		end);
+	else
+		-- No cooldown check needed; only auraInfo matters. active = false here.
+		continueToggle(false);
+	end
 end
 
 local DEBOUNCE_DELAY = 0.05;
 local pendingCalls = {};
 
 ---QueuePopupAction queues up popup action calls, adding a debounce to avoid repeated calls (UNIT_AURA & COMBAT_LOG_EVENT_UNFILTERED).
----@param removal boolean Whether the aura is getting removed or not.
+---@param reason number Why a popup is getting called (0 - add/update, 1 = removal, 2 = pre-expire)
 ---@param auraID number The aura ID.
 ---@param auraInfo table|nil Information about the aura, or nil if not present.
 ---@param auraInstanceID number|nil The instance ID of the aura, or nil if not applicable.
 ---@param mainMenu boolean? Whether this was triggered from the Main Menu hide or not.
+---@param caller string What function called the popup action.
 ---@return nil
-function SIPPYCUP.Popups.QueuePopupAction(removal, auraID, auraInfo, auraInstanceID, mainMenu)
+function SIPPYCUP.Popups.QueuePopupAction(reason, auraID, auraInfo, auraInstanceID, mainMenu, caller)
 	if InCombatLockdown() then return; end
 
-	if SIPPYCUP.db.global.MSPStatusCheck and SIPPYCUP_PLAYER.IsOutOfCharacter() then
+	-- If MSP status checks are on and the character is currently OOC, we skip everything.
+	if SIPPYCUP.db.global.MSPStatusCheck and SIPPYCUP.Player.OOC then
 		return;
 	end
 
-	local args = { removal, auraID, auraInfo, auraInstanceID, mainMenu };
+	-- Use a composite key of auraID and reason so different reasons don't collide
+	local key = tostring(auraID) .. "-" .. tostring(reason);
+	local args = { reason, auraID, auraInfo, auraInstanceID, mainMenu, caller };
 
-	if pendingCalls[auraID] then
-		-- Update the existing entry with the latest arguments
-		pendingCalls[auraID].args = args;
-		return;
+	if pendingCalls[key] then
+		-- Update the existing entry with the latest arguments for this auraID+reason
+		pendingCalls[key].args = args;
+		return
 	end
 
-	-- first call for this auraID: store args and schedule
-	pendingCalls[auraID] = { args = args };
+	-- first call for this auraID+reason: store args and schedule
+	pendingCalls[key] = { args = args }
 	C_Timer.After(DEBOUNCE_DELAY, function()
-		local entry = pendingCalls[auraID];
-		pendingCalls[auraID] = nil;
+		local entry = pendingCalls[key];
+		pendingCalls[key] = nil;
 
 		if not entry or not entry.args then
 			return;
 		end
 
-		local rem, aID, aI, aIID, mM = unpack(entry.args)
-		SIPPYCUP.Popups.HandlePopupAction(rem, aID, aI, aIID, mM);
+		local res, aID, aI, aIID, mM, c = unpack(entry.args);
+		SIPPYCUP.Popups.HandlePopupAction(res, aID, aI, aIID, mM, c);
 	end)
 end
 
 ---HandlePopupAction executes the popup action for a consumable aura.
----@param removal boolean Whether the aura is getting removed or not.
+---@param reason number Why a popup is getting called (0 - add/update, 1 = removal, 2 = pre-expire)
 ---@param auraID number The aura ID.
 ---@param auraInfo table|nil Information about the aura, or nil if not present.
 ---@param auraInstanceID number|nil The instance ID of the aura, or nil if not applicable.
 ---@param mainMenu boolean? Whether this was triggered from the Main Menu hide or not.
+---@param caller string What function called the popup action.
 ---@return nil
-function SIPPYCUP.Popups.HandlePopupAction(removal, auraID, auraInfo, auraInstanceID, mainMenu)
+function SIPPYCUP.Popups.HandlePopupAction(reason, auraID, auraInfo, auraInstanceID, mainMenu, caller)
 	if InCombatLockdown() then return end
+
+	SIPPYCUP_OUTPUT.Debug({ caller = caller});
 
 	local consumableData = SIPPYCUP.Consumables.ByAuraID[auraID];
 	if not consumableData then return; end
 
-	local profileConsumableInfo = SIPPYCUP.db.profile[consumableData.profile];
-	if not profileConsumableInfo then return; end
+	local profileConsumableData = SIPPYCUP.db.profile[consumableData.profile];
+	if not profileConsumableData then return; end
 
-	local sessionProfile = sessionData[consumableData.profile];
-	if sessionProfile then return; end
+	if sessionData[consumableData.profile] then return; end
 
-	profileConsumableInfo.currentInstanceID = auraInfo and auraInfo.auraInstanceID or auraInstanceID or nil;
-	profileConsumableInfo.currentStacks = auraInfo and auraInfo.applications or 0;
+	-- Establish if we're dealing with a trackable or nontrackable item.
+	local nonTrackable = consumableData.nonTrackable;
 
-	if not removal and profileConsumableInfo.currentStacks == 0 then
-		profileConsumableInfo.currentStacks = 1;
+	-- First, let's grab the latest currentInstanceID (or have it be nil if none which is fine).
+	profileConsumableData.currentInstanceID = auraInfo and auraInfo.auraInstanceID or auraInstanceID or nil;
+
+	-- Then we do a check on the special checks on currentStacks
+	-- If an expire is coming, we pretend all stacks are at 0 regardless if we can track it or not.
+	if reason == 2 then
+		profileConsumableData.currentStacks = 0;
+	-- Then we check if we're dealing with nontrackable consumables, as they're special
+	elseif not auraInfo and nonTrackable then
+		-- If a nontrackable was added, it'll be at 1 regardless. As the stack is applied before we even get here.
+		if reason == 0 then
+			profileConsumableData.currentStacks = 1;
+		-- If removed, we know the currentStacks are at 0 and thus we set it to 0.
+		elseif reason == 1 then
+			profileConsumableData.currentStacks = 0;
+		end
+	-- On addition, the currentstacks will always be 1 (sometimes it'll say 0 for 1 applications).
+	elseif auraInfo and reason == 0 and auraInfo.applications == 0 then
+		profileConsumableData.currentStacks = 1;
+	else -- Once we're past the special exception stacks, we do the normal auraInfo checks.
+		profileConsumableData.currentStacks = auraInfo and auraInfo.applications or 0;
 	end
+
+	-- If the consumable does not support stacks, we always desire just 1.
 	if not consumableData.stacks then
-		profileConsumableInfo.desiredStacks = 1;
+		profileConsumableData.desiredStacks = 1;
 	end
 
 	local popupKey = "SIPPYCUP_REFRESH_" .. consumableData.loc;
-	local isShown  = StaticPopupDialogs[popupKey] and true or false;
+	local isShown  = StaticPopup_Visible(popupKey);
 
-	if isShown then
-		StaticPopup_Hide(popupKey);
-	end
+	if profileConsumableData.currentStacks < profileConsumableData.desiredStacks then
 
-	if removal and not isShown and mainMenu ~= true then
-		HandleAlerts(consumableData.loc, true);
-	end
-
-	if profileConsumableInfo.currentStacks < profileConsumableInfo.desiredStacks then
-		local requiredStacks = profileConsumableInfo.desiredStacks - profileConsumableInfo.currentStacks;
-		CreateConsumablePopup(consumableData, requiredStacks);
-		HandleAlerts(consumableData.loc);
-	elseif profileConsumableInfo.currentStacks == profileConsumableInfo.desiredStacks then
-		HandleAlerts(consumableData.loc, true);
-		if StaticPopupDialogs[popupKey] then
+		if isShown then
 			StaticPopup_Hide(popupKey);
+		end
+
+		if reason == 1 and mainMenu ~= true and (not isShown or consumableData.preExpiration ~= 0) then
+			HandleAlerts(consumableData.loc, true);
+		end
+
+		local requiredStacks = profileConsumableData.desiredStacks - profileConsumableData.currentStacks;
+		CreateConsumablePopup(consumableData, requiredStacks, reason);
+		HandleAlerts(consumableData.loc);
+	elseif profileConsumableData.currentStacks == profileConsumableData.desiredStacks then
+
+		if isShown then
+			StaticPopup_Hide(popupKey);
+		end
+
+		HandleAlerts(consumableData.loc, true);
+	end
+end
+
+function SIPPYCUP.Popups.HideAllRefreshPopups()
+	for i = 1, STATICPOPUP_NUMDIALOGS do
+		local frame = _G["StaticPopup"..i];
+		if frame and frame:IsShown() and frame.which and frame.which:match("^SIPPYCUP_REFRESH_") then
+			StaticPopup_Hide(frame.which);
 		end
 	end
 end
