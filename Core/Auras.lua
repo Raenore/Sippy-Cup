@@ -2,7 +2,6 @@
 -- SPDX-License-Identifier: Apache-2.0
 
 SIPPYCUP.Auras = {};
-SIPPYCUP.Auras.InLoadingScreen = false;
 
 ---CheckEnabledAuras displays data on the currently tracking enabled consumables (even if they are zero).
 ---@return nil
@@ -205,7 +204,7 @@ function SIPPYCUP.Auras.Convert(source, data)
 		elseif data[1] == "SPELL_AURA_REMOVED" and auraInfo then
 			updateInfo.removedAuraInstanceIDs = { auraInfo.auraInstanceID };
 		end
-	elseif source == 3 and not SIPPYCUP.Auras.InLoadingScreen then
+	elseif source == 3 and not SIPPYCUP.InLoadingScreen then
 		-- Source 3: DB mismatch — simulate expired aura using its last known instance ID.
 		-- Data sent through/around loading screens will not be reliable, so skip that.
 		updateInfo.removedAuraInstanceIDs = { data[1] };
@@ -235,7 +234,7 @@ end
 ---@return nil
 function SIPPYCUP.Auras.CheckStackMismatchInDBForAllActiveConsumables()
 	-- Data sent through/around loading screens will not be reliable, so skip that.
-	if SIPPYCUP.Auras.InLoadingScreen then
+	if SIPPYCUP.InLoadingScreen then
 		return;
 	end
 
@@ -350,7 +349,7 @@ end
 ---@return nil
 function SIPPYCUP.Auras.CheckPreExpirationForAllActiveConsumables(minSeconds)
 	-- Data sent through/around loading screens will not be reliable, so skip that.
-	if SIPPYCUP.Auras.InLoadingScreen or not SIPPYCUP.db.global.PreExpirationChecks then
+	if SIPPYCUP.InLoadingScreen or not SIPPYCUP.db.global.PreExpirationChecks then
 		return;
 	end
 
@@ -366,7 +365,7 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleConsumable(profileConsumableD
 	local preExpireFired = false;
 
 	-- If pre-expiration checks can't be done, why are we even here?
-	if SIPPYCUP.Auras.InLoadingScreen or not SIPPYCUP.db.global.PreExpirationChecks then
+	if SIPPYCUP.InLoadingScreen or not SIPPYCUP.db.global.PreExpirationChecks then
 		return preExpireFired;
 	end
 

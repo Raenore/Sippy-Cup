@@ -201,23 +201,25 @@ function SIPPYCUP_Addon:PLAYER_FLAGS_CHANGED(_, unitTarget)
 	end
 end
 
+SIPPYCUP.InLoadingScreen = false;
+
 function SIPPYCUP_Addon:PLAYER_ENTERING_WORLD(_, isInitialLogin, isReloadingUi)
 	if not isInitialLogin and not isReloadingUi then
-		SIPPYCUP.Auras.InLoadingScreen = true;
+		SIPPYCUP.InLoadingScreen = true;
 		self:StopAuraCheck();
 		self:StopContinuousCheck();
 	end
 end
 
 function SIPPYCUP_Addon:PLAYER_LEAVING_WORLD()
-	SIPPYCUP.Auras.InLoadingScreen = true;
+	SIPPYCUP.InLoadingScreen = true;
 	self:StopAuraCheck();
 	self:StopContinuousCheck();
 end
 
 function SIPPYCUP_Addon:ZONE_CHANGED_NEW_AREA()
-	if SIPPYCUP.Auras.InLoadingScreen then
-		SIPPYCUP.Auras.InLoadingScreen = false;
+	if SIPPYCUP.InLoadingScreen then
+		SIPPYCUP.InLoadingScreen = false;
 		self:StartAuraCheck();
 		self:StartContinuousCheck();
 	end
