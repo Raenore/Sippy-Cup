@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.2] - 2025-06-24
+
+### Fixed
+- Fixed an issue regarding aura changes during loading screens (fixed in [#29](https://github.com/Raenore/Sippy-Cup/pull/29)).
+- Fixed rebuilding the AuraMap not checking instanceIDs thoroughly enough (fixed in [#29](https://github.com/Raenore/Sippy-Cup/pull/29)).
+- Fixed the MismatchDB check not accounting for changed instanceIDs on some zone changes (fixed in [#29](https://github.com/Raenore/Sippy-Cup/pull/29)).
+
 ## [0.2.1] - 2025-06-23
 
 ### Added
