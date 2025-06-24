@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.2] - 2025-06-xx
+## [0.2.2] - 2025-06-23
 
 ### Fixed
 - Fixed an issue regarding aura changes during loading screens (fixed in [#29](https://github.com/Raenore/Sippy-Cup/pull/29)).
