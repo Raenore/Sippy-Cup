@@ -245,6 +245,7 @@ function SIPPYCUP.Auras.CheckStackMismatchInDBForAllActiveConsumables()
 	local GetPlayerAuraBySpellID = C_UnitAuras.GetPlayerAuraBySpellID;
 
 	local toRemove = {};
+	local toAdd = {};
 
 	-- instanceToProfile holds only enabled and active consumables (with a known instanceID) AKA the ones our DB thinks are running.
 	for oldInstanceID, profileConsumableData in pairs(SIPPYCUP.Database.instanceToProfile) do
@@ -266,21 +267,26 @@ function SIPPYCUP.Auras.CheckStackMismatchInDBForAllActiveConsumables()
 				SIPPYCUP.Database.instanceToProfile[oldInstanceID].currentInstanceID = nil;
 				toRemove[#toRemove+1] = oldInstanceID;
 
-				-- Update the currentInstanceID and instanceToProfile map already here so it is up-to-date.
-				profileConsumableData.currentInstanceID = newInstanceID;
-				SIPPYCUP.Database.instanceToProfile[newInstanceID] = profileConsumableData;
+				SIPPYCUP_OUTPUT.Debug("CheckStackMismatch: instanceID changed for", profileConsumableData.aura, "from", oldInstanceID, "to", newInstanceID);
 
-				local updatedInstanceID = { newInstanceID };
-
-				-- Prepare this consumable to have its data updated, by faking a "updated auraInfo" call to our system.
-				-- Don't worry about ignored or other stuff, popups handle this later in the chain.
-				SIPPYCUP.Auras.Convert(4, updatedInstanceID);
+				-- Mark the new instanceID for addition after the loop is done.
+				toAdd[newInstanceID] = profileConsumableData;
 			end
 		end
 	end
 
 	for _, oldInstanceID in ipairs(toRemove) do
 		SIPPYCUP.Database.instanceToProfile[oldInstanceID] = nil;
+	end
+
+	for newInstanceID, profileConsumableData in pairs(toAdd) do
+		profileConsumableData.currentInstanceID = newInstanceID;
+		SIPPYCUP.Database.instanceToProfile[newInstanceID] = profileConsumableData;
+
+		local updatedInstanceID = { newInstanceID };
+		-- Prepare this consumable to have its data updated, by faking a "updated auraInfo" call to our system.
+		-- Don't worry about ignored or other stuff, popups handle this later in the chain.
+		SIPPYCUP.Auras.Convert(4, updatedInstanceID);
 	end
 end
 
