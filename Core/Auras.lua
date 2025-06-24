@@ -228,9 +228,9 @@ function SIPPYCUP.Auras.Convert(source, data)
 	end
 end
 
----CheckStackMismatchInDBForAllActiveConsumables runs every 5 seconds to check if there is a mismatch between actual stacks and the DB.
+---CheckStackMismatchInDBForAllActiveConsumables runs every 5 seconds to check if there is a mismatch between actual consumable data and our DB.
 ---
----This can happen in the rare (but possible) case where UNIT_AURA did not catch a consumable expiration.
+---This can happen on zone changes (which cause instanceIDs to change) or in the rare (but possible) case where UNIT_AURA did not catch a consumable expiration.
 ---@return nil
 function SIPPYCUP.Auras.CheckStackMismatchInDBForAllActiveConsumables()
 	-- Data sent through/around loading screens will not be reliable, so skip that.
@@ -242,15 +242,29 @@ function SIPPYCUP.Auras.CheckStackMismatchInDBForAllActiveConsumables()
 
 	-- instanceToProfile holds only enabled and active consumables (with a known instanceID) AKA the ones our DB thinks are running.
 	for _, profileConsumableData in pairs(SIPPYCUP.Database.instanceToProfile) do
+		-- Sometimes aura instanceIDs are changed between loading screens or such while they're still active.
 		local auraInfo = GetPlayerAuraBySpellID(profileConsumableData.aura);
 
-		-- If no auraInfo is found, the consumable got removed and our checks did not notice.
-		if not auraInfo and profileConsumableData.currentInstanceID then
+		-- If no auraInfo exists, the spell was actually removed.
+		if not auraInfo then
 			local expiredInstanceID = { profileConsumableData.currentInstanceID };
 
 			-- Prepare this consumable to get popup'd anew, by faking a "this has expired" call to our system.
 			-- Don't worry about ignored or other stuff, popups handle this later in the chain.
 			SIPPYCUP.Auras.Convert(3, expiredInstanceID);
+		else
+			-- Given auraInfo still exists, it means it wasn't really removed, we switch out some details.
+			if profileConsumableData.currentInstanceID ~= auraInfo.auraInstanceID then
+				local oldAuraInstanceID = profileConsumableData.currentInstanceID;
+
+				profileConsumableData.currentInstanceID = auraInfo.auraInstanceID;
+				SIPPYCUP.Database.instanceToProfile[auraInfo.auraInstanceID] = profileConsumableData;
+
+				-- On aura update, we remove all pre-expiration timers as that's obvious no longer relevant.
+				SIPPYCUP.Auras.CancelPreExpirationTimer(nil, profileConsumableData.aura, oldAuraInstanceID);
+				SIPPYCUP.Auras.CheckPreExpirationForSingleConsumable(profileConsumableData);
+				SIPPYCUP.Popups.QueuePopupAction(0, auraInfo.spellId, auraInfo, auraInfo.auraInstanceID, nil, "MisMatchDB - updated instanceID");
+			end
 		end
 	end
 end
