@@ -104,23 +104,14 @@ function SIPPYCUP.Database.RebuildAuraMap()
 		if profileConsumableData.enable and profileConsumableData.aura then
 			SIPPYCUP.Database.auraToProfile[profileConsumableData.aura] = profileConsumableData;
 
-			-- If we don't have a currentInstanceID, check if the aura is active and if so grab the current instanceID
-			if not profileConsumableData.currentInstanceID then
-				local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(profileConsumableData.aura);
-				if auraInfo then
-					profileConsumableData.currentInstanceID = auraInfo.auraInstanceID;
-				end
-			end
-
-			-- Then we try to map that if it's not nil.
-			if profileConsumableData.currentInstanceID then
-				-- We make sure to confirm that this data is still correct, if not we kind of have to nil it.
-				local auraInfo = C_UnitAuras.GetAuraDataByAuraInstanceID("player", profileConsumableData.currentInstanceID);
-				if auraInfo then
-					SIPPYCUP.Database.instanceToProfile[profileConsumableData.currentInstanceID] = profileConsumableData;
-				else
-					profileConsumableData.currentInstanceID = nil;
-				end
+			-- Always grab the latest instanceID so it is updated just in case.
+			local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(profileConsumableData.aura);
+			if auraInfo then
+				profileConsumableData.currentInstanceID = auraInfo.auraInstanceID;
+				-- Then we try to map that if it's not nil.
+				SIPPYCUP.Database.instanceToProfile[auraInfo.auraInstanceID] = profileConsumableData;
+			else
+				profileConsumableData.currentInstanceID = nil;
 			end
 
 			-- If the item is nonTrackable, we'll map that too.
