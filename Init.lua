@@ -27,5 +27,7 @@ SIPPYCUP.IS_DEV_BUILD = true;
 SIPPYCUP.IS_DEV_BUILD = false;
 --@end-non-debug@]===]
 
+SIPPYCUP.InLoadingScreen = true;
+
 ---@type SIPPYCUP
 _G.SIPPYCUP = SIPPYCUP;

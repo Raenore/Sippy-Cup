@@ -75,10 +75,10 @@ function SIPPYCUP_Addon:OnEnable()
 	end
 
 	-- 4 - We start our 5s AuraCheck (mismatch from UNIT_AURA)
-	self:StartAuraCheck();
+	-- Handled in PLAYER_ENTERING_WORLD on login through self:StartAuraCheck();
 
 	-- 5 - We start our 3m Pre-Expiration Check if it's enabled (check is done within the function itself).
-	self:StartContinuousCheck();
+	-- Handled in PLAYER_ENTERING_WORLD on login through self:StartContinuousCheck();
 
 	-- 6 - We hook the main menu so that our popups get stored and shown after it's closed to avoid logout button issues.
 	GameMenuFrame:HookScript("OnShow", function()
@@ -201,13 +201,16 @@ function SIPPYCUP_Addon:PLAYER_FLAGS_CHANGED(_, unitTarget)
 	end
 end
 
-SIPPYCUP.InLoadingScreen = false;
-
 function SIPPYCUP_Addon:PLAYER_ENTERING_WORLD(_, isInitialLogin, isReloadingUi)
 	if not isInitialLogin and not isReloadingUi then
 		SIPPYCUP.InLoadingScreen = true;
 		self:StopAuraCheck();
 		self:StopContinuousCheck();
+	else
+		-- On login and reload, ZONE_CHANGED_NEW_AREA does not fire so we start checks.
+		SIPPYCUP.InLoadingScreen = false;
+		self:StartAuraCheck();
+		self:StartContinuousCheck();
 	end
 end
 
