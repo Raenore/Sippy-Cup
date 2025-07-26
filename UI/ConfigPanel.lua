@@ -135,12 +135,14 @@ function SIPPYCUP_CONFIG.GenerateGeneral()
 				name = L.OPTIONS_GENERAL_POPUPS_POSITION_NAME,
 				desc = L.OPTIONS_GENERAL_POPUPS_POSITION_DESC,
 				values = {
-					["top"] = "Top (Default)",
-					["center"] = "Center",
+					["TOP"] = "Top (Default)",
+					["CENTER"] = "Center",
+					["BOTTOM"] = "Bottom",
 				},
 				sorting = {
-					"top",
-					"center",
+					"TOP",
+					"CENTER",
+					"BOTTOM",
 				},
 				get = function()
 					return SIPPYCUP.db.global.PopupPosition;
