@@ -89,10 +89,10 @@ function SIPPYCUP_CONFIG.GenerateGeneral()
 				name = L.OPTIONS_GENERAL_MINIMAPBUTTON_NAME,
 				desc = L.OPTIONS_GENERAL_MINIMAPBUTTON_DESC,
 				get = function()
-					return not SIPPYCUP.db.global.MinimapButton.hide;
+					return not SIPPYCUP.db.global.MinimapButton.Hide;
 				end,
 				set = function(_, val)
-					SIPPYCUP.db.global.MinimapButton.hide = not val;
+					SIPPYCUP.db.global.MinimapButton.Hide = not val;
 					SIPPYCUP.Minimap:UpdateMinimapButtons();
 				end,
 				width = THIRD_WIDTH,

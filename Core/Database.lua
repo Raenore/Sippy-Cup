@@ -24,7 +24,7 @@ local AceConfigRegistry = LibStub("AceConfigRegistry-3.0");
 
 ---Settings for the minimap button.
 ---@class SIPPYCUPMinimapSettings
----@field hide boolean Whether the minimap button is hidden completely.
+---@field Hide boolean Whether the minimap button is hidden completely.
 ---@field ShowAddonCompartmentButton boolean Whether to show the addon compartment button.
 
 ---@type SIPPYCUPDefaults
@@ -39,7 +39,7 @@ SIPPYCUP.Database.defaults = {
 		PreExpirationChecks = true,
 		WelcomeMessage = true,
 		MinimapButton = {
-			hide = false,
+			Hide = false,
 			ShowAddonCompartmentButton = true,
 		},
 	},
