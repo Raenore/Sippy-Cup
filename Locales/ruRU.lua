@@ -52,7 +52,8 @@ L.WINTERFALL_FIREWATER = "Огненная вода Зимней Спячки";
 --/ Popup dialog /--
 L.POPUP_COOLDOWN_TEXT = "currently on cooldown."; -- NEW
 L.POPUP_LACKING_TEXT = "не найден в вашем инвентаре.";
-L.POPUP_LACKING_TEXT_AMOUNT = "недостаточно в вашем инвентаре.";
+L.POPUP_LACKING_TEXT_AMOUNT = "недостаточно в вашем инвентаре.|n(%d missing)"; -- NEW (Ending)
+L.POPUP_LACKING_TEXT_NEXT_REFRESH = "insufficient (%d / %d) for next refresh."; -- NEW
 L.POPUP_STACK_TEXT = "не соответствует желаемому количеству в стопке!";
 L.POPUP_MISSING_TEXT = "is not active!"; -- NEW
 L.POPUP_EXPIRING_SOON_TEXT = "is expiring soon!"; -- NEW
@@ -78,6 +79,8 @@ L.OPTIONS_GENERAL_POPUPS_ICON_ENABLE = "Значок во всплывающем
 L.OPTIONS_GENERAL_POPUPS_ICON_ENABLE_DESC = "Включает/выключает отображение значка расходуемого предмета во всплывающем напоминании.|n|n|cnWARNING_FONT_COLOR:Учтите, что включение этой опции сделает всплывающее окно выше.|r";
 L.OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE = "Pre-Expiration Reminder"; -- NEW
 L.OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE_DESC = "Toggles whether pre-expiration reminders should show close to the consumable expiring.|n|n|cnWARNING_FONT_COLOR:Keep in mind that not all items support this (it will be displayed on the enable tooltip).|r"; -- NEW
+L.OPTIONS_GENERAL_POPUPS_INSUFFICIENT_REMINDER_ENABLE = "Insufficient Reminder"; -- NEW
+L.OPTIONS_GENERAL_POPUPS_INSUFFICIENT_REMINDER_ENABLE_DESC = "Toggles whether an insufficient quantity popup for next refresh should show."; -- NEW
 L.OPTIONS_GENERAL_POPUPS_IGNORES = "Сбросить проигнорированные напоминания";
 L.OPTIONS_GENERAL_POPUPS_IGNORES_TEXT = "Сбросить все всплывающие напоминания, проигнорированные в этой сессии, чтобы они снова стали видны.";
 L.OPTIONS_GENERAL_POPUPS_ALERT_SOUND_DESC = "Выберите звук, который будет воспроизводиться при появлении всплывающего напоминания.";
@@ -122,6 +125,10 @@ L.OPTIONS_CONSUMABLE_HANDHELD_INSTRUCTION = "These options control all reminders
 -- Placement
 L.OPTIONS_CONSUMABLE_PLACEMENT_TITLE = "Placement"; -- NEW
 L.OPTIONS_CONSUMABLE_PLACEMENT_INSTRUCTION = "These options control all reminders for consumables that can be placed on the ground."; -- NEW
+
+-- Prism
+L.OPTIONS_CONSUMABLE_PRISM_TITLE = "Prism"; -- NEW
+L.OPTIONS_CONSUMABLE_PRISM_INSTRUCTION = "These options control all reminders for prism consumables to alter your appearance."; -- NEW
 
 -- Size
 L.OPTIONS_CONSUMABLE_SIZE_TITLE = "Размер";

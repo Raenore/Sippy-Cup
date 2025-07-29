@@ -52,7 +52,8 @@ L.WINTERFALL_FIREWATER = "Eau-de-feu des Tombe-hiver";
 --/ Popup dialog /--
 L.POPUP_COOLDOWN_TEXT = "actuellement en recharge.";
 L.POPUP_LACKING_TEXT = "introuvable dans votre inventaire.";
-L.POPUP_LACKING_TEXT_AMOUNT = "insuffisant dans votre inventaire.";
+L.POPUP_LACKING_TEXT_AMOUNT = "insuffisant dans votre inventaire.|n(%d missing)"; -- NEW (Ending)
+L.POPUP_LACKING_TEXT_NEXT_REFRESH = "insufficient (%d / %d) for next refresh."; -- NEW
 L.POPUP_STACK_TEXT = "en-dessous du nombre de stacks voulus !";
 L.POPUP_MISSING_TEXT = "n'est pas actif !";
 L.POPUP_EXPIRING_SOON_TEXT = "expire bientôt !";
@@ -77,6 +78,8 @@ L.OPTIONS_GENERAL_POPUPS_ICON_ENABLE = "Icône";
 L.OPTIONS_GENERAL_POPUPS_ICON_ENABLE_DESC = "Affiche ou cache l'icône du consommable dans la fenêtre de rappel.|n|n|cnWARNING_FONT_COLOR:Gardez en tête que l'activation de cette option augmente la hauteur de la fenêtre.|r";
 L.OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE = "Rappel pré-expiration";
 L.OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE_DESC = "Active l'affiche des rappels pré-expiration lorsque le consommable est sur le point d'expirer.|n|n|cnWARNING_FONT_COLOR:Gardez en tête que tous les objets ne supportent pas cette option (le support est affiché dans l'infobulle d'activation du consommable).|r";
+L.OPTIONS_GENERAL_POPUPS_INSUFFICIENT_REMINDER_ENABLE = "Insufficient Reminder"; -- NEW
+L.OPTIONS_GENERAL_POPUPS_INSUFFICIENT_REMINDER_ENABLE_DESC = "Toggles whether an insufficient quantity popup for next refresh should show."; -- NEW
 L.OPTIONS_GENERAL_POPUPS_IGNORES = "Réinitialiser fenêtres ignorées";
 L.OPTIONS_GENERAL_POPUPS_IGNORES_TEXT = "Réinitialise toutes les fenêtres de rappel ignorées durant cette session afin qu'elles soient à nouveau visibles.";
 L.OPTIONS_GENERAL_POPUPS_ALERT_SOUND_DESC = "Choisit quel son est joué lorsque la fenêtre de rappel est affichée.";
@@ -121,6 +124,10 @@ L.OPTIONS_CONSUMABLE_HANDHELD_INSTRUCTION = "Ces options contrôlent tous les ra
 -- Placement
 L.OPTIONS_CONSUMABLE_PLACEMENT_TITLE = "Placement";
 L.OPTIONS_CONSUMABLE_PLACEMENT_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables qui peuvent être placés au sol.";
+
+-- Prism
+L.OPTIONS_CONSUMABLE_PRISM_TITLE = "Prism"; -- NEW
+L.OPTIONS_CONSUMABLE_PRISM_INSTRUCTION = "These options control all reminders for prism consumables to alter your appearance."; -- NEW
 
 -- Size
 L.OPTIONS_CONSUMABLE_SIZE_TITLE = "Taille";

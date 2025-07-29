@@ -52,7 +52,8 @@ L.WINTERFALL_FIREWATER = "Winterfall Firewater";
 --/ Popup dialog /--
 L.POPUP_COOLDOWN_TEXT = "currently on cooldown.";
 L.POPUP_LACKING_TEXT = "not found in your inventory.";
-L.POPUP_LACKING_TEXT_AMOUNT = "not enough in your inventory.";
+L.POPUP_LACKING_TEXT_AMOUNT = "not enough in your inventory.|n(%d missing)";
+L.POPUP_LACKING_TEXT_NEXT_REFRESH = "insufficient (%d / %d) for next refresh.";
 L.POPUP_STACK_TEXT = "not at desired stack size!";
 L.POPUP_MISSING_TEXT = "is not active!";
 L.POPUP_EXPIRING_SOON_TEXT = "is expiring soon!";
@@ -78,6 +79,8 @@ L.OPTIONS_GENERAL_POPUPS_ICON_ENABLE = "Popup icon";
 L.OPTIONS_GENERAL_POPUPS_ICON_ENABLE_DESC = "Toggles whether the consumable icon is shown in the reminder popup.|n|n|cnWARNING_FONT_COLOR:Keep in mind that enabling this option will make the popup taller.|r";
 L.OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE = "Pre-Expiration Reminder";
 L.OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE_DESC = "Toggles whether pre-expiration reminders should show close to the consumable expiring.|n|n|cnWARNING_FONT_COLOR:Keep in mind that not all items support this (it will be displayed on the enable tooltip).|r";
+L.OPTIONS_GENERAL_POPUPS_INSUFFICIENT_REMINDER_ENABLE = "Insufficient Reminder";
+L.OPTIONS_GENERAL_POPUPS_INSUFFICIENT_REMINDER_ENABLE_DESC = "Toggles whether an insufficient quantity popup for next refresh should show.";
 L.OPTIONS_GENERAL_POPUPS_IGNORES = "Reset ignored popups";
 L.OPTIONS_GENERAL_POPUPS_IGNORES_TEXT = "Reset all the reminder popups that were ignored in this session so that they are visible again.";
 L.OPTIONS_GENERAL_POPUPS_ALERT_SOUND_DESC = "Choose which sound you want to play when the reminder popup is shown.";
@@ -123,6 +126,10 @@ L.OPTIONS_CONSUMABLE_HANDHELD_INSTRUCTION = "These options control all reminders
 -- Placement
 L.OPTIONS_CONSUMABLE_PLACEMENT_TITLE = "Placement";
 L.OPTIONS_CONSUMABLE_PLACEMENT_INSTRUCTION = "These options control all reminders for consumables that can be placed on the ground.";
+
+-- Prism
+L.OPTIONS_CONSUMABLE_PRISM_TITLE = "Prism";
+L.OPTIONS_CONSUMABLE_PRISM_INSTRUCTION = "These options control all reminders for prism consumables to alter your appearance.";
 
 -- Size
 L.OPTIONS_CONSUMABLE_SIZE_TITLE = "Size";
