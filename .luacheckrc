@@ -351,6 +351,12 @@ stds.wow = {
 			},
 		},
 
+		Item = {
+			fields = {
+				"CreateFromItemID"
+			}
+		},
+
 		Menu = {
 			fields = {
 				"ModifyMenu",
