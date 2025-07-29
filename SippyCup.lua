@@ -33,6 +33,7 @@ function SIPPYCUP_Addon:OnEnable()
 	self:RegisterEvent("PLAYER_LEAVING_WORLD");
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA");
 	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");
+	self:RegisterEvent("BAG_UPDATE_DELAYED");
 
 	-- 1 - We set up the minimap buttons.
 	SIPPYCUP.Minimap:SetupMinimapButtons();
@@ -64,6 +65,8 @@ function SIPPYCUP_Addon:UNIT_AURA(_, unitTarget, updateInfo)
 		return;
 	end
 
+-- Bag data is not synched immediately when UNIT_AURA fires, signal desync to the addon.
+	SIPPYCUP.Items.bagUpdateUnhandled = true;
 	SIPPYCUP.Auras.Convert(1, updateInfo);
 end
 
@@ -177,4 +180,8 @@ function SIPPYCUP_Addon:UNIT_SPELLCAST_SUCCEEDED(_, unitTarget, _, spellID)
 
 	-- Necessary to handle nontrackable items (that don't fire UNIT_AURA).
 	SIPPYCUP.Items.CheckNonTrackableSingleConsumable(nil, spellID);
+end
+
+function SIPPYCUP_Addon:BAG_UPDATE_DELAYED()
+	SIPPYCUP.Items.HandleBagUpdate();
 end

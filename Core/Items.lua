@@ -258,3 +258,11 @@ function SIPPYCUP.Items.GetItemCooldownWithRetry(itemID, attempts, delay, callba
 
 	tryOnce(attempts);
 end
+
+SIPPYCUP.Items.bagUpdateUnhandled = false;
+
+---HandleBagUpdate Marks bag data as synced and processes deferred popups.
+-- Fires on BAG_UPDATE_DELAYED, which batches all bag changes after UNIT_AURA.
+function SIPPYCUP.Items.HandleBagUpdate()
+	SIPPYCUP.Items.bagUpdateUnhandled = false;
+end

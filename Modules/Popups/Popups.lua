@@ -433,7 +433,11 @@ function SIPPYCUP.Popups.HandlePopupAction(reason, auraID, auraInfo, auraInstanc
 	local profileConsumableData = SIPPYCUP.db.profile[consumableData.profile];
 	if not profileConsumableData then return; end
 
-	if sessionData[consumableData.profile] then return; end
+	if SIPPYCUP.Popups.IsIgnored(consumableData.profile) then return; end
+
+	-- Bag data is desynch'd from UNIT_AURA fires, defer handling.
+	if SIPPYCUP.Items.bagUpdateUnhandled then
+	end
 
 	-- Establish if we're dealing with a trackable or nontrackable item.
 	local nonTrackable = consumableData.nonTrackable;
