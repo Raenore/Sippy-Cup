@@ -29,7 +29,6 @@ function SIPPYCUP_Addon:OnEnable()
 	self:RegisterEvent("UNIT_AURA");
 	self:RegisterEvent("PLAYER_REGEN_DISABLED");
 	self:RegisterEvent("PLAYER_REGEN_ENABLED");
-	self:RegisterEvent("PLAYER_FLAGS_CHANGED");
 	self:RegisterEvent("PLAYER_ENTERING_WORLD");
 	self:RegisterEvent("PLAYER_LEAVING_WORLD");
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA");
@@ -80,20 +79,7 @@ function SIPPYCUP_Addon:OnEnable()
 	-- 5 - We start our 3m Pre-Expiration Check if it's enabled (check is done within the function itself).
 	-- Handled in PLAYER_ENTERING_WORLD on login through self:StartContinuousCheck();
 
-	-- 6 - We hook the main menu so that our popups get stored and shown after it's closed to avoid logout button issues.
-	GameMenuFrame:HookScript("OnShow", function()
-		if not SIPPYCUP.Popups.SuppressGameMenuCallback then
-			SIPPYCUP.Popups.SaveOpenedPopups(true);
-		end
-	end);
-
-	GameMenuFrame:HookScript("OnHide", function()
-		if not SIPPYCUP.Popups.SuppressGameMenuCallback then
-			SIPPYCUP.Popups.LoadOpenedPopups(true);
-		end
-	end);
-
-	-- 7 - If we've gotten here, we can send our Welcome Message (if it's enabled).
+	-- 6 - If we've gotten here, we can send our Welcome Message (if it's enabled).
 	if SIPPYCUP.db.global.WelcomeMessage then
 		SIPPYCUP_OUTPUT.Write(L.WELCOMEMSG_VERSION:format(SIPPYCUP.AddonMetadata.version));
 		SIPPYCUP_OUTPUT.Write(L.WELCOMEMSG_OPTIONS);
@@ -182,23 +168,6 @@ function SIPPYCUP_Addon:PLAYER_REGEN_ENABLED()
 	-- Combat is left when regen is enabled.
 	self:StartAuraCheck();
 	self:StartContinuousCheck();
-end
-
-function SIPPYCUP_Addon:PLAYER_FLAGS_CHANGED(_, unitTarget)
-	-- ElvUI has the chance to cause errors when AFK Mode is enabled.
-	if unitTarget ~= "player" or not C_AddOns.IsAddOnLoaded("ElvUI") then
-		return;
-	end
-
-	local isAFK = UnitIsAFK("player");
-
-	if isAFK then
-		-- On AFK, we save the poupups that were visible and then kill them.
-		SIPPYCUP.Popups.SaveOpenedPopups();
-	else
-		-- On returning from AFK, we re-spawn the killed popups if any have to be.
-		SIPPYCUP.Popups.LoadOpenedPopups();
-	end
 end
 
 function SIPPYCUP_Addon:PLAYER_ENTERING_WORLD(_, isInitialLogin, isReloadingUi)
