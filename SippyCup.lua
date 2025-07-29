@@ -41,35 +41,8 @@ function SIPPYCUP_Addon:OnEnable()
 	SIPPYCUP_PLAYER.GetFullName();
 
 	-- 3 - If msp exists, we listen to its update callbacks from the own player.
-	if msp and msp.my then
-		local startupCheck = true;
-		table.insert(msp.callback["updated"], function(senderID)
-			-- Don't run updated if MSP status is not being checked.
-			if not SIPPYCUP.db.global.MSPStatusCheck then
-				if startupCheck then
-					SIPPYCUP.Consumables.RefreshStackSizes(false);
-				end
-				startupCheck = false;
-				return;
-			end
-
-			-- Sometimes this gets spammed, we only care about handling IC/OOC updates.
-			local previousIsOOC = SIPPYCUP.Player.OOC;
-			local newIsOOC = SIPPYCUP_PLAYER.CheckOOCStatus();
-			SIPPYCUP.Player.OOC = newIsOOC;
-			-- If RP status remains the same before vs after this check, we just skip all handling after.
-			if previousIsOOC ~= nil and newIsOOC ~= nil and previousIsOOC == newIsOOC then
-				return;
-			end
-
-			-- When update callback is found, we check the IC PLAYER if all their enabled (even inactive ones) consumable stack sizes are in order.
-			if startupCheck or SIPPYCUP.Player.FullName == senderID and not SIPPYCUP.Player.OOC then
-				SIPPYCUP.Consumables.RefreshStackSizes(true);
-			end
-
-			startupCheck = false;
-		end)
-	else
+	if not SIPPYCUP.MSP.EnableIfAvailable() then
+		-- If not, we'll do a simple stacksize refresh.
 		SIPPYCUP.Consumables.RefreshStackSizes(false);
 	end
 

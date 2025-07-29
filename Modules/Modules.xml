@@ -6,5 +6,6 @@
 ..\FrameXML\UI.xsd">
 	<Include file="LinkDialog\LinkDialog.lua"/>
 	<Include file="Minimap\Minimap.lua"/>
+	<Include file="MSP\MSP.lua"/>
 	<Include file="Popups\Popups.lua"/>
 </Ui>

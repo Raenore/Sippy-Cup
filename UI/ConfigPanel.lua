@@ -286,7 +286,7 @@ function SIPPYCUP_CONFIG.GenerateGeneral()
 				name = L.OPTIONS_GENERAL_MSP_STATUSCHECK_ENABLE,
 				desc = L.OPTIONS_GENERAL_MSP_STATUSCHECK_DESC,
 				disabled = function()
-					return not msp or not msp.my;
+					return not SIPPYCUP.MSP.IsEnabled();
 				end,
 				get = function()
 					return SIPPYCUP.db.global.MSPStatusCheck;
