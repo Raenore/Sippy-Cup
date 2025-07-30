@@ -80,10 +80,11 @@ function SIPPYCUP_Addon:StartAuraCheck()
 		return;
 	end
 
-	-- Run once immediately
-	SIPPYCUP.Auras.CheckStackMismatchInDBForAllActiveConsumables();
-
+	-- Only run this if it's not already running, no point to duplicate.
 	if not self.auraTimer then
+		-- Run once immediately
+		SIPPYCUP.Auras.CheckStackMismatchInDBForAllActiveConsumables();
+
 		-- schedule and keep the handle so we can cancel it later
 		self.auraTimer = self:ScheduleRepeatingTimer(
 			SIPPYCUP.Auras.CheckStackMismatchInDBForAllActiveConsumables,
