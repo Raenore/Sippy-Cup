@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2025-07-xx
+
+### Added
+- Rewritten custom popup system to replace StaticPopups (FlexiblePopups?) (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
+
 ## [0.2.2] - 2025-06-24
 
 ### Fixed
