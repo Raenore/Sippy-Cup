@@ -188,12 +188,4 @@ function SIPPYCUP.Database.Setup()
 
 	AceConfigRegistry:RegisterOptionsTable(title, SIPPYCUP_CONFIG.GenerateGeneral());
 	AceConfigDialog:AddToBlizOptions(title, title);
-
-	for _, cat in ipairs(categories) do
-		AceConfigRegistry:RegisterOptionsTable(title .. "_" .. cat, SIPPYCUP_CONFIG.GenerateCategory(cat:upper()));
-		AceConfigDialog:AddToBlizOptions(title .. "_" .. cat, L["OPTIONS_CONSUMABLE_" .. cat:upper() .. "_TITLE"], title);
-	end
-
-	AceConfigRegistry:RegisterOptionsTable(title .. "_Profiles", LibStub("AceDBOptions-3.0"):GetOptionsTable(SIPPYCUP.db));
-	SIPPYCUP.ProfilesFrame, SIPPYCUP.ProfilesFrameID = AceConfigDialog:AddToBlizOptions(title .. "_Profiles", "Profiles", title);
 end
