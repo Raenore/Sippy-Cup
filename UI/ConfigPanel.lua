@@ -290,6 +290,8 @@ function SIPPYCUP_CONFIG.GenerateGeneral()
 					SIPPYCUP.Player.OOC = SIPPYCUP_PLAYER.CheckOOCStatus();
 					if val then
 						SIPPYCUP.Consumables.RefreshStackSizes(val);
+					else
+						SIPPYCUP.Popups.HideAllRefreshPopups();
 					end
 				end,
 				width = THIRD_WIDTH,
@@ -410,8 +412,8 @@ function SIPPYCUP_CONFIG.GenerateCategory(category)
 
 			if consumableData.unrefreshable then
 				enableDesc = enableDesc .. L.OPTIONS_ENABLE_NON_REFRESHABLE_TEXT;
-			elseif consumableData.nonTrackable then
-				enableDesc = enableDesc .. L.OPTIONS_ENABLE_NON_STACKABLE_TEXT;
+			elseif consumableData.itemTrackable or consumableData.spellTrackable then
+				enableDesc = enableDesc .. L.OPTIONS_ENABLE_NON_AURA_TEXT;
 			end
 
 			-- Then we set the Enable button.

@@ -9,6 +9,7 @@ end
 
 function SIPPYCUP.MSP.EnableIfAvailable()
 	local success = false;
+	local refreshedStackSizes = false;
 	if msp and msp.my then
 		success = true;
 		local startupCheck = true;
@@ -19,6 +20,7 @@ function SIPPYCUP.MSP.EnableIfAvailable()
 					SIPPYCUP.Consumables.RefreshStackSizes(false);
 				end
 				startupCheck = false;
+				refreshedStackSizes = true;
 				return success;
 			end
 
@@ -35,12 +37,14 @@ function SIPPYCUP.MSP.EnableIfAvailable()
 			if startupCheck and not SIPPYCUP.Player.OOC then
 				SIPPYCUP.Consumables.RefreshStackSizes(true);
 				startupCheck = false;
+				refreshedStackSizes = true;
 				return success;
 			end
 
 			-- Handle IC update, we check if all their enabled (even inactive ones) consumable stack sizes are in order.
 			if SIPPYCUP.Player.FullName == senderID and not SIPPYCUP.Player.OOC then
-				SIPPYCUP.Consumables.RefreshStackSizes(true)
+				SIPPYCUP.Consumables.RefreshStackSizes(true);
+				refreshedStackSizes = true;
 			end
 
 			-- Handle OOC update, we remove all popups.
@@ -48,6 +52,15 @@ function SIPPYCUP.MSP.EnableIfAvailable()
 				SIPPYCUP.Popups.HideAllRefreshPopups();
 			end
 		end)
+	end
+
+	-- First run we set everything in order.
+	if success then
+		local isOOC = SIPPYCUP_PLAYER.CheckOOCStatus();
+		SIPPYCUP.Player.OOC = isOOC;
+		if not refreshedStackSizes then
+			SIPPYCUP.Consumables.RefreshStackSizes(true);
+		end
 	end
 
 	return success;

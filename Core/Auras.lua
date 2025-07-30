@@ -394,8 +394,10 @@ function SIPPYCUP.Auras.CheckPreExpirationForAllActiveConsumables(minSeconds)
 	end
 end
 
----CheckPreExpirationForSingleConsumable Handles pre-expiration timer setup where appropriate, calculating the pre-expiration time before popup.
----@return boolean preExpireFired
+---CheckPreExpirationForSingleConsumable sets up pre-expiration warnings for aura-based consumables.
+---@param profileConsumableData table Profile data for the consumable.
+---@param minSeconds number? Time window to check ahead, defaults to 180.
+---@return boolean preExpireFired True if a pre-expiration popup was fired.
 function SIPPYCUP.Auras.CheckPreExpirationForSingleConsumable(profileConsumableData, minSeconds)
 	local preExpireFired = false;
 
@@ -453,7 +455,7 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleConsumable(profileConsumableD
 			local spellId = auraInfo and auraInfo.spellId or profileConsumableData.aura;
 			local auraInstanceID = auraInfo and auraInfo.auraInstanceID;
 			preExpireFired = true;
-			SIPPYCUP.Popups.QueuePopupAction(2, spellId, auraInfo or nil, auraInstanceID, "CheckPreExpirationForSingleConsumable");
+			SIPPYCUP.Popups.QueuePopupAction(2, spellId, auraInfo or nil, auraInstanceID, "CheckPreExpirationForSingleConsumable - pre-expiration");
 		elseif SIPPYCUP.db.global.PreExpirationChecks then
 			-- Schedule our 1m before expiration reminder.
 			SIPPYCUP.Auras.CreatePreExpirationTimer(fireIn, auraInfo, key, auraID);

@@ -45,10 +45,7 @@ function SIPPYCUP_Addon:OnEnable()
 	SIPPYCUP_PLAYER.GetFullName();
 
 	-- 3 - If msp exists, we listen to its update callbacks from the own player.
-	if not SIPPYCUP.MSP.EnableIfAvailable() then
-		-- If not, we'll do a simple stacksize refresh.
-		SIPPYCUP.Consumables.RefreshStackSizes(false);
-	end
+	-- Handled in PlayerLoading on login/reloads.
 
 	-- 4 - We start our 5s AuraCheck (mismatch from UNIT_AURA)
 	-- Handled in PLAYER_ENTERING_WORLD on login through self:StartAuraCheck();
@@ -120,7 +117,7 @@ function SIPPYCUP_Addon:StartContinuousCheck()
 	if not self.itemTimer then
 		-- schedule and keep the handle so we can cancel it later
 		self.itemTimer = self:ScheduleRepeatingTimer(
-			SIPPYCUP.Items.CheckNonTrackableItemUsage,
+			SIPPYCUP.Items.CheckNoAuraItemUsage,
 			CONTINUOUS_CHECK_INTERVAL
 		);
 	end
@@ -150,30 +147,43 @@ function SIPPYCUP_Addon:PLAYER_REGEN_ENABLED()
 	self:StartContinuousCheck();
 end
 
-function SIPPYCUP_Addon:PLAYER_ENTERING_WORLD(_, isInitialLogin, isReloadingUi)
-	if not isInitialLogin and not isReloadingUi then
+local startupCheck = true;
+
+local function PlayerLoading(isLoading)
+	if isLoading then
 		SIPPYCUP.InLoadingScreen = true;
-		self:StopAuraCheck();
-		self:StopContinuousCheck();
+		SIPPYCUP_Addon:StopAuraCheck();
+		SIPPYCUP_Addon:StopContinuousCheck();
 	else
-		-- On login and reload, ZONE_CHANGED_NEW_AREA does not fire so we start checks.
 		SIPPYCUP.InLoadingScreen = false;
-		self:StartAuraCheck();
-		self:StartContinuousCheck();
+		SIPPYCUP_Addon:StartAuraCheck();
+		SIPPYCUP_Addon:StartContinuousCheck()
+
+		if startupCheck then
+			if not SIPPYCUP.MSP.EnableIfAvailable() then
+				-- If not, we'll do a simple stacksize refresh.
+				SIPPYCUP.Consumables.RefreshStackSizes(false);
+			end
+			startupCheck = false;
+		end
+	end
+end
+
+function SIPPYCUP_Addon:PLAYER_ENTERING_WORLD(_, _, isReloadingUi)
+	-- ZONE_CHANGED_NEW_AREA fires on isInitialLogin, but not on isReloadingUi
+	if isReloadingUi then
+		-- Reloading fires PLAYER_ENTERING_WORLD when reload is done, data is fine.
+		PlayerLoading(false);
 	end
 end
 
 function SIPPYCUP_Addon:PLAYER_LEAVING_WORLD()
-	SIPPYCUP.InLoadingScreen = true;
-	self:StopAuraCheck();
-	self:StopContinuousCheck();
+	PlayerLoading(true);
 end
 
 function SIPPYCUP_Addon:ZONE_CHANGED_NEW_AREA()
 	if SIPPYCUP.InLoadingScreen then
-		SIPPYCUP.InLoadingScreen = false;
-		self:StartAuraCheck();
-		self:StartContinuousCheck();
+		PlayerLoading(false);
 	end
 end
 
@@ -182,8 +192,8 @@ function SIPPYCUP_Addon:UNIT_SPELLCAST_SUCCEEDED(_, unitTarget, _, spellID)
 		return;
 	end
 
-	-- Necessary to handle nontrackable items (that don't fire UNIT_AURA).
-	SIPPYCUP.Items.CheckNonTrackableSingleConsumable(nil, spellID);
+	-- Necessary to handle items that don't fire UNIT_AURA.
+	SIPPYCUP.Items.CheckNoAuraSingleConsumable(nil, spellID);
 end
 
 function SIPPYCUP_Addon:BAG_UPDATE_DELAYED()

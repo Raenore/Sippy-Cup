@@ -53,11 +53,11 @@ SIPPYCUP.Database.defaults = {
 ---@field currentInstanceID number? Current aura instance ID being tracked.
 ---@field currentStacks number Current number of stacks.
 ---@field aura number The aura ID associated with this consumable.
----@field nonTrackable boolean Whether the consumable cannot be tracked (no aura ID).
+---@field noAuraTrackable boolean Whether the consumable cannot be aura tracked.
 for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
 	local profileKey = consumable.profile;
 	local spellID = consumable.auraID;
-	local nonTrackable = consumable.nonTrackable;
+	local noAuraTrackable = consumable.itemTrackable or consumable.spellTrackable;
 
 	-- sanity: skip any Data entries missing those required fields
 	if profileKey and spellID then
@@ -67,7 +67,7 @@ for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
 			currentInstanceID = nil,
 			currentStacks = 0,
 			aura = spellID,
-			nonTrackable = nonTrackable,
+			noAuraTrackable = noAuraTrackable,
 		};
 	end
 end
@@ -91,7 +91,7 @@ end
 
 SIPPYCUP.Database.auraToProfile = {}; -- auraID --> profile data
 SIPPYCUP.Database.instanceToProfile = {}; -- instanceID --> profile data
-SIPPYCUP.Database.nonTrackableProfile = {}; -- itemID --> profile data (only if nontrackable)
+SIPPYCUP.Database.noAuraTrackableProfile = {}; -- itemID --> profile data (only if no aura)
 
 ---RebuildAuraMap scans the current profile and (re)builds the fast lookup tables for enabled consumables.
 ---@return nil
@@ -99,13 +99,13 @@ function SIPPYCUP.Database.RebuildAuraMap()
 	-- clear out tables
 	wipe(SIPPYCUP.Database.auraToProfile);
 	wipe(SIPPYCUP.Database.instanceToProfile);
-	wipe(SIPPYCUP.Database.nonTrackableProfile);
+	wipe(SIPPYCUP.Database.noAuraTrackableProfile);
 
 	for _, profileConsumableData in pairs(SIPPYCUP.db.profile) do
 		if profileConsumableData.enable and profileConsumableData.aura then
 			SIPPYCUP.Database.auraToProfile[profileConsumableData.aura] = profileConsumableData;
 
-			-- Always grab the latest instanceID so it is updated just in case.
+			-- Always grab the latest instanceID if present so it is updated just in case.
 			local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(profileConsumableData.aura);
 			if auraInfo then
 				profileConsumableData.currentInstanceID = auraInfo.auraInstanceID;
@@ -115,10 +115,10 @@ function SIPPYCUP.Database.RebuildAuraMap()
 				profileConsumableData.currentInstanceID = nil;
 			end
 
-			-- If the item is nonTrackable, we'll map that too.
-			if profileConsumableData.nonTrackable then
+			-- If the item has no aura, we'll map that too.
+			if profileConsumableData.noAuraTrackable then
 				local consumableData = SIPPYCUP.Consumables.ByAuraID[profileConsumableData.aura];
-				SIPPYCUP.Database.nonTrackableProfile[consumableData.itemID] = profileConsumableData;
+				SIPPYCUP.Database.noAuraTrackableProfile[consumableData.itemID] = profileConsumableData;
 			end
 		end
 	end
@@ -135,7 +135,7 @@ function SIPPYCUP.Database.FindMatchingConsumable(spellId, instanceID, itemID)
 	elseif instanceID then
 		return SIPPYCUP.Database.instanceToProfile[instanceID];
 	elseif itemID then
-		return SIPPYCUP.Database.nonTrackableProfile[itemID];
+		return SIPPYCUP.Database.noAuraTrackableProfile[itemID];
 	end
 
 	return nil;
@@ -175,7 +175,6 @@ local function RefreshConfig()
 	-- On profile switch, we do a full stacksize check (which will also rebuild the auramap) on all active (and non-active on MSP true) enabled.
 	SIPPYCUP.Consumables.RefreshStackSizes(SIPPYCUP.db.global.MSPStatusCheck);
 end
-
 
 ---Setup initializes the database, registers callbacks, and configures options tables for the addon.
 ---@return nil

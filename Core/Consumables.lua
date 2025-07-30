@@ -32,7 +32,8 @@ local function NewConsumable(params)
 		maxStacks = params.maxStacks or 1,
 		preExpiration = params.preExpiration or 0,
 		unrefreshable = params.unrefreshable or false,
-		nonTrackable = params.nonTrackable or false,
+		itemTrackable = params.itemTrackable or false,
+		spellTrackable = params.spellTrackable or false,
 	};
 end
 
@@ -48,7 +49,7 @@ SIPPYCUP.Consumables.Data = {
 	NewConsumable{ auraID = 382761, itemID = 197767, loc = "BLUBBERY_MUFFIN", category = "APPEARANCE", icon = "inv_misc_food_148_cupcake", preExpiration = 1 },
 	NewConsumable{ auraID = 1222839, itemID = 237335, loc = "COLLECTIBLE_PINEAPPLETINI_MUG", category = "HANDHELD", icon = "inv_misc_goblincup01", preExpiration = 1 },
 	NewConsumable{ auraID = 185562, itemID = 124671, loc = "DARKMOON_FIREWATER", category = "SIZE", icon = "inv_misc_flaskofvolatility", unrefreshable = true },
-	NewConsumable{ auraID = 1213663, itemID = 234282, loc = "DECORATIVE_YARD_FLAMINGO", category = "PLACEMENT", icon = "inv_vulturemount_albatrosspink", nonTrackable = true },
+	NewConsumable{ auraID = 1213663, itemID = 234282, loc = "DECORATIVE_YARD_FLAMINGO", category = "PLACEMENT", icon = "inv_vulturemount_albatrosspink", itemTrackable = true },
 	NewConsumable{ auraID = 1222835, itemID = 237330, loc = "DISPOSABLE_HAMBURGER", category = "HANDHELD", icon = "inv_misc_food_65", preExpiration = 1 },
 	NewConsumable{ auraID = 1222833, itemID = 237331, loc = "DISPOSABLE_HOTDOG", category = "HANDHELD", icon = "inv_misc_clefhoofsausages", preExpiration = 1 },
 	NewConsumable{ auraID = 8212, itemID = 6662, loc = "ELIXIR_OF_GIANT_GROWTH", category = "SIZE", icon = "inv_potion_10", preExpiration = 1 },
@@ -60,7 +61,7 @@ SIPPYCUP.Consumables.Data = {
 	NewConsumable{ auraID = 58468, itemID = 43478, loc = "GIGANTIC_FEAST", category = "SIZE", icon = "ability_hunter_pet_boar", preExpiration = 1 },
 	NewConsumable{ auraID = 244014, itemID = 151257, loc = "GREEN_DANCE_STICK", category = "HANDHELD", icon = "inv_enchanting_wod_crystalshard4", preExpiration = 1 },
 	NewConsumable{ auraID = 1222840, itemID = 237334, loc = "HALF_EATEN_TAKEOUT", category = "HANDHELD", icon = "inv_misc_cookednoodles", preExpiration = 1 },
-	NewConsumable{ auraID = 443688, itemID = 216708, loc = "HOLY_CANDLE", category = "PLACEMENT", icon = "inv_misc_candle_03", nonTrackable = true },
+	NewConsumable{ auraID = 443688, itemID = 216708, loc = "HOLY_CANDLE", category = "PLACEMENT", icon = "inv_misc_candle_03", spellTrackable = true },
 	NewConsumable{ auraID = 185394, itemID = 124640, loc = "INKY_BLACK_POTION", category = "EFFECT", icon = "inv_potion_132", preExpiration = 1 },
 	NewConsumable{ auraID = 1218300, itemID = 235703, loc = "NOGGENFOGGER_SELECT_DOWN", category = "SIZE", icon = "inv_potion_140", stacks = true, maxStacks = 10, preExpiration = 1 },
 	NewConsumable{ auraID = 1218297, itemID = 235704, loc = "NOGGENFOGGER_SELECT_UP", category = "SIZE", icon = "inv_potion_141", stacks = true, maxStacks = 10, preExpiration = 1 },
@@ -73,7 +74,7 @@ SIPPYCUP.Consumables.Data = {
 	NewConsumable{ auraID = 1214287, itemID = 234527, loc = "SACREDITES_LEDGER", category = "HANDHELD", icon = "inv_offhand_1h_priest_c_01", preExpiration = 1 },
 	NewConsumable{ auraID = 163219, itemID = 112384, loc = "REFLECTING_PRISM", category = "PRISM", icon = "inv_jewelcrafting_prism", preExpiration = 1 },
 	NewConsumable{ auraID = 279742, itemID = 163695, loc = "SCROLL_OF_INNER_TRUTH", category = "EFFECT", icon = "inv_misc_scrollunrolled04b" },
-	NewConsumable{ auraID = 1222834, itemID = 237332, loc = "SINGLE_USE_GRILL", category = "PLACEMENT", icon = "achievement_cooking_masterofthegrill", nonTrackable = true },
+	NewConsumable{ auraID = 1222834, itemID = 237332, loc = "SINGLE_USE_GRILL", category = "PLACEMENT", icon = "achievement_cooking_masterofthegrill", spellTrackable = true },
 	NewConsumable{ auraID = 58479, itemID = 43480, loc = "SMALL_FEAST", category = "SIZE", icon = "ability_hunter_pet_boar", preExpiration = 1 },
 	NewConsumable{ auraID = 382729, itemID = 197766, loc = "SNOW_IN_A_CONE", category = "HANDHELD", icon = "inv_misc_food_31", preExpiration = 1 },
 	NewConsumable{ auraID = 442106, itemID = 218107, loc = "SPARKBUG_JAR", category = "HANDHELD", icon = "inv_first_aid_70_ jar", preExpiration = 1 },
@@ -141,14 +142,32 @@ function SIPPYCUP.Consumables.RefreshStackSizes(checkAll)
 	for _, profileConsumableData in pairs(SIPPYCUP.Database.auraToProfile) do
 		local auraInfo = GetPlayerAuraBySpellID(profileConsumableData.aura);
 		local consumableData = SIPPYCUP.Consumables.ByAuraID[profileConsumableData.aura];
+		local active = false;
+		local startTime = 0;
 
-		-- continueCheck will be hit when we have tried a number of times (mostly for nontrackable items) to see if they are active.
-		local function continueCheck(active, startTimer)
+		-- If item can only be tracked by the item cooldown (worst)
+		if consumableData.itemTrackable then
+			startTime, _, _ = C_Item.GetItemCooldown(consumableData.itemID)
+			if startTime and startTime > 0 then
+				active = true;
+			end
+		-- If item can be tracked through the spell cooldown (fine).
+		elseif consumableData.spellTrackable then
+			local spellCooldownInfo = C_Spell.GetSpellCooldown(consumableData.auraID);
+			startTime = spellCooldownInfo and spellCooldownInfo.startTime;
+			if startTime and startTime > 0 then
+				active = true;
+			end
+		end
+
+		-- Most of the checks below don't work during loading screens, we do them at other times.
+		-- Howevever when a user switches profiles etc they generally aren't in that state so run it then.
+		if not SIPPYCUP.InLoadingScreen then
 			local preExpireFired;
-			if consumableData.nonTrackable then
-				preExpireFired = SIPPYCUP.Items.CheckNonTrackableSingleConsumable(profileConsumableData, nil, nil, startTimer);
+			if consumableData.itemTrackable or consumableData.spellTrackable then
+				preExpireFired = SIPPYCUP.Items.CheckNoAuraSingleConsumable(profileConsumableData, consumableData.auraID, nil, startTime);
 			else
-				preExpireFired = SIPPYCUP.Auras.CheckPreExpirationForSingleConsumable(profileConsumableData);
+				preExpireFired = SIPPYCUP.Auras.CheckPreExpirationForSingleConsumable(profileConsumableData, nil);
 			end
 
 			if not preExpireFired then
@@ -160,21 +179,6 @@ function SIPPYCUP.Consumables.RefreshStackSizes(checkAll)
 					SIPPYCUP.Popups.QueuePopupAction(1, profileConsumableData.aura, nil, nil, "CheckConsumableStackSizes - checkAll");
 				end
 			end
-		end
-
-		-- If an item is nontrackable, we try to grab the Item's cooldown with two tries delayed by 0.2 each, as sometimes data needs a moment.
-		if profileConsumableData.nonTrackable then
-			-- Start with active=false; callback will override if startTime>0
-			SIPPYCUP.Items.GetItemCooldownWithRetry(consumableData.itemID, 2, 0.2, function(startTime)
-				local active = false;
-				if startTime and startTime > 0 then
-					active = true;
-				end
-				continueCheck(active, startTime);
-			end);
-		else
-			-- Aura data is easier to track as auraInfo exists, no need to worry about it being 'active' this way.
-			continueCheck(false);
 		end
 	end
 end

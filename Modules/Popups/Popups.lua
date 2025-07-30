@@ -78,7 +78,6 @@ local function RemoveDeferredActionsByLoc(loc)
 	for i = #deferredActions, 1, -1 do
 		if deferredActions[i].loc == loc then
 			tremove(deferredActions, i);
-			SIPPYCUP_OUTPUT.Debug("Deferred action removed:", loc);
 		end
 	end
 end
@@ -345,7 +344,7 @@ function SIPPYCUP.Popups.CreateReminderPopup(data, templateTypeID)
 	local isNew = not popup or not popup:IsShown();
 
 	-- If correct stack count reached, we're done!
-	if templateTypeID == 0 and data.requiredStacks == 0 then
+	if data.reason == 0 and templateTypeID == 0 and data.requiredStacks == 0 then
 		if popup and popup:IsShown() then
 			popup:Hide();
 		end
@@ -353,8 +352,15 @@ function SIPPYCUP.Popups.CreateReminderPopup(data, templateTypeID)
 		-- If user wants a missing reminder, we'll do that now.
 		if data.itemCount < data.profileConsumableData.desiredStacks and SIPPYCUP.db.global.InsufficientReminder then
 			SIPPYCUP.Popups.CreateReminderPopup(data, 1);
-			HandleAlerts();
 		end
+		return;
+	elseif popup and popup.templateType == "SIPPYCUP_MissingPopupTemplate" then
+	-- If missing popup is still shown, we remove that first before showing new ones.
+		if popup and popup:IsShown() then
+			popup:Hide();
+		end
+
+		SIPPYCUP.Popups.CreateReminderPopup(data, 0);
 		return;
 	end
 
@@ -417,7 +423,7 @@ function SIPPYCUP.Popups.Toggle(itemName, enabled)
 			existingPopup:Hide();
 		end
 
-		if consumableData.nonTrackable then
+		if consumableData.itemTrackable or consumableData.spellTrackable then
 			SIPPYCUP.Items.CancelItemTimer(nil, consumableData.auraID);
 		else
 			SIPPYCUP.Auras.CancelPreExpirationTimer(nil, consumableData.auraID);
@@ -428,37 +434,36 @@ function SIPPYCUP.Popups.Toggle(itemName, enabled)
 
 	-- For the enabled case: we need to check auraInfo and possibly cooldown. We'll define continuation logic.
 	local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(consumableData.auraID);
-		-- continuation: runs after we know `active` value
-	local function continueToggle(active, startTimer)
-		-- Check potential pre-expiration timers that might be relevant for the newly enabled consumable.
-		local profileConsumableData = SIPPYCUP.db.profile[consumableData.profile];
-		local preExpireFired;
-		if consumableData.nonTrackable then
-			preExpireFired = SIPPYCUP.Items.CheckNonTrackableSingleConsumable(profileConsumableData, nil, nil, startTimer);
-		else
-			preExpireFired = SIPPYCUP.Auras.CheckPreExpirationForSingleConsumable(profileConsumableData);
-		end
+	local active = false;
+	local startTime = 0;
 
-		-- Only queue popup if no pre-expiration has already fired
-		if not preExpireFired then
-			-- auraInfo may be truthy/table; active is boolean from cooldown check
-			SIPPYCUP.Popups.QueuePopupAction((auraInfo or active) and 0 or 1, consumableData.auraID, auraInfo, auraInfo and auraInfo.auraInstanceID, "Toggle");
+	-- If item can only be tracked by the item cooldown (worst)
+	if consumableData.itemTrackable then
+		startTime = C_Item.GetItemCooldown(consumableData.itemID);
+		if startTime and startTime > 0 then
+			active = true;
+		end
+	-- If item can be tracked through the spell cooldown (fine).
+	elseif consumableData.spellTrackable then
+		local spellCooldownInfo = C_Spell.GetSpellCooldown(consumableData.auraID);
+		startTime = spellCooldownInfo and spellCooldownInfo.startTime;
+		if startTime and startTime > 0 then
+			active = true;
 		end
 	end
 
-	-- If non-trackable, do cooldown check with retry; otherwise we can continue immediately with active=false if no aura.
-	if consumableData.nonTrackable then
-		-- Start with active=false; callback will override if startTime>0
-		SIPPYCUP.Items.GetItemCooldownWithRetry(consumableData.itemID, 2, 0.2, function(startTime)
-			local active = false;
-			if startTime and startTime > 0 then
-				active = true;
-			end
-			continueToggle(active, startTime);
-		end);
+	local profileConsumableData = SIPPYCUP.db.profile[consumableData.profile];
+	local preExpireFired;
+	if consumableData.itemTrackable or consumableData.spellTrackable then
+		preExpireFired = SIPPYCUP.Items.CheckNoAuraSingleConsumable(profileConsumableData, consumableData.auraID, nil, startTime);
 	else
-		-- No cooldown check needed; only auraInfo matters. active = false here.
-		continueToggle(false);
+		preExpireFired = SIPPYCUP.Auras.CheckPreExpirationForSingleConsumable(profileConsumableData);
+	end
+
+	-- Only queue popup if no pre-expiration has already fired
+	if not preExpireFired then
+		-- auraInfo may be truthy/table; active is boolean from cooldown check
+		SIPPYCUP.Popups.QueuePopupAction((auraInfo or active) and 0 or 1, consumableData.auraID, auraInfo, auraInfo and auraInfo.auraInstanceID, "Toggle");
 	end
 end
 
@@ -524,6 +529,11 @@ function SIPPYCUP.Popups.HandlePopupAction(reason, auraID, auraInfo, auraInstanc
 		return;
 	end
 
+	-- Removal of a spell/aura count generally is not due to an item's action, mark bag as synchronized.
+	if reason == 1 then
+		SIPPYCUP.Items.HandleBagUpdate();
+	end
+
 	-- Bag data is desynch'd from UNIT_AURA fires, defer handling.
 	if SIPPYCUP.Items.bagUpdateUnhandled then
 		-- Consumable items go to deferredPopups to wait for BAG_UPDATE_DELAYED.
@@ -539,7 +549,7 @@ function SIPPYCUP.Popups.HandlePopupAction(reason, auraID, auraInfo, auraInstanc
 	end
 
 	-- Establish if we're dealing with a trackable or nontrackable item.
-	local nonTrackable = consumableData.nonTrackable;
+	local nonTrackable = consumableData.itemTrackable or consumableData.spellTrackable;
 
 	-- First, let's grab the latest currentInstanceID (or have it be nil if none which is fine).
 	profileConsumableData.currentInstanceID = (auraInfo and auraInfo.auraInstanceID) or auraInstanceID;
