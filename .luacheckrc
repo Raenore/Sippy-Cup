@@ -184,6 +184,7 @@ stds.wow = {
 		C_Item = {
 			fields = {
 				"DoesItemExistByID",
+				"GetItemCooldown",
 				"GetItemCount",
 				"GetItemIconByID",
 				"GetItemInfo",
@@ -269,6 +270,7 @@ stds.wow = {
 		C_Spell = {
 			fields = {
 				"DoesSpellExist",
+				"GetSpellCooldown",
 				"GetSpellInfo",
 				"RequestLoadSpellData",
 			},
