@@ -37,7 +37,7 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 				</FontString>
 				<Texture parentKey="ItemIcon" file="Interface\Icons\INV_Misc_QuestionMark">
 					<Size x="36" y="36"/>
-					<Anchors>	
+					<Anchors>
 						<Anchor point="TOP" y="-20"/>
 						<Anchor point="LEFT" x="50"/>
 					</Anchors>
@@ -115,7 +115,7 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 				</FontString>
 				<Texture parentKey="ItemIcon" file="Interface\Icons\INV_Misc_QuestionMark">
 					<Size x="36" y="36"/>
-					<Anchors>	
+					<Anchors>
 						<Anchor point="CENTER"/>
 						<Anchor point="LEFT" x="25"/>
 					</Anchors>
