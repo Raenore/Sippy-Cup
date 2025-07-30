@@ -72,6 +72,7 @@ SIPPYCUP.Consumables.Data = {
 	NewConsumable{ auraID = 393979, itemID = 201428, loc = "QUICKSILVER_SANDS", category = "EFFECT", icon = "inv_relics_hourglass" },
 	NewConsumable{ auraID = 1213974, itemID = 234287, loc = "RADIANT_FOCUS", category = "EFFECT", icon = "inv_radiant_remnant", preExpiration = 1 },
 	NewConsumable{ auraID = 1214287, itemID = 234527, loc = "SACREDITES_LEDGER", category = "HANDHELD", icon = "inv_offhand_1h_priest_c_01", preExpiration = 1 },
+	NewConsumable{ auraID = 163219, itemID = 112384, loc = "REFLECTING_PRISM", category = "PRISM", icon = "inv_jewelcrafting_prism", preExpiration = 1 },
 	NewConsumable{ auraID = 279742, itemID = 163695, loc = "SCROLL_OF_INNER_TRUTH", category = "EFFECT", icon = "inv_misc_scrollunrolled04b" },
 	NewConsumable{ auraID = 1222834, itemID = 237332, loc = "SINGLE_USE_GRILL", category = "PLACEMENT", icon = "achievement_cooking_masterofthegrill", nonTrackable = true },
 	NewConsumable{ auraID = 58479, itemID = 43480, loc = "SMALL_FEAST", category = "SIZE", icon = "ability_hunter_pet_boar", preExpiration = 1 },

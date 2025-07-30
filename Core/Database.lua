@@ -140,7 +140,7 @@ function SIPPYCUP.Database.FindMatchingConsumable(spellId, instanceID, itemID)
 	return nil;
 end
 
-local categories = { "Appearance", "Effect", "Handheld", "Placement", "Size" };
+local categories = { "Appearance", "Effect", "Handheld", "Placement", "Prism", "Size" };
 
 -- Sort `categories` in-place by their localized title:
 table.sort(categories, function(a, b)
