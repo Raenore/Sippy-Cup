@@ -7,6 +7,9 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Rewritten custom popup system to replace StaticPopups (FlexiblePopups?) (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
 
+### Fixed
+- Fixed Blizzard renaming editBox to EditBox (fixed in [#32](https://github.com/Raenore/Sippy-Cup/pull/32)).
+
 ## [0.2.2] - 2025-06-24
 
 ### Fixed
