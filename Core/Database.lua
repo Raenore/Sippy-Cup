@@ -149,6 +149,18 @@ table.sort(categories, function(a, b)
 	return SIPPYCUP_TEXT.Normalize(locA:lower()) < SIPPYCUP_TEXT.Normalize(locB:lower());
 end);
 
+function SIPPYCUP.Database.SetupConfig()
+	local title = SIPPYCUP.AddonMetadata.title;
+
+	for _, cat in ipairs(categories) do
+		AceConfigRegistry:RegisterOptionsTable(title .. "_" .. cat, SIPPYCUP_CONFIG.GenerateCategory(cat:upper()));
+		AceConfigDialog:AddToBlizOptions(title .. "_" .. cat, L["OPTIONS_CONSUMABLE_" .. cat:upper() .. "_TITLE"], title);
+	end
+
+	AceConfigRegistry:RegisterOptionsTable(title .. "_Profiles", LibStub("AceDBOptions-3.0"):GetOptionsTable(SIPPYCUP.db));
+	SIPPYCUP.ProfilesFrame, SIPPYCUP.ProfilesFrameID = AceConfigDialog:AddToBlizOptions(title .. "_Profiles", "Profiles", title);
+end
+
 ---RefreshConfig updates the options tables and handles checking stacks on enabled and active consumables.
 ---@return nil
 local function RefreshConfig()
