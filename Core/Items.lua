@@ -38,7 +38,7 @@ function SIPPYCUP.Items.CreateItemTimer(fireIn, key, auraID, reason, itemID)
 	local handle = C_Timer.NewTimer(fireIn, function()
 		scheduledItemTimers[key] = nil;
 		-- Fire the popup
-		SIPPYCUP.Popups.QueuePopupAction(reason, auraID, nil, nil, nil, "CreatePreExpirationTimer - Item - Reason: " .. reason);
+		SIPPYCUP.Popups.QueuePopupAction(reason, auraID, nil, nil, "CreatePreExpirationTimer - Item - Reason: " .. reason);
 	end);
 
 	-- Store it for potential cancellation later
@@ -168,15 +168,14 @@ function SIPPYCUP.Items.CheckNonTrackableSingleConsumable(profileConsumableData,
 		local remaining = math.max(0, expirationTime - now);
 
 		-- Cleaup opened popups, nontrackable auras don't fire stack updates so we can't evaluate it in other places.
-		local popupKey = "SIPPYCUP_REFRESH_" .. consumableData.loc;
-		local isShown  = StaticPopup_Visible(popupKey);
+		local existingPopup = SIPPYCUP.Popups.activeByLoc[consumableData.loc];
 
 		if startTime > 0 then
 			profileConsumableData.currentStacks = 1;
 			SIPPYCUP.Database.nonTrackableProfile[consumableData.itemID] = profileConsumableData;
 
-			if isShown then
-				StaticPopup_Hide(popupKey);
+			if existingPopup and existingPopup:IsShown() then
+				existingPopup:Hide();
 			end
 		end
 
@@ -202,7 +201,7 @@ function SIPPYCUP.Items.CheckNonTrackableSingleConsumable(profileConsumableData,
 			if fireIn <= 0 and SIPPYCUP.db.global.PreExpirationChecks then
 				-- Less than 60s left and we want pre-expiration popup: fire immediately
 				preExpireFired = true;
-				SIPPYCUP.Popups.QueuePopupAction(2, auraID, nil, nil, nil, "CheckNonTrackableSingleConsumable - pre-expiration");
+				SIPPYCUP.Popups.QueuePopupAction(2, auraID, nil, nil, "CheckNonTrackableSingleConsumable - pre-expiration");
 			elseif SIPPYCUP.db.global.PreExpirationChecks then
 				-- Schedule our 1m before expiration reminder.
 				reason = 2;
@@ -265,4 +264,7 @@ SIPPYCUP.Items.bagUpdateUnhandled = false;
 -- Fires on BAG_UPDATE_DELAYED, which batches all bag changes after UNIT_AURA.
 function SIPPYCUP.Items.HandleBagUpdate()
 	SIPPYCUP.Items.bagUpdateUnhandled = false;
+
+	-- Now that bag data is synced, process deferred actions using accurate data.
+	SIPPYCUP.Popups.HandleDeferredActions();
 end

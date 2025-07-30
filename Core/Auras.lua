@@ -39,7 +39,7 @@ local function ParseAura(updateInfo)
 				SIPPYCUP.Database.instanceToProfile[auraInfo.auraInstanceID] = profileConsumableData;
 
 				SIPPYCUP.Auras.CheckPreExpirationForSingleConsumable(profileConsumableData);
-				SIPPYCUP.Popups.QueuePopupAction(0, auraInfo.spellId, auraInfo, auraInfo.auraInstanceID, nil, "ParseAura - addition");
+				SIPPYCUP.Popups.QueuePopupAction(0, auraInfo.spellId, auraInfo, auraInfo.auraInstanceID, "ParseAura - addition");
 			end
 		end
 	end
@@ -58,7 +58,7 @@ local function ParseAura(updateInfo)
 					-- On aura update, we remove all pre-expiration timers as that's obvious no longer relevant.
 					SIPPYCUP.Auras.CancelPreExpirationTimer(nil, profileConsumableData.aura, auraInstanceID);
 					SIPPYCUP.Auras.CheckPreExpirationForSingleConsumable(profileConsumableData);
-					SIPPYCUP.Popups.QueuePopupAction(0, auraInfo.spellId, auraInfo, auraInfo.auraInstanceID, nil, "ParseAura - updated");
+					SIPPYCUP.Popups.QueuePopupAction(0, auraInfo.spellId, auraInfo, auraInfo.auraInstanceID, "ParseAura - updated");
 				end
 			end
 		end
@@ -74,7 +74,7 @@ local function ParseAura(updateInfo)
 
 				-- On aura removal, we remove all pre-expiration timers as that's obvious no longer relevant.
 				SIPPYCUP.Auras.CancelPreExpirationTimer(nil, profileConsumableData.aura, auraInstanceID);
-				SIPPYCUP.Popups.QueuePopupAction(1, profileConsumableData.aura, nil, auraInstanceID, nil, "ParseAura - removed");
+				SIPPYCUP.Popups.QueuePopupAction(1, profileConsumableData.aura, nil, auraInstanceID, "ParseAura - removed");
 			end
 		end
 	end
@@ -329,7 +329,7 @@ function SIPPYCUP.Auras.CreatePreExpirationTimer(fireIn, auraInfo, key, auraID, 
 	local handle = C_Timer.NewTimer(fireIn, function()
 		scheduledPreExpirationAuraTimers[key] = nil;
 		-- Fire the popup
-		SIPPYCUP.Popups.QueuePopupAction(2, auraInfo and auraInfo.spellId or auraID, auraInfo, auraInfo and auraInfo.auraInstanceID, nil, "CreatePreExpirationTimer - Aura");
+		SIPPYCUP.Popups.QueuePopupAction(2, auraInfo and auraInfo.spellId or auraID, auraInfo, auraInfo and auraInfo.auraInstanceID, "CreatePreExpirationTimer - Aura");
 	end);
 
 	-- Store it for potential cancellation later
@@ -453,7 +453,7 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleConsumable(profileConsumableD
 			local spellId = auraInfo and auraInfo.spellId or profileConsumableData.aura;
 			local auraInstanceID = auraInfo and auraInfo.auraInstanceID;
 			preExpireFired = true;
-			SIPPYCUP.Popups.QueuePopupAction(2, spellId, auraInfo or nil, auraInstanceID, nil, "CheckPreExpirationForSingleConsumable");
+			SIPPYCUP.Popups.QueuePopupAction(2, spellId, auraInfo or nil, auraInstanceID, "CheckPreExpirationForSingleConsumable");
 		elseif SIPPYCUP.db.global.PreExpirationChecks then
 			-- Schedule our 1m before expiration reminder.
 			SIPPYCUP.Auras.CreatePreExpirationTimer(fireIn, auraInfo, key, auraID);

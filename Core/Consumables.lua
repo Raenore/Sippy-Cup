@@ -150,10 +150,10 @@ function SIPPYCUP.Consumables.RefreshStackSizes(checkAll)
 			if not preExpireFired then
 				if auraInfo or active then
 					-- When the aura is enabled and active.
-					SIPPYCUP.Popups.QueuePopupAction(0, profileConsumableData.aura, auraInfo, auraInfo and auraInfo.auraInstanceID, nil, "CheckConsumableStackSizes - active");
+					SIPPYCUP.Popups.QueuePopupAction(0, profileConsumableData.aura, auraInfo, auraInfo and auraInfo.auraInstanceID, "CheckConsumableStackSizes - active");
 				elseif checkAll then
 					-- The aura is enabled, not active. But CheckAll is on, so we still run it.
-					SIPPYCUP.Popups.QueuePopupAction(1, profileConsumableData.aura, nil, nil, nil, "CheckConsumableStackSizes - checkAll");
+					SIPPYCUP.Popups.QueuePopupAction(1, profileConsumableData.aura, nil, nil, "CheckConsumableStackSizes - checkAll");
 				end
 			end
 		end

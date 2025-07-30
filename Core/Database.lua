@@ -34,6 +34,7 @@ SIPPYCUP.Database.defaults = {
 		AlertSoundID = "fx_ship_bell_chime_02",
 		FlashTaskbar = true,
 		Flyway = {},
+		InsufficientReminder = false,
 		MSPStatusCheck = false,
 		PopupPosition = "TOP",
 		PreExpirationChecks = true,

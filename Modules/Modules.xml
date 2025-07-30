@@ -4,10 +4,11 @@
 -->
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
+	<Include file="ElvUI\ElvUI.lua"/>
 	<Include file="Flyway\Flyway.lua"/>
 	<Include file="Flyway\FlywayPatches.lua"/>
 	<Include file="LinkDialog\LinkDialog.lua"/>
 	<Include file="Minimap\Minimap.lua"/>
 	<Include file="MSP\MSP.lua"/>
-	<Include file="Popups\Popups.lua"/>
+	<Include file="Popups\Popups.xml"/>
 </Ui>

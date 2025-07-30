@@ -130,6 +130,51 @@ function SIPPYCUP_CONFIG.GenerateGeneral()
 				width = "full",
 				order = autoOrder(),
 			},
+			PreExpirationChecksEnable = {
+				type = "toggle",
+				name = L.OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE,
+				desc = L.OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE_DESC,
+				get = function()
+					return SIPPYCUP.db.global.PreExpirationChecks;
+				end,
+				set = function(_, val)
+					SIPPYCUP.db.global.PreExpirationChecks = val;
+					-- If we disable it, cancel all pre-expiration timers that exist.
+					if not val then
+						SIPPYCUP.Auras.CancelAllPreExpirationTimers();
+						-- reason 2 = pre-expiration for items
+						SIPPYCUP.Items.CancelAllItemTimers(2);
+					end
+				end,
+				width = THIRD_WIDTH,
+				order = autoOrder(),
+			},
+			InsufficientReminderEnable = {
+				type = "toggle",
+				name = L.OPTIONS_GENERAL_POPUPS_INSUFFICIENT_REMINDER_ENABLE,
+				desc = L.OPTIONS_GENERAL_POPUPS_INSUFFICIENT_REMINDER_ENABLE_DESC,
+				get = function()
+					return SIPPYCUP.db.global.InsufficientReminder;
+				end,
+				set = function(_, val)
+					SIPPYCUP.db.global.InsufficientReminder = val;
+				end,
+				width = THIRD_WIDTH,
+				order = autoOrder(),
+			},
+			resetIgnoresButton = {
+				type = "execute",
+				name = L.OPTIONS_GENERAL_POPUPS_IGNORES,
+				desc = L.OPTIONS_GENERAL_POPUPS_IGNORES_TEXT,
+				disabled = function()
+					return SIPPYCUP.Popups.IsEmpty();
+				end,
+				func = function()
+					SIPPYCUP.Popups.ResetIgnored();
+				end,
+				width = THIRD_WIDTH,
+				order = autoOrder(),
+			},
 			positionSelect = {
 				type = "select",
 				name = L.OPTIONS_GENERAL_POPUPS_POSITION_NAME,
@@ -153,58 +198,7 @@ function SIPPYCUP_CONFIG.GenerateGeneral()
 				width = THIRD_WIDTH,
 				order = autoOrder(),
 			},
-			PopupIconEnable = {
-				type = "toggle",
-				name = L.OPTIONS_GENERAL_POPUPS_ICON_ENABLE,
-				desc = L.OPTIONS_GENERAL_POPUPS_ICON_ENABLE_DESC,
-				get = function()
-					return SIPPYCUP.db.global.PopupIcon;
-				end,
-				set = function(_, val)
-					SIPPYCUP.db.global.PopupIcon = val;
-				end,
-				width = THIRD_WIDTH,
-				order = autoOrder(),
-			},
 			blankSmall1 = {
-				type = "description",
-				name = " ",
-				width = "full",
-				order = autoOrder(),
-			},
-			PreExpirationChecksEnable = {
-				type = "toggle",
-				name = L.OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE,
-				desc = L.OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE_DESC,
-				get = function()
-					return SIPPYCUP.db.global.PreExpirationChecks;
-				end,
-				set = function(_, val)
-					SIPPYCUP.db.global.PreExpirationChecks = val;
-					-- If we disable it, cancel all pre-expiration timers that exist.
-					if not val then
-						SIPPYCUP.Auras.CancelAllPreExpirationTimers();
-						-- reason 2 = pre-expiration for items
-						SIPPYCUP.Items.CancelAllItemTimers(2);
-					end
-				end,
-				width = THIRD_WIDTH,
-				order = autoOrder(),
-			},
-			resetIgnoresButton = {
-				type = "execute",
-				name = L.OPTIONS_GENERAL_POPUPS_IGNORES,
-				desc = L.OPTIONS_GENERAL_POPUPS_IGNORES_TEXT,
-				disabled = function()
-					return SIPPYCUP.Popups.IsEmpty();
-				end,
-				func = function()
-					SIPPYCUP.Popups.ResetIgnored();
-				end,
-				width = THIRD_WIDTH,
-				order = autoOrder(),
-			},
-			blankSmall2 = {
 				type = "description",
 				name = " ",
 				width = "full",
