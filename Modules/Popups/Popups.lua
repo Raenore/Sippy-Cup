@@ -23,44 +23,28 @@ local function PlayPopupSound()
 	end
 end
 
-local alertThrottle = {};
+local alertThrottle = false;
 
----HandleAlerts handles playing a popup sound or flash the taskbar, plus throttling to avoid spam based on loc key.
----@param loc string? The localization key used for throttling alert actions (optional).
----@param reset boolean? If true, resets the throttling for the specified location (optional).
+---HandleAlerts handles playing a popup sound and/or flashing the taskbar.
+---Ensures only one alert is triggered per frame to prevent spamming,
+---especially during situations where many popups appear at once (e.g. startup).
 ---@return nil
-local function HandleAlerts(loc, reset)
-	-- First handle no arguments, then no throttling is necessary.
-	if not loc then
+local function HandleAlerts()
+	if alertThrottle then
+		return;
+	end
+	alertThrottle = true;
+
 		if SIPPYCUP.db.global.AlertSound then
 			PlayPopupSound();
 		end
-
 		if SIPPYCUP.db.global.FlashTaskbar then
 			FlashClientIcon();
 		end
 
-		return;
-	end
-
-	-- Reset throttle if requested.
-	if reset then
-		alertThrottle[loc] = nil;
-		return;
-	end
-
-	-- If the popup alerts actions are not throttled, handle it.
-	if not alertThrottle[loc] then
-		if SIPPYCUP.db.global.AlertSound then
-			PlayPopupSound();
-		end
-
-		if SIPPYCUP.db.global.FlashTaskbar then
-			FlashClientIcon();
-		end
-
-		alertThrottle[loc] = true;
-	end
+	RunNextFrame(function()
+		alertThrottle = false;
+	end);
 end
 
 local sessionData = {};
