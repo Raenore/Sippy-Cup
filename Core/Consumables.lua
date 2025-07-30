@@ -6,8 +6,6 @@ SIPPYCUP.Consumables.ByAuraID = {};
 SIPPYCUP.Consumables.ByItemID = {};
 SIPPYCUP.Consumables.ByName = {};
 
-local L = SIPPYCUP.L;
-
 ---NewConsumable creates a new consumable object with the specified parameters.
 ---@param params table A table containing parameters for the new consumable.
 ---@param params.auraID number The consumable's aura ID.
