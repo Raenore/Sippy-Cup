@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 - Icons in the new popups can be hovered over for tooltip info, which support count addons to quickly figure out your item counts (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
 
 ### Changed
+- Update TOC for 11.2.0 (see [#32](https://github.com/Raenore/Sippy-Cup/pull/32)).
 - Optimized MSP integration, users should see no noticeable changes (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
 - Item names are now gathered from the game and not from the locales, which means that they are auto-localized in every language (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
 - Sound alerts should now no longer spam the user when multiple popups hit at the same time, as they are now throttled (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
