@@ -33,7 +33,7 @@ StaticPopupDialogs["SIPPYCUP_LINK_DIALOG"] = {
 	hasEditBox = true,
 	editBoxWidth = 320,
 	OnShow = function(self, data)
-		local editBox = self.editBox;
+		local editBox = self.EditBox;
 		SetupEditBox(editBox, data);
 	end,
 	timeout = false,
