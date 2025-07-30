@@ -9,46 +9,6 @@ if not L then return; end
 L.WELCOMEMSG_VERSION = "Приготовлено с душой |cnGREEN_FONT_COLOR:%s|r!";
 L.WELCOMEMSG_OPTIONS = "Настройки доступны через |cnGREEN_FONT_COLOR:/sc|r или |cnGREEN_FONT_COLOR:/sippycup|r.";
 
---/ Consumable names /--
-L.ARCHIVISTS_CODEX = "Кодекс архивариуса";
-L.ASHEN_LINIMENT = "Пепельная мазь";
-L.BLUBBERY_MUFFIN = "Blubbery Muffin"; -- NEW
-L.COLLECTIBLE_PINEAPPLETINI_MUG = "Collectible Pineappletini Mug"; -- NEW
-L.DARKMOON_FIREWATER = "Огненная вода Новолуния";
-L.DECORATIVE_YARD_FLAMINGO = "Decorative Yard Flamingo"; -- NEW
-L.DISPOSABLE_HAMBURGER = "Disposable Hamburger"; -- NEW
-L.DISPOSABLE_HOTDOG = "Disposable Hotdog"; -- NEW
-L.ELIXIR_OF_GIANT_GROWTH = "Эликсир увеличения";
-L.ELIXIR_OF_TONGUES = "Лингвистическое зелье";
-L.ENCHANTED_DUST = "Enchanted Dust"; -- NEW
-L.FIREWATER_SORBET = "Шербет из огненной воды";
-L.FLEETING_SANDS = "Fleeting Sands"; -- NEW
-L.FLICKERING_FLAME_HOLDER = "Держатель мерцающего пламени";
-L.GIGANTIC_FEAST = "Пир для великанов";
-L.GREEN_DANCE_STICK = "Green Dance Stick"; -- NEW
-L.HALF_EATEN_TAKEOUT = "Half-Eaten Takeout"; -- NEW
-L.HOLY_CANDLE = "Holy Candle"; -- NEW
-L.INKY_BLACK_POTION = "Чернильно-черное зелье";
-L.NOGGENFOGGER_SELECT_DOWN = "Особый эликсир Гогельмогеля Уменьшающий";
-L.NOGGENFOGGER_SELECT_UP = "Особый эликсир Гогельмогеля Увеличивающий";
-L.PROVIS_WAX = "Воск из провиза";
-L.PURPLE_DANCE_STICK = "Purple Dance Stick"; -- NEW
-L.PYGMY_OIL = "Карломасло";
-L.QUICKSILVER_SANDS = "Quicksilver Sands"; -- NEW
-L.RADIANT_FOCUS = "Сияющее средоточие";
-L.SACREDITES_LEDGER = "Учетная книга сакралита";
-L.SCROLL_OF_INNER_TRUTH = "Scroll of Inner Truth"; -- NEW
-L.SINGLE_USE_GRILL = "Single-Use Grill"; -- NEW
-L.SMALL_FEAST = "Пир для карликов";
-L.SNOW_IN_A_CONE = "Snow in a Cone"; -- NEW
-L.SPARKBUG_JAR = "Банка с искрожуками";
-L.STINKY_BRIGHT_POTION = "Яркое вонючее зелье";
-L.SUNGLOW = "Солнечное сияние";
-L.TATTERED_ARATHI_PRAYER_SCROLL = "Потрепанный молитвенный свиток арати";
-L.TEMPORALLY_LOCKED_SANDS = "Temporally-Locked Sands"; -- NEW
-L.WEARY_SANDS = "Weary Sands"; -- NEW
-L.WINTERFALL_FIREWATER = "Огненная вода Зимней Спячки";
-
 --/ Popup dialog /--
 L.POPUP_COOLDOWN_TEXT = "currently on cooldown."; -- NEW
 L.POPUP_LACKING_TEXT = "не найден в вашем инвентаре.";

@@ -9,46 +9,6 @@ if not L then return; end
 L.WELCOMEMSG_VERSION = "Prepared with flavor |cnGREEN_FONT_COLOR:%s|r!";
 L.WELCOMEMSG_OPTIONS = "Options available through |cnGREEN_FONT_COLOR:/sc|r or |cnGREEN_FONT_COLOR:/sippycup|r.";
 
---/ Consumable names /--
-L.ARCHIVISTS_CODEX = "Archivist's Codex";
-L.ASHEN_LINIMENT = "Ashen Liniment";
-L.BLUBBERY_MUFFIN = "Blubbery Muffin";
-L.COLLECTIBLE_PINEAPPLETINI_MUG = "Collectible Pineappletini Mug";
-L.DARKMOON_FIREWATER = "Darkmoon Firewater";
-L.DECORATIVE_YARD_FLAMINGO = "Decorative Yard Flamingo";
-L.DISPOSABLE_HAMBURGER = "Disposable Hamburger";
-L.DISPOSABLE_HOTDOG = "Disposable Hotdog";
-L.ELIXIR_OF_GIANT_GROWTH = "Elixir of Giant Growth";
-L.ELIXIR_OF_TONGUES = "Elixir of Tongues";
-L.ENCHANTED_DUST = "Enchanted Dust";
-L.FIREWATER_SORBET = "Firewater Sorbet";
-L.FLEETING_SANDS = "Fleeting Sands";
-L.FLICKERING_FLAME_HOLDER = "Flickering Flame Holder";
-L.GIGANTIC_FEAST = "Gigantic Feast";
-L.GREEN_DANCE_STICK = "Green Dance Stick";
-L.HALF_EATEN_TAKEOUT = "Half-Eaten Takeout";
-L.HOLY_CANDLE = "Holy Candle";
-L.INKY_BLACK_POTION = "Inky Black Potion";
-L.NOGGENFOGGER_SELECT_DOWN = "Noggenfogger Select DOWN";
-L.NOGGENFOGGER_SELECT_UP = "Noggenfogger Select UP";
-L.PROVIS_WAX = "Provis Wax";
-L.PURPLE_DANCE_STICK = "Purple Dance Stick";
-L.PYGMY_OIL = "Pygmy Oil";
-L.QUICKSILVER_SANDS = "Quicksilver Sands";
-L.RADIANT_FOCUS = "Radiant Focus";
-L.SACREDITES_LEDGER = "Sacredite's Ledger";
-L.SCROLL_OF_INNER_TRUTH = "Scroll of Inner Truth";
-L.SINGLE_USE_GRILL = "Single-Use Grill";
-L.SMALL_FEAST = "Small Feast";
-L.SNOW_IN_A_CONE = "Snow in a Cone";
-L.SPARKBUG_JAR = "Sparkbug Jar";
-L.STINKY_BRIGHT_POTION = "Stinky Bright Potion";
-L.SUNGLOW = "Sunglow";
-L.TATTERED_ARATHI_PRAYER_SCROLL = "Tattered Arathi Prayer Scroll";
-L.TEMPORALLY_LOCKED_SANDS = "Temporally-Locked Sands";
-L.WEARY_SANDS = "Weary Sands";
-L.WINTERFALL_FIREWATER = "Winterfall Firewater";
-
 --/ Popup dialog /--
 L.POPUP_COOLDOWN_TEXT = "currently on cooldown.";
 L.POPUP_LACKING_TEXT = "not found in your inventory.";

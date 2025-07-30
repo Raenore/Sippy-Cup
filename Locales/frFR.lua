@@ -9,46 +9,6 @@ if not L then return; end
 L.WELCOMEMSG_VERSION = "Préparé à la saveur |cnGREEN_FONT_COLOR:%s|r!";
 L.WELCOMEMSG_OPTIONS = "Options accessibles via |cnGREEN_FONT_COLOR:/sc|r ou |cnGREEN_FONT_COLOR:/sippycup|r.";
 
---/ Consumable names /--
-L.ARCHIVISTS_CODEX = "Codex des archivistes";
-L.ASHEN_LINIMENT = "Liniment cendreux";
-L.BLUBBERY_MUFFIN = "Muffin onctueux";
-L.COLLECTIBLE_PINEAPPLETINI_MUG = "Mug de jus d’ananas de collection";
-L.DARKMOON_FIREWATER = "Eau-de-feu de Sombrelune";
-L.DECORATIVE_YARD_FLAMINGO = "Flamant de décoration de jardin";
-L.DISPOSABLE_HAMBURGER = "Hamburger jetable";
-L.DISPOSABLE_HOTDOG = "Hotdog jetable";
-L.ELIXIR_OF_GIANT_GROWTH = "Élixir de taille de géant";
-L.ELIXIR_OF_TONGUES = "Élixir des langages";
-L.ENCHANTED_DUST = "Poussière enchantée";
-L.FIREWATER_SORBET = "Sorbet d'eau-de-feu";
-L.FLEETING_SANDS = "Sables fugaces";
-L.FLICKERING_FLAME_HOLDER = "Support de flamme vacillante";
-L.GIGANTIC_FEAST = "Festin gigantesque";
-L.GREEN_DANCE_STICK = "Bâton lumineux vert";
-L.HALF_EATEN_TAKEOUT = "Plat à emporter à moitié mangé";
-L.HOLY_CANDLE = "Bougie sanctifiée";
-L.INKY_BLACK_POTION = "Potion noire comme de l'encre";
-L.NOGGENFOGGER_SELECT_DOWN = "Sélection rétrécissante de Brouillecaboche";
-L.NOGGENFOGGER_SELECT_UP = "Sélection grandissante de Brouillecaboche";
-L.PROVIS_WAX = "Cire de Provis";
-L.PURPLE_DANCE_STICK = "Bâton lumineux violet";
-L.PYGMY_OIL = "Huile de pygmée";
-L.QUICKSILVER_SANDS = "Sables vif-argent";
-L.RADIANT_FOCUS = "Concentration rayonnante";
-L.SACREDITES_LEDGER = "Registre de sacrédit";
-L.SCROLL_OF_INNER_TRUTH = "Parchemin de vérité profonde";
-L.SINGLE_USE_GRILL = "Grill à usage unique";
-L.SMALL_FEAST = "Petit festin";
-L.SNOW_IN_A_CONE = "Cornet de neige";
-L.SPARKBUG_JAR = "Jarre de lumiptères";
-L.STINKY_BRIGHT_POTION = "Potion lumineuse puante";
-L.SUNGLOW = "Soléclat";
-L.TATTERED_ARATHI_PRAYER_SCROLL = "Parchemin de prière arathi en lambeaux";
-L.TEMPORALLY_LOCKED_SANDS = "Sables bloqués temporellement";
-L.WEARY_SANDS = "Sables éreintés";
-L.WINTERFALL_FIREWATER = "Eau-de-feu des Tombe-hiver";
-
 --/ Popup dialog /--
 L.POPUP_COOLDOWN_TEXT = "actuellement en recharge.";
 L.POPUP_LACKING_TEXT = "introuvable dans votre inventaire.";

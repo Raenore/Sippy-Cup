@@ -85,9 +85,9 @@ SIPPYCUP.Consumables.Data = {
 	NewConsumable{ auraID = 17038, itemID = 12820, loc = "WINTERFALL_FIREWATER", category = "SIZE", icon = "inv_potion_92", preExpiration = 1 },
 };
 
--- Add loc data and create ByAuraID consumable option.
+local remaining = {};
 for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
-	consumable.name = L[consumable.loc];
+    remaining[consumable.itemID] = true;
 
 	-- `profile` from loc, e.g. "PYGMY_OIL" -> "pygmyOil"
 	consumable.profile = string.gsub(string.lower(consumable.loc), "_(%a)", function(c)
@@ -96,12 +96,24 @@ for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
 
 	SIPPYCUP.Consumables.ByAuraID[consumable.auraID] = consumable;
 	SIPPYCUP.Consumables.ByItemID[consumable.itemID] = consumable;
-	SIPPYCUP.Consumables.ByName[consumable.name] = consumable;
 end
 
+for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
+    local item = Item:CreateFromItemID(consumable.itemID);
+    item:ContinueOnItemLoad(function()
+        consumable.name = item:GetItemName();
+        remaining[consumable.itemID] = nil;
+	SIPPYCUP.Consumables.ByName[consumable.name] = consumable;
+
+        if next(remaining) == nil then
+            -- All items loaded — safe to proceed
 table.sort(SIPPYCUP.Consumables.Data, function(a, b)
 	return SIPPYCUP_TEXT.Normalize(a.name:lower()) < SIPPYCUP_TEXT.Normalize(b.name:lower());
 end);
+            SIPPYCUP.Database.SetupConfig();
+        end
+    end);
+end
 
 ---RefreshStackSizes iterates over all enabled Sippy Cup consumables to set the correct stack sizes (startup / profile change / etc).
 ---@param checkAll boolean? If true, it will also check the inactive enabled ones.
