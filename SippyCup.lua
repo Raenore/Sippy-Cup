@@ -35,6 +35,9 @@ function SIPPYCUP_Addon:OnEnable()
 	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");
 	self:RegisterEvent("BAG_UPDATE_DELAYED");
 
+	-- Adapt saved variables structures between versions
+	SIPPYCUP.Flyway:ApplyPatches();
+
 	-- 1 - We set up the minimap buttons.
 	SIPPYCUP.Minimap:SetupMinimapButtons();
 
@@ -65,7 +68,7 @@ function SIPPYCUP_Addon:UNIT_AURA(_, unitTarget, updateInfo)
 		return;
 	end
 
--- Bag data is not synched immediately when UNIT_AURA fires, signal desync to the addon.
+	-- Bag data is not synched immediately when UNIT_AURA fires, signal desync to the addon.
 	SIPPYCUP.Items.bagUpdateUnhandled = true;
 	SIPPYCUP.Auras.Convert(1, updateInfo);
 end
