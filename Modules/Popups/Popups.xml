@@ -8,11 +8,11 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 	<Include file="Popups.lua"/>
 
 	<Frame name="SIPPYCUP_RefreshPopupTemplate" virtual="true" parent="UIParent" toplevel="true" enableMouse="true" frameStrata="DIALOG" hidden="true">
-        <Size x="420" y="100"/>
-        <Anchors>
-            <Anchor point="TOP" relativeTo="UIParent" x="0" y="-100"/>
-        </Anchors>
-        <Layers>
+		<Size x="420" y="100"/>
+		<Anchors>
+			<Anchor point="TOP" relativeTo="UIParent" x="0" y="-100"/>
+		</Anchors>
+		<Layers>
 			<Layer level="BACKGROUND">
 				<Texture file="Interface\DialogFrame\UI-DialogBox-Background" horizTile="true" vertTile="true">
 					<Anchors>
@@ -21,8 +21,8 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 					</Anchors>
 				</Texture>
 			</Layer>
-            <Layer level="OVERLAY">
-                <FontString parentKey="Title" inherits="GameFontHighlightLarge" wordwrap="false">
+			<Layer level="OVERLAY">
+				<FontString parentKey="Title" inherits="GameFontHighlightLarge" wordwrap="false">
 					<Anchors>
 						<Anchor point="TOPLEFT" y="-10"/>
 						<Anchor point="TOPRIGHT" y="-10"/>
@@ -56,8 +56,8 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 					</Anchors>
 					<Color r="0.95" g="0.95" b="0.95"/>
 				</FontString>
-            </Layer>
-        </Layers>
+			</Layer>
+		</Layers>
 
 		<Frames>
 			<Button parentKey="CloseButton" inherits="UIPanelCloseButton">
@@ -86,11 +86,11 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 	</Frame>
 
 	<Frame name="SIPPYCUP_MissingPopupTemplate" virtual="true" parent="UIParent" toplevel="true" enableMouse="true" frameStrata="DIALOG" hidden="true">
-        <Size x="370" y="100"/>
-        <Anchors>
-            <Anchor point="TOP" relativeTo="UIParent" x="0" y="-100"/>
-        </Anchors>
-        <Layers>
+		<Size x="370" y="100"/>
+		<Anchors>
+			<Anchor point="TOP" relativeTo="UIParent" x="0" y="-100"/>
+		</Anchors>
+		<Layers>
 			<Layer level="BACKGROUND">
 				<Texture file="Interface\DialogFrame\UI-DialogBox-Background" horizTile="true" vertTile="true">
 					<Anchors>
@@ -99,8 +99,8 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 					</Anchors>
 				</Texture>
 			</Layer>
-            <Layer level="OVERLAY">
-                <FontString parentKey="Title" inherits="GameFontHighlightLarge" wordwrap="false">
+			<Layer level="OVERLAY">
+				<FontString parentKey="Title" inherits="GameFontHighlightLarge" wordwrap="false">
 					<Anchors>
 						<Anchor point="TOPLEFT" y="-10"/>
 						<Anchor point="TOPRIGHT" y="-10"/>
@@ -127,8 +127,8 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 					</Anchors>
 					<Color r="0.95" g="0.95" b="0.95"/>
 				</FontString>
-            </Layer>
-        </Layers>
+			</Layer>
+		</Layers>
 
 		<Frames>
 			<Button parentKey="CloseButton" inherits="UIPanelCloseButton">

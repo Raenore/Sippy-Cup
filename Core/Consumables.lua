@@ -87,7 +87,7 @@ SIPPYCUP.Consumables.Data = {
 
 local remaining = {};
 for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
-    remaining[consumable.itemID] = true;
+	remaining[consumable.itemID] = true;
 
 	-- `profile` from loc, e.g. "PYGMY_OIL" -> "pygmyOil"
 	consumable.profile = string.gsub(string.lower(consumable.loc), "_(%a)", function(c)
@@ -99,20 +99,26 @@ for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
 end
 
 for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
-    local item = Item:CreateFromItemID(consumable.itemID);
-    item:ContinueOnItemLoad(function()
-        consumable.name = item:GetItemName();
-        remaining[consumable.itemID] = nil;
-	SIPPYCUP.Consumables.ByName[consumable.name] = consumable;
+	local item = Item:CreateFromItemID(consumable.itemID);
+	item:ContinueOnItemLoad(function()
+		consumable.name = item:GetItemName();
+		remaining[consumable.itemID] = nil;
+		SIPPYCUP.Consumables.ByName[consumable.name] = consumable;
 
-        if next(remaining) == nil then
-            -- All items loaded — safe to proceed
-table.sort(SIPPYCUP.Consumables.Data, function(a, b)
-	return SIPPYCUP_TEXT.Normalize(a.name:lower()) < SIPPYCUP_TEXT.Normalize(b.name:lower());
-end);
-            SIPPYCUP.Database.SetupConfig();
-        end
-    end);
+		if next(remaining) == nil then
+			-- All items loaded — safe to proceed
+			table.sort(SIPPYCUP.Consumables.Data, function(a, b)
+				return SIPPYCUP_TEXT.Normalize(a.name:lower()) < SIPPYCUP_TEXT.Normalize(b.name:lower());
+			end);
+
+			if SIPPYCUP.db then
+				SIPPYCUP.Database.SetupConfig();
+			else
+				-- Defer SetupConfig until DB is ready
+				SIPPYCUP.deferSetupConfig = true;
+			end
+		end
+	end);
 end
 
 ---RefreshStackSizes iterates over all enabled Sippy Cup consumables to set the correct stack sizes (startup / profile change / etc).

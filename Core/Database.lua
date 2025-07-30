@@ -189,4 +189,9 @@ function SIPPYCUP.Database.Setup()
 
 	AceConfigRegistry:RegisterOptionsTable(title, SIPPYCUP_CONFIG.GenerateGeneral());
 	AceConfigDialog:AddToBlizOptions(title, title);
+
+	if SIPPYCUP.deferSetupConfig then
+		SIPPYCUP.Database.SetupConfig();
+		SIPPYCUP.deferSetupConfig = nil;
+	end
 end
