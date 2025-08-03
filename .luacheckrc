@@ -18,6 +18,7 @@ globals = {
 	-- Globals
 	"SIPPYCUP",
 	"SIPPYCUP_Addon",
+	"SippyCupDB",
 };
 
 read_globals = {
