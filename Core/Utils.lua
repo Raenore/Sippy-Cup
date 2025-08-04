@@ -24,19 +24,35 @@ function SIPPYCUP_BUILDINFO.ValidateLatestBuild()
 	local liveBuild = tostring(select(4, GetBuildInfo()));
 	local addonBuild = SIPPYCUP.AddonMetadata.addonBuild;
 
-	return liveBuild == addonBuild;
+	if not addonBuild then
+		return false;
+	end
+
+	for token in string.gmatch(addonBuild, "[^,%s]+") do
+		if token == liveBuild then
+			return true;
+		end
+	end
+
+	return false;
 end
 
 ---Output formats the addon's build version, optionally colorized based on whether it matches the live build.
 ---@param colorized boolean If true, the build version will be colorized based on whether it matches the live build.
 ---@return string formattedBuild The formatted build version, colorized if requested.
 function SIPPYCUP_BUILDINFO.Output(colorized)
+	local liveBuild = tostring(select(4, GetBuildInfo()));
 	local addonBuild = SIPPYCUP.AddonMetadata.addonBuild;
 	if not addonBuild then
 		return "Unknown Build";
 	end
 
-	local output = FormatBuild(addonBuild);
+	local output;
+	for token in string.gmatch(addonBuild, "[^,%s]+") do
+		if token == liveBuild then
+			output = FormatBuild(token);
+		end
+	end
 
 	if colorized then
 		local color = SIPPYCUP_BUILDINFO.ValidateLatestBuild() and "|cnGREEN_FONT_COLOR:" or "|cnWARNING_FONT_COLOR:";
