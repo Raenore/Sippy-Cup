@@ -41,8 +41,8 @@ end
 ---UpdateMinimapButtons toggles visibility of minimap-related buttons based on addon settings.
 ---@return nil
 function SIPPYCUP.Minimap:UpdateMinimapButtons()
-    local btn = SIPPYCUP.global.MinimapButton;
-    if btn and not btn.Hide then
+	local btn = SIPPYCUP.global.MinimapButton;
+	if btn and not btn.Hide then
 		LibDBCompartment:SetShown(SIPPYCUP.AddonMetadata.title, SIPPYCUP.global.MinimapButton.ShowAddonCompartmentButton);
 		LibDBIcon:Refresh(SIPPYCUP.AddonMetadata.title);
 	else

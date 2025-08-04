@@ -7,45 +7,45 @@ SIPPYCUP.Database = {};
 -- Copies keys from source to target only if target key is nil.
 -- Does not overwrite existing keys in target.
 local function DeepCopyDefaults(source, target)
-    for k, v in pairs(source) do
-        if type(v) == "table" then
-            target[k] = target[k] or {};
-            DeepCopyDefaults(v, target[k]);
-        elseif target[k] == nil then
-            target[k] = v;
-        end
-    end
+	for k, v in pairs(source) do
+		if type(v) == "table" then
+			target[k] = target[k] or {};
+			DeepCopyDefaults(v, target[k]);
+		elseif target[k] == nil then
+			target[k] = v;
+		end
+	end
 end
 
 local function DeepMerge(source, target)
-    -- Like DeepCopy but overwrites target keys with source keys
-    for k, v in pairs(source) do
-        if type(v) == "table" then
-            target[k] = target[k] or {};
-            DeepMerge(v, target[k]);
-        else
-            target[k] = v;
-        end
-    end
+	-- Like DeepCopy but overwrites target keys with source keys
+	for k, v in pairs(source) do
+		if type(v) == "table" then
+			target[k] = target[k] or {};
+			DeepMerge(v, target[k]);
+		else
+			target[k] = v;
+		end
+	end
 end
 
 local function GetMinimalTable(current, default)
-    local minimal = {};
-    for k, v in pairs(current) do
-        local defVal = default and default[k];
-        if type(v) == "table" and type(defVal) == "table" then
-            local nested = GetMinimalTable(v, defVal);
-            -- Only include nested tables if they have keys (non-empty)
-            if next(nested) then
-                minimal[k] = nested;
-            end
-        else
-            if v ~= defVal then
-                minimal[k] = v;
-            end
-        end
-    end
-    return minimal;
+	local minimal = {};
+	for k, v in pairs(current) do
+		local defVal = default and default[k];
+		if type(v) == "table" and type(defVal) == "table" then
+			local nested = GetMinimalTable(v, defVal);
+			-- Only include nested tables if they have keys (non-empty)
+			if next(nested) then
+				minimal[k] = nested;
+			end
+		else
+			if v ~= defVal then
+				minimal[k] = v;
+			end
+		end
+	end
+	return minimal;
 end
 
 ---Default saved variable structure for the SippyCup addon.
@@ -79,27 +79,27 @@ end
 
 ---@type SIPPYCUPDefaults
 SIPPYCUP.Database.defaults = {
-    global = {
-        AlertSound = true,
-        AlertSoundID = "fx_ship_bell_chime_02",
-        FlashTaskbar = true,
-        Flyway = {
+	global = {
+		AlertSound = true,
+		AlertSoundID = "fx_ship_bell_chime_02",
+		FlashTaskbar = true,
+		Flyway = {
 			CurrentBuild = 0,
 			Log = "",
 		},
-        InsufficientReminder = false,
-        MSPStatusCheck = true,
-        PopupPosition = "TOP",
-        PreExpirationChecks = true,
-        WelcomeMessage = true,
-        MinimapButton = {
-            Hide = false,
-            ShowAddonCompartmentButton = true,
-        },
-    },
-    profiles = {
-        Default = {},  -- will hold all consumables per profile
-    },
+		InsufficientReminder = false,
+		MSPStatusCheck = true,
+		PopupPosition = "TOP",
+		PreExpirationChecks = true,
+		WelcomeMessage = true,
+		MinimapButton = {
+			Hide = false,
+			ShowAddonCompartmentButton = true,
+		},
+	},
+	profiles = {
+		Default = {},  -- will hold all consumables per profile
+	},
 }
 
 local defaults = SIPPYCUP.Database.defaults;
@@ -115,22 +115,22 @@ local defaults = SIPPYCUP.Database.defaults;
 ---Populate the default profile's consumables table with all known entries from SIPPYCUP.Consumables.Data.
 ---This defines initial tracking settings for each consumable profile key.
 local function PopulateDefaultConsumables()
-    for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
-        local profileKey = consumable.profile;
-        local spellID = consumable.auraID;
-        local auraTrackable = consumable.itemTrackable or consumable.spellTrackable;
+	for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
+		local profileKey = consumable.profile;
+		local spellID = consumable.auraID;
+		local auraTrackable = consumable.itemTrackable or consumable.spellTrackable;
 
-        if profileKey and spellID then
-            defaults.profiles.Default[profileKey] = {
-                enable = false,
-                desiredStacks = 1,
-                currentInstanceID = nil,
-                currentStacks = 0,
-                aura = spellID,
-                auraTrackable = auraTrackable,
-            };
-        end
-    end
+		if profileKey and spellID then
+			defaults.profiles.Default[profileKey] = {
+				enable = false,
+				desiredStacks = 1,
+				currentInstanceID = nil,
+				currentStacks = 0,
+				aura = spellID,
+				auraTrackable = auraTrackable,
+			};
+		end
+	end
 end
 
 PopulateDefaultConsumables();
@@ -139,19 +139,19 @@ PopulateDefaultConsumables();
 ---@param auraInstanceID number
 ---@return table|nil profileData
 function SIPPYCUP.Database:FindByInstanceID(auraInstanceID)
-    if not auraInstanceID then
-        return nil;
-    end
+	if not auraInstanceID then
+		return nil;
+	end
 
-    local profile = SIPPYCUP.profile or {};
+	local profile = SIPPYCUP.profile or {};
 
-    for _, profileConsumableData in pairs(profile) do
-        if profileConsumableData.currentInstanceID == auraInstanceID then
-            return profileConsumableData;
-        end
-    end
+	for _, profileConsumableData in pairs(profile) do
+		if profileConsumableData.currentInstanceID == auraInstanceID then
+			return profileConsumableData;
+		end
+	end
 
-    return nil;
+	return nil;
 end
 
 SIPPYCUP.Database.auraToProfile = {}; -- auraID --> profile data
@@ -300,52 +300,52 @@ end
 ---@param subKey string? Optional subkey inside the key
 ---@return any value The resolved value from runtime or default, or nil if not found
 function SIPPYCUP.Database.GetSetting(scope, key, subKey)
-    if scope == "profile" then
-        local profile = SIPPYCUP.profile or {};
-        if subKey then
-            if profile[key] and profile[key][subKey] ~= nil then
-                return profile[key][subKey];
-            end
-            if defaults.profiles.Default and defaults.profiles.Default[key] then
-                return defaults.profiles.Default[key][subKey];
-            end
-            return nil;
-        else
-            if profile[key] ~= nil then
-                return profile[key];
-            end
-            return defaults.profiles.Default and defaults.profiles.Default[key];
-        end
+	if scope == "profile" then
+		local profile = SIPPYCUP.profile or {};
+		if subKey then
+			if profile[key] and profile[key][subKey] ~= nil then
+				return profile[key][subKey];
+			end
+			if defaults.profiles.Default and defaults.profiles.Default[key] then
+				return defaults.profiles.Default[key][subKey];
+			end
+			return nil;
+		else
+			if profile[key] ~= nil then
+				return profile[key];
+			end
+			return defaults.profiles.Default and defaults.profiles.Default[key];
+		end
 
-    elseif scope == "global" then
-        local global = SIPPYCUP.global or {};
-        if subKey then
-            if global[key] and global[key][subKey] ~= nil then
-                return global[key][subKey];
-            end
-            if defaults.global and defaults.global[key] then
-                return defaults.global[key][subKey];
-            end
-            return nil;
-        else
-            if global[key] ~= nil then
-                return global[key];
-            end
-            return defaults.global and defaults.global[key];
-        end
-    end
+	elseif scope == "global" then
+		local global = SIPPYCUP.global or {};
+		if subKey then
+			if global[key] and global[key][subKey] ~= nil then
+				return global[key][subKey];
+			end
+			if defaults.global and defaults.global[key] then
+				return defaults.global[key][subKey];
+			end
+			return nil;
+		else
+			if global[key] ~= nil then
+				return global[key];
+			end
+			return defaults.global and defaults.global[key];
+		end
+	end
 
-    return nil;
+	return nil;
 end
 
 ---RefreshUI refreshes the configuration menu by updating widgets and syncing profile values.
 ---It only runs if the config menu frame and its refresh method are available.
 ---@return nil
 function SIPPYCUP.Database.RefreshUI()
-    if SIPPYCUP_ConfigMenuFrame and SIPPYCUP_ConfigMenuFrame.RefreshWidgets then
-        SIPPYCUP_ConfigMenuFrame:RefreshWidgets();
-        SIPPYCUP_ConfigMenuFrame:SwitchProfileValues();
-    end
+	if SIPPYCUP_ConfigMenuFrame and SIPPYCUP_ConfigMenuFrame.RefreshWidgets then
+		SIPPYCUP_ConfigMenuFrame:RefreshWidgets();
+		SIPPYCUP_ConfigMenuFrame:SwitchProfileValues();
+	end
 end
 
 ---GetUnitName Returns the player's full name with realm if available.
@@ -353,74 +353,74 @@ end
 ---Returns nil if player name is invalid or realm is missing.
 ---@return string? fullName Full player name in "Name - Realm" format or nil if unavailable.
 function SIPPYCUP.Database.GetUnitName()
-    local playerName, realm = UnitNameUnmodified("player");
-    if not playerName or playerName == UNKNOWNOBJECT or playerName:len() == 0 then
-        return nil;
-    end
+	local playerName, realm = UnitNameUnmodified("player");
+	if not playerName or playerName == UNKNOWNOBJECT or playerName:len() == 0 then
+		return nil;
+	end
 
-    if not realm or realm:len() == 0 then
-        realm = GetNormalizedRealmName();
-    end
+	if not realm or realm:len() == 0 then
+		realm = GetNormalizedRealmName();
+	end
 
-    if realm and realm:len() > 0 then
-        return playerName .. " - " .. realm;
-    end
+	if realm and realm:len() > 0 then
+		return playerName .. " - " .. realm;
+	end
 
-    return nil;
+	return nil;
 end
 
 ---Setup initializes the database, registers callbacks, and configures options tables for the addon.
 ---@return nil
 function SIPPYCUP.Database.Setup()
-    local db = SIPPYCUP.db;
+	local db = SIPPYCUP.db;
 
-    -- Ensure required top-level tables exist
-    db.global = db.global or {};
-    db.profiles = db.profiles or {};
-    db.profileKeys = db.profileKeys or {};
+	-- Ensure required top-level tables exist
+	db.global = db.global or {};
+	db.profiles = db.profiles or {};
+	db.profileKeys = db.profileKeys or {};
 
-    -- Fill in missing global keys from defaults (preserves saved overrides)
-    DeepCopyDefaults(defaults.global, db.global);
+	-- Fill in missing global keys from defaults (preserves saved overrides)
+	DeepCopyDefaults(defaults.global, db.global);
 
-    -- Create a resolved working copy of global settings for runtime use
-    local workingGlobal = {};
-    DeepCopyDefaults(defaults.global, workingGlobal);
-    DeepMerge(db.global, workingGlobal);  -- saved overrides overwrite defaults
+	-- Create a resolved working copy of global settings for runtime use
+	local workingGlobal = {};
+	DeepCopyDefaults(defaults.global, workingGlobal);
+	DeepMerge(db.global, workingGlobal);  -- saved overrides overwrite defaults
 
-    -- Save runtime global for quick access
-    SIPPYCUP.global = workingGlobal;
+	-- Save runtime global for quick access
+	SIPPYCUP.global = workingGlobal;
 
-    -- Get current character identifier
-    local charKey = SIPPYCUP.Database.GetUnitName() or "Unknown";
+	-- Get current character identifier
+	local charKey = SIPPYCUP.Database.GetUnitName() or "Unknown";
 
-    -- Assign profile key for this character
-    local profileName = db.profileKeys[charKey] or "Default";
-    db.profileKeys[charKey] = profileName;
+	-- Assign profile key for this character
+	local profileName = db.profileKeys[charKey] or "Default";
+	db.profileKeys[charKey] = profileName;
 
-    -- Ensure the named profile exists in saved variables
-    db.profiles[profileName] = db.profiles[profileName] or {};
+	-- Ensure the named profile exists in saved variables
+	db.profiles[profileName] = db.profiles[profileName] or {};
 
-    -- Start from a clean copy of the default profile
-    local defaultProfile = defaults.profiles.Default or {};
-    local workingProfile = {};
-    DeepCopyDefaults(defaultProfile, workingProfile);
+	-- Start from a clean copy of the default profile
+	local defaultProfile = defaults.profiles.Default or {};
+	local workingProfile = {};
+	DeepCopyDefaults(defaultProfile, workingProfile);
 
-    -- Merge user's minimal saved data into working profile
-    DeepMerge(db.profiles[profileName], workingProfile);
+	-- Merge user's minimal saved data into working profile
+	DeepMerge(db.profiles[profileName], workingProfile);
 
-    -- Compute minimal diffs and save back into saved variables
-    local minimalProfile = GetMinimalTable(workingProfile, defaultProfile);
-    db.profiles[profileName] = minimalProfile;
+	-- Compute minimal diffs and save back into saved variables
+	local minimalProfile = GetMinimalTable(workingProfile, defaultProfile);
+	db.profiles[profileName] = minimalProfile;
 
-    -- Set resolved working profile for runtime use
-    SIPPYCUP.profile = workingProfile;
+	-- Set resolved working profile for runtime use
+	SIPPYCUP.profile = workingProfile;
 
-    -- Optional deferred config setup
-    --[[
-    if SIPPYCUP.deferSetupConfig then
-        SIPPYCUP.deferSetupConfig = nil;
-    end
-    ]]
+	-- Optional deferred config setup
+	--[[
+	if SIPPYCUP.deferSetupConfig then
+		SIPPYCUP.deferSetupConfig = nil;
+	end
+	]]
 end
 
 ---GetAllProfiles returns a table of profile names keyed by name.
@@ -428,239 +428,239 @@ end
 ---@param excludeDefault boolean? If true, excludes the "Default" profile. Defaults to false.
 ---@return table<string, string> A table of profile names keyed by profile name.
 function SIPPYCUP.Database.GetAllProfiles(excludeCurrent, excludeDefault)
-    local results = {};
-    local key = SIPPYCUP.Database.GetUnitName();
-    local currentProfile = key and SIPPYCUP.db.profileKeys and SIPPYCUP.db.profileKeys[key];
+	local results = {};
+	local key = SIPPYCUP.Database.GetUnitName();
+	local currentProfile = key and SIPPYCUP.db.profileKeys and SIPPYCUP.db.profileKeys[key];
 
 	local profiles = SIPPYCUP.db.profiles or {};
 	for profileName in pairs(profiles) do
-        if not ((excludeCurrent and profileName == currentProfile) or
-                (excludeDefault and profileName == "Default")) then
-            results[profileName] = profileName;
-        end
-    end
+		if not ((excludeCurrent and profileName == currentProfile) or
+				(excludeDefault and profileName == "Default")) then
+			results[profileName] = profileName;
+		end
+	end
 
-    return results;
+	return results;
 end
 
 ---GetCurrentProfileName returns the profile name associated with the current character.
 ---@return string? #The current profile name, or nil if not found.
 function SIPPYCUP.Database.GetCurrentProfileName()
-    if not SIPPYCUP.db or not SIPPYCUP.db.profileKeys then
-        SIPPYCUP.Database.Setup();
-    end
+	if not SIPPYCUP.db or not SIPPYCUP.db.profileKeys then
+		SIPPYCUP.Database.Setup();
+	end
 
-    local key = SIPPYCUP.Database.GetUnitName();
-    return SIPPYCUP.db and SIPPYCUP.db.profileKeys and SIPPYCUP.db.profileKeys[key] or nil;
+	local key = SIPPYCUP.Database.GetUnitName();
+	return SIPPYCUP.db and SIPPYCUP.db.profileKeys and SIPPYCUP.db.profileKeys[key] or nil;
 end
 
 ---GetCurrentProfile returns the current profile name and its associated data table.
 ---@return string? name The profile name.
 ---@return table? data The resolved profile data table.
 function SIPPYCUP.Database.GetCurrentProfile()
-    if not SIPPYCUP.db or not SIPPYCUP.db.profileKeys or not SIPPYCUP.db.profiles then
-        return nil, nil;
-    end
+	if not SIPPYCUP.db or not SIPPYCUP.db.profileKeys or not SIPPYCUP.db.profiles then
+		return nil, nil;
+	end
 
-    local key = SIPPYCUP.Database.GetUnitName();
-    local profileName = SIPPYCUP.db.profileKeys[key] or "Default";
-    local minimalProfile = SIPPYCUP.db.profiles[profileName] or {};
+	local key = SIPPYCUP.Database.GetUnitName();
+	local profileName = SIPPYCUP.db.profileKeys[key] or "Default";
+	local minimalProfile = SIPPYCUP.db.profiles[profileName] or {};
 
-    local defaultProfile = defaults.profiles.Default or {};
-    local resolvedProfile = {};
-    DeepCopyDefaults(defaultProfile, resolvedProfile);
-    DeepMerge(minimalProfile, resolvedProfile);
+	local defaultProfile = defaults.profiles.Default or {};
+	local resolvedProfile = {};
+	DeepCopyDefaults(defaultProfile, resolvedProfile);
+	DeepMerge(minimalProfile, resolvedProfile);
 
-    return profileName, resolvedProfile;
+	return profileName, resolvedProfile;
 end
 
 ---SetProfile sets the active profile for the current character (creates it if missing).
 ---@param profileName string The name of the profile to activate.
 ---@return boolean success, string? errorMessage
 function SIPPYCUP.Database.SetProfile(profileName)
-    if not SIPPYCUP.db or not SIPPYCUP.db.profiles or not profileName then
-        return false, "Database not initialized or invalid profile name";
-    end
+	if not SIPPYCUP.db or not SIPPYCUP.db.profiles or not profileName then
+		return false, "Database not initialized or invalid profile name";
+	end
 
-    -- Create profile if it doesn't exist
-    if not SIPPYCUP.db.profiles[profileName] then
-        SIPPYCUP.db.profiles[profileName] = {};
-    end
+	-- Create profile if it doesn't exist
+	if not SIPPYCUP.db.profiles[profileName] then
+		SIPPYCUP.db.profiles[profileName] = {};
+	end
 
-    local defaultProfile = defaults.profiles.Default or {};
-    local minimalProfile = SIPPYCUP.db.profiles[profileName];
+	local defaultProfile = defaults.profiles.Default or {};
+	local minimalProfile = SIPPYCUP.db.profiles[profileName];
 
-    -- Resolve full profile with defaults merged
-    local resolvedProfile = {};
-    DeepCopyDefaults(defaultProfile, resolvedProfile);
-    DeepMerge(minimalProfile, resolvedProfile);
+	-- Resolve full profile with defaults merged
+	local resolvedProfile = {};
+	DeepCopyDefaults(defaultProfile, resolvedProfile);
+	DeepMerge(minimalProfile, resolvedProfile);
 
-    -- Update keys and runtime profile
-    local key = SIPPYCUP.Database.GetUnitName();
-    SIPPYCUP.db.profileKeys[key] = profileName;
+	-- Update keys and runtime profile
+	local key = SIPPYCUP.Database.GetUnitName();
+	SIPPYCUP.db.profileKeys[key] = profileName;
 
-    SIPPYCUP.profile = resolvedProfile;
-    SIPPYCUP.Database.RefreshUI();
+	SIPPYCUP.profile = resolvedProfile;
+	SIPPYCUP.Database.RefreshUI();
 
-    return true;
+	return true;
 end
 
 ---CreateProfile creates a new profile and switches to it.
 ---@param profileName string The name of the new profile to create.
 ---@return boolean success, string? errorMessage
 function SIPPYCUP.Database.CreateProfile(profileName)
-    if not SIPPYCUP.db or not SIPPYCUP.db.profiles then
-        return false, "Database not initialized";
-    end
-    if not profileName or profileName:trim() == "" then
-        return false, "Invalid profile name";
-    end
-    if SIPPYCUP.db.profiles[profileName] then
-        return false, "Profile already exists";
-    end
+	if not SIPPYCUP.db or not SIPPYCUP.db.profiles then
+		return false, "Database not initialized";
+	end
+	if not profileName or profileName:trim() == "" then
+		return false, "Invalid profile name";
+	end
+	if SIPPYCUP.db.profiles[profileName] then
+		return false, "Profile already exists";
+	end
 
-    -- Create an empty minimal profile (no overrides)
-    SIPPYCUP.db.profiles[profileName] = {};
+	-- Create an empty minimal profile (no overrides)
+	SIPPYCUP.db.profiles[profileName] = {};
 
-    -- Assign new profile to current character
-    local key = SIPPYCUP.Database.GetUnitName();
-    SIPPYCUP.db.profileKeys = SIPPYCUP.db.profileKeys or {};
-    SIPPYCUP.db.profileKeys[key] = profileName;
+	-- Assign new profile to current character
+	local key = SIPPYCUP.Database.GetUnitName();
+	SIPPYCUP.db.profileKeys = SIPPYCUP.db.profileKeys or {};
+	SIPPYCUP.db.profileKeys[key] = profileName;
 
-    -- Set runtime profile as default profile since minimal is empty
-    local defaultProfile = defaults.profiles.Default or {};
-    SIPPYCUP.profile = {};
-    DeepCopyDefaults(defaultProfile, SIPPYCUP.profile);
+	-- Set runtime profile as default profile since minimal is empty
+	local defaultProfile = defaults.profiles.Default or {};
+	SIPPYCUP.profile = {};
+	DeepCopyDefaults(defaultProfile, SIPPYCUP.profile);
 
-    SIPPYCUP.Database.RefreshUI();
+	SIPPYCUP.Database.RefreshUI();
 
-    return true;
+	return true;
 end
 
 ---ResetProfile resets the specified profile to default by clearing overrides.
 ---@param profileName string? The profile name to reset. Defaults to current profile.
 ---@return boolean success, string? errorMessage
 function SIPPYCUP.Database.ResetProfile(profileName)
-    if not SIPPYCUP.db or not SIPPYCUP.db.profiles then
-        return false, "Database not initialized";
-    end
+	if not SIPPYCUP.db or not SIPPYCUP.db.profiles then
+		return false, "Database not initialized";
+	end
 
-    profileName = profileName or SIPPYCUP.Database.GetCurrentProfileName();
-    if not profileName or not SIPPYCUP.db.profiles[profileName] then
-        return false, "Profile does not exist";
-    end
+	profileName = profileName or SIPPYCUP.Database.GetCurrentProfileName();
+	if not profileName or not SIPPYCUP.db.profiles[profileName] then
+		return false, "Profile does not exist";
+	end
 
-    -- Reset profile minimal data to empty (no user overrides)
-    SIPPYCUP.db.profiles[profileName] = {};
+	-- Reset profile minimal data to empty (no user overrides)
+	SIPPYCUP.db.profiles[profileName] = {};
 
-    -- If resetting current profile, update runtime resolved profile and UI
-    local currentProfileName = SIPPYCUP.Database.GetCurrentProfileName();
-    if profileName == currentProfileName then
-        local defaultProfile = defaults.profiles.Default or {};
+	-- If resetting current profile, update runtime resolved profile and UI
+	local currentProfileName = SIPPYCUP.Database.GetCurrentProfileName();
+	if profileName == currentProfileName then
+		local defaultProfile = defaults.profiles.Default or {};
 
-        SIPPYCUP.profile = {};
-        DeepCopyDefaults(defaultProfile, SIPPYCUP.profile);
-        -- No minimal overrides after reset
+		SIPPYCUP.profile = {};
+		DeepCopyDefaults(defaultProfile, SIPPYCUP.profile);
+		-- No minimal overrides after reset
 
-        SIPPYCUP.Database.RefreshUI();
-    end
+		SIPPYCUP.Database.RefreshUI();
+	end
 
-    return true;
+	return true;
 end
 
 ---CopyProfile copies settings from a source profile to the current profile.
 ---@param sourceProfileName string The name of the profile to copy from.
 ---@return boolean success, string? errorMessage
 function SIPPYCUP.Database.CopyProfile(sourceProfileName)
-    if not SIPPYCUP.db or not SIPPYCUP.db.profiles then
-        return false, "Database not initialized";
-    end
-    if not sourceProfileName or not SIPPYCUP.db.profiles[sourceProfileName] then
-        return false, "Source profile does not exist";
-    end
+	if not SIPPYCUP.db or not SIPPYCUP.db.profiles then
+		return false, "Database not initialized";
+	end
+	if not sourceProfileName or not SIPPYCUP.db.profiles[sourceProfileName] then
+		return false, "Source profile does not exist";
+	end
 
-    local currentProfileName = SIPPYCUP.Database.GetCurrentProfileName();
-    if not currentProfileName or not SIPPYCUP.db.profiles[currentProfileName] then
-        return false, "Current profile does not exist";
-    end
-    if sourceProfileName == currentProfileName then
-        return false, "Source and current profile are the same";
-    end
+	local currentProfileName = SIPPYCUP.Database.GetCurrentProfileName();
+	if not currentProfileName or not SIPPYCUP.db.profiles[currentProfileName] then
+		return false, "Current profile does not exist";
+	end
+	if sourceProfileName == currentProfileName then
+		return false, "Source and current profile are the same";
+	end
 
-    local defaultProfile = defaults.profiles.Default or {};
+	local defaultProfile = defaults.profiles.Default or {};
 
-    -- Resolve full source profile data by merging saved minimal data on top of defaults
-    local sourceFull = {};
-    DeepCopyDefaults(defaultProfile, sourceFull);
-    DeepMerge(SIPPYCUP.db.profiles[sourceProfileName], sourceFull);
+	-- Resolve full source profile data by merging saved minimal data on top of defaults
+	local sourceFull = {};
+	DeepCopyDefaults(defaultProfile, sourceFull);
+	DeepMerge(SIPPYCUP.db.profiles[sourceProfileName], sourceFull);
 
-    -- Clear current profile minimal data table
-    SIPPYCUP.db.profiles[currentProfileName] = {};
+	-- Clear current profile minimal data table
+	SIPPYCUP.db.profiles[currentProfileName] = {};
 
-    -- Save only minimal differences from defaults into current profile
-    local minimalCopy = GetMinimalTable(sourceFull, defaultProfile);
-    SIPPYCUP.db.profiles[currentProfileName] = minimalCopy;
+	-- Save only minimal differences from defaults into current profile
+	local minimalCopy = GetMinimalTable(sourceFull, defaultProfile);
+	SIPPYCUP.db.profiles[currentProfileName] = minimalCopy;
 
-    -- Update runtime shortcut for current profile
-    SIPPYCUP.profile = {};
-    DeepCopyDefaults(defaultProfile, SIPPYCUP.profile);
-    DeepMerge(minimalCopy, SIPPYCUP.profile);
+	-- Update runtime shortcut for current profile
+	SIPPYCUP.profile = {};
+	DeepCopyDefaults(defaultProfile, SIPPYCUP.profile);
+	DeepMerge(minimalCopy, SIPPYCUP.profile);
 
-    SIPPYCUP.Database.RefreshUI();
+	SIPPYCUP.Database.RefreshUI();
 
-    return true;
+	return true;
 end
 
 ---DeleteProfile deletes a profile and reassigns characters using it to Default.
 ---@param profileName string The name of the profile to delete.
 ---@return boolean success, string? errorMessage
 function SIPPYCUP.Database.DeleteProfile(profileName)
-    if not SIPPYCUP.db or not SIPPYCUP.db.profiles then
-        return false, "Database not initialized";
-    end
-    if not profileName or not SIPPYCUP.db.profiles[profileName] then
-        return false, "Profile does not exist";
-    end
+	if not SIPPYCUP.db or not SIPPYCUP.db.profiles then
+		return false, "Database not initialized";
+	end
+	if not profileName or not SIPPYCUP.db.profiles[profileName] then
+		return false, "Profile does not exist";
+	end
 
-    if profileName == "Default" then
-        return false, "Default profile cannot be deleted";
-    end
+	if profileName == "Default" then
+		return false, "Default profile cannot be deleted";
+	end
 
-    -- Delete the profile minimal data
-    SIPPYCUP.db.profiles[profileName] = nil;
+	-- Delete the profile minimal data
+	SIPPYCUP.db.profiles[profileName] = nil;
 
-    -- Remove any profileKeys that point to this profile
-    if SIPPYCUP.db.profileKeys then
-        for charKey, profName in pairs(SIPPYCUP.db.profileKeys) do
-            if profName == profileName then
-                SIPPYCUP.db.profileKeys[charKey] = "Default";
-            end
-        end
-    else
-        SIPPYCUP.db.profileKeys = {};
-    end
+	-- Remove any profileKeys that point to this profile
+	if SIPPYCUP.db.profileKeys then
+		for charKey, profName in pairs(SIPPYCUP.db.profileKeys) do
+			if profName == profileName then
+				SIPPYCUP.db.profileKeys[charKey] = "Default";
+			end
+		end
+	else
+		SIPPYCUP.db.profileKeys = {};
+	end
 
-    -- Check current profile via profileKeys mapping for current character
-    local charKey = SIPPYCUP.Database.GetUnitName();
-    local currentProfile = SIPPYCUP.db.profileKeys[charKey] or "Default";
+	-- Check current profile via profileKeys mapping for current character
+	local charKey = SIPPYCUP.Database.GetUnitName();
+	local currentProfile = SIPPYCUP.db.profileKeys[charKey] or "Default";
 
-    if profileName == currentProfile then
-        -- Switch character's profile to Default
-        SIPPYCUP.db.profileKeys[charKey] = "Default";
+	if profileName == currentProfile then
+		-- Switch character's profile to Default
+		SIPPYCUP.db.profileKeys[charKey] = "Default";
 
-        -- Ensure Default profile exists minimally
-        if not SIPPYCUP.db.profiles["Default"] then
-            SIPPYCUP.db.profiles["Default"] = {};
-            DeepCopyDefaults(defaults.profiles.Default, SIPPYCUP.db.profiles["Default"]);
-        end
+		-- Ensure Default profile exists minimally
+		if not SIPPYCUP.db.profiles["Default"] then
+			SIPPYCUP.db.profiles["Default"] = {};
+			DeepCopyDefaults(defaults.profiles.Default, SIPPYCUP.db.profiles["Default"]);
+		end
 
-        -- Update runtime shortcut with full Default profile data
-        SIPPYCUP.profile = {};
-        DeepCopyDefaults(defaults.profiles.Default, SIPPYCUP.profile);
-        DeepMerge(SIPPYCUP.db.profiles["Default"], SIPPYCUP.profile);
+		-- Update runtime shortcut with full Default profile data
+		SIPPYCUP.profile = {};
+		DeepCopyDefaults(defaults.profiles.Default, SIPPYCUP.profile);
+		DeepMerge(SIPPYCUP.db.profiles["Default"], SIPPYCUP.profile);
 
-        SIPPYCUP.Database.RefreshUI();
-    end
+		SIPPYCUP.Database.RefreshUI();
+	end
 
-    return true;
+	return true;
 end

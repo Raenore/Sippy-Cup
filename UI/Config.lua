@@ -5,27 +5,27 @@ local L = SIPPYCUP.L;
 local SharedMedia = LibStub("LibSharedMedia-3.0");
 
 local defaultSounds = {
-    { key = "aggro_enter_warning_state", fid = 567401 },
-    { key = "belltollhorde", fid = 565853 },
-    { key = "belltolltribal", fid = 566027 },
-    { key = "belltollnightelf", fid = 566558 },
-    { key = "belltollalliance", fid = 566564 },
-    { key = "fx_darkmoonfaire_bell", fid = 1100031 },
-    { key = "fx_ship_bell_chime_01", fid = 1129273 },
-    { key = "fx_ship_bell_chime_02", fid = 1129274 },
-    { key = "fx_ship_bell_chime_03", fid = 1129275 },
-    { key = "raidwarning", fid = 567397 },
+	{ key = "aggro_enter_warning_state", fid = 567401 },
+	{ key = "belltollhorde", fid = 565853 },
+	{ key = "belltolltribal", fid = 566027 },
+	{ key = "belltollnightelf", fid = 566558 },
+	{ key = "belltollalliance", fid = 566564 },
+	{ key = "fx_darkmoonfaire_bell", fid = 1100031 },
+	{ key = "fx_ship_bell_chime_01", fid = 1129273 },
+	{ key = "fx_ship_bell_chime_02", fid = 1129274 },
+	{ key = "fx_ship_bell_chime_03", fid = 1129275 },
+	{ key = "raidwarning", fid = 567397 },
 }
 
 -- Register default sounds
 for _, sound in ipairs(defaultSounds) do
-    SharedMedia:Register("sound", sound.key, sound.fid)
+	SharedMedia:Register("sound", sound.key, sound.fid)
 end
 
 -- Build soundList with keys = values for quick lookup/use
 local soundList = {}
 for _, soundName in ipairs(SharedMedia:List("sound")) do
-    soundList[soundName] = soundName
+	soundList[soundName] = soundName
 end
 
 ---AddTab creates a new tab button under the given parent frame and adds it to the parent's Tabs list.
@@ -40,29 +40,29 @@ local function AddTab(parent)
 		table.insert(tabs, tab);
 	end
 
-    local tabCount = #tabs;
-    if tabCount > 1 then
-        tab:SetPoint("TOPLEFT", tabs[tabCount - 1], "TOPRIGHT", 5, 0);
-    else
-        tab:SetPoint("TOPLEFT", 10, -20);
-    end
-    local tabIndex = tabCount;
+	local tabCount = #tabs;
+	if tabCount > 1 then
+		tab:SetPoint("TOPLEFT", tabs[tabCount - 1], "TOPRIGHT", 5, 0);
+	else
+		tab:SetPoint("TOPLEFT", 10, -20);
+	end
+	local tabIndex = tabCount;
 
 	local function OnShow(self)
 		PanelTemplates_TabResize(self, 15, nil, 65);
 		PanelTemplates_DeselectTab(self);
 	end
 
-    local function OnClick()
-        parent:SetTab(tabIndex);
-    end
+	local function OnClick()
+		parent:SetTab(tabIndex);
+	end
 
 	tab:SetScript("OnShow", OnShow);
-    tab:SetScript("OnClick", OnClick);
+	tab:SetScript("OnClick", OnClick);
 
-    SIPPYCUP.ElvUI.RegisterSkinnableElement(tab, "toptapbutton");
+	SIPPYCUP.ElvUI.RegisterSkinnableElement(tab, "toptapbutton");
 
-    return tab;
+	return tab;
 end
 
 ---GetScrollableWrapperFrame creates a scrollable content frame within the parent frame.
@@ -70,19 +70,19 @@ end
 ---@param parent table The parent frame to contain the scrollable wrapper. Must have a `Views` table.
 ---@return table contentFrame The scrollable content frame with scrollFrame reference and isScrollable flag.
 local function GetWrapperFrame(parent)
-    local frame = CreateFrame("Frame", nil, parent);
-    frame:SetPoint("TOP", 0, -55);
-    frame:SetPoint("LEFT");
-    frame:SetPoint("RIGHT");
-    frame:SetPoint("BOTTOM");
-    frame:Hide();
+	local frame = CreateFrame("Frame", nil, parent);
+	frame:SetPoint("TOP", 0, -55);
+	frame:SetPoint("LEFT");
+	frame:SetPoint("RIGHT");
+	frame:SetPoint("BOTTOM");
+	frame:Hide();
 
-    frame.isScrollable = false;
-    frame.scrollFrame = nil;
+	frame.isScrollable = false;
+	frame.scrollFrame = nil;
 
-    parent.Views[#parent.Views + 1] = frame;
+	parent.Views[#parent.Views + 1] = frame;
 
-    return frame;
+	return frame;
 end
 
 ---GetScrollableWrapperFrame creates a scrollable content frame within the parent frame.
@@ -90,28 +90,28 @@ end
 ---@param parent table The parent frame to contain the scrollable wrapper. Must have a Views table.
 ---@return table The scrollable content frame, with a reference to its scrollFrame and isScrollable flag.
 local function GetScrollableWrapperFrame(parent)
-    local paddingLeft, paddingRight, paddingTop, paddingBottom = 0, 25, 55, 16;
+	local paddingLeft, paddingRight, paddingTop, paddingBottom = 0, 25, 55, 16;
 
-    local scrollFrame = CreateFrame("ScrollFrame", nil, parent, "UIPanelScrollFrameTemplate");
-    scrollFrame:SetPoint("TOPLEFT", parent, "TOPLEFT", paddingLeft, -paddingTop);
-    scrollFrame:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", -paddingRight, paddingBottom);
-    scrollFrame:EnableMouse(true);
-    scrollFrame:EnableMouseWheel(true);
-    scrollFrame:Hide();
+	local scrollFrame = CreateFrame("ScrollFrame", nil, parent, "UIPanelScrollFrameTemplate");
+	scrollFrame:SetPoint("TOPLEFT", parent, "TOPLEFT", paddingLeft, -paddingTop);
+	scrollFrame:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", -paddingRight, paddingBottom);
+	scrollFrame:EnableMouse(true);
+	scrollFrame:EnableMouseWheel(true);
+	scrollFrame:Hide();
 
 	local function HandleScroll(self, delta)
-        local newScroll = self:GetVerticalScroll() - (delta * 30);
-        local minScroll, maxScroll = 0, self:GetVerticalScrollRange();
+		local newScroll = self:GetVerticalScroll() - (delta * 30);
+		local minScroll, maxScroll = 0, self:GetVerticalScrollRange();
 
-        -- Use math.min/max for concise clamping.
-        self:SetVerticalScroll(math.max(minScroll, math.min(newScroll, maxScroll)));
+		-- Use math.min/max for concise clamping.
+		self:SetVerticalScroll(math.max(minScroll, math.min(newScroll, maxScroll)));
 	end
 
 	scrollFrame:SetScript("OnMouseWheel", HandleScroll);
 
-    local contentFrame = CreateFrame("Frame", nil, scrollFrame);
-    contentFrame:SetSize(scrollFrame:GetWidth(), 500);
-    contentFrame:SetPoint("TOPLEFT");
+	local contentFrame = CreateFrame("Frame", nil, scrollFrame);
+	contentFrame:SetSize(scrollFrame:GetWidth(), 500);
+	contentFrame:SetPoint("TOPLEFT");
 	contentFrame:SetPoint("TOPRIGHT");
 	contentFrame:EnableMouse(true);
 	contentFrame:EnableMouseWheel(true);
@@ -139,67 +139,67 @@ end
 ---@param frame table The frame whose children and regions are checked.
 ---@return number? lowest The lowest bottom coordinate found, or nil if none.
 local function GetLowestChildBottomIncludingFontStrings(frame)
-    local lowest = nil;
+	local lowest = nil;
 
-    -- Iterate children without table allocation
-    local i = 1;
-    while true do
-        local child = select(i, frame:GetChildren());
-        if not child then break end
+	-- Iterate children without table allocation
+	local i = 1;
+	while true do
+		local child = select(i, frame:GetChildren());
+		if not child then break end
 
-        local bottom = child:GetBottom();
-        if bottom and (not lowest or bottom < lowest) then
-            lowest = bottom;
-        end
-        i = i + 1;
-    end
+		local bottom = child:GetBottom();
+		if bottom and (not lowest or bottom < lowest) then
+			lowest = bottom;
+		end
+		i = i + 1;
+	end
 
-    -- Iterate regions similarly
-    i = 1;
-    while true do
-        local region = select(i, frame:GetRegions());
-        if not region then break end
+	-- Iterate regions similarly
+	i = 1;
+	while true do
+		local region = select(i, frame:GetRegions());
+		if not region then break end
 
-        if region:IsObjectType("FontString") or region:IsObjectType("Texture") then
-            local bottom = region:GetBottom();
-            if bottom and (not lowest or bottom < lowest) then
-                lowest = bottom;
-            end
-        end
-        i = i + 1;
-    end
+		if region:IsObjectType("FontString") or region:IsObjectType("Texture") then
+			local bottom = region:GetBottom();
+			if bottom and (not lowest or bottom < lowest) then
+				lowest = bottom;
+			end
+		end
+		i = i + 1;
+	end
 
-    return lowest;
+	return lowest;
 end
 
 ---UpdateScrollableContentHeight adjusts the height of the content frame based on its children's lowest point,
 ---adding padding, and shows/hides the scrollbar accordingly.
 ---@param contentFrame table The scrollable content frame that contains a reference to its scrollFrame.
 local function UpdateScrollableContentHeight(contentFrame)
-    local scrollFrame = contentFrame.scrollFrame;
-    if not scrollFrame then return; end
+	local scrollFrame = contentFrame.scrollFrame;
+	if not scrollFrame then return; end
 
-    local visibleHeight = scrollFrame:GetHeight();
-    local parentTop = contentFrame:GetTop();
-    local parentBottom = GetLowestChildBottomIncludingFontStrings(contentFrame);
+	local visibleHeight = scrollFrame:GetHeight();
+	local parentTop = contentFrame:GetTop();
+	local parentBottom = GetLowestChildBottomIncludingFontStrings(contentFrame);
 	if not parentBottom then return; end
 
-    local relativeBottom = parentTop - parentBottom; -- height of content
-    local padding = 20; -- extra scroll padding
-    local requiredHeight = relativeBottom + padding;
+	local relativeBottom = parentTop - parentBottom; -- height of content
+	local padding = 20; -- extra scroll padding
+	local requiredHeight = relativeBottom + padding;
 
-    -- Math.max to prevent zero/negative height.
-    contentFrame:SetHeight(math.max(requiredHeight, 1));
+	-- Math.max to prevent zero/negative height.
+	contentFrame:SetHeight(math.max(requiredHeight, 1));
 
-    contentFrame:SetHeight(requiredHeight);
+	contentFrame:SetHeight(requiredHeight);
 
-    local scrollbar = scrollFrame.ScrollBar;
-    if scrollbar then
-        local shouldShow = requiredHeight > visibleHeight;
-        if scrollbar:IsShown() ~= shouldShow then
-            scrollbar:SetShown(shouldShow);
-        end
-    end
+	local scrollbar = scrollFrame.ScrollBar;
+	if scrollbar then
+		local shouldShow = requiredHeight > visibleHeight;
+		if scrollbar:IsShown() ~= shouldShow then
+			scrollbar:SetShown(shouldShow);
+		end
+	end
 end
 
 ---ApplyToFrames applies a given function to a single frame or a list of frames.
@@ -300,14 +300,14 @@ local function ApplyTooltip(widget, label, tooltip, style, anchor)
 end
 
 local function WrapButtonClick(original)
-    return function(self, ...)
-        original(self, ...);
-        if SIPPYCUP_ConfigMenuFrame and SIPPYCUP_ConfigMenuFrame.RefreshWidgets then
-            RunNextFrame(function()
-                SIPPYCUP_ConfigMenuFrame:RefreshWidgets();
-            end);
-        end
-    end
+	return function(self, ...)
+		original(self, ...);
+		if SIPPYCUP_ConfigMenuFrame and SIPPYCUP_ConfigMenuFrame.RefreshWidgets then
+			RunNextFrame(function()
+				SIPPYCUP_ConfigMenuFrame:RefreshWidgets();
+			end);
+		end
+	end
 end
 
 ---ApplyDisabledState sets a widget's enabled or disabled state based on a provided function.
@@ -348,45 +348,45 @@ end
 ---@return FontString title The created title font string.
 ---@return FontString description The created description font string.
 local function CreateTitleWithDescription(parent, titleText, descText, optionsPage)
-    local title = parent:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge");
-    title:SetPoint("TOPLEFT", 20, -16);
-    title:SetText(titleText or "");
+	local title = parent:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge");
+	title:SetPoint("TOPLEFT", 20, -16);
+	title:SetText(titleText or "");
 
-    if optionsPage then
-        descText = (descText or "") .. L.OPTIONS_TITLE_EXTRA;
-    end
-
-    local description = parent:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
-    description:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8);
-    description:SetWidth(parent:GetWidth() - 32);
-    description:SetJustifyH("LEFT");
-    description:SetText(descText or "");
-
-	-- Add the legenda
-    if optionsPage then
-        local function CreateLegendaButton(icon, pointTo, tooltipName, tooltipDesc)
-            local btn = CreateFrame("Button", nil, parent, "UIPanelDynamicResizeButtonTemplate");
-            btn:SetText("|A:" .. icon .. ":16:16|a");
-            btn:SetWidth(30);
-            btn:SetPoint("TOPLEFT", pointTo, "TOPRIGHT", 5, 0);
-            SIPPYCUP.ElvUI.RegisterSkinnableElement(btn, "button");
-            AttachTooltip(btn, tooltipName, tooltipDesc);
-            return btn;
-        end
-
-        local preExpirationButton = CreateFrame("Button", nil, parent, "UIPanelDynamicResizeButtonTemplate");
-        preExpirationButton:SetText("|A:uitools-icon-refresh:16:16|a");
-        preExpirationButton:SetPoint("TOPLEFT", description, "BOTTOMLEFT", 0, -10);
-        preExpirationButton:SetWidth(30);
-        SIPPYCUP.ElvUI.RegisterSkinnableElement(preExpirationButton, "button");
-        AttachTooltip(preExpirationButton, L.OPTIONS_LEGENDA_PRE_EXPIRATION_NAME, L.OPTIONS_LEGENDA_PRE_EXPIRATION_DESC);
-
-        local nonRefreshableButton = CreateLegendaButton("uitools-icon-close", preExpirationButton, L.OPTIONS_LEGENDA_NON_REFRESHABLE_NAME, L.OPTIONS_LEGENDA_NON_REFRESHABLE_DESC);
-        local stacksButton = CreateLegendaButton("uitools-icon-plus", nonRefreshableButton, L.OPTIONS_LEGENDA_STACKS_NAME, L.OPTIONS_LEGENDA_STACKS_DESC);
-        local noAuraButton = CreateLegendaButton("uitools-icon-minus", stacksButton, L.OPTIONS_LEGENDA_NO_AURA_NAME, L.OPTIONS_LEGENDA_NO_AURA_DESC); -- luacheck: no unused (noAuraButton)
+	if optionsPage then
+		descText = (descText or "") .. L.OPTIONS_TITLE_EXTRA;
 	end
 
-    return title, description;
+	local description = parent:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
+	description:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8);
+	description:SetWidth(parent:GetWidth() - 32);
+	description:SetJustifyH("LEFT");
+	description:SetText(descText or "");
+
+	-- Add the legenda
+	if optionsPage then
+		local function CreateLegendaButton(icon, pointTo, tooltipName, tooltipDesc)
+			local btn = CreateFrame("Button", nil, parent, "UIPanelDynamicResizeButtonTemplate");
+			btn:SetText("|A:" .. icon .. ":16:16|a");
+			btn:SetWidth(30);
+			btn:SetPoint("TOPLEFT", pointTo, "TOPRIGHT", 5, 0);
+			SIPPYCUP.ElvUI.RegisterSkinnableElement(btn, "button");
+			AttachTooltip(btn, tooltipName, tooltipDesc);
+			return btn;
+		end
+
+		local preExpirationButton = CreateFrame("Button", nil, parent, "UIPanelDynamicResizeButtonTemplate");
+		preExpirationButton:SetText("|A:uitools-icon-refresh:16:16|a");
+		preExpirationButton:SetPoint("TOPLEFT", description, "BOTTOMLEFT", 0, -10);
+		preExpirationButton:SetWidth(30);
+		SIPPYCUP.ElvUI.RegisterSkinnableElement(preExpirationButton, "button");
+		AttachTooltip(preExpirationButton, L.OPTIONS_LEGENDA_PRE_EXPIRATION_NAME, L.OPTIONS_LEGENDA_PRE_EXPIRATION_DESC);
+
+		local nonRefreshableButton = CreateLegendaButton("uitools-icon-close", preExpirationButton, L.OPTIONS_LEGENDA_NON_REFRESHABLE_NAME, L.OPTIONS_LEGENDA_NON_REFRESHABLE_DESC);
+		local stacksButton = CreateLegendaButton("uitools-icon-plus", nonRefreshableButton, L.OPTIONS_LEGENDA_STACKS_NAME, L.OPTIONS_LEGENDA_STACKS_DESC);
+		local noAuraButton = CreateLegendaButton("uitools-icon-minus", stacksButton, L.OPTIONS_LEGENDA_NO_AURA_NAME, L.OPTIONS_LEGENDA_NO_AURA_DESC); -- luacheck: no unused (noAuraButton)
+	end
+
+	return title, description;
 end
 
 ---CreateInset creates a skinnable inset frame inside the parent with provided widget data.
@@ -443,7 +443,7 @@ local function CreateInset(parent, insetData, topOffset)
 			version:SetPoint("BOTTOMLEFT", title, "BOTTOMRIGHT", 5, 0)
 		elseif entryType == "build" then
 			build = CreateFrame("Button", nil, infoInset, "UIPanelDynamicResizeButtonTemplate");
-            build:SetText(data.text or "");
+			build:SetText(data.text or "");
 			DynamicResizeButton_Resize(build);
 			build:SetPoint("BOTTOMLEFT", logo, "BOTTOMRIGHT", 8, 0);
 			ElvUI.RegisterSkinnableElement(build, "button");
@@ -457,7 +457,7 @@ local function CreateInset(parent, insetData, topOffset)
 			author:SetPoint("TOP", logo, "TOP", 0, 0);
 		elseif entryType == "bsky" then
 			bsky = CreateFrame("Button", nil, infoInset, "UIPanelDynamicResizeButtonTemplate");
-            bsky:SetText(data.text or "");
+			bsky:SetText(data.text or "");
 			DynamicResizeButton_Resize(bsky);
 			bsky:SetPoint("BOTTOMRIGHT", infoInset, "BOTTOMRIGHT", -8, 0);
 			bsky:SetPoint("BOTTOM", logo, "BOTTOM", 0, 0);
@@ -481,12 +481,12 @@ end
 ---@return Frame widget The created blank frame widget.
 local function CreateConfigBlank(elementContainer, data)
 	-- Create an empty frame placeholder to take up space but show nothing
-    local width, height = elementContainer:GetWidth(), elementContainer:GetHeight();
+	local width, height = elementContainer:GetWidth(), elementContainer:GetHeight();
 
-    local widget = CreateFrame("Frame", nil, elementContainer);
-    widget:SetSize(width, height);
-    widget:SetPoint("TOPLEFT", 0, 0);
-    widget.data = data;
+	local widget = CreateFrame("Frame", nil, elementContainer);
+	widget:SetSize(width, height);
+	widget:SetPoint("TOPLEFT", 0, 0);
+	widget.data = data;
 
 	-- No need to register or do anything else
 
@@ -922,29 +922,29 @@ local function CreateCategoryHeader(parent, titleText, topOffset)
 	local container = CreateFrame("Frame", nil, parent);
 	container:SetPoint("TOPLEFT", parent, "TOPLEFT", 16, startY);
 	container:SetPoint("TOPRIGHT", parent, "TOPRIGHT", -16, startY);
-    container:SetHeight(20);  -- Enough to hold text and lines
+	container:SetHeight(20);  -- Enough to hold text and lines
 
-    -- Title font string
-    local title = container:CreateFontString(nil, "OVERLAY", "GameFontNormal");
-    title:SetText(titleText or "");
-    title:SetJustifyH("CENTER");
-    title:SetPoint("CENTER", container, "CENTER", 0, 0);
+	-- Title font string
+	local title = container:CreateFontString(nil, "OVERLAY", "GameFontNormal");
+	title:SetText(titleText or "");
+	title:SetJustifyH("CENTER");
+	title:SetPoint("CENTER", container, "CENTER", 0, 0);
 
-    -- Left line
-    local leftLine = container:CreateTexture(nil, "ARTWORK");
-    leftLine:SetColorTexture(1, 1, 1, 0.3);
-    leftLine:SetHeight(1);
-    leftLine:SetPoint("LEFT", container, "LEFT", 0, 0);
-    leftLine:SetPoint("RIGHT", title, "LEFT", -8, 0);  -- 8px padding from text
+	-- Left line
+	local leftLine = container:CreateTexture(nil, "ARTWORK");
+	leftLine:SetColorTexture(1, 1, 1, 0.3);
+	leftLine:SetHeight(1);
+	leftLine:SetPoint("LEFT", container, "LEFT", 0, 0);
+	leftLine:SetPoint("RIGHT", title, "LEFT", -8, 0);  -- 8px padding from text
 
-    -- Right line
-    local rightLine = container:CreateTexture(nil, "ARTWORK");
-    rightLine:SetColorTexture(1, 1, 1, 0.3);
-    rightLine:SetHeight(1);
-    rightLine:SetPoint("LEFT", title, "RIGHT", 8, 0);
-    rightLine:SetPoint("RIGHT", container, "RIGHT", 0, 0);
+	-- Right line
+	local rightLine = container:CreateTexture(nil, "ARTWORK");
+	rightLine:SetColorTexture(1, 1, 1, 0.3);
+	rightLine:SetHeight(1);
+	rightLine:SetPoint("LEFT", title, "RIGHT", 8, 0);
+	rightLine:SetPoint("RIGHT", container, "RIGHT", 0, 0);
 
-    return container;
+	return container;
 end
 
 SIPPYCUP_ConfigMixin = {};
@@ -952,154 +952,154 @@ SIPPYCUP_ConfigMixin = {};
 ---SetTab shows the selected configuration tab and hides others.
 ---@param index number The index of the tab to activate.
 function SIPPYCUP_ConfigMixin:SetTab(index)
-    for i, panel in ipairs(self.Views) do
-        local isSelected = (i == index);
-        panel:SetShown(isSelected);
+	for i, panel in ipairs(self.Views) do
+		local isSelected = (i == index);
+		panel:SetShown(isSelected);
 
-        local scroll = panel.scrollFrame;
-        if scroll then
-            scroll:SetShown(isSelected);
-            if scroll.ScrollBar then
-                scroll.ScrollBar:SetShown(isSelected);
-            end
-        end
-    end
+		local scroll = panel.scrollFrame;
+		if scroll then
+			scroll:SetShown(isSelected);
+			if scroll.ScrollBar then
+				scroll.ScrollBar:SetShown(isSelected);
+			end
+		end
+	end
 
-    PanelTemplates_SetTab(self, index);
-    self.selectedTab = index;
+	PanelTemplates_SetTab(self, index);
+	self.selectedTab = index;
 end
 
 ---SwitchProfileValues updates all profile-bound widgets with current values.
 ---Ensures each widget reflects its getter's value and applies corresponding set or disabled logic.
 function SIPPYCUP_ConfigMixin:SwitchProfileValues()
-    if not self.profileWidgets then return; end
+	if not self.profileWidgets then return; end
 
-    local grayR, grayG, grayB = GRAY_FONT_COLOR:GetRGB();
-    local whiteR, whiteG, whiteB = WHITE_FONT_COLOR:GetRGB();
+	local grayR, grayG, grayB = GRAY_FONT_COLOR:GetRGB();
+	local whiteR, whiteG, whiteB = WHITE_FONT_COLOR:GetRGB();
 
-    for _, widgetList in ipairs(self.profileWidgets) do
-        for _, widget in ipairs(widgetList) do
-            local data = widget.data;
-            if data and type(data.get) == "function" then
-                local value = data.get();
-                local hasSet = type(data.set) == "function";
+	for _, widgetList in ipairs(self.profileWidgets) do
+		for _, widget in ipairs(widgetList) do
+			local data = widget.data;
+			if data and type(data.get) == "function" then
+				local value = data.get();
+				local hasSet = type(data.set) == "function";
 
-                if widget.SetChecked and widget.GetChecked then
-                    local oldVal = widget:GetChecked();
-                    if oldVal ~= value then
-                        widget:SetChecked(value);
-                    end
-                    if hasSet then
-                        data.set(value);
-                    end
+				if widget.SetChecked and widget.GetChecked then
+					local oldVal = widget:GetChecked();
+					if oldVal ~= value then
+						widget:SetChecked(value);
+					end
+					if hasSet then
+						data.set(value);
+					end
 
-                elseif widget.SetValue and widget.GetValue then
-                    local oldVal = widget:GetValue();
-                    if oldVal ~= value then
-                        widget:SetValue(value);
-                        if widget.Text then
-                            widget.Text:SetText(string.format("%s: %d", data.label or "", math.floor(value + 0.5)));
-                        end
-                    end
+				elseif widget.SetValue and widget.GetValue then
+					local oldVal = widget:GetValue();
+					if oldVal ~= value then
+						widget:SetValue(value);
+						if widget.Text then
+							widget.Text:SetText(string.format("%s: %d", data.label or "", math.floor(value + 0.5)));
+						end
+					end
 
-                    if hasSet then
-                        data.set(value);
-                    end
+					if hasSet then
+						data.set(value);
+					end
 
-                    if type(data.disabled) == "function" then
-                        local isDisabled = data.disabled();
-                        widget:SetEnabled(not isDisabled);
-                        local r, g, b = isDisabled and grayR or whiteR, isDisabled and grayG or whiteG, isDisabled and grayB or whiteB;
-                        if widget.RightText then
-                            widget.RightText:SetVertexColor(r, g, b);
-                        end
-                        if widget.MinText then
-                            widget.MinText:SetVertexColor(r, g, b);
-                        end
-                        if widget.MaxText then
-                            widget.MaxText:SetVertexColor(r, g, b);
-                        end
-                    end
-                end
-            end
-        end
-    end
+					if type(data.disabled) == "function" then
+						local isDisabled = data.disabled();
+						widget:SetEnabled(not isDisabled);
+						local r, g, b = isDisabled and grayR or whiteR, isDisabled and grayG or whiteG, isDisabled and grayB or whiteB;
+						if widget.RightText then
+							widget.RightText:SetVertexColor(r, g, b);
+						end
+						if widget.MinText then
+							widget.MinText:SetVertexColor(r, g, b);
+						end
+						if widget.MaxText then
+							widget.MaxText:SetVertexColor(r, g, b);
+						end
+					end
+				end
+			end
+		end
+	end
 end
 
 ---RefreshWidgets re-evaluates and updates all widgets' values and states.
 ---Ensures dynamic content, enabled/disabled states, and labels are current across all widget types.
 function SIPPYCUP_ConfigMixin:RefreshWidgets()
-    if not self.allWidgets then return; end
+	if not self.allWidgets then return; end
 
-    local grayR, grayG, grayB = GRAY_FONT_COLOR:GetRGB();
-    local whiteR, whiteG, whiteB = WHITE_FONT_COLOR:GetRGB();
+	local grayR, grayG, grayB = GRAY_FONT_COLOR:GetRGB();
+	local whiteR, whiteG, whiteB = WHITE_FONT_COLOR:GetRGB();
 
-    for _, widgetList in ipairs(self.allWidgets) do
-        for _, widget in ipairs(widgetList) do
-            local data = widget.data;
-            if data then
-                local dtype = data.type;
+	for _, widgetList in ipairs(self.allWidgets) do
+		for _, widget in ipairs(widgetList) do
+			local data = widget.data;
+			if data then
+				local dtype = data.type;
 
-                if dtype == "checkbox" then
-                    if type(data.get) == "function" then
-                        widget:SetChecked(data.get());
-                    end
+				if dtype == "checkbox" then
+					if type(data.get) == "function" then
+						widget:SetChecked(data.get());
+					end
 
-                elseif dtype == "button" then
-                    if type(data.disabled) == "function" then
-                        if data.disabled() then
-                            widget:Disable();
-                        else
-                            widget:Enable();
-                        end
-                    end
+				elseif dtype == "button" then
+					if type(data.disabled) == "function" then
+						if data.disabled() then
+							widget:Disable();
+						else
+							widget:Enable();
+						end
+					end
 
-                elseif dtype == "description" then
-                    local text = data.name;
-                    if type(text) == "function" then
-                        text = text();
-                    end
-                    widget:SetText(text or "");
+				elseif dtype == "description" then
+					local text = data.name;
+					if type(text) == "function" then
+						text = text();
+					end
+					widget:SetText(text or "");
 
-                elseif dtype == "dropdown" then
-                    if widget.Text and type(data.get) == "function" then
-                        local currentValue = data.get();
-                        local values = type(data.values) == "function" and data.values() or data.values;
-                        local label;
+				elseif dtype == "dropdown" then
+					if widget.Text and type(data.get) == "function" then
+						local currentValue = data.get();
+						local values = type(data.values) == "function" and data.values() or data.values;
+						local label;
 
-                        if data.style == "button" then
-                            label = (type(data.label) == "function" and data.label() or data.label);
-                        else
-                            label = values and values[currentValue];
-                            if not label then
-                                label = (type(data.label) == "function" and data.label() or data.label);
-                            end
-                        end
+						if data.style == "button" then
+							label = (type(data.label) == "function" and data.label() or data.label);
+						else
+							label = values and values[currentValue];
+							if not label then
+								label = (type(data.label) == "function" and data.label() or data.label);
+							end
+						end
 
-                        widget.Text:SetText(label or "");
-                    end
+						widget.Text:SetText(label or "");
+					end
 
-                elseif dtype == "slider" then
-                    if type(data.disabled) == "function" then
-                        local isDisabled = data.disabled();
-                        widget:SetEnabled(not isDisabled);
+				elseif dtype == "slider" then
+					if type(data.disabled) == "function" then
+						local isDisabled = data.disabled();
+						widget:SetEnabled(not isDisabled);
 
-                        local r, g, b = isDisabled and grayR or whiteR, isDisabled and grayG or whiteG, isDisabled and grayB or whiteB;
+						local r, g, b = isDisabled and grayR or whiteR, isDisabled and grayG or whiteG, isDisabled and grayB or whiteB;
 
-                        if widget.RightText then
-                            widget.RightText:SetVertexColor(r, g, b);
-                        end
-                        if widget.MinText then
-                            widget.MinText:SetVertexColor(r, g, b);
-                        end
-                        if widget.MaxText then
-                            widget.MaxText:SetVertexColor(r, g, b);
-                        end
-                    end
-                end
-            end
-        end
-    end
+						if widget.RightText then
+							widget.RightText:SetVertexColor(r, g, b);
+						end
+						if widget.MinText then
+							widget.MinText:SetVertexColor(r, g, b);
+						end
+						if widget.MaxText then
+							widget.MaxText:SetVertexColor(r, g, b);
+						end
+					end
+				end
+			end
+		end
+	end
 end
 
 local categories = { "Appearance", "Effect", "Handheld", "Placement", "Prism", "Size" };
@@ -1116,7 +1116,7 @@ end);
 function SIPPYCUP_ConfigMixin:OnLoad()
 	ButtonFrameTemplate_HidePortrait(self);
 	ButtonFrameTemplate_HideButtonBar(self);
-    tinsert(UISpecialFrames, self:GetName());
+	tinsert(UISpecialFrames, self:GetName());
 
 	self.Inset:Hide();
 
@@ -1140,7 +1140,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 		self:Hide();
 	end)
 
-    -- Hide any scrollbar directly attached to self, if exists
+	-- Hide any scrollbar directly attached to self, if exists
 	if self.ScrollFrame and self.ScrollFrame.ScrollBar then
 		self.ScrollFrame.ScrollBar:Hide();
 	elseif self.ScrollBar then
@@ -1574,16 +1574,16 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 end
 
 function SIPPYCUP_ConfigMixin:OnDragStart()
-    self:StartMoving();
-    self:SetUserPlaced(false);
+	self:StartMoving();
+	self:SetUserPlaced(false);
 end
 
 function SIPPYCUP_ConfigMixin:OnDragStop()
-    self:StopMovingOrSizing();
-    self:SetUserPlaced(false);
+	self:StopMovingOrSizing();
+	self:SetUserPlaced(false);
 end
 
 function SIPPYCUP_ConfigMixin:OnShow()
-    self:RefreshWidgets();
-    self:SetTab(1);  -- Show first tab by default
+	self:RefreshWidgets();
+	self:SetTab(1);  -- Show first tab by default
 end

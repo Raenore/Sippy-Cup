@@ -87,7 +87,7 @@ SIPPYCUP.Consumables.Data = {
 };
 
 local function NormalizeLocName(name)
-    return name:upper():gsub("%s+", "_");
+	return name:upper():gsub("%s+", "_");
 end
 
 local remaining = {};

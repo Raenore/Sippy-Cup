@@ -5,17 +5,17 @@ local L = SIPPYCUP.L;
 
 ---OnInitialize sets up saved variables and command handlers.
 function SIPPYCUP_Addon:OnInitialize()
-    if not SippyCupDB then
-        SippyCupDB = {
-            global = {},
-            profileKeys = {},
-            profiles = {},
-        };
-    end
+	if not SippyCupDB then
+		SippyCupDB = {
+			global = {},
+			profileKeys = {},
+			profiles = {},
+		};
+	end
 
-    SIPPYCUP.db = SippyCupDB; -- SINGLE reference
+	SIPPYCUP.db = SippyCupDB; -- SINGLE reference
 
-    SIPPYCUP.Database.Setup();
+	SIPPYCUP.Database.Setup();
 
 	SIPPYCUP_Addon:RegisterChatCommand("sippycup", "ExecuteCommand");
 	SIPPYCUP_Addon:RegisterChatCommand("sc", "ExecuteCommand");
@@ -39,15 +39,15 @@ local configFrame = nil;
 ---OpenSettings toggles the main configuration frame and switches to a specified tab.
 ---@param view integer? Optional tab number to open, defaults to 1.
 function SIPPYCUP_Addon:OpenSettings(view)
-    if not configFrame then
-        configFrame = CreateFrame("Frame", "SIPPYCUP_ConfigMenuFrame", UIParent, "SIPPYCUP_ConfigMenuTemplate");
-    end
+	if not configFrame then
+		configFrame = CreateFrame("Frame", "SIPPYCUP_ConfigMenuFrame", UIParent, "SIPPYCUP_ConfigMenuTemplate");
+	end
 
-    configFrame:SetShown(not configFrame:IsShown());
-    configFrame:Raise();
+	configFrame:SetShown(not configFrame:IsShown());
+	configFrame:Raise();
 
-    local tabToOpen = view or 1;
-    SIPPYCUP_ConfigMenuFrame:SetTab(tabToOpen);
+	local tabToOpen = view or 1;
+	SIPPYCUP_ConfigMenuFrame:SetTab(tabToOpen);
 end
 
 ---OnEnable registers event handlers, migrates unknown profiles, applies DB patches, sets up minimap buttons, initializes player info, and starts periodic checks.
@@ -61,20 +61,20 @@ function SIPPYCUP_Addon:OnEnable()
 	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");
 	self:RegisterEvent("BAG_UPDATE_DELAYED");
 
-    local realCharKey = SIPPYCUP.Database.GetUnitName();
-    if realCharKey then
-        local db = SIPPYCUP.db;
-        if db.profileKeys["Unknown"] and not db.profileKeys[realCharKey] then
-            db.profileKeys[realCharKey] = db.profileKeys["Unknown"];
-            db.profileKeys["Unknown"] = nil;
-            -- Optional: move profile data as well if you saved it under Unknown profile
-            -- local profileName = db.profileKeys[realCharKey];
-            -- if db.profiles and db.profiles[profileName] then
-            --     db.profiles[profileName] = db.profiles[profileName] or {};
-            -- end
-        end
-        SIPPYCUP.Database.Setup();
-    end
+	local realCharKey = SIPPYCUP.Database.GetUnitName();
+	if realCharKey then
+		local db = SIPPYCUP.db;
+		if db.profileKeys["Unknown"] and not db.profileKeys[realCharKey] then
+			db.profileKeys[realCharKey] = db.profileKeys["Unknown"];
+			db.profileKeys["Unknown"] = nil;
+			-- Optional: move profile data as well if you saved it under Unknown profile
+			-- local profileName = db.profileKeys[realCharKey];
+			-- if db.profiles and db.profiles[profileName] then
+			--     db.profiles[profileName] = db.profiles[profileName] or {};
+			-- end
+		end
+		SIPPYCUP.Database.Setup();
+	end
 
 	-- Adapt saved variables structures between versions
 	SIPPYCUP.Flyway:ApplyPatches();
