@@ -2,28 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.3.0] - 2025-07-xx
+## [0.3.0] - 2025-08-xx
 
 ### Added
-- Rewritten custom popup system to replace StaticPopups (FlexiblePopups?) (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
-- Insufficient Reminder: Show a popup when the user does not have enough of a tracked consumable to meet the desired stack count for the next refresh (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
-- Implement Flyway-style database patches, to rename and invalidate potential SavedVariables changes (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
-- Popups can now use "Bottom" as a position, they will stack upwards instead of downwards (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
-- Add initial support for prism (Reflecting Prism, Projection Prism) consumables (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
-- Icons in the new popups can be hovered over for tooltip info, which support count addons to quickly figure out your item counts (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
+- New config/settings page built from scratch, tailored to the addon's needs (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
+- Fully rewritten custom popup system replacing StaticPopups (tentatively called FlexiblePopups) (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
+- "Insufficient Reminder": Shows a popup when the user lacks enough of a tracked consumable to meet the desired stack count for the next refresh (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
+- Flyway-style database patching system to safely rename and invalidate outdated SavedVariables (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
+- Popups now support a "Bottom" position and will stack upward instead of downward (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
+- Initial support for prism-type consumables (Reflecting Prism, Projection Prism) (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
+- Popup icons now show tooltips on hover, including support for count addons to quickly check item counts (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
+- Added multi-build support, allowing the addon to parse multiple client flavors and versions for compatibility (see [#34](https://github.com/Raenore/Sippy-Cup/pull/34)).
 
 ### Changed
 - Update TOC for 11.2.0 (see [#32](https://github.com/Raenore/Sippy-Cup/pull/32)).
-- Optimized MSP integration, users should see no noticeable changes (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
-- Item names are now gathered from the game and not from the locales, which means that they are auto-localized in every language (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
-- Sound alerts should now no longer spam the user when multiple popups hit at the same time, as they are now throttled (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
+- Optimized MSP integration with no user-facing changes (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
+- Item names are now fetched from the game instead of locale files, enabling automatic localization in all languages (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
+- Sound alerts are now throttled to avoid spamming when multiple popups trigger at the same time (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
 
 ### Fixed
-- Fixed Blizzard renaming editBox to EditBox (fixed in [#32](https://github.com/Raenore/Sippy-Cup/pull/32)).
+- Fixed an issue caused by Blizzard renaming `editBox` to `EditBox` (fixed in [#32](https://github.com/Raenore/Sippy-Cup/pull/32)).
 
 ### Removed
-- Popup icon option has been removed as the new custom popups always show the item icon (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
-- Lots of hacks surrounding StaticPopups and handling Main Menu (logout button) and ElvUI AFK screen (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
+- Removed the popup icon toggle option, since new custom popups always show the item icon (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
+- Removed multiple workarounds related to StaticPopups, including handling the Main Menu logout button and the ElvUI AFK screen (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
+- Removed Ace3 libraries and implemented custom alternatives, reducing the addon size 'significantly' (see [#31](https://github.com/Raenore/Sippy-Cup/pull/31)).
 
 ## [0.2.2] - 2025-06-24
 
