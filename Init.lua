@@ -5,7 +5,6 @@
 local _, SIPPYCUP = ...;
 
 _G.SIPPYCUP_Addon = LibStub("AceAddon-3.0"):NewAddon("SippyCup", "AceEvent-3.0", "AceConsole-3.0", "AceTimer-3.0");
-
 SIPPYCUP_Addon:SetDefaultModuleLibraries("AceEvent-3.0");
 
 SIPPYCUP.AddonMetadata = {
