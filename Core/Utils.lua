@@ -64,6 +64,11 @@ end
 
 SIPPYCUP_OUTPUT = {};
 
+local function Print(msg)
+	print(SIPPYCUP.AddonMetadata.title .. ": " .. tostring(msg));
+end
+
+
 ---Write prints formatted output with an optional command prefix.
 ---@param output string|table The output to be printed, either a string or a table.
 ---@param command? string The optional command prefix to display before the output.
@@ -78,7 +83,7 @@ function SIPPYCUP_OUTPUT.Write(output, command)
 
 	local formattedOutput = ("|cnGREEN_FONT_COLOR:%s|r|cnTRANSMOGRIFY_FONT_COLOR:%s|r"):format(command and (command .. " ") or "", output);
 
-	SIPPYCUP_Addon:Print(formattedOutput);
+	Print(formattedOutput);
 end
 
 ---Debug prints formatted output, only works when IS_DEV_BUILD is true.
@@ -110,7 +115,7 @@ function SIPPYCUP_OUTPUT.Debug(...)
 	end
 
 	local finalOutput = table.concat(outputLines, " ");
-	SIPPYCUP_Addon:Print("|cnTRANSMOGRIFY_FONT_COLOR:" .. finalOutput .. "|r");
+	Print("|cnTRANSMOGRIFY_FONT_COLOR:" .. finalOutput .. "|r");
 end
 
 SIPPYCUP.Player = {};

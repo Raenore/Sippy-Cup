@@ -15,16 +15,20 @@ function SIPPYCUP_Addon:OnInitialize()
 
 	SIPPYCUP.db = SippyCupDB; -- SINGLE reference
 
-	SIPPYCUP.Database.Setup();
+	-- Create a frame to handle events
+	self.events = CreateFrame("Frame");
+	self.events:SetScript("OnEvent", function(_, event, ...)
+		if self[event] then
+			self[event](self, event, ...);
+		end
+	end);
 
-	SIPPYCUP_Addon:RegisterChatCommand("sippycup", "ExecuteCommand");
-	SIPPYCUP_Addon:RegisterChatCommand("sc", "ExecuteCommand");
+	SIPPYCUP.Database.Setup();
 end
 
----ExecuteCommand processes slash command input.
----@param msg string Command text entered by the user.
-function SIPPYCUP_Addon:ExecuteCommand(msg)
-	-- Trim leading and trailing whitespaces if msg exists, otherwise empty msg.
+SLASH_SIPPYCUP1, SLASH_SIPPYCUP2 = "/sc", "/sippycup";
+
+SlashCmdList["SIPPYCUP"] = function(msg)
 	msg = (msg:match("^%s*(.-)%s*$") or ""):lower();
 
 	if msg == "auras" and SIPPYCUP.IS_DEV_BUILD then
@@ -52,14 +56,14 @@ end
 
 ---OnEnable registers event handlers, migrates unknown profiles, applies DB patches, sets up minimap buttons, initializes player info, and starts periodic checks.
 function SIPPYCUP_Addon:OnEnable()
-	self:RegisterEvent("UNIT_AURA");
-	self:RegisterEvent("PLAYER_REGEN_DISABLED");
-	self:RegisterEvent("PLAYER_REGEN_ENABLED");
-	self:RegisterEvent("PLAYER_ENTERING_WORLD");
-	self:RegisterEvent("PLAYER_LEAVING_WORLD");
-	self:RegisterEvent("ZONE_CHANGED_NEW_AREA");
-	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");
-	self:RegisterEvent("BAG_UPDATE_DELAYED");
+	self.events:RegisterEvent("UNIT_AURA");
+	self.events:RegisterEvent("PLAYER_REGEN_DISABLED");
+	self.events:RegisterEvent("PLAYER_REGEN_ENABLED");
+	self.events:RegisterEvent("PLAYER_ENTERING_WORLD");
+	self.events:RegisterEvent("PLAYER_LEAVING_WORLD");
+	self.events:RegisterEvent("ZONE_CHANGED_NEW_AREA");
+	self.events:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");
+	self.events:RegisterEvent("BAG_UPDATE_DELAYED");
 
 	local realCharKey = SIPPYCUP.Database.GetUnitName();
 	if realCharKey then
@@ -124,24 +128,23 @@ function SIPPYCUP_Addon:StartAuraCheck()
 	end
 
 	-- Only run this if it's not already running, no point to duplicate.
-	if not self.auraTimer then
+	if not self.auraTicker then
 		-- Run once immediately
 		SIPPYCUP.Auras.CheckStackMismatchInDBForAllActiveConsumables();
 
 		-- schedule and keep the handle so we can cancel it later
-		self.auraTimer = self:ScheduleRepeatingTimer(
-			SIPPYCUP.Auras.CheckStackMismatchInDBForAllActiveConsumables,
-			AURA_CHECK_INTERVAL
-		);
+		self.auraTicker = C_Timer.NewTicker(AURA_CHECK_INTERVAL, function()
+			SIPPYCUP.Auras.CheckStackMismatchInDBForAllActiveConsumables();
+		end);
 	end
 end
 
 
 ---StopAuraCheck cancels the repeating aura mismatch check timer if active.
 function SIPPYCUP_Addon:StopAuraCheck()
-	if self.auraTimer then
-		self:CancelTimer(self.auraTimer, true);  -- silent = true
-		self.auraTimer = nil;
+	if self.auraTicker then
+		self.auraTicker:Cancel();
+		self.auraTicker = nil;
 	end
 end
 
@@ -155,33 +158,31 @@ function SIPPYCUP_Addon:StartContinuousCheck()
 
 	-- Both below timers don't need an immediate run as startup + new enables run these partially.
 
-	if not self.preExpTimer then
+	if not self.preExpTicker then
 		-- schedule and keep the handle so we can cancel it later
-		self.preExpTimer = self:ScheduleRepeatingTimer(
-			SIPPYCUP.Auras.CheckPreExpirationForAllActiveConsumables,
-			CONTINUOUS_CHECK_INTERVAL
-		);
+		self.preExpTicker = C_Timer.NewTicker(CONTINUOUS_CHECK_INTERVAL, function()
+			SIPPYCUP.Auras.CheckPreExpirationForAllActiveConsumables();
+		end);
 	end
 
-	if not self.itemTimer then
+	if not self.itemTicker then
 		-- schedule and keep the handle so we can cancel it later
-		self.itemTimer = self:ScheduleRepeatingTimer(
-			SIPPYCUP.Items.CheckNoAuraItemUsage,
-			CONTINUOUS_CHECK_INTERVAL
-		);
+		self.itemTicker = C_Timer.NewTicker(CONTINUOUS_CHECK_INTERVAL, function()
+			SIPPYCUP.Items.CheckNoAuraItemUsage();
+		end);
 	end
 end
 
 ---StopContinuousCheck cancels all continuous check timers if active.
 function SIPPYCUP_Addon:StopContinuousCheck()
-	if self.preExpTimer then
-		self:CancelTimer(self.preExpTimer, true);  -- silent = true
-		self.preExpTimer = nil;
+	if self.preExpTicker then
+		self.preExpTicker:Cancel();
+		self.preExpTicker = nil;
 	end
 
-	if self.itemTimer then
-		self:CancelTimer(self.itemTimer, true);  -- silent = true
-		self.itemTimer = nil;
+	if self.itemTicker then
+		self.itemTicker:Cancel();
+		self.itemTicker = nil;
 	end
 end
 

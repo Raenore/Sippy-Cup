@@ -19,6 +19,8 @@ globals = {
 	"SIPPYCUP",
 	"SIPPYCUP_Addon",
 	"SippyCupDB",
+	"SLASH_SIPPYCUP1",
+	"SLASH_SIPPYCUP2",
 };
 
 read_globals = {
@@ -407,9 +409,9 @@ stds.wow = {
 		},
 
 		TimerunningUtil = {
-		    fields = {
-                "AddSmallIcon",
-            },
+			fields = {
+				"AddSmallIcon",
+			},
 		},
 
 		"AbbreviateLargeNumbers",
