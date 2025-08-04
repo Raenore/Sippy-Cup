@@ -61,11 +61,6 @@ L.OPTIONS_GENERAL_ADDONINFO_BUILD_CURRENT = title .. " is optimized for your cur
 L.OPTIONS_GENERAL_BLUESKY_SHILL_DESC = "Follow me on Bluesky!";
 
 -- Generic
-L.OPTIONS_ENABLE_TEXT = "Enable consumable reminders for |cnGREEN_FONT_COLOR:%s|r.";
-L.OPTIONS_ENABLE_PREXPIRE_TEXT = "|n|nNote that this consumable |cnGREEN_FONT_COLOR:supports pre-expiration reminders|r. Enabling that option will remind you shortly before it expires.";
-L.OPTIONS_ENABLE_PREXPIRE_MAXSTACKS_TEXT = "|n|nNote that this consumable |cnGREEN_FONT_COLOR:supports pre-expiration reminders at maximum stacks|r. Enabling that option will remind you shortly before it expires.";
-L.OPTIONS_ENABLE_NON_REFRESHABLE_TEXT = "|n|n|cnWARNING_FONT_COLOR:Do not refresh this consumable before it expires, as the stack will be lost without any effect.|r";
-L.OPTIONS_ENABLE_NON_AURA_TEXT = "|n|n|cnWARNING_FONT_COLOR:This consumable is harder to track and may cause occasional irregularities.|r";
 L.OPTIONS_SLIDER_TEXT = "Set the desired stack count for |cnGREEN_FONT_COLOR:%s|r.|n|nReminders will continue until the desired stack count is reached.";
 L.OPTIONS_DESIRED_STACKS = "Desired stacks";
 L.OPTIONS_TITLE_EXTRA = "|n|nOn login, a popup will appear for tracked consumables with active stacks. If the 'Only when \"In Character\"' option is enabled, it will also remind you about inactive stacks.";
