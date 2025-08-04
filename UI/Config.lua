@@ -4,8 +4,6 @@
 local L = SIPPYCUP.L;
 local SharedMedia = LibStub("LibSharedMedia-3.0");
 
-local ICON_SIZE = 32;
-
 local defaultSounds = {
     { key = "aggro_enter_warning_state", fid = 567401 },
     { key = "belltollhorde", fid = 565853 },
@@ -67,9 +65,9 @@ local function AddTab(parent)
     return tab;
 end
 
----GetScrollableWrapperFrame creates a scrollable content frame within the parent frame.  
----It wires mousewheel support and adds a scroll frame with consistent padding and clamped scrolling logic.  
----@param parent table The parent frame to contain the scrollable wrapper. Must have a `Views` table.  
+---GetScrollableWrapperFrame creates a scrollable content frame within the parent frame.
+---It wires mousewheel support and adds a scroll frame with consistent padding and clamped scrolling logic.
+---@param parent table The parent frame to contain the scrollable wrapper. Must have a `Views` table.
 ---@return table contentFrame The scrollable content frame with scrollFrame reference and isScrollable flag.
 local function GetWrapperFrame(parent)
     local frame = CreateFrame("Frame", nil, parent);
@@ -226,7 +224,7 @@ end
 ---@param description string The tooltip description text.
 ---@param style string? Optional style (currently unused).
 ---@param anchor string? Optional anchor point for tooltip, defaults to "ANCHOR_TOP".
-local function AttachTooltip(frames, title, description, style, anchor)
+local function AttachTooltip(frames, title, description, style, anchor) -- luacheck: no unused (style)
 	if not title or not description then return; end
 
 	local isList = type(frames) == "table" and not frames.GetObjectType;
