@@ -62,21 +62,6 @@ function SIPPYCUP_BUILDINFO.Output(colorized)
 	return output;
 end
 
-SIPPYCUP_ICON = {};
-
----RetrieveIcon fetches the icon for a consumable by its name.
----@param itemName string The name of the consumable item.
----@return string icon The icon path for the consumable, or a default "question mark" icon if not found.
-function SIPPYCUP_ICON.RetrieveIcon(itemName)
-	-- Grab the right consumable by name, and check if aura exists.
-	local consumable = SIPPYCUP.Consumables.ByName[itemName];
-	if consumable then
-		return consumable.icon;
-	end
-
-	return "inv_misc_questionmark";
-end
-
 SIPPYCUP_OUTPUT = {};
 
 ---Write prints formatted output with an optional command prefix.

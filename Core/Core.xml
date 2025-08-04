@@ -9,6 +9,4 @@
 	<Include file="Items.lua"/>
 	<Include file="Consumables.lua"/>
 	<Include file="Database.lua"/>
-
-	<Include file="..\UI\ConfigPanel.lua"/>
 </Ui>

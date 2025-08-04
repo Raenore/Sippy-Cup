@@ -195,7 +195,7 @@ function SIPPYCUP.Items.CheckNoAuraSingleConsumable(profileConsumableData, spell
 	-- default warning offset to 60s
 	local preOffset = 60.0;
 
-	if not SIPPYCUP.db.global.PreExpirationChecks or remaining == 0 then
+	if not SIPPYCUP.global.PreExpirationChecks or remaining == 0 then
 		-- Pre‑expiration disabled means no offset at all
 		preOffset = 0;
 	elseif duration <= 60 then
@@ -211,11 +211,11 @@ function SIPPYCUP.Items.CheckNoAuraSingleConsumable(profileConsumableData, spell
 		local fireIn = remaining - preOffset;
 		local reason;
 
-		if fireIn <= 0 and SIPPYCUP.db.global.PreExpirationChecks then
+		if fireIn <= 0 and SIPPYCUP.global.PreExpirationChecks then
 			-- Less than 60s left and we want pre-expiration popup: fire immediately
 			preExpireFired = true;
 			SIPPYCUP.Popups.QueuePopupAction(2, auraID, nil, nil, "CheckNonTrackableSingleConsumable - pre-expiration");
-		elseif SIPPYCUP.db.global.PreExpirationChecks then
+		elseif SIPPYCUP.global.PreExpirationChecks then
 			-- Schedule our 1m before expiration reminder.
 			reason = 2;
 			local key = tostring(auraID) .. "-" .. tostring(consumableData.itemID)  .. "-" .. tostring(reason);

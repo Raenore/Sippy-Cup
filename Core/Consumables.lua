@@ -44,56 +44,55 @@ Pre-Expiration:
 ]]
 
 SIPPYCUP.Consumables.Data = {
-	NewConsumable{ auraID = 1213428, itemID = 234526, loc = "ARCHIVISTS_CODEX", category = "HANDHELD", icon = "inv_7xp_inscription_talenttome02", preExpiration = 1 },
-	NewConsumable{ auraID = 357489, itemID = 187421, loc = "ASHEN_LINIMENT", category = "EFFECT", icon = "inv_misc_food_legion_goooil_bottle", preExpiration = 1 },
-	NewConsumable{ auraID = 382761, itemID = 197767, loc = "BLUBBERY_MUFFIN", category = "APPEARANCE", icon = "inv_misc_food_148_cupcake", preExpiration = 1 },
-	NewConsumable{ auraID = 1222839, itemID = 237335, loc = "COLLECTIBLE_PINEAPPLETINI_MUG", category = "HANDHELD", icon = "inv_misc_goblincup01", preExpiration = 1 },
-	NewConsumable{ auraID = 185562, itemID = 124671, loc = "DARKMOON_FIREWATER", category = "SIZE", icon = "inv_misc_flaskofvolatility", unrefreshable = true },
-	NewConsumable{ auraID = 1213663, itemID = 234282, loc = "DECORATIVE_YARD_FLAMINGO", category = "PLACEMENT", icon = "inv_vulturemount_albatrosspink", itemTrackable = true },
-	NewConsumable{ auraID = 1222835, itemID = 237330, loc = "DISPOSABLE_HAMBURGER", category = "HANDHELD", icon = "inv_misc_food_65", preExpiration = 1 },
-	NewConsumable{ auraID = 1222833, itemID = 237331, loc = "DISPOSABLE_HOTDOG", category = "HANDHELD", icon = "inv_misc_clefhoofsausages", preExpiration = 1 },
-	NewConsumable{ auraID = 8212, itemID = 6662, loc = "ELIXIR_OF_GIANT_GROWTH", category = "SIZE", icon = "inv_potion_10", preExpiration = 1 },
-	NewConsumable{ auraID = 2336, itemID = 2460, loc = "ELIXIR_OF_TONGUES", category = "EFFECT", icon = "inv_potion_12", preExpiration = 1 },
-	NewConsumable{ auraID = 162906, itemID = 112321, loc = "ENCHANTED_DUST", category = "EFFECT", icon = "inv_enchant_dustspirit", preExpiration = 1 },
-	NewConsumable{ auraID = 398458, itemID = 202290, loc = "FIREWATER_SORBET", category = "SIZE", icon = "inv_cooking_100_firewatersorbet", preExpiration = 1 },
-	NewConsumable{ auraID = 393977, itemID = 201427, loc = "FLEETING_SANDS", category = "EFFECT", icon = "inv_relics_hourglass_02" },
-	NewConsumable{ auraID = 454799, itemID = 225253, loc = "FLICKERING_FLAME_HOLDER", category = "HANDHELD", icon = "trade_archaeology_draenei candelabra", preExpiration = 1 },
-	NewConsumable{ auraID = 58468, itemID = 43478, loc = "GIGANTIC_FEAST", category = "SIZE", icon = "ability_hunter_pet_boar", preExpiration = 1 },
-	NewConsumable{ auraID = 244014, itemID = 151257, loc = "GREEN_DANCE_STICK", category = "HANDHELD", icon = "inv_enchanting_wod_crystalshard4", preExpiration = 1 },
-	NewConsumable{ auraID = 1222840, itemID = 237334, loc = "HALF_EATEN_TAKEOUT", category = "HANDHELD", icon = "inv_misc_cookednoodles", preExpiration = 1 },
-	NewConsumable{ auraID = 443688, itemID = 216708, loc = "HOLY_CANDLE", category = "PLACEMENT", icon = "inv_misc_candle_03", spellTrackable = true },
-	NewConsumable{ auraID = 185394, itemID = 124640, loc = "INKY_BLACK_POTION", category = "EFFECT", icon = "inv_potion_132", preExpiration = 1 },
-	NewConsumable{ auraID = 1218300, itemID = 235703, loc = "NOGGENFOGGER_SELECT_DOWN", category = "SIZE", icon = "inv_potion_140", stacks = true, maxStacks = 10, preExpiration = 1 },
-	NewConsumable{ auraID = 1218297, itemID = 235704, loc = "NOGGENFOGGER_SELECT_UP", category = "SIZE", icon = "inv_potion_141", stacks = true, maxStacks = 10, preExpiration = 1 },
-	NewConsumable{ auraID = 374957, itemID = 193029, loc = "PROJECTION_PRISM", category = "PRISM", icon = "inv_10_jewelcrafting_prism_blue", preExpiration = 1 },
-	NewConsumable{ auraID = 368038, itemID = 190739, loc = "PROVIS_WAX", category = "EFFECT", icon = "inv_misc_food_legion_flaked sea salt", preExpiration = 1 },
-	NewConsumable{ auraID = 244015, itemID = 151256, loc = "PURPLE_DANCE_STICK", category = "HANDHELD", icon = "inv_enchanting_wod_crystalshard2", preExpiration = 1 },
-	NewConsumable{ auraID = 53805, itemID = 40195, loc = "PYGMY_OIL", category = "SIZE", icon = "inv_potion_07", stacks = true, maxStacks = 10 },
-	NewConsumable{ auraID = 393979, itemID = 201428, loc = "QUICKSILVER_SANDS", category = "EFFECT", icon = "inv_relics_hourglass" },
-	NewConsumable{ auraID = 1213974, itemID = 234287, loc = "RADIANT_FOCUS", category = "EFFECT", icon = "inv_radiant_remnant", preExpiration = 1 },
-	NewConsumable{ auraID = 1214287, itemID = 234527, loc = "SACREDITES_LEDGER", category = "HANDHELD", icon = "inv_offhand_1h_priest_c_01", preExpiration = 1 },
-	NewConsumable{ auraID = 163219, itemID = 112384, loc = "REFLECTING_PRISM", category = "PRISM", icon = "inv_jewelcrafting_prism", preExpiration = 1 },
-	NewConsumable{ auraID = 279742, itemID = 163695, loc = "SCROLL_OF_INNER_TRUTH", category = "EFFECT", icon = "inv_misc_scrollunrolled04b" },
-	NewConsumable{ auraID = 1222834, itemID = 237332, loc = "SINGLE_USE_GRILL", category = "PLACEMENT", icon = "achievement_cooking_masterofthegrill", spellTrackable = true },
-	NewConsumable{ auraID = 58479, itemID = 43480, loc = "SMALL_FEAST", category = "SIZE", icon = "ability_hunter_pet_boar", preExpiration = 1 },
-	NewConsumable{ auraID = 382729, itemID = 197766, loc = "SNOW_IN_A_CONE", category = "HANDHELD", icon = "inv_misc_food_31", preExpiration = 1 },
-	NewConsumable{ auraID = 442106, itemID = 218107, loc = "SPARKBUG_JAR", category = "HANDHELD", icon = "inv_first_aid_70_ jar", preExpiration = 1 },
-	NewConsumable{ auraID = 404840, itemID = 204370, loc = "STINKY_BRIGHT_POTION", category = "EFFECT", icon = "inv_trade_alchemy_dpotion_c1a", preExpiration = 1 },
-	NewConsumable{ auraID = 254544, itemID = 153192, loc = "SUNGLOW", category = "EFFECT", icon = "inv_drink_29_sunkissedwine", unrefreshable = true },
-	NewConsumable{ auraID = 1213975, itemID = 234466, loc = "TATTERED_ARATHI_PRAYER_SCROLL", category = "EFFECT", icon = "inv_10_inscription2_scroll3_color3", preExpiration = 1 },
-	NewConsumable{ auraID = 393989, itemID = 201436, loc = "TEMPORALLY_LOCKED_SANDS", category = "EFFECT", icon = "inv_10_worlddroplevelingoptionalreagent_relics_hourglass_color1", preExpiration = 1 },
-	NewConsumable{ auraID = 393994, itemID = 201438, loc = "WEARY_SANDS", category = "EFFECT", icon = "inv_10_worlddroplevelingoptionalreagent_relics_hourglass_color2", preExpiration = 1 },
-	NewConsumable{ auraID = 17038, itemID = 12820, loc = "WINTERFALL_FIREWATER", category = "SIZE", icon = "inv_potion_92", preExpiration = 1 },
+	NewConsumable{ auraID = 1213428, itemID = 234526, category = "HANDHELD", preExpiration = 1 }, -- ARCHIVISTS_CODEX
+	NewConsumable{ auraID = 357489, itemID = 187421, category = "EFFECT", preExpiration = 1 }, -- ASHEN_LINIMENT
+	NewConsumable{ auraID = 382761, itemID = 197767, category = "APPEARANCE", preExpiration = 1 }, -- BLUBBERY_MUFFIN
+	NewConsumable{ auraID = 1222839, itemID = 237335, category = "HANDHELD", preExpiration = 1 }, -- COLLECTIBLE_PINEAPPLETINI_MUG
+	NewConsumable{ auraID = 185562, itemID = 124671, category = "SIZE", unrefreshable = true }, -- DARKMOON_FIREWATER
+	NewConsumable{ auraID = 1213663, itemID = 234282, category = "PLACEMENT", itemTrackable = true }, -- DECORATIVE_YARD_FLAMINGO
+	NewConsumable{ auraID = 1222835, itemID = 237330, category = "HANDHELD", preExpiration = 1 }, -- DISPOSABLE_HAMBURGER
+	NewConsumable{ auraID = 1222833, itemID = 237331, category = "HANDHELD", preExpiration = 1 }, -- DISPOSABLE_HOTDOG
+	NewConsumable{ auraID = 8212, itemID = 6662, category = "SIZE", preExpiration = 1 }, -- ELIXIR_OF_GIANT_GROWTH
+	NewConsumable{ auraID = 2336, itemID = 2460, category = "EFFECT", preExpiration = 1 }, -- ELIXIR_OF_TONGUES
+	NewConsumable{ auraID = 162906, itemID = 112321, category = "EFFECT", preExpiration = 1 }, -- ENCHANTED_DUST
+	NewConsumable{ auraID = 398458, itemID = 202290, category = "SIZE", preExpiration = 1 }, -- FIREWATER_SORBET
+	NewConsumable{ auraID = 393977, itemID = 201427, category = "EFFECT" }, -- FLEETING_SANDS
+	NewConsumable{ auraID = 454799, itemID = 225253, category = "HANDHELD", preExpiration = 1 }, -- FLICKERING_FLAME_HOLDER
+	NewConsumable{ auraID = 58468, itemID = 43478, category = "SIZE", preExpiration = 1 }, -- GIGANTIC_FEAST
+	NewConsumable{ auraID = 244014, itemID = 151257, category = "HANDHELD", preExpiration = 1 }, -- GREEN_DANCE_STICK
+	NewConsumable{ auraID = 1222840, itemID = 237334, category = "HANDHELD", preExpiration = 1 }, -- HALF_EATEN_TAKEOUT
+	NewConsumable{ auraID = 443688, itemID = 216708, category = "PLACEMENT", spellTrackable = true }, -- HOLY_CANDLE
+	NewConsumable{ auraID = 185394, itemID = 124640, category = "EFFECT", preExpiration = 1 }, -- INKY_BLACK_POTION
+	NewConsumable{ auraID = 1218300, itemID = 235703, category = "SIZE", stacks = true, maxStacks = 10, preExpiration = 1 }, -- NOGGENFOGGER_SELECT_DOWN
+	NewConsumable{ auraID = 1218297, itemID = 235704, category = "SIZE", stacks = true, maxStacks = 10, preExpiration = 1 }, -- NOGGENFOGGER_SELECT_UP
+	NewConsumable{ auraID = 374957, itemID = 193029, category = "PRISM", preExpiration = 1 }, -- PROJECTION_PRISM
+	NewConsumable{ auraID = 368038, itemID = 190739, category = "EFFECT", preExpiration = 1 }, -- PROVIS_WAX
+	NewConsumable{ auraID = 244015, itemID = 151256, category = "HANDHELD", preExpiration = 1 }, -- PURPLE_DANCE_STICK
+	NewConsumable{ auraID = 53805, itemID = 40195, category = "SIZE", stacks = true, maxStacks = 10 }, -- PYGMY_OIL
+	NewConsumable{ auraID = 393979, itemID = 201428, category = "EFFECT" }, -- QUICKSILVER_SANDS
+	NewConsumable{ auraID = 1213974, itemID = 234287, category = "EFFECT", preExpiration = 1 }, -- RADIANT_FOCUS
+	NewConsumable{ auraID = 1214287, itemID = 234527, category = "HANDHELD", preExpiration = 1 }, -- SACREDITES_LEDGER
+	NewConsumable{ auraID = 163219, itemID = 112384, category = "PRISM", preExpiration = 1 }, -- REFLECTING_PRISM
+	NewConsumable{ auraID = 279742, itemID = 163695, category = "EFFECT" }, -- SCROLL_OF_INNER_TRUTH
+	NewConsumable{ auraID = 1222834, itemID = 237332, category = "PLACEMENT", spellTrackable = true }, -- SINGLE_USE_GRILL
+	NewConsumable{ auraID = 58479, itemID = 43480, category = "SIZE", preExpiration = 1 }, -- SMALL_FEAST
+	NewConsumable{ auraID = 382729, itemID = 197766, category = "HANDHELD", preExpiration = 1 }, -- SNOW_IN_A_CONE
+	NewConsumable{ auraID = 442106, itemID = 218107, category = "HANDHELD", preExpiration = 1 }, -- SPARKBUG_JAR
+	NewConsumable{ auraID = 404840, itemID = 204370, category = "EFFECT", preExpiration = 1 }, -- STINKY_BRIGHT_POTION
+	NewConsumable{ auraID = 254544, itemID = 153192, category = "EFFECT", unrefreshable = true }, -- SUNGLOW
+	NewConsumable{ auraID = 1213975, itemID = 234466, category = "EFFECT", preExpiration = 1 }, -- TATTERED_ARATHI_PRAYER_SCROLL
+	NewConsumable{ auraID = 393989, itemID = 201436, category = "EFFECT", preExpiration = 1 }, -- TEMPORALLY_LOCKED_SANDS
+	NewConsumable{ auraID = 393994, itemID = 201438, category = "EFFECT", preExpiration = 1 }, -- WEARY_SANDS
+	NewConsumable{ auraID = 17038, itemID = 12820, category = "SIZE", preExpiration = 1 }, -- WINTERFALL_FIREWATER
 };
+
+local function NormalizeLocName(name)
+    return name:upper():gsub("%s+", "_");
+end
 
 local remaining = {};
 for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
 	remaining[consumable.itemID] = true;
-
-	-- `profile` from loc, e.g. "PYGMY_OIL" -> "pygmyOil"
-	consumable.profile = string.gsub(string.lower(consumable.loc), "_(%a)", function(c)
-		return c:upper();
-	end);
 
 	SIPPYCUP.Consumables.ByAuraID[consumable.auraID] = consumable;
 	SIPPYCUP.Consumables.ByItemID[consumable.itemID] = consumable;
@@ -103,6 +102,15 @@ for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
 	local item = Item:CreateFromItemID(consumable.itemID);
 	item:ContinueOnItemLoad(function()
 		consumable.name = item:GetItemName();
+
+		-- `loc` from name, e.g. "Noggenfogger Select UP" -> "NOGGENFOGGER_SELECT_UP"
+		consumable.loc = NormalizeLocName(consumable.name);
+
+		-- `profile` from loc, e.g. "PYGMY_OIL" -> "pygmyOil"
+		consumable.profile = string.gsub(string.lower(consumable.loc), "_(%a)", function(c)
+			return c:upper();
+		end);
+
 		remaining[consumable.itemID] = nil;
 		SIPPYCUP.Consumables.ByName[consumable.name] = consumable;
 
@@ -112,12 +120,14 @@ for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
 				return SIPPYCUP_TEXT.Normalize(a.name:lower()) < SIPPYCUP_TEXT.Normalize(b.name:lower());
 			end);
 
+			--[[ See if we need this in the future
 			if SIPPYCUP.db then
-				SIPPYCUP.Database.SetupConfig();
+				RUN DEFERRED SETUP
 			else
 				-- Defer SetupConfig until DB is ready
 				SIPPYCUP.deferSetupConfig = true;
 			end
+			]]
 		end
 	end);
 end
@@ -128,55 +138,55 @@ end
 function SIPPYCUP.Consumables.RefreshStackSizes(checkAll)
 	local GetPlayerAuraBySpellID = C_UnitAuras.GetPlayerAuraBySpellID;
 
-	-- Kill all the timers associated with previous consumables to start fresh.
+	local QUEUE_POPUP_ACTIVE = 0;
+	local QUEUE_POPUP_CHECKALL = 1; -- (Marked as 'remove')
+
+	-- Helper to check cooldown startTime for item or spell trackable
+	local function GetCooldownStartTime(consumable)
+		if consumable.itemTrackable then
+			local startTime = select(1, C_Item.GetItemCooldown(consumable.itemID));
+			if startTime and startTime > 0 then
+				return startTime;
+			end
+		elseif consumable.spellTrackable then
+			local spellCooldown = C_Spell.GetSpellCooldown(consumable.auraID);
+			local startTime = spellCooldown and spellCooldown.startTime;
+			if startTime and startTime > 0 then
+				return startTime;
+			end
+		end
+		return nil;
+	end
+
+	-- Reset timers and popups
 	SIPPYCUP.Auras.CancelAllPreExpirationTimers();
 	SIPPYCUP.Items.CancelAllItemTimers();
-
-	-- Close all the opened Sippy Cup popups that still exist.
 	SIPPYCUP.Popups.HideAllRefreshPopups();
 
 	-- Rebuild the aura map from the latest database data that we have.
 	SIPPYCUP.Database.RebuildAuraMap();
 
-	-- auraToProfile will iterate over all the enabled consumables.
+	-- auraToProfile will iterate over all the enabled (not active!) consumables.
 	for _, profileConsumableData in pairs(SIPPYCUP.Database.auraToProfile) do
-		local auraInfo = GetPlayerAuraBySpellID(profileConsumableData.aura);
-		local consumableData = SIPPYCUP.Consumables.ByAuraID[profileConsumableData.aura];
-		local active = false;
-		local startTime = 0;
+		local auraID = profileConsumableData.aura;
+		local auraInfo = GetPlayerAuraBySpellID(auraID);
+		local consumableData = SIPPYCUP.Consumables.ByAuraID[auraID];
+		local startTime = GetCooldownStartTime(consumableData);
+		local active = startTime ~= nil;
 
-		-- If item can only be tracked by the item cooldown (worst)
-		if consumableData.itemTrackable then
-			startTime, _, _ = C_Item.GetItemCooldown(consumableData.itemID)
-			if startTime and startTime > 0 then
-				active = true;
-			end
-		-- If item can be tracked through the spell cooldown (fine).
-		elseif consumableData.spellTrackable then
-			local spellCooldownInfo = C_Spell.GetSpellCooldown(consumableData.auraID);
-			startTime = spellCooldownInfo and spellCooldownInfo.startTime;
-			if startTime and startTime > 0 then
-				active = true;
-			end
-		end
-
-		-- Most of the checks below don't work during loading screens, we do them at other times.
-		-- Howevever when a user switches profiles etc they generally aren't in that state so run it then.
 		if not SIPPYCUP.InLoadingScreen then
 			local preExpireFired;
 			if consumableData.itemTrackable or consumableData.spellTrackable then
-				preExpireFired = SIPPYCUP.Items.CheckNoAuraSingleConsumable(profileConsumableData, consumableData.auraID, nil, startTime);
+				preExpireFired = SIPPYCUP.Items.CheckNoAuraSingleConsumable(profileConsumableData, auraID, nil, startTime);
 			else
 				preExpireFired = SIPPYCUP.Auras.CheckPreExpirationForSingleConsumable(profileConsumableData, nil);
 			end
 
 			if not preExpireFired then
 				if auraInfo or active then
-					-- When the aura is enabled and active.
-					SIPPYCUP.Popups.QueuePopupAction(0, profileConsumableData.aura, auraInfo, auraInfo and auraInfo.auraInstanceID, "CheckConsumableStackSizes - active");
+					SIPPYCUP.Popups.QueuePopupAction(QUEUE_POPUP_ACTIVE, auraID, auraInfo, auraInfo and auraInfo.auraInstanceID, "CheckConsumableStackSizes - active");
 				elseif checkAll then
-					-- The aura is enabled, not active. But CheckAll is on, so we still run it.
-					SIPPYCUP.Popups.QueuePopupAction(1, profileConsumableData.aura, nil, nil, "CheckConsumableStackSizes - checkAll");
+					SIPPYCUP.Popups.QueuePopupAction(QUEUE_POPUP_CHECKALL, auraID, nil, nil, "CheckConsumableStackSizes - checkAll");
 				end
 			end
 		end

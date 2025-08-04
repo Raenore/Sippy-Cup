@@ -9,7 +9,7 @@ local SharedMedia = LibStub("LibSharedMedia-3.0");
 ---PlayPopupSound plays the chosen alert sound during a popup.
 ---@return nil
 local function PlayPopupSound()
-	local soundPath = SharedMedia:Fetch("sound", SIPPYCUP.db.global.AlertSoundID);
+	local soundPath = SharedMedia:Fetch("sound", SIPPYCUP.global.AlertSoundID);
 	if soundPath then
 		PlaySoundFile(soundPath, "Master");
 	end
@@ -27,10 +27,10 @@ local function HandleAlerts()
 	end
 	alertThrottle = true;
 
-	if SIPPYCUP.db.global.AlertSound then
+	if SIPPYCUP.global.AlertSound then
 		PlayPopupSound();
 	end
-	if SIPPYCUP.db.global.FlashTaskbar then
+	if SIPPYCUP.global.FlashTaskbar then
 		FlashClientIcon();
 	end
 
@@ -93,8 +93,8 @@ local activePopupByLoc = SIPPYCUP.Popups.activeByLoc;
 local function CalculatePopupOffset(index)
 	local position = "TOP"; -- default fallback
 
-	if SIPPYCUP and SIPPYCUP.db and SIPPYCUP.db.global and SIPPYCUP.db.global.PopupPosition then
-		position = SIPPYCUP.db.global.PopupPosition;
+	if SIPPYCUP and SIPPYCUP.db and SIPPYCUP.db.global and SIPPYCUP.global.PopupPosition then
+		position = SIPPYCUP.global.PopupPosition;
 	end
 
 	if position == "BOTTOM" then
@@ -146,7 +146,7 @@ local function CreatePopup(templateType)
 		GameTooltip:Hide(); -- Hide any tooltip lingering from this popup
 	end);
 
-	SIPPYCUP.ElvUI.SkinPopupFrame(popup);
+	SIPPYCUP.ElvUI.RegisterSkinnableElement(popup, "frame", true);
 
 	if not popup.isScriptSetup then -- Use a flag to ensure this runs only once per popup instance
 		popup.ItemIcon:SetScript("OnEnter", function(self)
@@ -156,7 +156,6 @@ local function CreatePopup(templateType)
 			if not itemID then return; end
 
 			local item = Item:CreateFromItemID(itemID);
-			C_Item.RequestLoadItemDataByID(itemID);
 
 			item:ContinueOnItemLoad(function()
 				local itemLink = item:GetItemLink();
@@ -175,7 +174,7 @@ local function CreatePopup(templateType)
 				local tooltipText;
 				local currentPopup = self:GetParent();
 				if not self:IsEnabled() then
-					tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_COOLDOWN_TEXT:gsub("^%l", string.upper) .. "|r";
+					tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_ON_COOLDOWN_TEXT:gsub("^%l", string.upper) .. "|r";
 				else
 					if currentPopup and currentPopup.popupData then
 						local consumableData = currentPopup.popupData.consumableData;
@@ -186,9 +185,9 @@ local function CreatePopup(templateType)
 						local maxCount = itemCount + profileConsumableData.currentStacks;
 
 						if itemCount == 0 then
-							tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_LACKING_TEXT:gsub("^%l", string.upper) .. "|r";
+							tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_NOT_IN_INVENTORY_TEXT:gsub("^%l", string.upper) .. "|r";
 						elseif maxCount < profileConsumableData.desiredStacks then
-							tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_LACKING_TEXT_AMOUNT:gsub("^%l", string.upper):format(profileConsumableData.desiredStacks - maxCount);
+							tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_NOT_ENOUGH_IN_INVENTORY_TEXT:gsub("^%l", string.upper):format(profileConsumableData.desiredStacks - maxCount);
 						end
 					end
 				end
@@ -205,7 +204,8 @@ local function CreatePopup(templateType)
 
 			popup.IgnoreButton:HookScript("OnEnter", function()
 				GameTooltip:SetOwner(popup.IgnoreButton, "ANCHOR_BOTTOM", 0, -5);
-				GameTooltip:SetText(L.POPUP_IGNORE_TT, nil, nil, nil, nil, true);
+				GameTooltip:SetText(IGNORE, 1, 1, 1);
+				GameTooltip:AddLine(L.POPUP_IGNORE_TT, nil, nil, nil, true);
 				GameTooltip:Show();
 			end);
 
@@ -216,6 +216,7 @@ local function CreatePopup(templateType)
 			popup.IgnoreButton:SetScript("OnClick", function()
 				if sessionData and popup.popupData and popup.popupData.consumableData then
 					sessionData[popup.popupData.consumableData.profile] = true;
+					SIPPYCUP.Database.RefreshUI();
 				end
 				popup:Hide();
 			end);
@@ -265,63 +266,66 @@ local function UpdatePopupVisuals(popup, data)
 	local itemName, itemLink = C_Item.GetItemInfo(itemID);
 	itemName = itemName or data.consumableData.name;
 
-	local iconName = SIPPYCUP_ICON.RetrieveIcon(data.consumableData.name);
-	local icon = iconName and ("Interface\\Icons\\" .. iconName) or "Interface\\Icons\\INV_Misc_QuestionMark";
+	local item = Item:CreateFromItemID(itemID);
 
-	popup.Title:SetText(SIPPYCUP.AddonMetadata.title);
-	popup.Name:SetText("|cnGREEN_FONT_COLOR:" .. itemName .. "|r");
-	popup.ItemIcon:SetTexture(icon);
+	item:ContinueOnItemLoad(function()
+		local icon = item:GetItemIcon();
 
-	if popup.templateType == "SIPPYCUP_RefreshPopupTemplate" then
-		local text = L.POPUP_STACK_TEXT;
-		if data.reason == 2 then
-			text = L.POPUP_EXPIRING_SOON_TEXT;
-		elseif not data.consumableData.stacks then
-			text = L.POPUP_MISSING_TEXT;
+		popup.Title:SetText(SIPPYCUP.AddonMetadata.title);
+		popup.Name:SetText("|cnGREEN_FONT_COLOR:" .. itemName .. "|r");
+		popup.ItemIcon:SetTexture(icon);
+
+		if popup.templateType == "SIPPYCUP_RefreshPopupTemplate" then
+			local text = L.POPUP_LOW_STACK_COUNT_TEXT;
+			if data.reason == 2 then
+				text = L.POPUP_EXPIRING_SOON_TEXT;
+			elseif not data.consumableData.stacks then
+				text = L.POPUP_NOT_ACTIVE_TEXT;
+			end
+
+			popup.Text:SetText((text or ""):gsub("^%l", string.upper));
+			popup.Counter:SetText(data.profileConsumableData.currentStacks .. " / " .. data.profileConsumableData.desiredStacks);
+
+			popup.RefreshButton:SetText(REFRESH);
+			popup.RefreshButton:SetAttribute("type", "item");
+			popup.RefreshButton:SetAttribute("item", itemLink or itemID); -- should be item name/link
+			popup.RefreshButton:SetAttribute("useOnKeyDown", false); -- Only use on key up
+			popup.RefreshButton:RegisterForClicks("AnyUp"); -- Only register for "AnyUp" clicks
+
+			popup.IgnoreButton:SetText(IGNORE);
+
+			-- Handle cooldown for RefreshButton
+			local startTime, duration = C_Container.GetItemCooldown(itemID);
+			local remaining = 0;
+			if duration and duration > 0 then
+				remaining = (startTime + duration) - GetTime();
+			end
+
+			if remaining > 0 then
+				popup.cooldownActive = true;
+				popup.RefreshButton:Disable();
+				popup.RefreshButton:EnableMouse(true); -- Keep mouse enabled for tooltip
+				GameTooltip:Hide(); -- Hide any active tooltip immediately
+				C_Timer.After(remaining, function()
+					if popup.RefreshButton and popup.RefreshButton:IsShown() then
+						GameTooltip:Hide();
+						popup.cooldownActive = false;
+						popup.RefreshButton:Enable();
+					end
+				end);
+			else
+				popup.cooldownActive = false;
+				popup.RefreshButton:Enable();
+			end
+		elseif popup.templateType == "SIPPYCUP_MissingPopupTemplate" then
+			local itemCount = C_Item.GetItemCount(itemID);
+			local text = L.POPUP_INSUFFICIENT_NEXT_REFRESH_TEXT:format(itemCount, data.profileConsumableData.desiredStacks);
+			popup.Text:SetText((text or ""):gsub("^%l", string.upper));
+			popup.OkayButton:SetText(OKAY);
+
+			popup:SetBackdropBorderColor(1, 0, 0);
 		end
-
-		popup.Text:SetText((text or ""):gsub("^%l", string.upper));
-		popup.Counter:SetText(data.profileConsumableData.currentStacks .. " / " .. data.profileConsumableData.desiredStacks);
-
-		popup.RefreshButton:SetText(REFRESH);
-		popup.RefreshButton:SetAttribute("type", "item");
-		popup.RefreshButton:SetAttribute("item", itemLink or itemID); -- should be item name/link
-		popup.RefreshButton:SetAttribute("useOnKeyDown", false); -- Only use on key up
-		popup.RefreshButton:RegisterForClicks("AnyUp"); -- Only register for "AnyUp" clicks
-
-		popup.IgnoreButton:SetText(IGNORE);
-
-		-- Handle cooldown for RefreshButton
-		local startTime, duration = C_Container.GetItemCooldown(itemID);
-		local remaining = 0;
-		if duration and duration > 0 then
-			remaining = (startTime + duration) - GetTime();
-		end
-
-		if remaining > 0 then
-			popup.cooldownActive = true;
-			popup.RefreshButton:Disable();
-			popup.RefreshButton:EnableMouse(true); -- Keep mouse enabled for tooltip
-			GameTooltip:Hide(); -- Hide any active tooltip immediately
-			C_Timer.After(remaining, function()
-				if popup.RefreshButton and popup.RefreshButton:IsShown() then
-					GameTooltip:Hide();
-					popup.cooldownActive = false;
-					popup.RefreshButton:Enable();
-				end
-			end);
-		else
-			popup.cooldownActive = false;
-			popup.RefreshButton:Enable();
-		end
-	elseif popup.templateType == "SIPPYCUP_MissingPopupTemplate" then
-		local itemCount = C_Item.GetItemCount(itemID);
-		local text = L.POPUP_LACKING_TEXT_NEXT_REFRESH:format(itemCount, data.profileConsumableData.desiredStacks);
-		popup.Text:SetText((text or ""):gsub("^%l", string.upper));
-		popup.OkayButton:SetText(OKAY);
-
-		popup:SetBackdropBorderColor(1, 0, 0);
-	end
+	end);
 end
 
 ---@class ReminderPopupData
@@ -350,7 +354,7 @@ function SIPPYCUP.Popups.CreateReminderPopup(data, templateTypeID)
 		end
 
 		-- If user wants a missing reminder, we'll do that now.
-		if data.itemCount < data.profileConsumableData.desiredStacks and SIPPYCUP.db.global.InsufficientReminder then
+		if data.itemCount < data.profileConsumableData.desiredStacks and SIPPYCUP.global.InsufficientReminder then
 			SIPPYCUP.Popups.CreateReminderPopup(data, 1);
 		end
 		return;
@@ -396,7 +400,7 @@ function SIPPYCUP.Popups.CreateReminderPopup(data, templateTypeID)
 		tinsert(activePopups, popup); -- Add to active list only if it's a new instance
 		activePopupByLoc[loc] = popup; -- Store in lookup for loc-based replacement
 		HandleAlerts();
-	elseif data.reason == 1 then
+	elseif data.reason == 1 and not (popup and popup.templateType == "SIPPYCUP_RefreshPopupTemplate") then
 		-- Removal popups should always fire an alert, because they might come after pre-expiration
 		HandleAlerts();
 	end
@@ -452,7 +456,7 @@ function SIPPYCUP.Popups.Toggle(itemName, enabled)
 		end
 	end
 
-	local profileConsumableData = SIPPYCUP.db.profile[consumableData.profile];
+	local profileConsumableData = SIPPYCUP.profile[consumableData.profile];
 	local preExpireFired;
 	if consumableData.itemTrackable or consumableData.spellTrackable then
 		preExpireFired = SIPPYCUP.Items.CheckNoAuraSingleConsumable(profileConsumableData, consumableData.auraID, nil, startTime);
@@ -481,7 +485,7 @@ function SIPPYCUP.Popups.QueuePopupAction(reason, auraID, auraInfo, auraInstance
 	if InCombatLockdown() then return; end
 
 	-- If MSP status checks are on and the character is currently OOC, we skip everything.
-	if SIPPYCUP.db.global.MSPStatusCheck and SIPPYCUP.Player.OOC then
+	if SIPPYCUP.global.MSPStatusCheck and SIPPYCUP.Player.OOC then
 		return;
 	end
 
@@ -523,7 +527,7 @@ function SIPPYCUP.Popups.HandlePopupAction(reason, auraID, auraInfo, auraInstanc
 	SIPPYCUP_OUTPUT.Debug({ caller = caller });
 
 	local consumableData = SIPPYCUP.Consumables.ByAuraID[auraID];
-	local profileConsumableData = consumableData and SIPPYCUP.db.profile[consumableData.profile];
+	local profileConsumableData = consumableData and SIPPYCUP.profile[consumableData.profile];
 
 	if not consumableData or not profileConsumableData or SIPPYCUP.Popups.IsIgnored(consumableData.profile) then
 		return;

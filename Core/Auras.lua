@@ -384,7 +384,7 @@ end
 ---@return nil
 function SIPPYCUP.Auras.CheckPreExpirationForAllActiveConsumables(minSeconds)
 	-- Data sent through/around loading screens will not be reliable, so skip that.
-	if SIPPYCUP.InLoadingScreen or not SIPPYCUP.db.global.PreExpirationChecks then
+	if SIPPYCUP.InLoadingScreen or not SIPPYCUP.global.PreExpirationChecks then
 		return;
 	end
 
@@ -402,7 +402,7 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleConsumable(profileConsumableD
 	local preExpireFired = false;
 
 	-- If pre-expiration checks can't be done, why are we even here?
-	if SIPPYCUP.InLoadingScreen or not SIPPYCUP.db.global.PreExpirationChecks then
+	if SIPPYCUP.InLoadingScreen or not SIPPYCUP.global.PreExpirationChecks then
 		return preExpireFired;
 	end
 
@@ -449,14 +449,14 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleConsumable(profileConsumableD
 		-- Schedule for “preOffset” seconds before expiration
 		local fireIn = remaining - preOffset;
 
-		if fireIn <= 0 and SIPPYCUP.db.global.PreExpirationChecks then
+		if fireIn <= 0 and SIPPYCUP.global.PreExpirationChecks then
 			-- Less than 60s left and we want pre-expiration popup: fire immediately
 
 			local spellId = auraInfo and auraInfo.spellId or profileConsumableData.aura;
 			local auraInstanceID = auraInfo and auraInfo.auraInstanceID;
 			preExpireFired = true;
 			SIPPYCUP.Popups.QueuePopupAction(2, spellId, auraInfo or nil, auraInstanceID, "CheckPreExpirationForSingleConsumable - pre-expiration");
-		elseif SIPPYCUP.db.global.PreExpirationChecks then
+		elseif SIPPYCUP.global.PreExpirationChecks then
 			-- Schedule our 1m before expiration reminder.
 			SIPPYCUP.Auras.CreatePreExpirationTimer(fireIn, auraInfo, key, auraID);
 		end

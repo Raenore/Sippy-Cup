@@ -5,11 +5,17 @@
 SIPPYCUP.Flyway.Patches = {};
 
 -- Patch 0.3.0 and flyway introduction
-SIPPYCUP.Flyway.Patches["1"] = function()
-	if not SIPPYCUP.db then
-		return;
-	end
+SIPPYCUP.Flyway.Patches["1"] = {
+    run = function()
+        if not SIPPYCUP.db or not SIPPYCUP.global then
+            return;
+        end
 
-	-- Remove popup icon option
-	SIPPYCUP.db.global.PopupIcon = nil;
-end
+        if SIPPYCUP.global.PopupIcon ~= nil then
+            SIPPYCUP_OUTPUT.Debug("Flyway Patch 1: Removing deprecated PopupIcon setting.");
+            SIPPYCUP.global.PopupIcon = nil;
+        end
+    end,
+
+    description = "Remove deprecated global PopupIcon setting (Flyway 0.3.0 init)",
+};
