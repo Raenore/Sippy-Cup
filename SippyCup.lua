@@ -3,7 +3,15 @@
 
 local L = SIPPYCUP.L;
 
----OnInitialize sets up saved variables and command handlers.
+---ADDON_LOADED initializes addon on matching name.
+function SIPPYCUP_Addon:ADDON_LOADED(_, addonName)
+	if addonName == "SippyCup" then
+		SIPPYCUP.Events:UnregisterEvent("ADDON_LOADED");
+		self:OnInitialize();
+	end
+end
+
+---OnInitialize runs during ADDON_LOADED, load saved variables and set up slash commands.
 function SIPPYCUP_Addon:OnInitialize()
 	if not SippyCupDB then
 		SippyCupDB = {
@@ -13,35 +21,35 @@ function SIPPYCUP_Addon:OnInitialize()
 		};
 	end
 
-	SIPPYCUP.db = SippyCupDB; -- SINGLE reference
+	SIPPYCUP.db = SippyCupDB;
 
-	-- Create a frame to handle events
-	self.events = CreateFrame("Frame");
-	self.events:SetScript("OnEvent", function(_, event, ...)
-		if self[event] then
-			self[event](self, event, ...);
-		end
-	end);
-
+	-- Set up DB internals
 	SIPPYCUP.Database.Setup();
+
+	-- Register slash commands
+	SLASH_SIPPYCUP1, SLASH_SIPPYCUP2 = "/sc", "/sippycup";
+	SlashCmdList["SIPPYCUP"] = function(msg)
+		msg = (msg:match("^%s*(.-)%s*$") or ""):lower();
+
+		if msg == "auras" and SIPPYCUP.IS_DEV_BUILD then
+			SIPPYCUP.Auras.DebugEnabledAuras();
+		else
+			SIPPYCUP_Addon:OpenSettings();
+		end
+	end
 end
 
-SLASH_SIPPYCUP1, SLASH_SIPPYCUP2 = "/sc", "/sippycup";
+---PLAYER_LOGIN triggers the addon OnEnable phase after the UI is fully loaded.
+function SIPPYCUP_Addon:PLAYER_LOGIN()
+	self:OnEnable();
 
-SlashCmdList["SIPPYCUP"] = function(msg)
-	msg = (msg:match("^%s*(.-)%s*$") or ""):lower();
-
-	if msg == "auras" and SIPPYCUP.IS_DEV_BUILD then
-		SIPPYCUP.Auras.DebugEnabledAuras();
-	else
-		SIPPYCUP_Addon:OpenSettings();
-	end
+	SIPPYCUP.Events:UnregisterEvent("PLAYER_LOGIN");
 end
 
 local configFrame = nil;
 
 ---OpenSettings toggles the main configuration frame and switches to a specified tab.
----@param view integer? Optional tab number to open, defaults to 1.
+---@param view number? Optional tab number to open, defaults to 1.
 function SIPPYCUP_Addon:OpenSettings(view)
 	if not configFrame then
 		configFrame = CreateFrame("Frame", "SIPPYCUP_ConfigMenuFrame", UIParent, "SIPPYCUP_ConfigMenuTemplate");
@@ -54,16 +62,17 @@ function SIPPYCUP_Addon:OpenSettings(view)
 	SIPPYCUP_ConfigMenuFrame:SetTab(tabToOpen);
 end
 
----OnEnable registers event handlers, migrates unknown profiles, applies DB patches, sets up minimap buttons, initializes player info, and starts periodic checks.
+---OnEnable runs during PLAYER_LOGIN, register game events, hook functions, create frames, etc.
 function SIPPYCUP_Addon:OnEnable()
-	self.events:RegisterEvent("UNIT_AURA");
-	self.events:RegisterEvent("PLAYER_REGEN_DISABLED");
-	self.events:RegisterEvent("PLAYER_REGEN_ENABLED");
-	self.events:RegisterEvent("PLAYER_ENTERING_WORLD");
-	self.events:RegisterEvent("PLAYER_LEAVING_WORLD");
-	self.events:RegisterEvent("ZONE_CHANGED_NEW_AREA");
-	self.events:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");
-	self.events:RegisterEvent("BAG_UPDATE_DELAYED");
+	-- Register game events on the unified event frame
+	SIPPYCUP.Events:RegisterEvent("UNIT_AURA");
+	SIPPYCUP.Events:RegisterEvent("PLAYER_REGEN_DISABLED");
+	SIPPYCUP.Events:RegisterEvent("PLAYER_REGEN_ENABLED");
+	SIPPYCUP.Events:RegisterEvent("PLAYER_ENTERING_WORLD");
+	SIPPYCUP.Events:RegisterEvent("PLAYER_LEAVING_WORLD");
+	SIPPYCUP.Events:RegisterEvent("ZONE_CHANGED_NEW_AREA");
+	SIPPYCUP.Events:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");
+	SIPPYCUP.Events:RegisterEvent("BAG_UPDATE_DELAYED");
 
 	local realCharKey = SIPPYCUP.Database.GetUnitName();
 	if realCharKey then
