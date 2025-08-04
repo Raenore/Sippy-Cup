@@ -485,7 +485,7 @@ function SIPPYCUP.Popups.QueuePopupAction(reason, auraID, auraInfo, auraInstance
 	if InCombatLockdown() then return; end
 
 	-- If MSP status checks are on and the character is currently OOC, we skip everything.
-	if SIPPYCUP.global.MSPStatusCheck and SIPPYCUP.Player.OOC then
+	if SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck and SIPPYCUP.Player.OOC then
 		return;
 	end
 
