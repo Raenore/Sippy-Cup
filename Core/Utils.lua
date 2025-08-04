@@ -1,8 +1,6 @@
 -- Copyright The Sippy Cup Authors
 -- SPDX-License-Identifier: Apache-2.0
 
-SIPPYCUP.L = LibStub("AceLocale-3.0"):GetLocale("SippyCup", true);
-
 SIPPYCUP_BUILDINFO = {};
 
 ---FormatBuild formats a build version into the major.minor.patch format.
