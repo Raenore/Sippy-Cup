@@ -4,6 +4,11 @@
 local L = SIPPYCUP.L;
 SIPPYCUP.LinkDialog = {};
 
+-- Borrowed from Total RP 3
+local function GetDialogEditBox(dialog)
+	return dialog.GetEditBox and dialog:GetEditBox() or dialog.editBox;
+end
+
 local function SetupEditBox(editBox, url)
 	editBox:SetText(url or "");
 
@@ -33,7 +38,7 @@ StaticPopupDialogs["SIPPYCUP_LINK_DIALOG"] = {
 	hasEditBox = true,
 	editBoxWidth = 320,
 	OnShow = function(self, data)
-		local editBox = self.editBox;
+		local editBox = GetDialogEditBox(self);
 		SetupEditBox(editBox, data);
 	end,
 	timeout = false,
