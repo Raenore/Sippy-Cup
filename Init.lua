@@ -20,7 +20,7 @@ events:RegisterEvent("ADDON_LOADED");
 events:RegisterEvent("PLAYER_LOGIN");
 
 -- Expose the event dispatcher frame as SIPPYCUP.Events
-SIPPYCUP.Events = frame;
+SIPPYCUP.Events = events;
 
 SIPPYCUP.AddonMetadata = {
 	addonBuild = C_AddOns.GetAddOnMetadata("SippyCup", "X-Build"),
