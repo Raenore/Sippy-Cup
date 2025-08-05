@@ -16,6 +16,7 @@ local function PlayPopupSound()
 end
 
 local alertThrottle = false;
+local lastProfileAlert;
 
 ---HandleAlerts handles playing a popup sound and/or flashing the taskbar.
 ---Ensures only one alert is triggered per frame to prevent spamming,
@@ -33,6 +34,10 @@ local function HandleAlerts()
 	if SIPPYCUP.global.FlashTaskbar then
 		FlashClientIcon();
 	end
+
+	-- We save the last profile an alert played for, so we can play a new
+	-- alert for cases where a popup exists on both profiles when it is switched.
+	lastProfileAlert = SIPPYCUP.Database.GetCurrentProfileName();
 
 	RunNextFrame(function()
 		alertThrottle = false;
@@ -402,6 +407,9 @@ function SIPPYCUP.Popups.CreateReminderPopup(data, templateTypeID)
 		HandleAlerts();
 	elseif data.reason == 1 and not (popup and popup.templateType == "SIPPYCUP_RefreshPopupTemplate") then
 		-- Removal popups should always fire an alert, because they might come after pre-expiration
+		HandleAlerts();
+	elseif lastProfileAlert ~= SIPPYCUP.Database.GetCurrentProfileName then
+		-- If profile change happens, fire an alert as-is for popups (throttle will still hold them)
 		HandleAlerts();
 	end
 end
