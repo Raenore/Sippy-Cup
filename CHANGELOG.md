@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.3.0] - 2025-08-xx
+## [0.3.0] - 2025-08-05
 This version might as well be a 1.0 release, as everything has been touched and reworked from the ground up.
 
 ### Added
