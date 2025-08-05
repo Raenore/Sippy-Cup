@@ -38,7 +38,7 @@ function SIPPYCUP.Items.CreateItemTimer(fireIn, key, auraID, reason, itemID)
 	local handle = C_Timer.NewTimer(fireIn, function()
 		scheduledItemTimers[key] = nil;
 		-- Fire the popup
-		SIPPYCUP.Popups.QueuePopupAction(reason, auraID, nil, nil, nil, "CreatePreExpirationTimer - Item - Reason: " .. reason);
+		SIPPYCUP.Popups.QueuePopupAction(reason, auraID, nil, nil, "CreatePreExpirationTimer - Item - Reason: " .. reason);
 	end);
 
 	-- Store it for potential cancellation later
@@ -111,24 +111,28 @@ function SIPPYCUP.Items.CancelAllItemTimers(reason)
 	end
 end
 
----CheckNonTrackableItemUsage Monitors item usage for nontrackable consumable items (which skip UNIT_AURA).
+---CheckNoAuraItemUsage Monitors item usage for items that skip UNIT_AURA.
 ---@param minSeconds number? The minimum amount of seconds the duration should be above before it starts handling more, default is 180 (3 minutes).
 ---@return nil
-function SIPPYCUP.Items.CheckNonTrackableItemUsage(minSeconds)
+function SIPPYCUP.Items.CheckNoAuraItemUsage(minSeconds)
 	-- Data sent through/around loading screens will not be reliable, so skip that.
 	if SIPPYCUP.InLoadingScreen then
 		return;
 	end
 
-	-- nontrackableProfile holds only enabled nontrackable consumables.
-	for _, profileConsumableData in pairs(SIPPYCUP.Database.nonTrackableProfile) do
-		SIPPYCUP.Items.CheckNonTrackableSingleConsumable(profileConsumableData, profileConsumableData.aura, minSeconds);
+	-- noAuraTrackableProfile holds only enabled no aura consumables.
+	for _, profileConsumableData in pairs(SIPPYCUP.Database.noAuraTrackableProfile) do
+		SIPPYCUP.Items.CheckNoAuraSingleConsumable(profileConsumableData, profileConsumableData.aura, minSeconds);
 	end
 end
 
----CheckNonTrackableItemUsage Monitors item usage for nontrackable consumable items (which skip UNIT_AURA).
----@return boolean preExpireFired True if a pre-expiration reminder was fired as a result (so it does not get overwritten).
-function SIPPYCUP.Items.CheckNonTrackableSingleConsumable(profileConsumableData, spellID, minSeconds, startTimer)
+---CheckNoAuraSingleConsumable evaluates cooldowns for non-aura items to fire popups when expiring or missing.
+---@param profileConsumableData table? Optional profile data; will be resolved if nil.
+---@param spellID number The spell ID to track.
+---@param minSeconds number? Time window to check ahead, defaults to 180.
+---@param startTime number? Optional cooldown start time.
+---@return boolean preExpireFired True if a pre-expiration popup was fired.
+function SIPPYCUP.Items.CheckNoAuraSingleConsumable(profileConsumableData, spellID, minSeconds, startTime)
 	if not minSeconds then
 		minSeconds = 180.0;
 	end
@@ -144,8 +148,8 @@ function SIPPYCUP.Items.CheckNonTrackableSingleConsumable(profileConsumableData,
 		profileConsumableData = SIPPYCUP.Database.FindMatchingConsumable(spellID);
 	end
 
-	-- Sanity check: if profileConsumableData is nil or not nonTrackable, bail out
-	if not profileConsumableData or not profileConsumableData.nonTrackable then
+	-- Sanity check: if profileConsumableData is nil or is not a no aura, bail out
+	if not profileConsumableData or not profileConsumableData.noAuraTrackable then
 		return preExpireFired;
 	end
 
@@ -157,104 +161,84 @@ function SIPPYCUP.Items.CheckNonTrackableSingleConsumable(profileConsumableData,
 		return preExpireFired;
 	end
 
-	local function continueCheck(startTime)
-		-- If aura is nontrackable, it means it's an item that does not have an aura associated. We check the cooldown instead.
-		local now = GetTime();
-		-- Unfortunately duration can be 5 seconds (GCD), so we pull from the spell's base cooldown associated with the item.
+	-- If consumalbe is "NoAura", we check the cooldown instead (of the spell or item, depending on what's available).
+	local now = GetTime();
+	-- Unfortunately duration can be 5 seconds (GCD), so we pull from the spell's base cooldown associated with the item.
+	local duration;
+	if consumableData.spellTrackable then
+		local spellCooldownInfo = C_Spell.GetSpellCooldown(auraID);
+		startTime = spellCooldownInfo and spellCooldownInfo.startTime;
 		local durationMS = GetSpellBaseCooldown(auraID);
-		local duration = durationMS / 1000;
-		-- Calculate how many seconds are left on cooldown right now.
-		local expirationTime = startTime + duration;
-		local remaining = math.max(0, expirationTime - now);
+		duration = durationMS / 1000;
+	elseif consumableData.itemTrackable then
+		startTime, duration = C_Item.GetItemCooldown(consumableData.itemID);
+	end
 
-		-- Cleaup opened popups, nontrackable auras don't fire stack updates so we can't evaluate it in other places.
-		local popupKey = "SIPPYCUP_REFRESH_" .. consumableData.loc;
-		local isShown  = StaticPopup_Visible(popupKey);
+	-- Calculate how many seconds are left on cooldown right now.
+	local expirationTime = startTime + duration;
+	local remaining = math.max(0, expirationTime - now);
 
-		if startTime > 0 then
-			profileConsumableData.currentStacks = 1;
-			SIPPYCUP.Database.nonTrackableProfile[consumableData.itemID] = profileConsumableData;
+	-- SIPPYCUP_OUTPUT.Debug({startTime = startTime, duration = duration, expirationTime = expirationTime, remaining = remaining});
 
-			if isShown then
-				StaticPopup_Hide(popupKey);
-			end
+	-- Cleaup opened popups, nontrackable auras don't fire stack updates so we can't evaluate it in other places.
+	local existingPopup = SIPPYCUP.Popups.activeByLoc[consumableData.loc];
+
+	if startTime > 0 then
+		profileConsumableData.currentStacks = 1;
+		SIPPYCUP.Database.noAuraTrackableProfile[consumableData.itemID] = profileConsumableData;
+
+		if existingPopup and existingPopup:IsShown() then
+			existingPopup:Hide();
 		end
+	end
 
-		-- default warning offset to 60s
-		local preOffset = 60.0;
+	-- default warning offset to 60s
+	local preOffset = 60.0;
 
-		if not SIPPYCUP.db.global.PreExpirationChecks or remaining == 0 then
-			-- Pre‑expiration disabled means no offset at all
-			preOffset = 0;
-		elseif duration <= 60 then
-			-- Pre‑checks enabled, short buff means 15s before expiry
-			preOffset = 15;
-		end
+	if not SIPPYCUP.global.PreExpirationChecks or remaining == 0 then
+		-- Pre‑expiration disabled means no offset at all
+		preOffset = 0;
+	elseif duration <= 60 then
+		-- Pre‑checks enabled, short buff means 15s before expiry
+		preOffset = 15;
+	end
 
-		-- How far out we’ll scan: look‑ahead + warning offset
-		local windowHigh = minSeconds + preOffset;
+	-- How far out we’ll scan: look‑ahead + warning offset
+	local windowHigh = minSeconds + preOffset;
 
-		if remaining > 0 and remaining <= windowHigh then
-			-- Schedule for “preOffset” seconds before expiration
-			local fireIn = remaining - preOffset;
-			local reason;
+	if remaining > 0 and remaining <= windowHigh then
+		-- Schedule for “preOffset” seconds before expiration
+		local fireIn = remaining - preOffset;
+		local reason;
 
-			if fireIn <= 0 and SIPPYCUP.db.global.PreExpirationChecks then
-				-- Less than 60s left and we want pre-expiration popup: fire immediately
-				preExpireFired = true;
-				SIPPYCUP.Popups.QueuePopupAction(2, auraID, nil, nil, nil, "CheckNonTrackableSingleConsumable - pre-expiration");
-			elseif SIPPYCUP.db.global.PreExpirationChecks then
-				-- Schedule our 1m before expiration reminder.
-				reason = 2;
-				local key = tostring(auraID) .. "-" .. tostring(consumableData.itemID)  .. "-" .. tostring(reason);
-
-				SIPPYCUP.Items.CreateItemTimer(fireIn, key, auraID, 2); -- (1 = removal, 2 = pre-expire)
-			end
-
-			-- We also need to send a removal popup when the nontrackable item is gone if it falls within this check window.
-			reason = 1;
+		if fireIn <= 0 and SIPPYCUP.global.PreExpirationChecks then
+			-- Less than 60s left and we want pre-expiration popup: fire immediately
+			preExpireFired = true;
+			SIPPYCUP.Popups.QueuePopupAction(2, auraID, nil, nil, "CheckNonTrackableSingleConsumable - pre-expiration");
+		elseif SIPPYCUP.global.PreExpirationChecks then
+			-- Schedule our 1m before expiration reminder.
+			reason = 2;
 			local key = tostring(auraID) .. "-" .. tostring(consumableData.itemID)  .. "-" .. tostring(reason);
-			SIPPYCUP.Items.CreateItemTimer(remaining, key, auraID, 1); -- (1 = removal, 2 = pre-expire)
+
+			SIPPYCUP.Items.CreateItemTimer(fireIn, key, auraID, 2); -- (1 = removal, 2 = pre-expire)
 		end
 
-		return preExpireFired;
+		-- We also need to send a removal popup when the nontrackable item is gone if it falls within this check window.
+		reason = 1;
+		local key = tostring(auraID) .. "-" .. tostring(consumableData.itemID)  .. "-" .. tostring(reason);
+		SIPPYCUP.Items.CreateItemTimer(remaining, key, auraID, 1); -- (1 = removal, 2 = pre-expire)
 	end
 
-	-- Start with active=false; callback will override if startTime>0
-	if startTimer then
-		continueCheck(startTimer);
-	else
-		SIPPYCUP.Items.GetItemCooldownWithRetry(consumableData.itemID, 2, 0.2, function(startTime)
-			continueCheck(startTime);
-		end);
-	end
+	return preExpireFired;
 end
 
----GetItemCooldownWithRetry will try to get a non-zero startTime up to `attempts` times.
----@param itemID number The item ID to check.
----@param attempts number? Number of attempts (default 3).
----@param delay number? Delay in seconds between attempts (default 0.2).
----@param callback fun(startTime:number, duration:number, enable:number) Called when we get a result or exhaust attempts.
-function SIPPYCUP.Items.GetItemCooldownWithRetry(itemID, attempts, delay, callback)
-	attempts = attempts or 3;
-	delay = delay or 0.2;
+SIPPYCUP.Items.bagUpdateUnhandled = false;
 
-	---Internal recursive function
-	local function tryOnce(remaining)
-		-- Use select to get the three returns; we pass all to callback eventually
-		local startTime, duration, enable = C_Container.GetItemCooldown(itemID);
-		-- Debug output if you like:
-		-- SIPPYCUP_Addon:Print("GetItemCooldownWithRetry:", itemID, "attempts left:", remaining, "startTime:", startTime);
-		if startTime > 0 or remaining <= 1 then
-			-- Either we have a non-zero startTime, or this was last attempt
-			callback(startTime, duration, enable);
-		else
-			-- Wait and retry
-			C_Timer.After(delay, function()
-				tryOnce(remaining - 1);
-			end);
-		end
-	end
+---HandleBagUpdate Marks bag data as synced and processes deferred popups.
+-- Fires on BAG_UPDATE_DELAYED, which batches all bag changes after UNIT_AURA.
+function SIPPYCUP.Items.HandleBagUpdate()
+	SIPPYCUP.Items.bagUpdateUnhandled = false;
 
-	tryOnce(attempts);
+	-- Now that bag data is synced, process deferred actions using accurate data.
+	SIPPYCUP.Popups.HandleDeferredActions();
 end

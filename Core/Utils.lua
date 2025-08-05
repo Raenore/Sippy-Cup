@@ -1,8 +1,6 @@
 -- Copyright The Sippy Cup Authors
 -- SPDX-License-Identifier: Apache-2.0
 
-SIPPYCUP.L = LibStub("AceLocale-3.0"):GetLocale("SippyCup", true);
-
 SIPPYCUP_BUILDINFO = {};
 
 ---FormatBuild formats a build version into the major.minor.patch format.
@@ -62,22 +60,12 @@ function SIPPYCUP_BUILDINFO.Output(colorized)
 	return output;
 end
 
-SIPPYCUP_ICON = {};
+SIPPYCUP_OUTPUT = {};
 
----RetrieveIcon fetches the icon for a consumable by its name.
----@param itemName string The name of the consumable item.
----@return string icon The icon path for the consumable, or a default "question mark" icon if not found.
-function SIPPYCUP_ICON.RetrieveIcon(itemName)
-	-- Grab the right consumable by name, and check if aura exists.
-	local consumable = SIPPYCUP.Consumables.ByName[itemName];
-	if consumable then
-		return consumable.icon;
-	end
-
-	return "inv_misc_questionmark";
+local function Print(msg)
+	print(SIPPYCUP.AddonMetadata.title .. ": " .. tostring(msg));
 end
 
-SIPPYCUP_OUTPUT = {};
 
 ---Write prints formatted output with an optional command prefix.
 ---@param output string|table The output to be printed, either a string or a table.
@@ -93,7 +81,7 @@ function SIPPYCUP_OUTPUT.Write(output, command)
 
 	local formattedOutput = ("|cnGREEN_FONT_COLOR:%s|r|cnTRANSMOGRIFY_FONT_COLOR:%s|r"):format(command and (command .. " ") or "", output);
 
-	SIPPYCUP_Addon:Print(formattedOutput);
+	Print(formattedOutput);
 end
 
 ---Debug prints formatted output, only works when IS_DEV_BUILD is true.
@@ -125,7 +113,7 @@ function SIPPYCUP_OUTPUT.Debug(...)
 	end
 
 	local finalOutput = table.concat(outputLines, " ");
-	SIPPYCUP_Addon:Print("|cnTRANSMOGRIFY_FONT_COLOR:" .. finalOutput .. "|r");
+	Print("|cnTRANSMOGRIFY_FONT_COLOR:" .. finalOutput .. "|r");
 end
 
 SIPPYCUP.Player = {};

@@ -1,0 +1,26 @@
+<!--
+	Copyright The Sippy Cup Authors
+	SPDX-License-Identifier: Apache-2.0
+-->
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
+
+	<Include file="Config.lua"/>
+
+	<Frame name="SIPPYCUP_ConfigMenuTemplate" mixin="SIPPYCUP_ConfigMixin" virtual="true" enableMouse="true" hidden="true" movable="true" clampedToScreen="true" topLevel="true" inherits="ButtonFrameTemplate">
+		<Size x="693" y="575"/>
+		<Anchors>
+			<Anchor point="CENTER"/>
+		</Anchors>
+		<Scripts>
+			<OnLoad method="OnLoad"/>
+			<OnDragStart method="OnDragStart"/>
+			<OnDragStop method="OnDragStop"/>
+			<OnShow method="OnShow"/>
+		</Scripts>
+	</Frame>
+
+	<Button name="SIPPYCUP_ConfigMenuTabTopTemplate" virtual="true" inherits="PanelTopTabButtonTemplate">
+	</Button>
+
+</Ui>

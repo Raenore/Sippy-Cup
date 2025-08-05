@@ -6,7 +6,9 @@
 ..\FrameXML\UI.xsd">
 	<Include file="Init.lua"/>
 	<Include file="Locales\Locales.xml"/>
+	<Include file="Locales\Localization.lua"/>
 	<Include file="Core\Core.xml"/>
 	<Include file="SippyCup.lua"/>
 	<Include file="Modules\Modules.xml"/>
+	<Include file="UI\Config.xml"/>
 </Ui>

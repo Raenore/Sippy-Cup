@@ -18,6 +18,9 @@ globals = {
 	-- Globals
 	"SIPPYCUP",
 	"SIPPYCUP_Addon",
+	"SippyCupDB",
+	"SLASH_SIPPYCUP1",
+	"SLASH_SIPPYCUP2",
 };
 
 read_globals = {
@@ -99,6 +102,7 @@ stds.wow = {
 		"tContains",
 		"tFilter",
 		"time",
+		"tIndexOf",
 		"tinsert",
 		"tInvert",
 		"tremove",
@@ -184,6 +188,7 @@ stds.wow = {
 		C_Item = {
 			fields = {
 				"DoesItemExistByID",
+				"GetItemCooldown",
 				"GetItemCount",
 				"GetItemIconByID",
 				"GetItemInfo",
@@ -269,6 +274,7 @@ stds.wow = {
 		C_Spell = {
 			fields = {
 				"DoesSpellExist",
+				"GetSpellCooldown",
 				"GetSpellInfo",
 				"RequestLoadSpellData",
 			},
@@ -351,6 +357,12 @@ stds.wow = {
 			},
 		},
 
+		Item = {
+			fields = {
+				"CreateFromItemID"
+			}
+		},
+
 		Menu = {
 			fields = {
 				"ModifyMenu",
@@ -397,15 +409,17 @@ stds.wow = {
 		},
 
 		TimerunningUtil = {
-		    fields = {
-                "AddSmallIcon",
-            },
+			fields = {
+				"AddSmallIcon",
+			},
 		},
 
 		"AbbreviateLargeNumbers",
 		"Ambiguate",
 		"BNGetGameAccountInfoByGUID",
 		"BNGetInfo",
+		"ButtonFrameTemplate_HidePortrait",
+		"ButtonFrameTemplate_HideButtonBar",
 		"CalculateStringEditDistance",
 		"Chat_GetChatFrame",
 		"ChatConfigChannelSettings_SwapChannelsByIndex",
@@ -437,6 +451,7 @@ stds.wow = {
 		"CreateVector2D",
 		"DisableAddOn",
 		"DoesTemplateExist",
+		"DynamicResizeButton_Resize",
 		"EventRegistry",
 		"ExecuteFrameScript",
 		"fastrandom",
@@ -520,6 +535,10 @@ stds.wow = {
 		"NeutralPlayerSelectFaction",
 		"nop",
 		"OpenWorldMap",
+		"PanelTemplates_DeselectTab",
+		"PanelTemplates_SetTab",
+		"PanelTemplates_SetNumTabs",
+		"PanelTemplates_TabResize",
 		"PetCanBeAbandoned",
 		"PlayMusic",
 		"PlaySound",
@@ -701,6 +720,7 @@ stds.wow = {
 		"FUEL",
 		"FURY",
 		"GENERIC_FRACTION_STRING",
+		"GRAY_FONT_COLOR",
 		"GREEN_FONT_COLOR",
 		"HEALTH",
 		"HIGHLIGHT_FONT_COLOR",
@@ -749,6 +769,7 @@ stds.wow = {
 		"LOWER_RIGHT_VERTEX",
 		"LUNAR_POWER",
 		"MAELSTROM",
+		"MAIN_MENU",
 		"MANA",
 		"MAX_CHANNEL_BUTTONS",
 		"MAX_WOW_CHAT_CHANNELS",

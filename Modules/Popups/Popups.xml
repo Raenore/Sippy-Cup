@@ -1,0 +1,135 @@
+<!--
+	Copyright The Sippy Cup Authors
+	SPDX-License-Identifier: Apache-2.0
+-->
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
+
+	<Include file="Popups.lua"/>
+
+	<Frame name="SIPPYCUP_RefreshPopupTemplate" virtual="true" parent="UIParent" toplevel="true" enableMouse="true" frameStrata="DIALOG" hidden="true" inherits="DialogBorderTemplate">
+		<Size x="420" y="100"/>
+		<Anchors>
+			<Anchor point="TOP" relativeTo="UIParent" x="0" y="-100"/>
+		</Anchors>
+		<Layers>
+			<Layer>
+				<FontString parentKey="Title" inherits="GameFontHighlightLarge" wordwrap="false">
+					<Anchors>
+						<Anchor point="TOPLEFT" y="-10"/>
+						<Anchor point="TOPRIGHT" y="-10"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="Name" inherits="GameFontNormal" wordwrap="false">
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent.Title" relativePoint="BOTTOM" y="-10"/>
+						<Anchor point="CENTER" relativeKey="$parent.Title"/>
+					</Anchors>
+					<Color r="0.95" g="0.95" b="0.95"/>
+				</FontString>
+				<Texture parentKey="ItemIcon" file="Interface\Icons\INV_Misc_QuestionMark">
+					<Size x="36" y="36"/>
+					<Anchors>
+						<Anchor point="TOP" y="-20"/>
+						<Anchor point="LEFT" x="50"/>
+					</Anchors>
+				</Texture>
+				<FontString parentKey="Text" inherits="GameFontNormal" wordwrap="false">
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent.Name" relativePoint="BOTTOM" y="-5"/>
+						<Anchor point="CENTER" relativeKey="$parent.Title"/>
+					</Anchors>
+					<Color r="0.95" g="0.95" b="0.95"/>
+				</FontString>
+
+				<FontString parentKey="Counter" inherits="GameFontNormal" wordwrap="false">
+					<Anchors>
+						<Anchor point="CENTER" relativePoint="BOTTOM" y="21"/>
+					</Anchors>
+					<Color r="0.95" g="0.95" b="0.95"/>
+				</FontString>
+			</Layer>
+		</Layers>
+
+		<Frames>
+			<Button parentKey="CloseButton" inherits="UIPanelCloseButton">
+				<Size x="24" y="24"/>
+				<Anchors>
+					<Anchor point="TOPRIGHT" x="-5" y="-5"/>
+				</Anchors>
+			</Button>
+
+			<Button parentKey="RefreshButton" inherits="StaticPopupButtonTemplate, SecureActionButtonTemplate" motionScriptsWhileDisabled="true">
+				<Size x="120" y="22"/>
+				<Anchors>
+					<Anchor point="BOTTOM" y="10"/>
+					<Anchor point="LEFT" x="10"/>
+				</Anchors>
+			</Button>
+			<Button parentKey="IgnoreButton" inherits="StaticPopupButtonTemplate">
+				<Size x="120" y="22"/>
+				<Anchors>
+					<Anchor point="BOTTOM" y="10"/>
+					<Anchor point="RIGHT" x="-10"/>
+				</Anchors>
+			</Button>
+		</Frames>
+
+	</Frame>
+
+	<Frame name="SIPPYCUP_MissingPopupTemplate" virtual="true" parent="UIParent" toplevel="true" enableMouse="true" frameStrata="DIALOG" hidden="true" inherits="DialogBorderTemplate">
+		<Size x="370" y="100"/>
+		<Anchors>
+			<Anchor point="TOP" relativeTo="UIParent" x="0" y="-100"/>
+		</Anchors>
+		<Layers>
+			<Layer>
+				<FontString parentKey="Title" inherits="GameFontHighlightLarge" wordwrap="false">
+					<Anchors>
+						<Anchor point="TOPLEFT" y="-10"/>
+						<Anchor point="TOPRIGHT" y="-10"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="Name" inherits="GameFontNormal" wordwrap="false">
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent.Title" relativePoint="BOTTOM" y="-10"/>
+						<Anchor point="CENTER" relativeKey="$parent.Title"/>
+					</Anchors>
+					<Color r="0.95" g="0.95" b="0.95"/>
+				</FontString>
+				<Texture parentKey="ItemIcon" file="Interface\Icons\INV_Misc_QuestionMark">
+					<Size x="36" y="36"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+						<Anchor point="LEFT" x="25"/>
+					</Anchors>
+				</Texture>
+				<FontString parentKey="Text" inherits="GameFontNormal" wordwrap="false">
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent.Name" relativePoint="BOTTOM" y="-5"/>
+						<Anchor point="CENTER" relativeKey="$parent.Title"/>
+					</Anchors>
+					<Color r="0.95" g="0.95" b="0.95"/>
+				</FontString>
+			</Layer>
+		</Layers>
+
+		<Frames>
+			<Button parentKey="CloseButton" inherits="UIPanelCloseButton">
+				<Size x="24" y="24"/>
+				<Anchors>
+					<Anchor point="TOPRIGHT" x="-5" y="-5"/>
+				</Anchors>
+			</Button>
+
+			<Button parentKey="OkayButton" inherits="StaticPopupButtonTemplate">
+				<Size x="120" y="22"/>
+				<Anchors>
+					<Anchor point="BOTTOM" y="10"/>
+				</Anchors>
+			</Button>
+		</Frames>
+
+	</Frame>
+
+</Ui>

@@ -3,37 +3,94 @@
 
 local L = SIPPYCUP.L;
 
-function SIPPYCUP_Addon:OnInitialize()
-	SIPPYCUP.Database.Setup();
-
-	SIPPYCUP_Addon:RegisterChatCommand("sippycup", "ExecuteCommand");
-	SIPPYCUP_Addon:RegisterChatCommand("sc", "ExecuteCommand");
+---ADDON_LOADED initializes addon on matching name.
+function SIPPYCUP_Addon:ADDON_LOADED(_, addonName)
+	if addonName == "SippyCup" then
+		SIPPYCUP.Events:UnregisterEvent("ADDON_LOADED");
+		self:OnInitialize();
+	end
 end
 
-function SIPPYCUP_Addon:ExecuteCommand(msg)
-	-- Trim leading and trailing whitespaces if msg exists, otherwise empty msg.
-	msg = (msg:match("^%s*(.-)%s*$") or ""):lower();
+---OnInitialize runs during ADDON_LOADED, load saved variables and set up slash commands.
+function SIPPYCUP_Addon:OnInitialize()
+	if not SippyCupDB then
+		SippyCupDB = {
+			global = {},
+			profileKeys = {},
+			profiles = {},
+		};
+	end
 
-	if msg == "auras" and SIPPYCUP.IS_DEV_BUILD then
-		SIPPYCUP.Auras.DebugEnabledAuras();
-	else
-		if InterfaceOptionsFrame_OpenToCategory then
-			InterfaceOptionsFrame_OpenToCategory(SIPPYCUP.AddonMetadata.title);
+	SIPPYCUP.db = SippyCupDB;
+
+	-- Set up DB internals
+	SIPPYCUP.Database.Setup();
+
+	-- Register slash commands
+	SLASH_SIPPYCUP1, SLASH_SIPPYCUP2 = "/sc", "/sippycup";
+	SlashCmdList["SIPPYCUP"] = function(msg)
+		msg = (msg:match("^%s*(.-)%s*$") or ""):lower();
+
+		if msg == "auras" and SIPPYCUP.IS_DEV_BUILD then
+			SIPPYCUP.Auras.DebugEnabledAuras();
 		else
-			Settings.OpenToCategory(SIPPYCUP.AddonMetadata.title);
+			SIPPYCUP_Addon:OpenSettings();
 		end
 	end
 end
 
+---PLAYER_LOGIN triggers the addon OnEnable phase after the UI is fully loaded.
+function SIPPYCUP_Addon:PLAYER_LOGIN()
+	self:OnEnable();
+
+	SIPPYCUP.Events:UnregisterEvent("PLAYER_LOGIN");
+end
+
+local configFrame = nil;
+
+---OpenSettings toggles the main configuration frame and switches to a specified tab.
+---@param view number? Optional tab number to open, defaults to 1.
+function SIPPYCUP_Addon:OpenSettings(view)
+	if not configFrame then
+		configFrame = CreateFrame("Frame", "SIPPYCUP_ConfigMenuFrame", UIParent, "SIPPYCUP_ConfigMenuTemplate");
+	end
+
+	configFrame:SetShown(not configFrame:IsShown());
+	configFrame:Raise();
+
+	local tabToOpen = view or 1;
+	SIPPYCUP_ConfigMenuFrame:SetTab(tabToOpen);
+end
+
+---OnEnable runs during PLAYER_LOGIN, register game events, hook functions, create frames, etc.
 function SIPPYCUP_Addon:OnEnable()
-	self:RegisterEvent("UNIT_AURA");
-	self:RegisterEvent("PLAYER_REGEN_DISABLED");
-	self:RegisterEvent("PLAYER_REGEN_ENABLED");
-	self:RegisterEvent("PLAYER_FLAGS_CHANGED");
-	self:RegisterEvent("PLAYER_ENTERING_WORLD");
-	self:RegisterEvent("PLAYER_LEAVING_WORLD");
-	self:RegisterEvent("ZONE_CHANGED_NEW_AREA");
-	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");
+	-- Register game events on the unified event frame
+	SIPPYCUP.Events:RegisterEvent("UNIT_AURA");
+	SIPPYCUP.Events:RegisterEvent("PLAYER_REGEN_DISABLED");
+	SIPPYCUP.Events:RegisterEvent("PLAYER_REGEN_ENABLED");
+	SIPPYCUP.Events:RegisterEvent("PLAYER_ENTERING_WORLD");
+	SIPPYCUP.Events:RegisterEvent("PLAYER_LEAVING_WORLD");
+	SIPPYCUP.Events:RegisterEvent("ZONE_CHANGED_NEW_AREA");
+	SIPPYCUP.Events:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");
+	SIPPYCUP.Events:RegisterEvent("BAG_UPDATE_DELAYED");
+
+	local realCharKey = SIPPYCUP.Database.GetUnitName();
+	if realCharKey then
+		local db = SIPPYCUP.db;
+		if db.profileKeys["Unknown"] and not db.profileKeys[realCharKey] then
+			db.profileKeys[realCharKey] = db.profileKeys["Unknown"];
+			db.profileKeys["Unknown"] = nil;
+			-- Optional: move profile data as well if you saved it under Unknown profile
+			-- local profileName = db.profileKeys[realCharKey];
+			-- if db.profiles and db.profiles[profileName] then
+			--     db.profiles[profileName] = db.profiles[profileName] or {};
+			-- end
+		end
+		SIPPYCUP.Database.Setup();
+	end
+
+	-- Adapt saved variables structures between versions
+	SIPPYCUP.Flyway:ApplyPatches();
 
 	-- 1 - We set up the minimap buttons.
 	SIPPYCUP.Minimap:SetupMinimapButtons();
@@ -42,37 +99,7 @@ function SIPPYCUP_Addon:OnEnable()
 	SIPPYCUP_PLAYER.GetFullName();
 
 	-- 3 - If msp exists, we listen to its update callbacks from the own player.
-	if msp and msp.my then
-		local startupCheck = true;
-		table.insert(msp.callback["updated"], function(senderID)
-			-- Don't run updated if MSP status is not being checked.
-			if not SIPPYCUP.db.global.MSPStatusCheck then
-				if startupCheck then
-					SIPPYCUP.Consumables.RefreshStackSizes(false);
-				end
-				startupCheck = false;
-				return;
-			end
-
-			-- Sometimes this gets spammed, we only care about handling IC/OOC updates.
-			local previousIsOOC = SIPPYCUP.Player.OOC;
-			local newIsOOC = SIPPYCUP_PLAYER.CheckOOCStatus();
-			SIPPYCUP.Player.OOC = newIsOOC;
-			-- If RP status remains the same before vs after this check, we just skip all handling after.
-			if previousIsOOC ~= nil and newIsOOC ~= nil and previousIsOOC == newIsOOC then
-				return;
-			end
-
-			-- When update callback is found, we check the IC PLAYER if all their enabled (even inactive ones) consumable stack sizes are in order.
-			if startupCheck or SIPPYCUP.Player.FullName == senderID and not SIPPYCUP.Player.OOC then
-				SIPPYCUP.Consumables.RefreshStackSizes(true);
-			end
-
-			startupCheck = false;
-		end)
-	else
-		SIPPYCUP.Consumables.RefreshStackSizes(false);
-	end
+	-- Handled in PlayerLoading on login/reloads.
 
 	-- 4 - We start our 5s AuraCheck (mismatch from UNIT_AURA)
 	-- Handled in PLAYER_ENTERING_WORLD on login through self:StartAuraCheck();
@@ -80,61 +107,58 @@ function SIPPYCUP_Addon:OnEnable()
 	-- 5 - We start our 3m Pre-Expiration Check if it's enabled (check is done within the function itself).
 	-- Handled in PLAYER_ENTERING_WORLD on login through self:StartContinuousCheck();
 
-	-- 6 - We hook the main menu so that our popups get stored and shown after it's closed to avoid logout button issues.
-	GameMenuFrame:HookScript("OnShow", function()
-		if not SIPPYCUP.Popups.SuppressGameMenuCallback then
-			SIPPYCUP.Popups.SaveOpenedPopups(true);
-		end
-	end);
-
-	GameMenuFrame:HookScript("OnHide", function()
-		if not SIPPYCUP.Popups.SuppressGameMenuCallback then
-			SIPPYCUP.Popups.LoadOpenedPopups(true);
-		end
-	end);
-
-	-- 7 - If we've gotten here, we can send our Welcome Message (if it's enabled).
-	if SIPPYCUP.db.global.WelcomeMessage then
-		SIPPYCUP_OUTPUT.Write(L.WELCOMEMSG_VERSION:format(SIPPYCUP.AddonMetadata.version));
+	-- 6 - If we've g	otten here, we can send our Welcome Message (if it's enabled).
+	if SIPPYCUP.global.WelcomeMessage then
+		SIPPYCUP_OUTPUT.Write(L.WELCOMEMSG_VERSION:format(SIPPYCUP.Database.GetCurrentProfileName(), SIPPYCUP.AddonMetadata.version));
 		SIPPYCUP_OUTPUT.Write(L.WELCOMEMSG_OPTIONS);
 	end
 end
 
+---UNIT_AURA handles aura updates for the player, flags bag update desync, and triggers aura conversion.
+---@param event string Event name (ignored)
+---@param unitTarget string Unit affected, must be "player"
+---@param updateInfo any Update data passed to aura conversion
 function SIPPYCUP_Addon:UNIT_AURA(_, unitTarget, updateInfo)
 	if unitTarget ~= "player" then
 		return;
 	end
 
+	-- Bag data is not synched immediately when UNIT_AURA fires, signal desync to the addon.
+	SIPPYCUP.Items.bagUpdateUnhandled = true;
 	SIPPYCUP.Auras.Convert(1, updateInfo);
 end
 
 local AURA_CHECK_INTERVAL = 5.0;
+---StartAuraCheck begins a repeating 5-second timer to check aura stack mismatches, unless in combat or already running.
 function SIPPYCUP_Addon:StartAuraCheck()
 	-- Should never happen, but just in case.
 	if InCombatLockdown() then
 		return;
 	end
 
-	-- Run once immediately
-	SIPPYCUP.Auras.CheckStackMismatchInDBForAllActiveConsumables();
+	-- Only run this if it's not already running, no point to duplicate.
+	if not self.auraTicker then
+		-- Run once immediately
+		SIPPYCUP.Auras.CheckStackMismatchInDBForAllActiveConsumables();
 
-	if not self.auraTimer then
 		-- schedule and keep the handle so we can cancel it later
-		self.auraTimer = self:ScheduleRepeatingTimer(
-			SIPPYCUP.Auras.CheckStackMismatchInDBForAllActiveConsumables,
-			AURA_CHECK_INTERVAL
-		);
+		self.auraTicker = C_Timer.NewTicker(AURA_CHECK_INTERVAL, function()
+			SIPPYCUP.Auras.CheckStackMismatchInDBForAllActiveConsumables();
+		end);
 	end
 end
 
+
+---StopAuraCheck cancels the repeating aura mismatch check timer if active.
 function SIPPYCUP_Addon:StopAuraCheck()
-	if self.auraTimer then
-		self:CancelTimer(self.auraTimer, true);  -- silent = true
-		self.auraTimer = nil;
+	if self.auraTicker then
+		self.auraTicker:Cancel();
+		self.auraTicker = nil;
 	end
 end
 
 local CONTINUOUS_CHECK_INTERVAL = 180.0;
+---StartContinuousCheck begins repeating timers (3 minutes interval) for pre-expiration aura checks and no-aura item usage, if not in combat.
 function SIPPYCUP_Addon:StartContinuousCheck()
 	-- don’t run if we’re in combat or the user has disabled pre‑expiration checks
 	if InCombatLockdown() then
@@ -143,96 +167,110 @@ function SIPPYCUP_Addon:StartContinuousCheck()
 
 	-- Both below timers don't need an immediate run as startup + new enables run these partially.
 
-	if not self.preExpTimer then
+	if not self.preExpTicker then
 		-- schedule and keep the handle so we can cancel it later
-		self.preExpTimer = self:ScheduleRepeatingTimer(
-			SIPPYCUP.Auras.CheckPreExpirationForAllActiveConsumables,
-			CONTINUOUS_CHECK_INTERVAL
-		);
+		self.preExpTicker = C_Timer.NewTicker(CONTINUOUS_CHECK_INTERVAL, function()
+			SIPPYCUP.Auras.CheckPreExpirationForAllActiveConsumables();
+		end);
 	end
 
-	if not self.itemTimer then
+	if not self.itemTicker then
 		-- schedule and keep the handle so we can cancel it later
-		self.itemTimer = self:ScheduleRepeatingTimer(
-			SIPPYCUP.Items.CheckNonTrackableItemUsage,
-			CONTINUOUS_CHECK_INTERVAL
-		);
+		self.itemTicker = C_Timer.NewTicker(CONTINUOUS_CHECK_INTERVAL, function()
+			SIPPYCUP.Items.CheckNoAuraItemUsage();
+		end);
 	end
 end
 
+---StopContinuousCheck cancels all continuous check timers if active.
 function SIPPYCUP_Addon:StopContinuousCheck()
-	if self.preExpTimer then
-		self:CancelTimer(self.preExpTimer, true);  -- silent = true
-		self.preExpTimer = nil;
+	if self.preExpTicker then
+		self.preExpTicker:Cancel();
+		self.preExpTicker = nil;
 	end
 
-	if self.itemTimer then
-		self:CancelTimer(self.itemTimer, true);  -- silent = true
-		self.itemTimer = nil;
+	if self.itemTicker then
+		self.itemTicker:Cancel();
+		self.itemTicker = nil;
 	end
 end
 
+---PLAYER_REGEN_DISABLED handles entering combat by stopping aura and continuous checks.
 function SIPPYCUP_Addon:PLAYER_REGEN_DISABLED()
 	-- Combat is entered when regen is disabled.
 	self:StopAuraCheck();
 	self:StopContinuousCheck();
 end
 
+---PLAYER_REGEN_ENABLED handles leaving combat by restarting aura and continuous checks.
 function SIPPYCUP_Addon:PLAYER_REGEN_ENABLED()
 	-- Combat is left when regen is enabled.
 	self:StartAuraCheck();
 	self:StartContinuousCheck();
 end
 
-function SIPPYCUP_Addon:PLAYER_FLAGS_CHANGED(_, unitTarget)
-	-- ElvUI has the chance to cause errors when AFK Mode is enabled.
-	if unitTarget ~= "player" or not C_AddOns.IsAddOnLoaded("ElvUI") then
-		return;
-	end
-
-	local isAFK = UnitIsAFK("player");
-
-	if isAFK then
-		-- On AFK, we save the poupups that were visible and then kill them.
-		SIPPYCUP.Popups.SaveOpenedPopups();
-	else
-		-- On returning from AFK, we re-spawn the killed popups if any have to be.
-		SIPPYCUP.Popups.LoadOpenedPopups();
-	end
-end
-
-function SIPPYCUP_Addon:PLAYER_ENTERING_WORLD(_, isInitialLogin, isReloadingUi)
-	if not isInitialLogin and not isReloadingUi then
+local startupCheck = true;
+---PlayerLoading handles loading screen state changes, stopping checks when loading and starting them when done.
+---@param isLoading boolean True if loading screen is active, false if loading finished.
+local function PlayerLoading(isLoading)
+	if isLoading then
 		SIPPYCUP.InLoadingScreen = true;
-		self:StopAuraCheck();
-		self:StopContinuousCheck();
+		SIPPYCUP_Addon:StopAuraCheck();
+		SIPPYCUP_Addon:StopContinuousCheck();
 	else
-		-- On login and reload, ZONE_CHANGED_NEW_AREA does not fire so we start checks.
 		SIPPYCUP.InLoadingScreen = false;
-		self:StartAuraCheck();
-		self:StartContinuousCheck();
+		SIPPYCUP_Addon:StartAuraCheck();
+		SIPPYCUP_Addon:StartContinuousCheck()
+
+		if startupCheck then
+			if not SIPPYCUP.MSP.EnableIfAvailable() then
+				-- If not, we'll do a simple stacksize refresh.
+				SIPPYCUP.Consumables.RefreshStackSizes(false);
+			end
+			startupCheck = false;
+		end
 	end
 end
 
-function SIPPYCUP_Addon:PLAYER_LEAVING_WORLD()
-	SIPPYCUP.InLoadingScreen = true;
-	self:StopAuraCheck();
-	self:StopContinuousCheck();
+---PLAYER_ENTERING_WORLD handles the event when the player enters the world or reloads UI; triggers loading screen exit logic.
+---@param event string Event name (ignored)
+---@param isInitialLogin boolean Unused
+---@param isReloadingUi boolean Whether UI is reloading
+function SIPPYCUP_Addon:PLAYER_ENTERING_WORLD(_, _, isReloadingUi)
+	-- ZONE_CHANGED_NEW_AREA fires on isInitialLogin, but not on isReloadingUi
+	if isReloadingUi then
+		-- Reloading fires PLAYER_ENTERING_WORLD when reload is done, data is fine.
+		PlayerLoading(false);
+	end
 end
 
+---PLAYER_LEAVING_WORLD handles the event when the player leaves the world; triggers loading screen enter logic.
+function SIPPYCUP_Addon:PLAYER_LEAVING_WORLD()
+	PlayerLoading(true);
+end
+
+---ZONE_CHANGED_NEW_AREA handles zone changes to exit loading screen state if needed.
 function SIPPYCUP_Addon:ZONE_CHANGED_NEW_AREA()
 	if SIPPYCUP.InLoadingScreen then
-		SIPPYCUP.InLoadingScreen = false;
-		self:StartAuraCheck();
-		self:StartContinuousCheck();
+		PlayerLoading(false);
 	end
 end
 
+---UNIT_SPELLCAST_SUCCEEDED handles successful spell casts by the player; checks for items that don't trigger aura events.
+---@param event string Event name (ignored)
+---@param unitTarget string Unit that cast the spell, must be "player"
+---@param _, _ Ignored parameters
+---@param spellID number Spell identifier
 function SIPPYCUP_Addon:UNIT_SPELLCAST_SUCCEEDED(_, unitTarget, _, spellID)
 	if unitTarget ~= "player" then
 		return;
 	end
 
-	-- Necessary to handle nontrackable items (that don't fire UNIT_AURA).
-	SIPPYCUP.Items.CheckNonTrackableSingleConsumable(nil, spellID);
+	-- Necessary to handle items that don't fire UNIT_AURA.
+	SIPPYCUP.Items.CheckNoAuraSingleConsumable(nil, spellID);
+end
+
+---BAG_UPDATE_DELAYED handles delayed bag updates; triggers item update handling.
+function SIPPYCUP_Addon:BAG_UPDATE_DELAYED()
+	SIPPYCUP.Items.HandleBagUpdate();
 end
