@@ -8,7 +8,7 @@ local SCHEMA_VERSION = 1;
 
 local function ApplyPatches(fromBuild, toBuild)
 	local patched = false;
-	for i = fromBuild, toBuild do
+	for i = fromBuild + 1, toBuild do
 		local patch = SIPPYCUP.Flyway.Patches[tostring(i)];
 		local patchFn = type(patch) == "table" and patch.run or nil;
 
