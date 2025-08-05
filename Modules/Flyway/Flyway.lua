@@ -21,22 +21,23 @@ local function ApplyPatches(fromBuild, toBuild)
 	end
 
 	if patched then
-		SIPPYCUP.global.Flyway.Log = ("Patch applied from %s to %s on %s"):format(fromBuild, toBuild, date("%d/%m/%y %H:%M:%S"));
+		local logText = ("Patch applied from %s to %s on %s"):format(fromBuild, toBuild, date("%d/%m/%y %H:%M:%S"));
+		SIPPYCUP.db.global.Flyway.Log = logText;
 	end
 end
 
 function SIPPYCUP.Flyway:ApplyPatches()
 	-- Prevent running patches if the saved data is from a newer version than we support
-	if SIPPYCUP.global.Flyway and SIPPYCUP.global.Flyway.CurrentBuild and SIPPYCUP.global.Flyway.CurrentBuild > SCHEMA_VERSION then
-		SIPPYCUP_OUTPUT.Warn("Saved data is from a newer version (%s), skipping Flyway.", SIPPYCUP.global.Flyway.CurrentBuild);
+	if SIPPYCUP.db.global.Flyway and SIPPYCUP.db.global.Flyway.CurrentBuild and SIPPYCUP.db.global.Flyway.CurrentBuild > SCHEMA_VERSION then
+		SIPPYCUP_OUTPUT.Warn("Saved data is from a newer version (%s), skipping Flyway.", SIPPYCUP.db.global.Flyway.CurrentBuild);
 		return;
 	end
 
-	SIPPYCUP.global.Flyway = SIPPYCUP.global.Flyway or {};
+	SIPPYCUP.db.global.Flyway = SIPPYCUP.db.global.Flyway or {};
 
-	if not SIPPYCUP.global.Flyway.CurrentBuild or SIPPYCUP.global.Flyway.CurrentBuild < SCHEMA_VERSION then
-		ApplyPatches((SIPPYCUP.global.Flyway.CurrentBuild or 0) + 1, SCHEMA_VERSION);
+	if not SIPPYCUP.db.global.Flyway.CurrentBuild or SIPPYCUP.db.global.Flyway.CurrentBuild < SCHEMA_VERSION then
+		ApplyPatches((SIPPYCUP.db.global.Flyway.CurrentBuild or 0), SCHEMA_VERSION);
 	end
 
-	SIPPYCUP.global.Flyway.CurrentBuild = SCHEMA_VERSION;
+	SIPPYCUP.db.global.Flyway.CurrentBuild = SCHEMA_VERSION;
 end
