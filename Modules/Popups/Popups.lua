@@ -353,7 +353,7 @@ function SIPPYCUP.Popups.CreateReminderPopup(data, templateTypeID)
 	local isNew = not popup or not popup:IsShown();
 
 	-- If correct stack count reached, we're done!
-	if data.reason == 0 and templateTypeID == 0 and data.requiredStacks == 0 then
+	if data.reason == 0 and templateTypeID == 0 and data.requiredStacks <= 0 then
 		if popup and popup:IsShown() then
 			popup:Hide();
 		end
