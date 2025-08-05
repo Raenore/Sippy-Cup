@@ -215,7 +215,7 @@ local function CreatePopup(templateType)
 
 			popup.IgnoreButton:SetScript("OnClick", function()
 				if sessionData and popup.popupData and popup.popupData.consumableData then
-					sessionData[popup.popupData.consumableData.profile] = true;
+					sessionData[popup.popupData.consumableData.auraID] = true;
 					SIPPYCUP.Database.RefreshUI();
 				end
 				popup:Hide();
@@ -456,7 +456,7 @@ function SIPPYCUP.Popups.Toggle(itemName, enabled)
 		end
 	end
 
-	local profileConsumableData = SIPPYCUP.profile[consumableData.profile];
+	local profileConsumableData = SIPPYCUP.profile[consumableData.auraID];
 	local preExpireFired;
 	if consumableData.itemTrackable or consumableData.spellTrackable then
 		preExpireFired = SIPPYCUP.Items.CheckNoAuraSingleConsumable(profileConsumableData, consumableData.auraID, nil, startTime);
@@ -527,9 +527,9 @@ function SIPPYCUP.Popups.HandlePopupAction(reason, auraID, auraInfo, auraInstanc
 	SIPPYCUP_OUTPUT.Debug({ caller = caller });
 
 	local consumableData = SIPPYCUP.Consumables.ByAuraID[auraID];
-	local profileConsumableData = consumableData and SIPPYCUP.profile[consumableData.profile];
+	local profileConsumableData = consumableData and SIPPYCUP.profile[consumableData.auraID];
 
-	if not consumableData or not profileConsumableData or SIPPYCUP.Popups.IsIgnored(consumableData.profile) then
+	if not consumableData or not profileConsumableData or SIPPYCUP.Popups.IsIgnored(consumableData.auraID) then
 		return;
 	end
 

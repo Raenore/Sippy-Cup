@@ -87,7 +87,7 @@ SIPPYCUP.Consumables.Data = {
 };
 
 local function NormalizeLocName(name)
-	return name:upper():gsub("%s+", "_");
+	return name:upper():gsub("[^%w]+", "_");
 end
 
 local remaining = {};
@@ -103,7 +103,7 @@ for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
 	item:ContinueOnItemLoad(function()
 		consumable.name = item:GetItemName();
 
-		-- `loc` from name, e.g. "Noggenfogger Select UP" -> "NOGGENFOGGER_SELECT_UP"
+		-- `loc` from name, e.g. "Noggenfogger Select UP" -> "NOGGENFOGGER_SELECT_UP" and "Half-Eaten Takeout" -> "HALF_EATEN_TAKEOUT"
 		consumable.loc = NormalizeLocName(consumable.name);
 
 		-- `profile` from loc, e.g. "PYGMY_OIL" -> "pygmyOil"

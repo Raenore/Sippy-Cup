@@ -1420,7 +1420,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 
 		for _, consumableData in ipairs(SIPPYCUP.Consumables.Data) do
 			if consumableData.category == categoryName then
-				local profileKey = consumableData.profile;
+				local profileKey = consumableData.auraID;
 				local consumableName = consumableData.name;
 				local consumableID = consumableData.itemID;
 
