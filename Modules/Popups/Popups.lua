@@ -121,6 +121,11 @@ local function CreatePopup(templateType)
 	popup.templateType = templateType;
 
 	popup:SetScript("OnHide", function(self)
+		if not UIParent:IsShown() then
+			-- Don't hide popups when UIParent is hidden (ALT+Z / ElvUI AFK mode) so positions don't get broken.
+			return;
+		end
+
 		-- Remove from activePopups
 		for i, frame in ipairs(activePopups) do
 			if frame == self then
