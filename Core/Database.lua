@@ -417,8 +417,9 @@ function SIPPYCUP.Database.Setup()
 
 	-- Optional deferred config setup
 	--[[
-	if SIPPYCUP.deferSetupConfig then
-		SIPPYCUP.deferSetupConfig = nil;
+	if SIPPYCUP.deferSetup then
+		print("DB was not ready so doing it now.");
+		-- SIPPYCUP.Database.RefreshUI();
 	end
 	]]
 end

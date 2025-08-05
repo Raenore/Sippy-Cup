@@ -1423,59 +1423,56 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 				local profileKey = consumableData.auraID;
 				local consumableName = consumableData.name;
 				local consumableID = consumableData.itemID;
+				local consumableIcon = consumableData.icon;
 
 				local checkboxProfileKey = profileKey;
 				local checkboxConsumableName = consumableName;
 
-				local item = Item:CreateFromItemID(consumableID);
+				categoryData[#categoryData + 1] = {
+					type = "checkbox",
+					label = consumableName,
+					icon = consumableIcon,
+					style = "consumable",
+					itemID = consumableID,
+					preExpiration = consumableData.preExpiration,
+					unrefreshable = consumableData.unrefreshable,
+					nonAura = consumableData.itemTrackable or consumableData.spellTrackable,
+					stacks = consumableData.stacks,
+					get = function()
+						return SIPPYCUP.Database.GetSetting("profile", checkboxProfileKey, "enable");
+					end,
+					set = function(val)
+						SIPPYCUP.Database.UpdateSetting("profile", checkboxProfileKey, "enable", val);
+						SIPPYCUP.Popups.Toggle(checkboxConsumableName, val);
+					end,
+				};
 
-				item:ContinueOnItemLoad(function()
+				-- Slider: Desired stacks (if applicable)
+				if consumableData.stacks then
+					local sliderProfileKey = profileKey;
+					local sliderConsumableName = consumableName;
+
 					categoryData[#categoryData + 1] = {
-						type = "checkbox",
-						label = consumableName,
-						icon = item:GetItemIcon(),
-						style = "consumable",
-						itemID = consumableID,
-						preExpiration = consumableData.preExpiration,
-						unrefreshable = consumableData.unrefreshable,
-						nonAura = consumableData.itemTrackable or consumableData.spellTrackable,
-						stacks = consumableData.stacks,
+						type = "slider",
+						label = L.OPTIONS_DESIRED_STACKS,
+						tooltip = L.OPTIONS_SLIDER_TEXT and L.OPTIONS_SLIDER_TEXT:format(sliderConsumableName) or nil,
+						min = 1,
+						max = consumableData.maxStacks,
+						step = 1,
+						disabled = function()
+							return not SIPPYCUP.Database.GetSetting("profile", sliderProfileKey, "enable");
+						end,
 						get = function()
-							return SIPPYCUP.Database.GetSetting("profile", checkboxProfileKey, "enable");
+							return SIPPYCUP.Database.GetSetting("profile", sliderProfileKey, "desiredStacks");
 						end,
 						set = function(val)
-							SIPPYCUP.Database.UpdateSetting("profile", checkboxProfileKey, "enable", val);
-							SIPPYCUP.Popups.Toggle(checkboxConsumableName, val);
+							SIPPYCUP.Database.UpdateSetting("profile", sliderProfileKey, "desiredStacks", val);
+							if SIPPYCUP.profile[sliderProfileKey].enable then
+								SIPPYCUP.Popups.Toggle(sliderConsumableName, true);
+							end
 						end,
 					};
-
-					-- Slider: Desired stacks (if applicable)
-					if consumableData.stacks then
-						local sliderProfileKey = profileKey;
-						local sliderConsumableName = consumableName;
-
-						categoryData[#categoryData + 1] = {
-							type = "slider",
-							label = L.OPTIONS_DESIRED_STACKS,
-							tooltip = L.OPTIONS_SLIDER_TEXT and L.OPTIONS_SLIDER_TEXT:format(sliderConsumableName) or nil,
-							min = 1,
-							max = consumableData.maxStacks,
-							step = 1,
-							disabled = function()
-								return not SIPPYCUP.Database.GetSetting("profile", sliderProfileKey, "enable");
-							end,
-							get = function()
-								return SIPPYCUP.Database.GetSetting("profile", sliderProfileKey, "desiredStacks");
-							end,
-							set = function(val)
-								SIPPYCUP.Database.UpdateSetting("profile", sliderProfileKey, "desiredStacks", val);
-								if SIPPYCUP.profile[sliderProfileKey].enable then
-									SIPPYCUP.Popups.Toggle(sliderConsumableName, true);
-								end
-							end,
-						};
-					end
-				end);
+				end
 			end
 		end
 

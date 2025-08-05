@@ -98,6 +98,8 @@ for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
 	SIPPYCUP.Consumables.ByItemID[consumable.itemID] = consumable;
 end
 
+SIPPYCUP.deferSetup = false;
+
 for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
 	local item = Item:CreateFromItemID(consumable.itemID);
 	item:ContinueOnItemLoad(function()
@@ -111,6 +113,8 @@ for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
 			return c:upper();
 		end);
 
+		consumable.icon = item:GetItemIcon();
+
 		remaining[consumable.itemID] = nil;
 		SIPPYCUP.Consumables.ByName[consumable.name] = consumable;
 
@@ -120,12 +124,15 @@ for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
 				return SIPPYCUP_TEXT.Normalize(a.name:lower()) < SIPPYCUP_TEXT.Normalize(b.name:lower());
 			end);
 
-			--[[ See if we need this in the future
+			--[[
 			if SIPPYCUP.db then
-				RUN DEFERRED SETUP
+				-- RUN DEFERRED SETUP
+				-- SIPPYCUP.Database.RefreshUI();
+				print("DB was ready");
 			else
 				-- Defer SetupConfig until DB is ready
-				SIPPYCUP.deferSetupConfig = true;
+				SIPPYCUP.deferSetup = true;
+				print("DB was not ready");
 			end
 			]]
 		end
