@@ -359,7 +359,7 @@ function SIPPYCUP.Database.GetUnitName()
 	end
 
 	if not realm or realm:len() == 0 then
-		realm = GetNormalizedRealmName();
+		realm = GetRealmName();
 	end
 
 	if realm and realm:len() > 0 then
