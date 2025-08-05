@@ -36,6 +36,7 @@ SIPPYCUP.Flyway.Patches["1"] = {
 			provisWax = 368038;
 			purpleDanceStick = 244015;
 			pygmyOil = 53805;
+			pygmyPotion = 53805;
 			quicksilverSands = 393979;
 			radiantFocus = 1213974;
 			sacreditesLedger = 1214287;
