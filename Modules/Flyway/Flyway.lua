@@ -8,7 +8,7 @@ local SCHEMA_VERSION = 1;
 
 local function ApplyPatches(fromBuild, toBuild)
 	local patched = false;
-	for i = fromBuild + 1, toBuild do
+	for i = fromBuild, toBuild do
 		local patch = SIPPYCUP.Flyway.Patches[tostring(i)];
 		local patchFn = type(patch) == "table" and patch.run or nil;
 
@@ -21,7 +21,7 @@ local function ApplyPatches(fromBuild, toBuild)
 	end
 
 	if patched then
-		local logText = ("Patch applied from %s to %s on %s"):format(fromBuild, toBuild, date("%d/%m/%y %H:%M:%S"));
+		local logText = ("Patch applied from %s to %s on %s"):format(fromBuild - 1, toBuild, date("%d/%m/%y %H:%M:%S"));
 		SIPPYCUP.db.global.Flyway.Log = logText;
 	end
 end
@@ -36,7 +36,7 @@ function SIPPYCUP.Flyway:ApplyPatches()
 	SIPPYCUP.db.global.Flyway = SIPPYCUP.db.global.Flyway or {};
 
 	if not SIPPYCUP.db.global.Flyway.CurrentBuild or SIPPYCUP.db.global.Flyway.CurrentBuild < SCHEMA_VERSION then
-		ApplyPatches((SIPPYCUP.db.global.Flyway.CurrentBuild or 0), SCHEMA_VERSION);
+		ApplyPatches((SIPPYCUP.db.global.Flyway.CurrentBuild or 0) + 1, SCHEMA_VERSION);
 	end
 
 	SIPPYCUP.db.global.Flyway.CurrentBuild = SCHEMA_VERSION;
