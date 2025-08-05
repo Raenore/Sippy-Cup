@@ -328,7 +328,9 @@ local function UpdatePopupVisuals(popup, data)
 			popup.Text:SetText((text or ""):gsub("^%l", string.upper));
 			popup.OkayButton:SetText(OKAY);
 
-			popup:SetBackdropBorderColor(1, 0, 0);
+			if ElvUI and ElvUI[1] and popup.SetBackdropBorderColor then
+				popup:SetBackdropBorderColor(1, 0, 0);
+			end
 		end
 	end);
 end
