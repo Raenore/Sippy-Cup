@@ -275,6 +275,13 @@ local function UpdatePopupVisuals(popup, data)
 
 	item:ContinueOnItemLoad(function()
 		local icon = item:GetItemIcon();
+		-- If for some reason itemName or itemLink is still not valid by now, pull it again.
+		if not itemName or not itemLink then
+			itemName = item:GetItemName();
+			itemLink = item:GetItemLink();
+			-- Save it for good measure
+			data.consumableData.name = itemName;
+		end
 
 		popup.Title:SetText(SIPPYCUP.AddonMetadata.title);
 		popup.Name:SetText("|cnGREEN_FONT_COLOR:" .. itemName .. "|r");
