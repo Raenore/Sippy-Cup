@@ -408,7 +408,7 @@ function SIPPYCUP.Popups.CreateReminderPopup(data, templateTypeID)
 	elseif data.reason == 1 and not (popup and popup.templateType == "SIPPYCUP_RefreshPopupTemplate") then
 		-- Removal popups should always fire an alert, because they might come after pre-expiration
 		HandleAlerts();
-	elseif lastProfileAlert ~= SIPPYCUP.Database.GetCurrentProfileName then
+	elseif lastProfileAlert ~= SIPPYCUP.Database.GetCurrentProfileName() then
 		-- If profile change happens, fire an alert as-is for popups (throttle will still hold them)
 		HandleAlerts();
 	end
