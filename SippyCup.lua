@@ -33,6 +33,19 @@ function SIPPYCUP_Addon:OnInitialize()
 
 		if msg == "auras" and SIPPYCUP.IS_DEV_BUILD then
 			SIPPYCUP.Auras.DebugEnabledAuras();
+		elseif msg == "exp" and SIPPYCUP.IS_DEV_BUILD then
+			local noggenfoggerUP = 1218297;
+			local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(noggenfoggerUP);
+			local consumableData = SIPPYCUP.Consumables.ByAuraID[noggenfoggerUP];
+			local profileConsumableData = SIPPYCUP.profile[noggenfoggerUP];
+			profileConsumableData.currentStacks = consumableData.maxStacks;
+			SIPPYCUP.Popups.QueuePopupAction(SIPPYCUP.Popups.Reason.PRE_EXPIRATION, noggenfoggerUP, auraInfo or nil, auraInfo.auraInstanceID, "CheckPreExpirationForSingleConsumable - test - pre-expiration");
+		elseif msg == "gone" and SIPPYCUP.IS_DEV_BUILD then
+			local noggenfoggerUP = 1218297;
+			local consumableData = SIPPYCUP.Consumables.ByAuraID[noggenfoggerUP];
+			local profileConsumableData = SIPPYCUP.profile[noggenfoggerUP];
+			profileConsumableData.currentStacks = consumableData.maxStacks;
+			SIPPYCUP.Popups.QueuePopupAction(SIPPYCUP.Popups.Reason.REMOVAL, noggenfoggerUP, nil, nil, "CheckPreExpirationForSingleConsumable - test - remove");
 		else
 			SIPPYCUP_Addon:OpenSettings();
 		end
