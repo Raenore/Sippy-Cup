@@ -10,11 +10,15 @@ function SIPPYCUP.Auras.DebugEnabledAuras()
 		local consumableData = SIPPYCUP.Consumables.ByAuraID[profileConsumableData.aura];
 
 		if consumableData then
-			SIPPYCUP_OUTPUT.Write("AuraID: " .. consumableData.auraID ..
-				" - Name: " .. consumableData.name ..
-				" - Desired Stacks: " .. profileConsumableData.desiredStacks ..
-				" - Current Stacks: " .. profileConsumableData.currentStacks ..
-				" - AuraInstanceID: " .. tostring(profileConsumableData.currentInstanceID));
+			local output = table.concat({
+				"AuraID: " .. consumableData.auraID,
+				"Name: " .. consumableData.name,
+				"Desired Stacks: " .. profileConsumableData.desiredStacks,
+				"Current Stacks: " .. profileConsumableData.currentStacks,
+				"AuraInstanceID: " .. tostring(profileConsumableData.currentInstanceID),
+			}, "|n");
+
+			SIPPYCUP_OUTPUT.Write(output);
 		else
 			SIPPYCUP_OUTPUT.Write("Missing data for auraID: " .. tostring(profileConsumableData.aura));
 		end
