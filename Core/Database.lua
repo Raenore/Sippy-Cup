@@ -181,11 +181,11 @@ end
 ---@param itemID number? Item ID to match against `noAuraTrackableProfile`.
 ---@return SIPPYCUPProfileConsumable|nil profileConsumableData #Matching profile entry if found, otherwise nil.
 function SIPPYCUP.Database.FindMatchingConsumable(spellId, instanceID, itemID)
-	if spellId then
+	if spellId ~= nil then
 		return SIPPYCUP.Database.auraToProfile[spellId];
-	elseif instanceID then
+	elseif instanceID ~= nil then
 		return SIPPYCUP.Database.instanceToProfile[instanceID];
-	elseif itemID then
+	elseif itemID ~= nil then
 		return SIPPYCUP.Database.noAuraTrackableProfile[itemID];
 	end
 
