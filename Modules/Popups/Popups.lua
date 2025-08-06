@@ -6,6 +6,12 @@ SIPPYCUP.Popups = {};
 local L = SIPPYCUP.L;
 local SharedMedia = LibStub("LibSharedMedia-3.0");
 
+SIPPYCUP.Popups.Reason = {
+	ADDITION = 0,
+	REMOVAL = 1,
+	PRE_EXPIRATION = 2,
+};
+
 ---PlayPopupSound plays the chosen alert sound during a popup.
 ---@return nil
 local function PlayPopupSound()
@@ -294,7 +300,7 @@ local function UpdatePopupVisuals(popup, data)
 
 		if popup.templateType == "SIPPYCUP_RefreshPopupTemplate" then
 			local text = L.POPUP_LOW_STACK_COUNT_TEXT;
-			if data.reason == 2 then
+			if data.reason == SIPPYCUP.Popups.Reason.PRE_EXPIRATION then
 				text = L.POPUP_EXPIRING_SOON_TEXT;
 			elseif not data.consumableData.stacks then
 				text = L.POPUP_NOT_ACTIVE_TEXT;
@@ -367,7 +373,7 @@ function SIPPYCUP.Popups.CreateReminderPopup(data, templateTypeID)
 	local isNew = not popup or not popup:IsShown();
 
 	-- If correct stack count reached, we're done!
-	if data.reason == 0 and templateTypeID == 0 and data.requiredStacks <= 0 then
+	if data.reason == SIPPYCUP.Popups.Reason.ADDITION and templateTypeID == 0 and data.requiredStacks <= 0 then
 		if popup and popup:IsShown() then
 			popup:Hide();
 		end
@@ -419,7 +425,7 @@ function SIPPYCUP.Popups.CreateReminderPopup(data, templateTypeID)
 		tinsert(activePopups, popup); -- Add to active list only if it's a new instance
 		activePopupByLoc[loc] = popup; -- Store in lookup for loc-based replacement
 		HandleAlerts();
-	elseif data.reason == 1 and not (popup and popup.templateType == "SIPPYCUP_RefreshPopupTemplate") then
+	elseif data.reason == SIPPYCUP.Popups.Reason.REMOVAL then
 		-- Removal popups should always fire an alert, because they might come after pre-expiration
 		HandleAlerts();
 	elseif lastProfileAlert ~= SIPPYCUP.Database.GetCurrentProfileName() then
@@ -489,7 +495,7 @@ function SIPPYCUP.Popups.Toggle(itemName, enabled)
 	-- Only queue popup if no pre-expiration has already fired
 	if not preExpireFired then
 		-- auraInfo may be truthy/table; active is boolean from cooldown check
-		SIPPYCUP.Popups.QueuePopupAction((auraInfo or active) and 0 or 1, consumableData.auraID, auraInfo, auraInfo and auraInfo.auraInstanceID, "Toggle");
+		SIPPYCUP.Popups.QueuePopupAction((auraInfo or active) and SIPPYCUP.Popups.Reason.ADDITION or SIPPYCUP.Popups.Reason.REMOVAL, consumableData.auraID, auraInfo, auraInfo and auraInfo.auraInstanceID, "Toggle");
 	end
 end
 
