@@ -111,13 +111,13 @@ local defaults = SIPPYCUP.Database.defaults;
 ---@field currentInstanceID number? Aura instance ID currently being tracked (if any).
 ---@field currentStacks number Current number of detected stacks.
 ---@field aura number The associated aura ID for this consumable.
----@field auraTrackable boolean Whether this consumable can be tracked via item or spell aura.
+---@field noAuraTrackable boolean Whether this consumable can be tracked via its aura or not.
 ---Populate the default profile's consumables table keyed by aura ID, with all known entries from SIPPYCUP.Consumables.Data.
 ---This defines initial tracking settings for each consumable by its aura ID key.
 local function PopulateDefaultConsumables()
 	for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
 		local spellID = consumable.auraID;
-		local auraTrackable = consumable.itemTrackable or consumable.spellTrackable;
+		local noAuraTrackable = consumable.itemTrackable or consumable.spellTrackable;
 
 		if spellID then
 			-- Use auraID as the key, not profileKey
@@ -127,7 +127,7 @@ local function PopulateDefaultConsumables()
 				currentInstanceID = nil,
 				currentStacks = 0,
 				aura = spellID,
-				auraTrackable = auraTrackable,
+				noAuraTrackable = noAuraTrackable,
 			};
 		end
 	end
