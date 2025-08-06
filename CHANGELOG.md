@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.3.1] - 2025-08-xx  
+## [0.3.1] - 2025-08-06  
 First bugfix patch targeting the major 0.3.0 rework release.  
 
 ### Added
