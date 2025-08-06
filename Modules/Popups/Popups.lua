@@ -440,6 +440,7 @@ function SIPPYCUP.Popups.Toggle(itemName, enabled)
 	end
 	SIPPYCUP.Database.RebuildAuraMap();
 
+	local profileConsumableData = SIPPYCUP.profile[consumableData.auraID];
 	-- If the consumable is not enabled, kill all its associated popups and timers!
 	if not enabled then
 		RemoveDeferredActionsByLoc(consumableData.loc);
@@ -449,7 +450,7 @@ function SIPPYCUP.Popups.Toggle(itemName, enabled)
 			existingPopup:Hide();
 		end
 
-		if consumableData.itemTrackable or consumableData.spellTrackable then
+		if profileConsumableData.noAuraTrackable then
 			SIPPYCUP.Items.CancelItemTimer(nil, consumableData.auraID);
 		else
 			SIPPYCUP.Auras.CancelPreExpirationTimer(nil, consumableData.auraID);
@@ -478,9 +479,8 @@ function SIPPYCUP.Popups.Toggle(itemName, enabled)
 		end
 	end
 
-	local profileConsumableData = SIPPYCUP.profile[consumableData.auraID];
 	local preExpireFired;
-	if consumableData.itemTrackable or consumableData.spellTrackable then
+	if profileConsumableData.noAuraTrackable then
 		preExpireFired = SIPPYCUP.Items.CheckNoAuraSingleConsumable(profileConsumableData, consumableData.auraID, nil, startTime);
 	else
 		preExpireFired = SIPPYCUP.Auras.CheckPreExpirationForSingleConsumable(profileConsumableData);

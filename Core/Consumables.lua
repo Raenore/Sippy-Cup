@@ -183,7 +183,7 @@ function SIPPYCUP.Consumables.RefreshStackSizes(checkAll)
 
 		if not SIPPYCUP.InLoadingScreen then
 			local preExpireFired;
-			if consumableData.itemTrackable or consumableData.spellTrackable then
+			if profileConsumableData.noAuraTrackable then
 				preExpireFired = SIPPYCUP.Items.CheckNoAuraSingleConsumable(profileConsumableData, auraID, nil, startTime);
 			else
 				preExpireFired = SIPPYCUP.Auras.CheckPreExpirationForSingleConsumable(profileConsumableData, nil);
