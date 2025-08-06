@@ -145,9 +145,6 @@ end
 function SIPPYCUP.Consumables.RefreshStackSizes(checkAll)
 	local GetPlayerAuraBySpellID = C_UnitAuras.GetPlayerAuraBySpellID;
 
-	local QUEUE_POPUP_ACTIVE = 0;
-	local QUEUE_POPUP_CHECKALL = 1; -- (Marked as 'remove')
-
 	-- Helper to check cooldown startTime for item or spell trackable
 	local function GetCooldownStartTime(consumable)
 		if consumable.itemTrackable then
@@ -191,9 +188,9 @@ function SIPPYCUP.Consumables.RefreshStackSizes(checkAll)
 
 			if not preExpireFired then
 				if auraInfo or active then
-					SIPPYCUP.Popups.QueuePopupAction(QUEUE_POPUP_ACTIVE, auraID, auraInfo, auraInfo and auraInfo.auraInstanceID, "CheckConsumableStackSizes - active");
+					SIPPYCUP.Popups.QueuePopupAction(SIPPYCUP.Popups.Reason.ADDITION, auraID, auraInfo, auraInfo and auraInfo.auraInstanceID, "CheckConsumableStackSizes - active");
 				elseif checkAll then
-					SIPPYCUP.Popups.QueuePopupAction(QUEUE_POPUP_CHECKALL, auraID, nil, nil, "CheckConsumableStackSizes - checkAll");
+					SIPPYCUP.Popups.QueuePopupAction(SIPPYCUP.Popups.Reason.REMOVAL, auraID, nil, nil, "CheckConsumableStackSizes - checkAll");
 				end
 			end
 		end

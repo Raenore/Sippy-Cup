@@ -214,7 +214,7 @@ function SIPPYCUP.Items.CheckNoAuraSingleConsumable(profileConsumableData, spell
 		if fireIn <= 0 and SIPPYCUP.global.PreExpirationChecks then
 			-- Less than 60s left and we want pre-expiration popup: fire immediately
 			preExpireFired = true;
-			SIPPYCUP.Popups.QueuePopupAction(2, auraID, nil, nil, "CheckNonTrackableSingleConsumable - pre-expiration");
+			SIPPYCUP.Popups.QueuePopupAction(SIPPYCUP.Popups.Reason.PRE_EXPIRATION, auraID, nil, nil, "CheckNonTrackableSingleConsumable - pre-expiration");
 		elseif SIPPYCUP.global.PreExpirationChecks then
 			-- Schedule our 1m before expiration reminder.
 			reason = 2;
