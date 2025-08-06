@@ -562,7 +562,8 @@ function SIPPYCUP.Popups.HandlePopupAction(reason, auraID, auraInfo, auraInstanc
 	end
 
 	-- Removal of a spell/aura count generally is not due to an item's action, mark bag as synchronized.
-	if reason == 1 then
+	-- Pre-expiration also does not do any bag changes, so mark as synchronised in case.
+	if reason == 1 or reason == 2 then
 		SIPPYCUP.Items.HandleBagUpdate();
 	end
 
