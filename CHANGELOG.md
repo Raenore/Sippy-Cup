@@ -12,6 +12,7 @@ First bugfix patch targeting the major 0.3.0 rework release.
 ### Changed
 - Improved stack calculation logic to reduce incorrect stack size reporting in certain cases ([#37](https://github.com/Raenore/Sippy-Cup/pull/37)).  
 - Renamed `auraTrackable` to `noAuraTrackable` for clarity. No user-facing changes ([#38](https://github.com/Raenore/Sippy-Cup/pull/38)).  
+- Optimized several functions for minor performance gains. No user-facing changes ([#42](https://github.com/Raenore/Sippy-Cup/pull/42)).  
 
 ### Fixed
 - The Alert Sound dropdown now correctly enables or disables based on the "Toggle Sound" checkbox ([#35](https://github.com/Raenore/Sippy-Cup/pull/35)).  
