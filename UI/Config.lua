@@ -1048,27 +1048,34 @@ function SIPPYCUP_ConfigMixin:RefreshWidgets()
 			if data then
 				local dtype = data.type;
 
+				-- Handle disabling logic (shared by button, dropdown, slider)
+				if dtype == "button" or dtype == "dropdown" or dtype == "slider" then
+					if type(data.disabled) == "function" then
+						local isDisabled = data.disabled();
+						if dtype == "slider" then
+							widget:SetEnabled(not isDisabled);
+							local r, g, b = isDisabled and grayR or whiteR, isDisabled and grayG or whiteG, isDisabled and grayB or whiteB;
+							if widget.RightText then widget.RightText:SetVertexColor(r, g, b); end
+							if widget.MinText then widget.MinText:SetVertexColor(r, g, b); end
+							if widget.MaxText then widget.MaxText:SetVertexColor(r, g, b); end
+						else
+							if isDisabled then widget:Disable(); else widget:Enable(); end
+						end
+					end
+				end
+
+				-- Handle checkbox state
 				if dtype == "checkbox" then
 					if type(data.get) == "function" then
 						widget:SetChecked(data.get());
 					end
 
-				elseif dtype == "button" then
-					if type(data.disabled) == "function" then
-						if data.disabled() then
-							widget:Disable();
-						else
-							widget:Enable();
-						end
-					end
-
+				-- Handle description text
 				elseif dtype == "description" then
-					local text = data.name;
-					if type(text) == "function" then
-						text = text();
-					end
+					local text = type(data.name) == "function" and data.name() or data.name;
 					widget:SetText(text or "");
 
+				-- Handle dropdown label
 				elseif dtype == "dropdown" then
 					if widget.Text and type(data.get) == "function" then
 						local currentValue = data.get();
@@ -1076,33 +1083,15 @@ function SIPPYCUP_ConfigMixin:RefreshWidgets()
 						local label;
 
 						if data.style == "button" then
-							label = (type(data.label) == "function" and data.label() or data.label);
+							label = type(data.label) == "function" and data.label() or data.label;
 						else
 							label = values and values[currentValue];
 							if not label then
-								label = (type(data.label) == "function" and data.label() or data.label);
+								label = type(data.label) == "function" and data.label() or data.label;
 							end
 						end
 
 						widget.Text:SetText(label or "");
-					end
-
-				elseif dtype == "slider" then
-					if type(data.disabled) == "function" then
-						local isDisabled = data.disabled();
-						widget:SetEnabled(not isDisabled);
-
-						local r, g, b = isDisabled and grayR or whiteR, isDisabled and grayG or whiteG, isDisabled and grayB or whiteB;
-
-						if widget.RightText then
-							widget.RightText:SetVertexColor(r, g, b);
-						end
-						if widget.MinText then
-							widget.MinText:SetVertexColor(r, g, b);
-						end
-						if widget.MaxText then
-							widget.MaxText:SetVertexColor(r, g, b);
-						end
 					end
 				end
 			end
