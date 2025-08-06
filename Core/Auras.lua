@@ -81,14 +81,14 @@ local function ParseAura(updateInfo)
 end
 
 SIPPYCUP.Auras.auraQueue = {};
-SIPPYCUP.Auras.auraQueueSchededule = false;
+SIPPYCUP.Auras.auraQueueScheduled = false;
 
 ---flushAuraQueue combines all the UNIT_AURA events in the same frame together, filtering them for weird exceptions.
 ---@return nil
 local function flushAuraQueue()
 	local queue = SIPPYCUP.Auras.auraQueue;
 	SIPPYCUP.Auras.auraQueue = {};
-	SIPPYCUP.Auras.auraQueueSchededule = false;
+	SIPPYCUP.Auras.auraQueueScheduled = false;
 
 	-- Merge all queued updateInfo into one combined table.
 	local combined = {
@@ -226,8 +226,8 @@ function SIPPYCUP.Auras.Convert(source, data)
 	table.insert(SIPPYCUP.Auras.auraQueue, updateInfo);
 
 	-- flush on the next frame (which will run the batched UNIT_AURAs)
-	if not SIPPYCUP.Auras.auraQueueSchededule then
-		SIPPYCUP.Auras.auraQueueSchededule = true;
+	if not SIPPYCUP.Auras.auraQueueScheduled then
+		SIPPYCUP.Auras.auraQueueScheduled = true;
 		RunNextFrame(flushAuraQueue);
 	end
 end
