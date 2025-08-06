@@ -254,17 +254,17 @@ function SIPPYCUP.Auras.CheckStackMismatchInDBForAllActiveConsumables()
 
 		-- If no auraInfo exists, the spell was actually removed.
 		if not auraInfo then
-			local expiredInstanceID = { profileConsumableData.currentInstanceID };
-
 			-- Prepare this consumable to get popup'd anew, by faking a "this has expired" call to our system.
 			-- Don't worry about ignored or other stuff, popups handle this later in the chain.
-			SIPPYCUP.Auras.Convert(3, expiredInstanceID);
+			SIPPYCUP.Auras.Convert(3, { profileConsumableData.currentInstanceID });
 		else
 			local newInstanceID = auraInfo.auraInstanceID;
 			-- Given auraInfo still exists, it means it wasn't really removed, we switch out some details.
 			if oldInstanceID ~= newInstanceID then
-				-- Nil the old instanceProfile's instanceID (it will be removed after the loop) and mark it for removal.
-				SIPPYCUP.Database.instanceToProfile[oldInstanceID].currentInstanceID = nil;
+				local oldProfile = SIPPYCUP.Database.instanceToProfile[oldInstanceID];
+				if oldProfile then
+					oldProfile.currentInstanceID = nil;
+				end
 				toRemove[#toRemove+1] = oldInstanceID;
 
 				SIPPYCUP_OUTPUT.Debug("CheckStackMismatch: instanceID changed for", profileConsumableData.aura, "from", oldInstanceID, "to", newInstanceID);
@@ -283,10 +283,9 @@ function SIPPYCUP.Auras.CheckStackMismatchInDBForAllActiveConsumables()
 		profileConsumableData.currentInstanceID = newInstanceID;
 		SIPPYCUP.Database.instanceToProfile[newInstanceID] = profileConsumableData;
 
-		local updatedInstanceID = { newInstanceID };
 		-- Prepare this consumable to have its data updated, by faking a "updated auraInfo" call to our system.
 		-- Don't worry about ignored or other stuff, popups handle this later in the chain.
-		SIPPYCUP.Auras.Convert(4, updatedInstanceID);
+		SIPPYCUP.Auras.Convert(4, { newInstanceID });
 	end
 end
 
