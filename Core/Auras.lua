@@ -10,11 +10,15 @@ function SIPPYCUP.Auras.DebugEnabledAuras()
 		local consumableData = SIPPYCUP.Consumables.ByAuraID[profileConsumableData.aura];
 
 		if consumableData then
-			SIPPYCUP_OUTPUT.Write("AuraID: " .. consumableData.auraID ..
-				" - Name: " .. consumableData.name ..
-				" - Desired Stacks: " .. profileConsumableData.desiredStacks ..
-				" - Current Stacks: " .. profileConsumableData.currentStacks ..
-				" - AuraInstanceID: " .. tostring(profileConsumableData.currentInstanceID));
+			local output = table.concat({
+				"AuraID: " .. consumableData.auraID,
+				"Name: " .. consumableData.name,
+				"Desired Stacks: " .. profileConsumableData.desiredStacks,
+				"Current Stacks: " .. profileConsumableData.currentStacks,
+				"AuraInstanceID: " .. tostring(profileConsumableData.currentInstanceID),
+			}, "|n");
+
+			SIPPYCUP_OUTPUT.Write(output);
 		else
 			SIPPYCUP_OUTPUT.Write("Missing data for auraID: " .. tostring(profileConsumableData.aura));
 		end
@@ -31,7 +35,7 @@ local function ParseAura(updateInfo)
 	local GetAuraDataByAuraInstanceID = C_UnitAuras.GetAuraDataByAuraInstanceID;
 
 	-- On aura application.
-	if updateInfo.addedAuras then
+	if updateInfo.addedAuras and #updateInfo.addedAuras > 0 then
 		for _, auraInfo in ipairs(updateInfo.addedAuras) do
 			local profileConsumableData = SIPPYCUP.Database.FindMatchingConsumable(auraInfo.spellId);
 			if profileConsumableData and profileConsumableData.enable then
@@ -45,7 +49,7 @@ local function ParseAura(updateInfo)
 	end
 
 	-- On aura update.
-	if updateInfo.updatedAuraInstanceIDs then
+	if updateInfo.updatedAuraInstanceIDs and #updateInfo.updatedAuraInstanceIDs > 0 then
 		for _, auraInstanceID in ipairs(updateInfo.updatedAuraInstanceIDs) do
 			local profileConsumableData = SIPPYCUP.Database.FindMatchingConsumable(nil, auraInstanceID);
 			if profileConsumableData and profileConsumableData.enable then
@@ -65,7 +69,7 @@ local function ParseAura(updateInfo)
 	end
 
 	-- On aura removal.
-	if updateInfo.removedAuraInstanceIDs then
+	if updateInfo.removedAuraInstanceIDs and #updateInfo.removedAuraInstanceIDs > 0 then
 		for _, auraInstanceID in ipairs(updateInfo.removedAuraInstanceIDs) do
 			local profileConsumableData = SIPPYCUP.Database.FindMatchingConsumable(nil, auraInstanceID);
 			if profileConsumableData and profileConsumableData.enable and profileConsumableData.currentInstanceID then
@@ -81,14 +85,14 @@ local function ParseAura(updateInfo)
 end
 
 SIPPYCUP.Auras.auraQueue = {};
-SIPPYCUP.Auras.auraQueueSchededule = false;
+SIPPYCUP.Auras.auraQueueScheduled = false;
 
 ---flushAuraQueue combines all the UNIT_AURA events in the same frame together, filtering them for weird exceptions.
 ---@return nil
 local function flushAuraQueue()
 	local queue = SIPPYCUP.Auras.auraQueue;
 	SIPPYCUP.Auras.auraQueue = {};
-	SIPPYCUP.Auras.auraQueueSchededule = false;
+	SIPPYCUP.Auras.auraQueueScheduled = false;
 
 	-- Merge all queued updateInfo into one combined table.
 	local combined = {
@@ -226,8 +230,8 @@ function SIPPYCUP.Auras.Convert(source, data)
 	table.insert(SIPPYCUP.Auras.auraQueue, updateInfo);
 
 	-- flush on the next frame (which will run the batched UNIT_AURAs)
-	if not SIPPYCUP.Auras.auraQueueSchededule then
-		SIPPYCUP.Auras.auraQueueSchededule = true;
+	if not SIPPYCUP.Auras.auraQueueScheduled then
+		SIPPYCUP.Auras.auraQueueScheduled = true;
 		RunNextFrame(flushAuraQueue);
 	end
 end
@@ -254,17 +258,17 @@ function SIPPYCUP.Auras.CheckStackMismatchInDBForAllActiveConsumables()
 
 		-- If no auraInfo exists, the spell was actually removed.
 		if not auraInfo then
-			local expiredInstanceID = { profileConsumableData.currentInstanceID };
-
 			-- Prepare this consumable to get popup'd anew, by faking a "this has expired" call to our system.
 			-- Don't worry about ignored or other stuff, popups handle this later in the chain.
-			SIPPYCUP.Auras.Convert(3, expiredInstanceID);
+			SIPPYCUP.Auras.Convert(3, { profileConsumableData.currentInstanceID });
 		else
 			local newInstanceID = auraInfo.auraInstanceID;
 			-- Given auraInfo still exists, it means it wasn't really removed, we switch out some details.
 			if oldInstanceID ~= newInstanceID then
-				-- Nil the old instanceProfile's instanceID (it will be removed after the loop) and mark it for removal.
-				SIPPYCUP.Database.instanceToProfile[oldInstanceID].currentInstanceID = nil;
+				local oldProfile = SIPPYCUP.Database.instanceToProfile[oldInstanceID];
+				if oldProfile then
+					oldProfile.currentInstanceID = nil;
+				end
 				toRemove[#toRemove+1] = oldInstanceID;
 
 				SIPPYCUP_OUTPUT.Debug("CheckStackMismatch: instanceID changed for", profileConsumableData.aura, "from", oldInstanceID, "to", newInstanceID);
@@ -283,10 +287,9 @@ function SIPPYCUP.Auras.CheckStackMismatchInDBForAllActiveConsumables()
 		profileConsumableData.currentInstanceID = newInstanceID;
 		SIPPYCUP.Database.instanceToProfile[newInstanceID] = profileConsumableData;
 
-		local updatedInstanceID = { newInstanceID };
 		-- Prepare this consumable to have its data updated, by faking a "updated auraInfo" call to our system.
 		-- Don't worry about ignored or other stuff, popups handle this later in the chain.
-		SIPPYCUP.Auras.Convert(4, updatedInstanceID);
+		SIPPYCUP.Auras.Convert(4, { newInstanceID });
 	end
 end
 

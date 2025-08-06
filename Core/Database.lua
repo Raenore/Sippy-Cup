@@ -135,25 +135,6 @@ end
 
 PopulateDefaultConsumables();
 
----Find profile entry by instance ID (linear scan)
----@param auraInstanceID number
----@return table|nil profileData
-function SIPPYCUP.Database:FindByInstanceID(auraInstanceID)
-	if not auraInstanceID then
-		return nil;
-	end
-
-	local profile = SIPPYCUP.profile or {};
-
-	for _, profileConsumableData in pairs(profile) do
-		if profileConsumableData.currentInstanceID == auraInstanceID then
-			return profileConsumableData;
-		end
-	end
-
-	return nil;
-end
-
 SIPPYCUP.Database.auraToProfile = {}; -- auraID --> profile data
 SIPPYCUP.Database.instanceToProfile = {}; -- instanceID --> profile data
 SIPPYCUP.Database.noAuraTrackableProfile = {}; -- itemID --> profile data (only if no aura)
@@ -200,11 +181,11 @@ end
 ---@param itemID number? Item ID to match against `noAuraTrackableProfile`.
 ---@return SIPPYCUPProfileConsumable|nil profileConsumableData #Matching profile entry if found, otherwise nil.
 function SIPPYCUP.Database.FindMatchingConsumable(spellId, instanceID, itemID)
-	if spellId then
+	if spellId ~= nil then
 		return SIPPYCUP.Database.auraToProfile[spellId];
-	elseif instanceID then
+	elseif instanceID ~= nil then
 		return SIPPYCUP.Database.instanceToProfile[instanceID];
-	elseif itemID then
+	elseif itemID ~= nil then
 		return SIPPYCUP.Database.noAuraTrackableProfile[itemID];
 	end
 
