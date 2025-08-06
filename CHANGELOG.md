@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1] - 2025-08-xx  
+First bugfix patch targeting the major 0.3.0 rework release.  
+
+### Added
+- Added a popup reason enum. This is a technical addition that will aid future documentation. No user-facing changes ([#36](https://github.com/Raenore/Sippy-Cup/pull/36)).  
+- Pre-expiration reminders for stackable items now correctly display the stack as one below the maximum (e.g., 9/10) when only one more item is needed to refresh the timer ([#37](https://github.com/Raenore/Sippy-Cup/pull/37)).   
+
+### Changed
+- Improved stack calculation logic to reduce incorrect stack size reporting in certain cases ([#37](https://github.com/Raenore/Sippy-Cup/pull/37)).  
+- Renamed `auraTrackable` to `noAuraTrackable` for clarity. No user-facing changes ([#38](https://github.com/Raenore/Sippy-Cup/pull/38)).  
+
+### Fixed
+- The Alert Sound dropdown now correctly enables or disables based on the "Toggle Sound" checkbox ([#35](https://github.com/Raenore/Sippy-Cup/pull/35)).  
+- The Alert Sound dropdown is now scrollable when it contains more than 20 items ([#35](https://github.com/Raenore/Sippy-Cup/pull/35)).  
+- Fixed an issue where pre-expiration reminder popups would not trigger in some cases ([#39](https://github.com/Raenore/Sippy-Cup/pull/39)).  
+
 ## [0.3.0] - 2025-08-05  
 This version might as well be a 1.0 release, as everything has been touched and reworked from the ground up.
 
