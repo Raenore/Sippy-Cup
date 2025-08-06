@@ -427,6 +427,8 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleConsumable(profileConsumableD
 		return preExpireFired;
 	end
 
+	profileConsumableData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, 0);
+
 	-- Some stack items can be pre-expired for refresh but ONLY if the current stacks == maxStacks
 	if consumableData.stacks and profileConsumableData.currentStacks ~= consumableData.maxStacks then
 		return preExpireFired;
@@ -463,4 +465,36 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleConsumable(profileConsumableD
 	end
 
 	return preExpireFired;
+end
+
+---@param auraInfo table? Information about the aura, or nil if not present.
+---@param auraID number The aura ID.
+---@param reason number The situation to calculate stacks for (0 - add/update, 1 = removal, 2 = pre-expire)
+---@return number currentStacks The current stacks for this aura.
+function SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, reason)
+	reason = reason or 0;
+
+	if not auraInfo then
+		auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(auraID);
+	end
+
+	-- Case 1: Aura removed or missing
+	if reason == SIPPYCUP.Popups.Reason.REMOVAL or not auraInfo then
+		return 0;
+	end
+
+	-- Case 2: Pre-expiration (return maxStacks - 1 for stackable that require 1 re-application for full)
+	if reason == SIPPYCUP.Popups.Reason.PRE_EXPIRATION then
+		local consumableData = SIPPYCUP.Consumables.ByAuraID[auraID];
+		local profileData = SIPPYCUP.profile[auraID];
+
+		if consumableData.stacks and profileData.currentStacks == consumableData.maxStacks then
+			return consumableData.maxStacks - 1;
+		end
+
+		return 0;
+	end
+
+	-- Case 0: Normal add/update (return applications or 1)
+	return math.max(auraInfo.applications or 0, 1);
 end

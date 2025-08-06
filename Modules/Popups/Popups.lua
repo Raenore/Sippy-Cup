@@ -574,26 +574,9 @@ function SIPPYCUP.Popups.HandlePopupAction(reason, auraID, auraInfo, auraInstanc
 		return;
 	end
 
-	-- Establish if we're dealing with a trackable or nontrackable item.
-	local nonTrackable = consumableData.itemTrackable or consumableData.spellTrackable;
-
 	-- First, let's grab the latest currentInstanceID (or have it be nil if none which is fine).
 	profileConsumableData.currentInstanceID = (auraInfo and auraInfo.auraInstanceID) or auraInstanceID;
-
-	-- Determine currentStacks based on reason and auraInfo
-	if reason == 2 then -- Pre-expire
-		profileConsumableData.currentStacks = 0;
-	elseif nonTrackable then
-		-- If a nontrackable was added, it'll be at 1 regardless.
-		-- If removed, currentStacks are at 0.
-		profileConsumableData.currentStacks = (reason == 0) and 1 or 0;
-	elseif auraInfo and reason == 0 and auraInfo.applications == 0 then
-		-- On addition, currentStacks will always be 1 (sometimes it'll say 0 for 1 applications).
-		profileConsumableData.currentStacks = 1;
-	else
-		-- Normal auraInfo checks for trackable items
-		profileConsumableData.currentStacks = auraInfo and auraInfo.applications or 0;
-	end
+	profileConsumableData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, reason);
 
 	-- If the consumable does not support stacks, we always desire just 1.
 	profileConsumableData.desiredStacks = consumableData.stacks and profileConsumableData.desiredStacks or 1;
