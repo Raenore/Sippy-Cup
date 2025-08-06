@@ -681,6 +681,14 @@ local function CreateConfigDropdown(elementContainer, data)
 		root:CreateTitle(labelText);
 		root:CreateDivider();
 
+		-- Make the dropdown list have a scrollbar on mainline.
+		if root.SetScrollMode then
+			local optionHeight = 20; -- 20 is the default height.
+			local maxLines = 20;
+			local maxScrollExtent = optionHeight * maxLines;
+			root:SetScrollMode(maxScrollExtent);
+		end
+
 		local entries = {};
 
 		if #sorting > 0 then
