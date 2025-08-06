@@ -31,7 +31,7 @@ local function ParseAura(updateInfo)
 	local GetAuraDataByAuraInstanceID = C_UnitAuras.GetAuraDataByAuraInstanceID;
 
 	-- On aura application.
-	if updateInfo.addedAuras then
+	if updateInfo.addedAuras and #updateInfo.addedAuras > 0 then
 		for _, auraInfo in ipairs(updateInfo.addedAuras) do
 			local profileConsumableData = SIPPYCUP.Database.FindMatchingConsumable(auraInfo.spellId);
 			if profileConsumableData and profileConsumableData.enable then
@@ -45,7 +45,7 @@ local function ParseAura(updateInfo)
 	end
 
 	-- On aura update.
-	if updateInfo.updatedAuraInstanceIDs then
+	if updateInfo.updatedAuraInstanceIDs and #updateInfo.updatedAuraInstanceIDs > 0 then
 		for _, auraInstanceID in ipairs(updateInfo.updatedAuraInstanceIDs) do
 			local profileConsumableData = SIPPYCUP.Database.FindMatchingConsumable(nil, auraInstanceID);
 			if profileConsumableData and profileConsumableData.enable then
@@ -65,7 +65,7 @@ local function ParseAura(updateInfo)
 	end
 
 	-- On aura removal.
-	if updateInfo.removedAuraInstanceIDs then
+	if updateInfo.removedAuraInstanceIDs and #updateInfo.removedAuraInstanceIDs > 0 then
 		for _, auraInstanceID in ipairs(updateInfo.removedAuraInstanceIDs) do
 			local profileConsumableData = SIPPYCUP.Database.FindMatchingConsumable(nil, auraInstanceID);
 			if profileConsumableData and profileConsumableData.enable and profileConsumableData.currentInstanceID then
