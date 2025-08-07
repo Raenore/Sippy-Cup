@@ -239,16 +239,13 @@ function SIPPYCUP.Auras.Convert(source, data)
 		end
 	elseif source == SIPPYCUP.Auras.Sources.ADD_AURA then
 		-- Source 3: Handle added auras not sent through UNIT_AURA
-		SIPPYCUP_OUTPUT.Debug("ADD_AURA");
 		updateInfo.addedAuras = data;
 	elseif source == SIPPYCUP.Auras.Sources.UPDATE_AURA then
 		-- Source 4: Handle updates to auras not sent through UNIT_AURA
 		-- e.g. Instance ID Update — simulate updated aura using with a new instance ID.
-		SIPPYCUP_OUTPUT.Debug("UPDATE_AURA");
 		updateInfo.updatedAuraInstanceIDs = { data[1] };
 	elseif source == SIPPYCUP.Auras.Sources.REMOVE_AURA then
 		-- Source 5: Handle removed auras not sent through UNIT_AURA
-		SIPPYCUP_OUTPUT.Debug("REMOVE_AURA");
 		updateInfo.removedAuraInstanceIDs = { data[1] };
 	else
 		-- Unknown source passed in — log to user so they can let us know.
