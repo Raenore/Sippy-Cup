@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed  
 - Adjusted how aura data is received from the game, which should resolve the random "your item is not active" popups that could appear after loading screens ([#43](https://github.com/Raenore/Sippy-Cup/pull/43)).  
+- Mark 11.2 as the only compatible version; 11.1.7 is no longer supported (and all live servers have updated) ([#45](https://github.com/Raenore/Sippy-Cup/pull/45)).  
 
 ## [0.3.1] - 2025-08-06  
 First bugfix patch targeting the major 0.3.0 rework release.  
