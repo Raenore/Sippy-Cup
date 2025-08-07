@@ -45,8 +45,6 @@ local function ParseAura(updateInfo)
 		else
 			SIPPYCUP.Auras.CheckAllActiveConsumables();
 		end
-
-		return;
 	end
 
 	-- On aura application.
