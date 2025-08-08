@@ -55,6 +55,11 @@ local sessionData = {};
 ---ResetIgnored clears all the session-based consumable popups.
 ---@return nil
 function SIPPYCUP.Popups.ResetIgnored()
+	for auraID in pairs(sessionData) do
+		local profileConsumableData = SIPPYCUP.profile[auraID];
+		SIPPYCUP.Popups.Toggle(nil, auraID, profileConsumableData.enable);
+	end
+
 	wipe(sessionData);
 end
 
@@ -437,12 +442,20 @@ function SIPPYCUP.Popups.CreateReminderPopup(data, templateTypeID)
 end
 
 ---Toggle handles what should happen after a consumable is enabled or disabled in regards to popup logic.
----@param itemName string The toggled consumable's name.
+---@param itemName string? The toggled consumable's name.
+---@param auraID number? The aura ID of the consumable.
 ---@param enabled boolean Whether the consumable tracking is enabled or disabled.
 ---@return nil
-function SIPPYCUP.Popups.Toggle(itemName, enabled)
+function SIPPYCUP.Popups.Toggle(itemName, auraID, enabled)
 	-- Grab the right consumable by name, and check if aura exists.
-	local consumableData = SIPPYCUP.Consumables.ByName[itemName];
+	local consumableData;
+
+	if itemName then
+		consumableData = SIPPYCUP.Consumables.ByName[itemName];
+	elseif auraID then
+		consumableData = SIPPYCUP.Consumables.ByAuraID[auraID];
+	end
+
 	if not consumableData then
 		return;
 	end
