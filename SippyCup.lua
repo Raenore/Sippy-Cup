@@ -48,7 +48,7 @@ end
 
 ---OpenSettings toggles the main configuration frame and switches to a specified tab.
 ---@param view number? Optional tab number to open, defaults to 1.
-function SIPPYCUP_Addon:OpenSettings(view)	
+function SIPPYCUP_Addon:OpenSettings(view)
 	if not SIPPYCUP.configFrame then
 		SIPPYCUP.Config.TryCreateConfigFrame();
 	end
