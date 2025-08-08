@@ -195,6 +195,12 @@ function SIPPYCUP_Addon:Startup()
 
 	if not SIPPYCUP.InLoadingScreen then
 		SIPPYCUP_Addon:StartContinuousCheck()
+
+		-- isFullUpdate can pass through loading screens (but our code can't), so handle it now.
+		if SIPPYCUP.hasSeenFullUpdate then
+			SIPPYCUP.hasSeenFullUpdate = false;
+			SIPPYCUP.Auras.CheckAllActiveConsumables();
+		end
 	end
 end
 
@@ -208,7 +214,7 @@ local function PlayerLoading(isLoading)
 		SIPPYCUP.InLoadingScreen = false;
 		SIPPYCUP_Addon:StartContinuousCheck()
 
-		-- isFullUpdate can pass through loading screens, so handle it now.
+		-- isFullUpdate can pass through loading screens (but our code can't), so handle it now.
 		if SIPPYCUP.hasSeenFullUpdate then
 			SIPPYCUP.hasSeenFullUpdate = false;
 			SIPPYCUP.Auras.CheckAllActiveConsumables();
