@@ -46,20 +46,20 @@ function SIPPYCUP_Addon:PLAYER_LOGIN()
 	SIPPYCUP.Events:UnregisterEvent("PLAYER_LOGIN");
 end
 
-local configFrame = nil;
-
 ---OpenSettings toggles the main configuration frame and switches to a specified tab.
 ---@param view number? Optional tab number to open, defaults to 1.
-function SIPPYCUP_Addon:OpenSettings(view)
-	if not configFrame then
-		configFrame = CreateFrame("Frame", "SIPPYCUP_ConfigMenuFrame", UIParent, "SIPPYCUP_ConfigMenuTemplate");
+function SIPPYCUP_Addon:OpenSettings(view)	
+	if not SIPPYCUP.configFrame then
+		SIPPYCUP.Config.TryCreateConfigFrame();
 	end
 
-	configFrame:SetShown(not configFrame:IsShown());
-	configFrame:Raise();
+	if SIPPYCUP.configFrame then
+		SIPPYCUP.configFrame:SetShown(not SIPPYCUP.configFrame:IsShown());
+		SIPPYCUP.configFrame:Raise();
 
-	local tabToOpen = view or 1;
-	SIPPYCUP_ConfigMenuFrame:SetTab(tabToOpen);
+		local tabToOpen = view or 1;
+		SIPPYCUP_ConfigMenuFrame:SetTab(tabToOpen);
+	end
 end
 
 ---OnEnable runs during PLAYER_LOGIN, register game events, hook functions, create frames, etc.
