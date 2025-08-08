@@ -1172,14 +1172,6 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 
 	PanelTemplates_SetNumTabs(self, #self.Tabs);
 
-	local totalWidth = 0;
-	for _, tab in ipairs(self.Tabs) do
-		PanelTemplates_TabResize(tab, 15, nil, 65);
-		PanelTemplates_DeselectTab(tab);
-		totalWidth = totalWidth + tab:GetWidth() + 5; -- 5px spacing between tabs
-	end
-	self:SetWidth(totalWidth + 0); -- padding
-
 	-- Test content for General tab
 	CreateTitleWithDescription(generalPanel, L.OPTIONS_GENERAL_HEADER, SIPPYCUP.AddonMetadata.notes);
 
@@ -1583,6 +1575,14 @@ function SIPPYCUP_ConfigMixin:OnDragStop()
 end
 
 function SIPPYCUP_ConfigMixin:OnShow()
+	local totalWidth = 0;
+	for _, tab in ipairs(self.Tabs) do
+		PanelTemplates_TabResize(tab, 15, nil, 65);
+		PanelTemplates_DeselectTab(tab);
+		totalWidth = totalWidth + tab:GetWidth() + 5; -- 5px spacing between tabs
+	end
+	self:SetWidth(totalWidth + 0); -- padding
+
 	self:RefreshWidgets();
 	self:SetTab(1);  -- Show first tab by default
 end
