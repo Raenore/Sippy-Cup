@@ -188,10 +188,9 @@ function SIPPYCUP_Addon:Startup()
 	SIPPYCUP.Config.TryCreateConfigFrame();
 
 	-- Prepare our MSP checks.
-	if not SIPPYCUP.MSP.EnableIfAvailable() then
-		-- If not, we'll do a simple stacksize refresh.
-		SIPPYCUP.Consumables.RefreshStackSizes(false);
-	end
+	SIPPYCUP.MSP.EnableIfAvailable(); -- True/False if enable successfully, we don't need that info right now.
+	-- Depending on if MSP status checks are on or off, we check differently.
+	SIPPYCUP.Consumables.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
 
 	if not SIPPYCUP.InLoadingScreen then
 		SIPPYCUP_Addon:StartContinuousCheck()
