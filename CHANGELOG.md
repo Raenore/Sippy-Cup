@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Changed  
 - Adjusted how aura data is received from the game, which should resolve the random "your item is not active" popups that sometimes appeared after loading screens. [#43](https://github.com/Raenore/Sippy-Cup/pull/43)  
 - Marked 11.2 as the only compatible version; 11.1.7 is no longer supported, as all live servers have updated. [#45](https://github.com/Raenore/Sippy-Cup/pull/45)  
+- Sippy Cup now properly communicates its state to other components within the addon, making sure everything is loaded when it is required. [#47](https://github.com/Raenore/Sippy-Cup/pull/47)  
 
 ### Removed  
 - Removed Ace3 as an optional dependency from the TOC. [#46](https://github.com/Raenore/Sippy-Cup/pull/46)  
