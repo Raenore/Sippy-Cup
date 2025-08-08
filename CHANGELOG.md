@@ -6,15 +6,21 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - When ignored popups are reset, Sippy Cup will try to fire the popups for consumables you have enabled reminders for. [#48](https://github.com/Raenore/Sippy-Cup/pull/48)  
-
+- Ability to queue reminders that happen during combat and loading screens, and fire them at a time when it is more permissible and sensible for Sippy Cup to do so. [#52](https://github.com/Raenore/Sippy-Cup/pull/52)  
+- Enabling "Pre-Expiration Reminders" now also takes into account currently activated consumables, so they also get a reminder popup. [#52](https://github.com/Raenore/Sippy-Cup/pull/52)  
+ 
 ### Changed  
 - Adjusted how aura data is received from the game, which should resolve the random "your item is not active" popups that sometimes appeared after loading screens. [#43](https://github.com/Raenore/Sippy-Cup/pull/43)  
 - Marked 11.2 as the only compatible version; 11.1.7 is no longer supported, as all live servers have updated. [#45](https://github.com/Raenore/Sippy-Cup/pull/45)  
 - Sippy Cup now properly communicates its state to other components within the addon, making sure everything is loaded when it is required. [#47](https://github.com/Raenore/Sippy-Cup/pull/47)  
+- Popup handling has been tweaked to supply extra data, making the addon smarter at handling certain popup reminder situations. [#52](https://github.com/Raenore/Sippy-Cup/pull/52)  
+- MSP-related code (addons like TRP, MRP, XRP, etc.) has been improved and simplified to work better and be less prone to errors. [#52](https://github.com/Raenore/Sippy-Cup/pull/52)  
 
 ### Fixed
 - Resolved an issue caused by ignoring consumables through their reminder popup before the settings page had ever been opened. [#49](https://github.com/Raenore/Sippy-Cup/pull/49)  
 - Fixed an issue where certain checkboxes, such as `Only when "In Character"`, could become stuck in a disabled state even when an MSP-compatible addon was loaded. [#51](https://github.com/Raenore/Sippy-Cup/pull/51)  
+- Stack slider tooltip was not displaying the consumable name correctly; instead, it was showing the spell ID. [#52](https://github.com/Raenore/Sippy-Cup/pull/52)  
+- Fixed potential skinning issues for ElvUI (if enabled) with the config menu. [#52](https://github.com/Raenore/Sippy-Cup/pull/52)  
 
 ### Removed  
 - Removed Ace3 as an optional dependency from the TOC. [#46](https://github.com/Raenore/Sippy-Cup/pull/46)  
