@@ -1242,7 +1242,9 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			end,
 			set = function(val)
 				SIPPYCUP.Database.UpdateSetting("global", "PreExpirationChecks", nil, val);
-				if not val then
+				if val then
+					SIPPYCUP.Consumables.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
+				else
 					SIPPYCUP.Auras.CancelAllPreExpirationTimers();
 					SIPPYCUP.Items.CancelAllItemTimers(2);
 				end
