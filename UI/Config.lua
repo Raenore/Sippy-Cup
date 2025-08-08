@@ -1458,7 +1458,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 					categoryData[#categoryData + 1] = {
 						type = "slider",
 						label = L.OPTIONS_DESIRED_STACKS,
-						tooltip = L.OPTIONS_SLIDER_TEXT and L.OPTIONS_SLIDER_TEXT:format(consumableAura) or nil,
+						tooltip = L.OPTIONS_SLIDER_TEXT and L.OPTIONS_SLIDER_TEXT:format(consumableName) or nil,
 						min = 1,
 						max = consumableData.maxStacks,
 						step = 1,
