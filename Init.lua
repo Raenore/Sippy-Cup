@@ -8,6 +8,8 @@ SIPPYCUP.state = {
 	addonLoaded = false,
 	consumablesLoaded = false,
 	databaseLoaded = false,
+	hasSeenFullUpdate = false;
+	inLoadingScreen = true;
 	startupLoaded = false;
 };
 
@@ -48,6 +50,4 @@ SIPPYCUP.IS_DEV_BUILD = true;
 SIPPYCUP.IS_DEV_BUILD = false;
 --@end-non-debug@]===]
 
-SIPPYCUP.InLoadingScreen = true;
-SIPPYCUP.hasSeenFullUpdate = false;
 _G.SIPPYCUP = SIPPYCUP;

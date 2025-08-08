@@ -174,7 +174,7 @@ function SIPPYCUP.Consumables.RefreshStackSizes(checkAll, reset)
 		local startTime = GetCooldownStartTime(consumableData);
 		local active = startTime ~= nil;
 
-		if not SIPPYCUP.InLoadingScreen then
+		if not SIPPYCUP.state.inLoadingScreen then
 			local preExpireFired;
 			if profileConsumableData.noAuraTrackable then
 				preExpireFired = SIPPYCUP.Items.CheckNoAuraSingleConsumable(profileConsumableData, auraID, nil, startTime);

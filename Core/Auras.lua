@@ -41,8 +41,8 @@ local function ParseAura(updateInfo)
 	-- isFullUpdate true means nil values, invalidate the state.
 	if updateInfo.isFullUpdate then
 		-- If in loading screen, we process this later, otherwise immediately.
-		if SIPPYCUP.InLoadingScreen then
-			SIPPYCUP.hasSeenFullUpdate = true;
+		if SIPPYCUP.state.inLoadingScreen then
+			SIPPYCUP.state.hasSeenFullUpdate = true;
 		else
 			SIPPYCUP.Auras.CheckAllActiveConsumables();
 		end
@@ -307,7 +307,7 @@ end
 ---@return nil
 function SIPPYCUP.Auras.CheckAllActiveConsumables()
 	-- Data sent through/around loading screens will not be reliable, so skip that.
-	if SIPPYCUP.InLoadingScreen then
+	if SIPPYCUP.state.inLoadingScreen then
 		return;
 	end
 
@@ -356,7 +356,7 @@ end
 ---@return nil
 function SIPPYCUP.Auras.CheckInstanceIDForAllActiveConsumables()
 	-- Data sent through/around loading screens will not be reliable, so skip that.
-	if SIPPYCUP.InLoadingScreen then
+	if SIPPYCUP.state.inLoadingScreen then
 		return;
 	end
 
@@ -493,7 +493,7 @@ end
 ---@return nil
 function SIPPYCUP.Auras.CheckPreExpirationForAllActiveConsumables(minSeconds)
 	-- Data sent through/around loading screens will not be reliable, so skip that.
-	if SIPPYCUP.InLoadingScreen or not SIPPYCUP.global.PreExpirationChecks then
+	if SIPPYCUP.state.inLoadingScreen or not SIPPYCUP.global.PreExpirationChecks then
 		return;
 	end
 
@@ -511,7 +511,7 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleConsumable(profileConsumableD
 	local preExpireFired = false;
 
 	-- If pre-expiration checks can't be done, why are we even here?
-	if SIPPYCUP.InLoadingScreen or not SIPPYCUP.global.PreExpirationChecks then
+	if SIPPYCUP.state.inLoadingScreen or not SIPPYCUP.global.PreExpirationChecks then
 		return preExpireFired;
 	end
 

@@ -198,8 +198,8 @@ function SIPPYCUP_Addon:Startup()
 		SIPPYCUP.Popups.HandleDeferredActions("loading");
 
 		-- isFullUpdate can pass through loading screens (but our code can't), so handle it now.
-		if SIPPYCUP.hasSeenFullUpdate then
-			SIPPYCUP.hasSeenFullUpdate = false;
+		if SIPPYCUP.state.hasSeenFullUpdate then
+			SIPPYCUP.state.hasSeenFullUpdate = false;
 			SIPPYCUP.Auras.CheckAllActiveConsumables();
 		end
 
@@ -211,9 +211,10 @@ end
 ---@param isLoading boolean True if loading screen is active, false if loading finished.
 local function PlayerLoading(isLoading)
 	if isLoading then
-		SIPPYCUP.InLoadingScreen = true;
+		SIPPYCUP.state.inLoadingScreen = true;
 		SIPPYCUP_Addon:StopContinuousCheck();
 	else
+		SIPPYCUP.state.inLoadingScreen = false;
 		if not SIPPYCUP.state.startupLoaded then
 			SIPPYCUP.Consumables.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
 			SIPPYCUP.state.startupLoaded = true;
@@ -222,8 +223,8 @@ local function PlayerLoading(isLoading)
 		SIPPYCUP.Popups.HandleDeferredActions("loading");
 
 		-- isFullUpdate can pass through loading screens (but our code can't), so handle it now.
-		if SIPPYCUP.hasSeenFullUpdate then
-			SIPPYCUP.hasSeenFullUpdate = false;
+		if SIPPYCUP.state.hasSeenFullUpdate then
+			SIPPYCUP.state.hasSeenFullUpdate = false;
 			SIPPYCUP.Auras.CheckAllActiveConsumables();
 		end
 	end
@@ -248,7 +249,7 @@ end
 
 ---ZONE_CHANGED_NEW_AREA handles zone changes to exit loading screen state if needed.
 function SIPPYCUP_Addon:ZONE_CHANGED_NEW_AREA()
-	if SIPPYCUP.InLoadingScreen then
+	if SIPPYCUP.state.inLoadingScreen then
 		PlayerLoading(false);
 	end
 end
