@@ -3,6 +3,7 @@
 
 local L = SIPPYCUP.L;
 local SharedMedia = LibStub("LibSharedMedia-3.0");
+SIPPYCUP.Config = {};
 
 local defaultSounds = {
 	{ key = "aggro_enter_warning_state", fid = 567401 },
@@ -26,6 +27,12 @@ end
 local soundList = {}
 for _, soundName in ipairs(SharedMedia:List("sound")) do
 	soundList[soundName] = soundName
+end
+
+function SIPPYCUP.Config.TryCreateConfigFrame()
+	if not SIPPYCUP.configFrame then
+		SIPPYCUP.configFrame = CreateFrame("Frame", "SIPPYCUP_ConfigMenuFrame", UIParent, "SIPPYCUP_ConfigMenuTemplate");
+	end
 end
 
 ---AddTab creates a new tab button under the given parent frame and adds it to the parent's Tabs list.
@@ -1417,13 +1424,12 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 
 		for _, consumableData in ipairs(SIPPYCUP.Consumables.Data) do
 			if consumableData.category == categoryName then
-				local profileKey = consumableData.auraID;
+				local consumableAura = consumableData.auraID;
 				local consumableName = consumableData.name;
 				local consumableID = consumableData.itemID;
 				local consumableIcon = consumableData.icon;
 
-				local checkboxProfileKey = profileKey;
-				local checkboxConsumableName = consumableName;
+				local checkboxProfileKey = consumableAura;
 
 				categoryData[#categoryData + 1] = {
 					type = "checkbox",
@@ -1440,19 +1446,18 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 					end,
 					set = function(val)
 						SIPPYCUP.Database.UpdateSetting("profile", checkboxProfileKey, "enable", val);
-						SIPPYCUP.Popups.Toggle(checkboxConsumableName, val);
+						SIPPYCUP.Popups.Toggle(consumableName, consumableAura, val);
 					end,
 				};
 
 				-- Slider: Desired stacks (if applicable)
 				if consumableData.stacks then
-					local sliderProfileKey = profileKey;
-					local sliderConsumableName = consumableName;
+					local sliderProfileKey = consumableAura;
 
 					categoryData[#categoryData + 1] = {
 						type = "slider",
 						label = L.OPTIONS_DESIRED_STACKS,
-						tooltip = L.OPTIONS_SLIDER_TEXT and L.OPTIONS_SLIDER_TEXT:format(sliderConsumableName) or nil,
+						tooltip = L.OPTIONS_SLIDER_TEXT and L.OPTIONS_SLIDER_TEXT:format(consumableAura) or nil,
 						min = 1,
 						max = consumableData.maxStacks,
 						step = 1,
@@ -1465,7 +1470,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 						set = function(val)
 							SIPPYCUP.Database.UpdateSetting("profile", sliderProfileKey, "desiredStacks", val);
 							if SIPPYCUP.profile[sliderProfileKey].enable then
-								SIPPYCUP.Popups.Toggle(sliderConsumableName, true);
+								SIPPYCUP.Popups.Toggle(consumableName, consumableAura, true);
 							end
 						end,
 					};

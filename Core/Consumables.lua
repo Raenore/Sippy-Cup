@@ -98,8 +98,6 @@ for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
 	SIPPYCUP.Consumables.ByItemID[consumable.itemID] = consumable;
 end
 
-SIPPYCUP.deferSetup = false;
-
 for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
 	local item = Item:CreateFromItemID(consumable.itemID);
 	item:ContinueOnItemLoad(function()
@@ -123,6 +121,10 @@ for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
 			table.sort(SIPPYCUP.Consumables.Data, function(a, b)
 				return SIPPYCUP_TEXT.Normalize(a.name:lower()) < SIPPYCUP_TEXT.Normalize(b.name:lower());
 			end);
+
+			SIPPYCUP.state.consumablesLoaded = true;
+			-- Attempt Addon startup.
+			SIPPYCUP_Addon:Startup();
 
 			--[[
 			if SIPPYCUP.db then

@@ -4,6 +4,12 @@
 ---@class SIPPYCUP
 local _, SIPPYCUP = ...;
 
+SIPPYCUP.state = {
+	addonLoaded = false,
+	consumablesLoaded = false,
+	databaseLoaded = false,
+};
+
 -- Create a single event dispatcher frame for all addon events
 local events = CreateFrame("Frame", "SIPPYCUP_EventFrame");
 _G.SIPPYCUP_Addon = events;
