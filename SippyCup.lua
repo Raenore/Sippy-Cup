@@ -191,9 +191,9 @@ function SIPPYCUP_Addon:Startup()
 	-- Prepare our MSP checks.
 	SIPPYCUP.MSP.EnableIfAvailable(); -- True/False if enable successfully, we don't need that info right now.
 	-- Depending on if MSP status checks are on or off, we check differently.
-	SIPPYCUP.Consumables.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
 
-	if not SIPPYCUP.InLoadingScreen then
+	if not SIPPYCUP.state.inLoadingScreen then
+		SIPPYCUP.Consumables.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
 		SIPPYCUP_Addon:StartContinuousCheck()
 		SIPPYCUP.Popups.HandleDeferredActions("loading");
 
@@ -202,9 +202,9 @@ function SIPPYCUP_Addon:Startup()
 			SIPPYCUP.hasSeenFullUpdate = false;
 			SIPPYCUP.Auras.CheckAllActiveConsumables();
 		end
-	end
 
-	SIPPYCUP.state.startupLoaded = true;
+		SIPPYCUP.state.startupLoaded = true;
+	end
 end
 
 ---PlayerLoading handles loading screen state changes, stopping checks when loading and starting them when done.
@@ -214,7 +214,10 @@ local function PlayerLoading(isLoading)
 		SIPPYCUP.InLoadingScreen = true;
 		SIPPYCUP_Addon:StopContinuousCheck();
 	else
-		SIPPYCUP.InLoadingScreen = false;
+		if not SIPPYCUP.state.startupLoaded then
+			SIPPYCUP.Consumables.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
+			SIPPYCUP.state.startupLoaded = true;
+		end
 		SIPPYCUP_Addon:StartContinuousCheck()
 		SIPPYCUP.Popups.HandleDeferredActions("loading");
 
