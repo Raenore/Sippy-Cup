@@ -101,13 +101,10 @@ function SIPPYCUP_Addon:OnEnable()
 	-- 3 - If msp exists, we listen to its update callbacks from the own player.
 	-- Handled in PlayerLoading on login/reloads.
 
-	-- 4 - We start our 5s AuraCheck (mismatch from UNIT_AURA)
-	-- Handled in PLAYER_ENTERING_WORLD on login through self:StartAuraCheck();
-
-	-- 5 - We start our 3m Pre-Expiration Check if it's enabled (check is done within the function itself).
+	-- 4 - We start our 3m Pre-Expiration Check if it's enabled (check is done within the function itself).
 	-- Handled in PLAYER_ENTERING_WORLD on login through self:StartContinuousCheck();
 
-	-- 6 - If we've g	otten here, we can send our Welcome Message (if it's enabled).
+	-- 5 - If we've gotten here, we can send our Welcome Message (if it's enabled).
 	if SIPPYCUP.global.WelcomeMessage then
 		SIPPYCUP_OUTPUT.Write(L.WELCOMEMSG_VERSION:format(SIPPYCUP.Database.GetCurrentProfileName(), SIPPYCUP.AddonMetadata.version));
 		SIPPYCUP_OUTPUT.Write(L.WELCOMEMSG_OPTIONS);
@@ -125,36 +122,7 @@ function SIPPYCUP_Addon:UNIT_AURA(_, unitTarget, updateInfo)
 
 	-- Bag data is not synched immediately when UNIT_AURA fires, signal desync to the addon.
 	SIPPYCUP.Items.bagUpdateUnhandled = true;
-	SIPPYCUP.Auras.Convert(1, updateInfo);
-end
-
-local AURA_CHECK_INTERVAL = 5.0;
----StartAuraCheck begins a repeating 5-second timer to check aura stack mismatches, unless in combat or already running.
-function SIPPYCUP_Addon:StartAuraCheck()
-	-- Should never happen, but just in case.
-	if InCombatLockdown() then
-		return;
-	end
-
-	-- Only run this if it's not already running, no point to duplicate.
-	if not self.auraTicker then
-		-- Run once immediately
-		SIPPYCUP.Auras.CheckStackMismatchInDBForAllActiveConsumables();
-
-		-- schedule and keep the handle so we can cancel it later
-		self.auraTicker = C_Timer.NewTicker(AURA_CHECK_INTERVAL, function()
-			SIPPYCUP.Auras.CheckStackMismatchInDBForAllActiveConsumables();
-		end);
-	end
-end
-
-
----StopAuraCheck cancels the repeating aura mismatch check timer if active.
-function SIPPYCUP_Addon:StopAuraCheck()
-	if self.auraTicker then
-		self.auraTicker:Cancel();
-		self.auraTicker = nil;
-	end
+	SIPPYCUP.Auras.Convert(SIPPYCUP.Auras.Sources.UNIT_AURA, updateInfo);
 end
 
 local CONTINUOUS_CHECK_INTERVAL = 180.0;
@@ -198,14 +166,12 @@ end
 ---PLAYER_REGEN_DISABLED handles entering combat by stopping aura and continuous checks.
 function SIPPYCUP_Addon:PLAYER_REGEN_DISABLED()
 	-- Combat is entered when regen is disabled.
-	self:StopAuraCheck();
 	self:StopContinuousCheck();
 end
 
 ---PLAYER_REGEN_ENABLED handles leaving combat by restarting aura and continuous checks.
 function SIPPYCUP_Addon:PLAYER_REGEN_ENABLED()
 	-- Combat is left when regen is enabled.
-	self:StartAuraCheck();
 	self:StartContinuousCheck();
 end
 
@@ -215,12 +181,16 @@ local startupCheck = true;
 local function PlayerLoading(isLoading)
 	if isLoading then
 		SIPPYCUP.InLoadingScreen = true;
-		SIPPYCUP_Addon:StopAuraCheck();
 		SIPPYCUP_Addon:StopContinuousCheck();
 	else
 		SIPPYCUP.InLoadingScreen = false;
-		SIPPYCUP_Addon:StartAuraCheck();
 		SIPPYCUP_Addon:StartContinuousCheck()
+
+		-- isFullUpdate can pass through loading screens, so handle it now.
+		if SIPPYCUP.hasSeenFullUpdate then
+			SIPPYCUP.hasSeenFullUpdate = false;
+			SIPPYCUP.Auras.CheckAllActiveConsumables();
+		end
 
 		if startupCheck then
 			if not SIPPYCUP.MSP.EnableIfAvailable() then
