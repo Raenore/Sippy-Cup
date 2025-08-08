@@ -161,7 +161,7 @@ local function CreatePopup(templateType)
 		-- Show next in queue if any
 		if #popupQueue > 0 then
 			local nextData = tremove(popupQueue, 1);
-			SIPPYCUP.Popups.CreateReminderPopup(nextData);
+			SIPPYCUP.Popups.HandleReminderPopup(nextData);
 		end
 
 		GameTooltip:Hide(); -- Hide any tooltip lingering from this popup
@@ -367,43 +367,49 @@ end
 ---@field reason number Why the popup was triggered: 0 = add/update, 1 = removal, 2 = pre-expire.
 ---@field itemCount number Number of matching items in the player's inventory when the popup is created.
 
----CreateReminderPopup Displays a popup with reminder and item interaction options.
+---HandleReminderPopup Handles whether a popup with reminder and item interaction options should be displayed or not.
 ---@param data ReminderPopupData Table containing all necessary information about the consumable and profile.
 ---@param templateTypeID? number What kind of template to create (0 = reminder, 1 = missing); defaults to 0.
-function SIPPYCUP.Popups.CreateReminderPopup(data, templateTypeID)
+function SIPPYCUP.Popups.HandleReminderPopup(data, templateTypeID)
 	if not SIPPYCUP or not SIPPYCUP.db or not SIPPYCUP.db.global then return; end
 
 	local loc = data.consumableData.loc;
 	templateTypeID = templateTypeID or 0;  -- default to 0 if nil
 	local templateType = (templateTypeID == 1) and "SIPPYCUP_MissingPopupTemplate" or "SIPPYCUP_RefreshPopupTemplate";
 	local popup = activePopupByLoc[loc];
-	local isNew = not popup or not popup:IsShown();
+	local popupInstance = popup and popup:IsShown();
 
-	-- If correct stack count reached, we're done!
-	if data.reason == SIPPYCUP.Popups.Reason.ADDITION and templateTypeID == 0 and data.requiredStacks <= 0 then
-		if popup and popup:IsShown() then
+	-- Special popup handling.
+	if popup and popup.templateType == "SIPPYCUP_MissingPopupTemplate" then
+		-- If missing popup is still shown, we remove that first before showing new ones.
+		if popupInstance then
 			popup:Hide();
 		end
 
-		-- If user wants a missing reminder, we'll do that now.
-		if data.itemCount < data.profileConsumableData.desiredStacks and SIPPYCUP.global.InsufficientReminder then
-			SIPPYCUP.Popups.CreateReminderPopup(data, 1);
-		end
+		-- We then fire a new refresh popup with the same data to handle that.
+		SIPPYCUP.Popups.HandleReminderPopup(data, 0);
 		return;
-	elseif popup and popup.templateType == "SIPPYCUP_MissingPopupTemplate" then
-	-- If missing popup is still shown, we remove that first before showing new ones.
-		if popup and popup:IsShown() then
-			popup:Hide();
-		end
+	elseif templateTypeID == 0 then
+		-- Popup request for addition, but we already have enough (or too many) required stacks?
+		if data.reason == SIPPYCUP.Popups.Reason.ADDITION and data.requiredStacks <= 0 then
+			-- If a popup is currently shown, we bail out.
+			if popupInstance then
+				popup:Hide();
+			end
 
-		SIPPYCUP.Popups.CreateReminderPopup(data, 0);
-		return;
+			-- If user wants a missing reminder, we'll do that now.
+			if data.itemCount < data.profileConsumableData.desiredStacks and SIPPYCUP.global.InsufficientReminder then
+				SIPPYCUP.Popups.HandleReminderPopup(data, 1);
+			end
+			return;
+		end
 	end
 
-	if isNew then
+	if not popupInstance then
 		popup = GetPopup(templateType);
+		-- Nil when the queue is full (5 popups shown).
 		if not popup then
-			tinsert(popupQueue, data);
+			popupQueue[#popupQueue + 1] = data;
 			return;
 		end
 	end
@@ -413,7 +419,7 @@ function SIPPYCUP.Popups.CreateReminderPopup(data, templateTypeID)
 
 	-- Position the popup only if it's a new instance being added to the active list
 	-- or if it was previously hidden and is now being re-shown.
-	if isNew then
+	if not popupInstance then
 		local index = #activePopups + 1;
 		local offsetY, anchor = CalculatePopupOffset(index);
 		popup:ClearAllPoints();
@@ -424,19 +430,25 @@ function SIPPYCUP.Popups.CreateReminderPopup(data, templateTypeID)
 	UpdatePopupVisuals(popup, data);
 
 	-- Show the popup and manage active lists
-	if not popup:IsShown() then
+	if popup and not popup:IsShown() then
 		popup:Show();
 	end
 
-	if isNew then
+	local shouldPlayAlert = false;
+	if not popupInstance then
 		tinsert(activePopups, popup); -- Add to active list only if it's a new instance
 		activePopupByLoc[loc] = popup; -- Store in lookup for loc-based replacement
-		HandleAlerts();
-	elseif data.reason == SIPPYCUP.Popups.Reason.REMOVAL then
-		-- Removal popups should always fire an alert, because they might come after pre-expiration
-		HandleAlerts();
+		shouldPlayAlert = true;
 	elseif lastProfileAlert ~= SIPPYCUP.Database.GetCurrentProfileName() then
 		-- If profile change happens, fire an alert as-is for popups (throttle will still hold them)
+		shouldPlayAlert = true;
+	elseif data.reason == SIPPYCUP.Popups.Reason.REMOVAL and templateType ~= "SIPPYCUP_RefreshPopupTemplate" and popupInstance then
+		-- Removal popups should always fire an alert, because they might come after pre-expiration
+		-- Only exception is when the refresh was already open, then the user is switching stack sizes.
+		shouldPlayAlert = true;
+	end
+
+	if shouldPlayAlert then
 		HandleAlerts();
 	end
 end
@@ -606,7 +618,7 @@ function SIPPYCUP.Popups.HandlePopupAction(reason, auraID, auraInfo, auraInstanc
 	local requiredStacks = profileConsumableData.desiredStacks - profileConsumableData.currentStacks;
 	local itemCount = C_Item.GetItemCount(consumableData.itemID);
 
-	SIPPYCUP.Popups.CreateReminderPopup({
+	SIPPYCUP.Popups.HandleReminderPopup({
 		consumableData = consumableData,
 		profileConsumableData = profileConsumableData,
 		requiredStacks = requiredStacks,
