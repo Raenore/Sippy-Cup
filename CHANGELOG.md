@@ -3,6 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.3.2] - 2025-08-xx  
+Second patch on the major 0.3.0 rework release, adding some new requested features, changing internals to optimize things, and fixing some reported bugs.
 
 ### Added
 - When ignored popups are reset, Sippy Cup will try to fire the popups for consumables you have enabled reminders for. [#48](https://github.com/Raenore/Sippy-Cup/pull/48)  
