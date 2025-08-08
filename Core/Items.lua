@@ -37,8 +37,17 @@ function SIPPYCUP.Items.CreateItemTimer(fireIn, key, auraID, reason, itemID)
 	-- Schedule the timer
 	local handle = C_Timer.NewTimer(fireIn, function()
 		scheduledItemTimers[key] = nil;
+
+		local data = {
+			active = true,
+			auraID = auraID,
+			auraInfo = nil,
+			consumableData = nil,
+			profileConsumableData = nil,
+			reason = reason,
+		};
 		-- Fire the popup
-		SIPPYCUP.Popups.QueuePopupAction(reason, auraID, nil, nil, "CreatePreExpirationTimer - Item - Reason: " .. reason);
+		SIPPYCUP.Popups.QueuePopupAction(data, "CreatePreExpirationTimer - Item - Reason: " .. reason);
 	end);
 
 	-- Store it for potential cancellation later
@@ -214,7 +223,16 @@ function SIPPYCUP.Items.CheckNoAuraSingleConsumable(profileConsumableData, spell
 		if fireIn <= 0 and SIPPYCUP.global.PreExpirationChecks then
 			-- Less than 60s left and we want pre-expiration popup: fire immediately
 			preExpireFired = true;
-			SIPPYCUP.Popups.QueuePopupAction(SIPPYCUP.Popups.Reason.PRE_EXPIRATION, auraID, nil, nil, "CheckNonTrackableSingleConsumable - pre-expiration");
+
+			local data = {
+				active = true,
+				auraID = auraID,
+				auraInfo = nil,
+				consumableData = consumableData,
+				profileConsumableData = profileConsumableData,
+				reason = SIPPYCUP.Popups.Reason.PRE_EXPIRATION,
+			};
+			SIPPYCUP.Popups.QueuePopupAction(data, "CheckNonTrackableSingleConsumable - pre-expiration");
 		elseif SIPPYCUP.global.PreExpirationChecks then
 			-- Schedule our 1m before expiration reminder.
 			reason = 2;

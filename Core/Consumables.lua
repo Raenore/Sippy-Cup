@@ -177,10 +177,19 @@ function SIPPYCUP.Consumables.RefreshStackSizes(checkAll)
 			end
 
 			if not preExpireFired then
+				local data = {
+					active = auraInfo and true or active,
+					auraID = auraID,
+					auraInfo = auraInfo,
+					consumableData = consumableData,
+					profileConsumableData = profileConsumableData,
+				};
 				if auraInfo or active then
-					SIPPYCUP.Popups.QueuePopupAction(SIPPYCUP.Popups.Reason.ADDITION, auraID, auraInfo, auraInfo and auraInfo.auraInstanceID, "CheckConsumableStackSizes - active");
+					data.reason = SIPPYCUP.Popups.Reason.ADDITION;
+					SIPPYCUP.Popups.QueuePopupAction(data, "CheckConsumableStackSizes - active");
 				elseif checkAll then
-					SIPPYCUP.Popups.QueuePopupAction(SIPPYCUP.Popups.Reason.REMOVAL, auraID, nil, nil, "CheckConsumableStackSizes - checkAll");
+					data.reason = SIPPYCUP.Popups.Reason.REMOVAL;
+					SIPPYCUP.Popups.QueuePopupAction(data, "CheckConsumableStackSizes - checkAll");
 				end
 			end
 		end

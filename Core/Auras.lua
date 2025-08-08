@@ -36,6 +36,7 @@ end
 ---@return nil
 local function ParseAura(updateInfo)
 	local GetAuraDataByAuraInstanceID = C_UnitAuras.GetAuraDataByAuraInstanceID;
+	local auraAdded = false;
 
 	-- isFullUpdate true means nil values, invalidate the state.
 	if updateInfo.isFullUpdate then
@@ -52,11 +53,21 @@ local function ParseAura(updateInfo)
 		for _, auraInfo in ipairs(updateInfo.addedAuras) do
 			local profileConsumableData = SIPPYCUP.Database.FindMatchingConsumable(auraInfo.spellId);
 			if profileConsumableData and profileConsumableData.enable then
+				auraAdded = true;
 				profileConsumableData.currentInstanceID = auraInfo.auraInstanceID;
 				SIPPYCUP.Database.instanceToProfile[auraInfo.auraInstanceID] = profileConsumableData;
 
 				SIPPYCUP.Auras.CheckPreExpirationForSingleConsumable(profileConsumableData);
-				SIPPYCUP.Popups.QueuePopupAction(SIPPYCUP.Popups.Reason.ADDITION, auraInfo.spellId, auraInfo, auraInfo.auraInstanceID, "ParseAura - addition");
+
+				local data = {
+					active = auraInfo ~= nil,
+					auraID = profileConsumableData.aura,
+					auraInfo = auraInfo,
+					consumableData = SIPPYCUP.Consumables.ByAuraID[profileConsumableData.aura],
+					profileConsumableData = profileConsumableData,
+					reason = SIPPYCUP.Popups.Reason.ADDITION,
+				};
+				SIPPYCUP.Popups.QueuePopupAction(data, "ParseAura - addition");
 			end
 		end
 	end
@@ -68,6 +79,7 @@ local function ParseAura(updateInfo)
 			if profileConsumableData and profileConsumableData.enable then
 				local auraInfo = GetAuraDataByAuraInstanceID("player", auraInstanceID);
 				if auraInfo then
+					auraAdded = true;
 					-- This is not necessary, but a safety update just in case.
 					profileConsumableData.currentInstanceID = auraInfo.auraInstanceID;
 					SIPPYCUP.Database.instanceToProfile[auraInfo.auraInstanceID] = profileConsumableData;
@@ -75,7 +87,16 @@ local function ParseAura(updateInfo)
 					-- On aura update, we remove all pre-expiration timers as that's obvious no longer relevant.
 					SIPPYCUP.Auras.CancelPreExpirationTimer(nil, profileConsumableData.aura, auraInstanceID);
 					SIPPYCUP.Auras.CheckPreExpirationForSingleConsumable(profileConsumableData);
-					SIPPYCUP.Popups.QueuePopupAction(SIPPYCUP.Popups.Reason.ADDITION, auraInfo.spellId, auraInfo, auraInfo.auraInstanceID, "ParseAura - updated");
+
+					local data = {
+						active = auraInfo ~= nil,
+						auraID = profileConsumableData.aura,
+						auraInfo = auraInfo,
+						consumableData = SIPPYCUP.Consumables.ByAuraID[profileConsumableData.aura],
+						profileConsumableData = profileConsumableData,
+						reason = SIPPYCUP.Popups.Reason.ADDITION,
+					};
+					SIPPYCUP.Popups.QueuePopupAction(data, "ParseAura - updated");
 				end
 			end
 		end
@@ -91,9 +112,23 @@ local function ParseAura(updateInfo)
 
 				-- On aura removal, we remove all pre-expiration timers as that's obvious no longer relevant.
 				SIPPYCUP.Auras.CancelPreExpirationTimer(nil, profileConsumableData.aura, auraInstanceID);
-				SIPPYCUP.Popups.QueuePopupAction(SIPPYCUP.Popups.Reason.REMOVAL, profileConsumableData.aura, nil, auraInstanceID, "ParseAura - removed");
+
+				local data = {
+					active = false,
+					auraID = profileConsumableData.aura,
+					auraInfo = nil,
+					consumableData = SIPPYCUP.Consumables.ByAuraID[profileConsumableData.aura],
+					profileConsumableData = profileConsumableData,
+					reason = SIPPYCUP.Popups.Reason.REMOVAL,
+				};
+				SIPPYCUP.Popups.QueuePopupAction(data, "ParseAura - removed");
 			end
 		end
+	end
+
+	-- If no auras were added, there was no bag update so we mark bag as synchronized.
+	if not auraAdded then
+		SIPPYCUP.Items.HandleBagUpdate();
 	end
 end
 
@@ -394,8 +429,16 @@ function SIPPYCUP.Auras.CreatePreExpirationTimer(fireIn, auraInfo, key, auraID, 
 	-- Schedule the timer
 	local handle = C_Timer.NewTimer(fireIn, function()
 		scheduledPreExpirationAuraTimers[key] = nil;
+		local data = {
+			active = auraInfo ~= nil,
+			auraID = auraInfo and auraInfo.spellId or auraID,
+			auraInfo = auraInfo,
+			consumableData = nil,
+			profileConsumableData = nil,
+			reason = SIPPYCUP.Popups.Reason.PRE_EXPIRATION,
+		};
 		-- Fire the popup
-		SIPPYCUP.Popups.QueuePopupAction(SIPPYCUP.Popups.Reason.PRE_EXPIRATION, auraInfo and auraInfo.spellId or auraID, auraInfo, auraInfo and auraInfo.auraInstanceID, "CreatePreExpirationTimer - Aura");
+		SIPPYCUP.Popups.QueuePopupAction(data, "CreatePreExpirationTimer - Aura");
 	end);
 
 	-- Store it for potential cancellation later
@@ -493,7 +536,7 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleConsumable(profileConsumableD
 		return preExpireFired;
 	end
 
-	profileConsumableData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, 0);
+	profileConsumableData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, 0, auraInfo ~= nil);
 
 	-- Some stack items can be pre-expired for refresh but ONLY if the current stacks == maxStacks
 	if consumableData.stacks and profileConsumableData.currentStacks ~= consumableData.maxStacks then
@@ -521,9 +564,17 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleConsumable(profileConsumableD
 			-- Less than 60s left and we want pre-expiration popup: fire immediately
 
 			local spellId = auraInfo and auraInfo.spellId or profileConsumableData.aura;
-			local auraInstanceID = auraInfo and auraInfo.auraInstanceID;
 			preExpireFired = true;
-			SIPPYCUP.Popups.QueuePopupAction(SIPPYCUP.Popups.Reason.PRE_EXPIRATION, spellId, auraInfo or nil, auraInstanceID, "CheckPreExpirationForSingleConsumable - pre-expiration");
+
+			local data = {
+				active = auraInfo ~= nil,
+				auraID = spellId,
+				auraInfo = auraInfo,
+				consumableData = consumableData,
+				profileConsumableData = profileConsumableData,
+				reason = SIPPYCUP.Popups.Reason.PRE_EXPIRATION,
+			};
+			SIPPYCUP.Popups.QueuePopupAction(data, "CheckPreExpirationForSingleConsumable - pre-expiration");
 		elseif SIPPYCUP.global.PreExpirationChecks then
 			-- Schedule our 1m before expiration reminder.
 			SIPPYCUP.Auras.CreatePreExpirationTimer(fireIn, auraInfo, key, auraID);
@@ -535,9 +586,10 @@ end
 
 ---@param auraInfo table? Information about the aura, or nil if not present.
 ---@param auraID number The aura ID.
----@param reason number The situation to calculate stacks for (0 - add/update, 1 = removal, 2 = pre-expire)
+---@param reason number The situation to calculate stacks for (0 - add/update, 1 = removal, 2 = pre-expire, 3 = toggle)
+---@param active boolean Whether the aura is currently active (false = inactive, true = active).
 ---@return number currentStacks The current stacks for this aura.
-function SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, reason)
+function SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, reason, active)
 	reason = reason or 0;
 
 	if not auraInfo then
@@ -545,7 +597,7 @@ function SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, reason)
 	end
 
 	-- Case 1: Aura removed or missing
-	if reason == SIPPYCUP.Popups.Reason.REMOVAL or not auraInfo then
+	if not active or reason == SIPPYCUP.Popups.Reason.REMOVAL or not auraInfo then
 		return 0;
 	end
 
