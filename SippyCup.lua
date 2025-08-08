@@ -202,6 +202,8 @@ function SIPPYCUP_Addon:Startup()
 			SIPPYCUP.Auras.CheckAllActiveConsumables();
 		end
 	end
+
+	SIPPYCUP.state.startupLoaded = true;
 end
 
 ---PlayerLoading handles loading screen state changes, stopping checks when loading and starting them when done.

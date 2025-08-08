@@ -8,6 +8,7 @@ SIPPYCUP.state = {
 	addonLoaded = false,
 	consumablesLoaded = false,
 	databaseLoaded = false,
+	startupLoaded = false;
 };
 
 -- Create a single event dispatcher frame for all addon events
