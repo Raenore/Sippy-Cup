@@ -136,8 +136,8 @@ end
 function SIPPYCUP.Consumables.RefreshStackSizes(checkAll, reset)
 	local GetPlayerAuraBySpellID = C_UnitAuras.GetPlayerAuraBySpellID;
 	if reset == nil then
-        reset = true;
-    end
+		reset = true;
+	end
 
 	-- Helper to check cooldown startTime for item or spell trackable
 	local function GetCooldownStartTime(consumable)
