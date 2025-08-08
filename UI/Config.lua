@@ -309,7 +309,7 @@ end
 local function WrapButtonClick(original)
 	return function(self, ...)
 		original(self, ...);
-		if SIPPYCUP_ConfigMenuFrame and SIPPYCUP_ConfigMenuFrame.RefreshWidgets then
+		if SIPPYCUP.configFrame then
 			RunNextFrame(function()
 				SIPPYCUP_ConfigMenuFrame:RefreshWidgets();
 			end);
@@ -589,7 +589,7 @@ local function CreateConfigCheckBox(elementContainer, data)
 			local checked = self:GetChecked();
 			if checked ~= data.get() then
 				data.set(checked);
-				if SIPPYCUP_ConfigMenuFrame and SIPPYCUP_ConfigMenuFrame.RefreshWidgets then
+				if SIPPYCUP.configFrame then
 					SIPPYCUP_ConfigMenuFrame:RefreshWidgets();
 				end
 			end
@@ -675,7 +675,7 @@ local function CreateConfigDropdown(elementContainer, data)
 	local function SetSelected(index)
 		if type(data.set) == "function" then
 			data.set(index);
-			if SIPPYCUP_ConfigMenuFrame and SIPPYCUP_ConfigMenuFrame.RefreshWidgets then
+			if SIPPYCUP.configFrame then
 				SIPPYCUP_ConfigMenuFrame:RefreshWidgets();
 			end
 		end
@@ -763,7 +763,7 @@ local function CreateConfigEditBox(elementContainer, data)
 			data.set(self:GetText());
 			self:SetText(""); -- Intentionally clear after submission
 			self:ClearFocus();
-			if SIPPYCUP_ConfigMenuFrame and SIPPYCUP_ConfigMenuFrame.RefreshWidgets then
+			if SIPPYCUP.configFrame then
 				SIPPYCUP_ConfigMenuFrame:RefreshWidgets();
 			end
 		end);
@@ -848,7 +848,7 @@ local function CreateConfigSlider(elementContainer, data)
 				lastValue = rounded;
 				data.set(rounded);
 				UpdateTextDisplay(rounded);
-				if SIPPYCUP_ConfigMenuFrame and SIPPYCUP_ConfigMenuFrame.RefreshWidgets then
+				if SIPPYCUP.configFrame then
 					SIPPYCUP_ConfigMenuFrame:RefreshWidgets();
 				end
 			end

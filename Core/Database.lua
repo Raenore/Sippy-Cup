@@ -323,7 +323,7 @@ end
 ---It only runs if the config menu frame and its refresh method are available.
 ---@return nil
 function SIPPYCUP.Database.RefreshUI()
-	if SIPPYCUP_ConfigMenuFrame and SIPPYCUP_ConfigMenuFrame.RefreshWidgets then
+	if SIPPYCUP.configFrame then
 		SIPPYCUP_ConfigMenuFrame:RefreshWidgets();
 		SIPPYCUP_ConfigMenuFrame:SwitchProfileValues();
 	end

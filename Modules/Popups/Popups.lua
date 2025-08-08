@@ -232,7 +232,9 @@ local function CreatePopup(templateType)
 			popup.IgnoreButton:SetScript("OnClick", function()
 				if sessionData and popup.popupData and popup.popupData.consumableData then
 					sessionData[popup.popupData.consumableData.auraID] = true;
-					SIPPYCUP_ConfigMenuFrame:RefreshWidgets();
+					if SIPPYCUP.configFrame then
+						SIPPYCUP_ConfigMenuFrame:RefreshWidgets();
+					end
 				end
 				popup:Hide();
 			end);
