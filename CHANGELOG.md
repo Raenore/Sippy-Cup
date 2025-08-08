@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 - Resolved an issue caused by ignoring consumables through their reminder popup before the settings page had ever been opened. [#49](https://github.com/Raenore/Sippy-Cup/pull/49)  
+- Fixed an issue where certain checkboxes, such as `Only when "In Character"`, could become stuck in a disabled state even when an MSP-compatible addon was loaded. [#51](https://github.com/Raenore/Sippy-Cup/pull/51)  
 
 ### Removed  
 - Removed Ace3 as an optional dependency from the TOC. [#46](https://github.com/Raenore/Sippy-Cup/pull/46)  
