@@ -609,16 +609,33 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 		SIPPYCUP.Items.HandleBagUpdate();
 	end
 
-	-- Bag data is desynch'd from UNIT_AURA fires, defer handling.
-	if SIPPYCUP.Items.bagUpdateUnhandled then
-		-- Consumable items go to deferredPopups to wait for BAG_UPDATE_DELAYED.
-		tinsert(deferredActions, {
-			loc = consumableData.loc,
+	-- We defer popups in three situations:
+	-- > Bag data is desynch'd from UNIT_AURA.
+	-- > We're in combat (experimental).
+	-- > We're in a loading screen.
+	if SIPPYCUP.Items.bagUpdateUnhandled or InCombatLockdown() or SIPPYCUP.InLoadingScreen then
+		local blockedBy;
+		if SIPPYCUP.Items.bagUpdateUnhandled then
+			blockedBy = "bag";
+		elseif InCombatLockdown() then
+			blockedBy = "combat";
+		elseif SIPPYCUP.InLoadingScreen then
+			blockedBy = "loading";
+		end
+
+		local deferredData = {
+			active = active,
 			auraID = auraID,
-			reason = reason,
 			auraInfo = auraInfo,
-			auraInstanceID = auraInstanceID,
-			caller = caller
+			consumableData = consumableData,
+			profileConsumableData = profileConsumableData,
+			reason = reason,
+		};
+
+		tinsert(deferredActions, {
+			data = deferredData,
+			caller = caller,
+			blockedBy = blockedBy,
 		});
 		return;
 	end
@@ -657,18 +674,25 @@ end
 
 ---HandleDeferredActions Processes and flushes all queued popup actions.
 -- Called after bag data is synced (BAG_UPDATE_DELAYED) to ensure accurate context.
-function SIPPYCUP.Popups.HandleDeferredActions()
-	if not deferredActions then return; end
-
-	for _, action in ipairs(deferredActions) do
-		SIPPYCUP.Popups.QueuePopupAction(
-			action.reason,
-			action.auraID,
-			action.auraInfo,
-			action.auraInstanceID,
-			action.caller
-		);
+---@param reason number Why a deferred action is being handled (0 - bag, 1 - combat, 2 - loading)
+function SIPPYCUP.Popups.HandleDeferredActions(reasonKey)
+	if not deferredActions then
+		return;
 	end
 
-	wipe(deferredActions);
+	SIPPYCUP_OUTPUT.Debug("HandleDeferredActions:", reasonKey);
+
+	local i = 1;
+	while i <= #deferredActions do
+		local action = deferredActions[i];
+		if action.blockedBy == reasonKey then
+			SIPPYCUP.Popups.QueuePopupAction(
+				action.data,
+				action.caller
+			);
+			tremove(deferredActions, i); -- remove handled item, don't increment
+		else
+			i = i + 1; -- skip non-matching item
+		end
+	end
 end

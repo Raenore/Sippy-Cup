@@ -173,6 +173,7 @@ end
 function SIPPYCUP_Addon:PLAYER_REGEN_ENABLED()
 	-- Combat is left when regen is enabled.
 	self:StartContinuousCheck();
+	SIPPYCUP.Popups.HandleDeferredActions("combat");
 end
 
 ---Startup initializes the addon once both the database and consumables are loaded.
@@ -194,6 +195,7 @@ function SIPPYCUP_Addon:Startup()
 
 	if not SIPPYCUP.InLoadingScreen then
 		SIPPYCUP_Addon:StartContinuousCheck()
+		SIPPYCUP.Popups.HandleDeferredActions("loading");
 
 		-- isFullUpdate can pass through loading screens (but our code can't), so handle it now.
 		if SIPPYCUP.hasSeenFullUpdate then
@@ -214,6 +216,7 @@ local function PlayerLoading(isLoading)
 	else
 		SIPPYCUP.InLoadingScreen = false;
 		SIPPYCUP_Addon:StartContinuousCheck()
+		SIPPYCUP.Popups.HandleDeferredActions("loading");
 
 		-- isFullUpdate can pass through loading screens (but our code can't), so handle it now.
 		if SIPPYCUP.hasSeenFullUpdate then

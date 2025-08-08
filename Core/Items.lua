@@ -258,5 +258,5 @@ function SIPPYCUP.Items.HandleBagUpdate()
 	SIPPYCUP.Items.bagUpdateUnhandled = false;
 
 	-- Now that bag data is synced, process deferred actions using accurate data.
-	SIPPYCUP.Popups.HandleDeferredActions();
+	SIPPYCUP.Popups.HandleDeferredActions("bag");
 end
