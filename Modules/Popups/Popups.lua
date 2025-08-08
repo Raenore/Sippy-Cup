@@ -676,11 +676,9 @@ end
 -- Called after bag data is synced (BAG_UPDATE_DELAYED) to ensure accurate context.
 ---@param reason number Why a deferred action is being handled (0 - bag, 1 - combat, 2 - loading)
 function SIPPYCUP.Popups.HandleDeferredActions(reasonKey)
-	if not deferredActions then
+	if not deferredActions or #deferredActions == 0 then
 		return;
 	end
-
-	SIPPYCUP_OUTPUT.Debug("HandleDeferredActions:", reasonKey);
 
 	local i = 1;
 	while i <= #deferredActions do
