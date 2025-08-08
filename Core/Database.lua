@@ -399,14 +399,6 @@ function SIPPYCUP.Database.Setup()
 	SIPPYCUP.state.databaseLoaded = true;
 	-- Attempt Addon startup.
 	SIPPYCUP_Addon:Startup();
-
-	-- Optional deferred config setup
-	--[[
-	if SIPPYCUP.deferSetup then
-		print("DB was not ready so doing it now.");
-		-- SIPPYCUP.Database.RefreshUI();
-	end
-	]]
 end
 
 ---GetAllProfiles returns a table of profile names keyed by name.

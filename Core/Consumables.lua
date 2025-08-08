@@ -125,18 +125,6 @@ for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
 			SIPPYCUP.state.consumablesLoaded = true;
 			-- Attempt Addon startup.
 			SIPPYCUP_Addon:Startup();
-
-			--[[
-			if SIPPYCUP.db then
-				-- RUN DEFERRED SETUP
-				-- SIPPYCUP.Database.RefreshUI();
-				print("DB was ready");
-			else
-				-- Defer SetupConfig until DB is ready
-				SIPPYCUP.deferSetup = true;
-				print("DB was not ready");
-			end
-			]]
 		end
 	end);
 end
