@@ -396,13 +396,9 @@ function SIPPYCUP.Database.Setup()
 	-- Set resolved working profile for runtime use
 	SIPPYCUP.profile = workingProfile;
 
-	-- Optional deferred config setup
-	--[[
-	if SIPPYCUP.deferSetup then
-		print("DB was not ready so doing it now.");
-		-- SIPPYCUP.Database.RefreshUI();
-	end
-	]]
+	SIPPYCUP.state.databaseLoaded = true;
+	-- Attempt Addon startup.
+	SIPPYCUP_Addon:Startup();
 end
 
 ---GetAllProfiles returns a table of profile names keyed by name.

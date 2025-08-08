@@ -46,20 +46,20 @@ function SIPPYCUP_Addon:PLAYER_LOGIN()
 	SIPPYCUP.Events:UnregisterEvent("PLAYER_LOGIN");
 end
 
-local configFrame = nil;
-
 ---OpenSettings toggles the main configuration frame and switches to a specified tab.
 ---@param view number? Optional tab number to open, defaults to 1.
 function SIPPYCUP_Addon:OpenSettings(view)
-	if not configFrame then
-		configFrame = CreateFrame("Frame", "SIPPYCUP_ConfigMenuFrame", UIParent, "SIPPYCUP_ConfigMenuTemplate");
+	if not SIPPYCUP.configFrame then
+		SIPPYCUP.Config.TryCreateConfigFrame();
 	end
 
-	configFrame:SetShown(not configFrame:IsShown());
-	configFrame:Raise();
+	if SIPPYCUP.configFrame then
+		SIPPYCUP.configFrame:SetShown(not SIPPYCUP.configFrame:IsShown());
+		SIPPYCUP.configFrame:Raise();
 
-	local tabToOpen = view or 1;
-	SIPPYCUP_ConfigMenuFrame:SetTab(tabToOpen);
+		local tabToOpen = view or 1;
+		SIPPYCUP_ConfigMenuFrame:SetTab(tabToOpen);
+	end
 end
 
 ---OnEnable runs during PLAYER_LOGIN, register game events, hook functions, create frames, etc.
@@ -128,9 +128,9 @@ end
 local CONTINUOUS_CHECK_INTERVAL = 180.0;
 ---StartContinuousCheck begins repeating timers (3 minutes interval) for pre-expiration aura checks and no-aura item usage, if not in combat.
 function SIPPYCUP_Addon:StartContinuousCheck()
-	-- don’t run if we’re in combat or the user has disabled pre‑expiration checks
-	if InCombatLockdown() then
-		return
+	-- don’t run if we’re in combat or addon is not loaded fully.
+	if InCombatLockdown() or not SIPPYCUP.state.addonLoaded then
+		return;
 	end
 
 	-- Both below timers don't need an immediate run as startup + new enables run these partially.
@@ -175,7 +175,35 @@ function SIPPYCUP_Addon:PLAYER_REGEN_ENABLED()
 	self:StartContinuousCheck();
 end
 
-local startupCheck = true;
+---Startup initializes the addon once both the database and consumables are loaded.
+---Sets addonLoaded, creates the config frame, initializes MSP with fallback, and starts periodic checks unless.
+---@return nil
+function SIPPYCUP_Addon:Startup()
+	if not SIPPYCUP.state.databaseLoaded or not SIPPYCUP.state.consumablesLoaded then
+		return;
+	end
+	SIPPYCUP.state.addonLoaded = true;
+	SIPPYCUP_OUTPUT.Debug("Consumables & Database loaded.");
+
+	SIPPYCUP.Config.TryCreateConfigFrame();
+
+	-- Prepare our MSP checks.
+	if not SIPPYCUP.MSP.EnableIfAvailable() then
+		-- If not, we'll do a simple stacksize refresh.
+		SIPPYCUP.Consumables.RefreshStackSizes(false);
+	end
+
+	if not SIPPYCUP.InLoadingScreen then
+		SIPPYCUP_Addon:StartContinuousCheck()
+
+		-- isFullUpdate can pass through loading screens (but our code can't), so handle it now.
+		if SIPPYCUP.hasSeenFullUpdate then
+			SIPPYCUP.hasSeenFullUpdate = false;
+			SIPPYCUP.Auras.CheckAllActiveConsumables();
+		end
+	end
+end
+
 ---PlayerLoading handles loading screen state changes, stopping checks when loading and starting them when done.
 ---@param isLoading boolean True if loading screen is active, false if loading finished.
 local function PlayerLoading(isLoading)
@@ -186,18 +214,10 @@ local function PlayerLoading(isLoading)
 		SIPPYCUP.InLoadingScreen = false;
 		SIPPYCUP_Addon:StartContinuousCheck()
 
-		-- isFullUpdate can pass through loading screens, so handle it now.
+		-- isFullUpdate can pass through loading screens (but our code can't), so handle it now.
 		if SIPPYCUP.hasSeenFullUpdate then
 			SIPPYCUP.hasSeenFullUpdate = false;
 			SIPPYCUP.Auras.CheckAllActiveConsumables();
-		end
-
-		if startupCheck then
-			if not SIPPYCUP.MSP.EnableIfAvailable() then
-				-- If not, we'll do a simple stacksize refresh.
-				SIPPYCUP.Consumables.RefreshStackSizes(false);
-			end
-			startupCheck = false;
 		end
 	end
 end
