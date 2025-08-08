@@ -7,7 +7,7 @@
 	<Include file="Init.lua"/>
 	<Include file="Locales\Locales.xml"/>
 	<Include file="Locales\Localization.lua"/>
+	<Include file="SippyCup.lua"/>
 	<Include file="Core\Core.xml"/>
 	<Include file="Modules\Modules.xml"/>
-	<Include file="SippyCup.lua"/>
 </Ui>
