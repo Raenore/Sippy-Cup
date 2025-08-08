@@ -1570,7 +1570,6 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 	self.allWidgets[#self.allWidgets + 1] = CreateWidgetRowContainer(profilesPanel, profilesData, 3, 40);
 
 	SIPPYCUP.ElvUI.RegisterSkinnableElement(self, "frame");
-	SIPPYCUP.ElvUI.SkinRegisteredElements();
 end
 
 function SIPPYCUP_ConfigMixin:OnDragStart()
@@ -1593,5 +1592,6 @@ function SIPPYCUP_ConfigMixin:OnShow()
 	self:SetWidth(totalWidth + 0); -- padding
 
 	self:RefreshWidgets();
+	SIPPYCUP.ElvUI.SkinRegisteredElements();
 	self:SetTab(1);  -- Show first tab by default
 end
