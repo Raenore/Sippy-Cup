@@ -194,7 +194,6 @@ function SIPPYCUP_Addon:Startup()
 	end
 
 	if not SIPPYCUP.InLoadingScreen then
-		SIPPYCUP_Addon:StartAuraCheck();
 		SIPPYCUP_Addon:StartContinuousCheck()
 	end
 end
