@@ -131,9 +131,13 @@ end
 
 ---RefreshStackSizes iterates over all enabled Sippy Cup consumables to set the correct stack sizes (startup / profile change / etc).
 ---@param checkAll boolean? If true, it will also check the inactive enabled ones.
+---@param reset boolean? If true, all popups will be reset. Defaults to true
 ---@return nil
-function SIPPYCUP.Consumables.RefreshStackSizes(checkAll)
+function SIPPYCUP.Consumables.RefreshStackSizes(checkAll, reset)
 	local GetPlayerAuraBySpellID = C_UnitAuras.GetPlayerAuraBySpellID;
+	if reset == nil then
+        reset = true;
+    end
 
 	-- Helper to check cooldown startTime for item or spell trackable
 	local function GetCooldownStartTime(consumable)
@@ -155,7 +159,9 @@ function SIPPYCUP.Consumables.RefreshStackSizes(checkAll)
 	-- Reset timers and popups
 	SIPPYCUP.Auras.CancelAllPreExpirationTimers();
 	SIPPYCUP.Items.CancelAllItemTimers();
-	SIPPYCUP.Popups.HideAllRefreshPopups();
+	if reset then
+		SIPPYCUP.Popups.HideAllRefreshPopups();
+	end
 
 	-- Rebuild the aura map from the latest database data that we have.
 	SIPPYCUP.Database.RebuildAuraMap();
