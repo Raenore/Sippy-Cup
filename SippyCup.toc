@@ -19,7 +19,7 @@
 ## Category-zhCN: 角色扮演
 ## Category-zhTW: 角色扮演
 
-## OptionalDeps: Ace3, ElvUI
+## OptionalDeps: ElvUI
 ## SavedVariables: SippyCupDB
 
 ## X-Build: 110200, 110107
