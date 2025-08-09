@@ -122,9 +122,7 @@ for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
 				return SIPPYCUP_TEXT.Normalize(a.name:lower()) < SIPPYCUP_TEXT.Normalize(b.name:lower());
 			end);
 
-			SIPPYCUP.state.consumablesLoaded = true;
-			-- Attempt Addon startup.
-			SIPPYCUP_Addon:Startup();
+			SIPPYCUP.State.consumablesLoaded = true;
 		end
 	end);
 end
@@ -174,7 +172,7 @@ function SIPPYCUP.Consumables.RefreshStackSizes(checkAll, reset)
 		local startTime = GetCooldownStartTime(consumableData);
 		local active = startTime ~= nil;
 
-		if not SIPPYCUP.state.inLoadingScreen then
+		if not SIPPYCUP.State.inLoadingScreen then
 			local preExpireFired;
 			if profileConsumableData.noAuraTrackable then
 				preExpireFired = SIPPYCUP.Items.CheckNoAuraSingleConsumable(profileConsumableData, auraID, nil, startTime);

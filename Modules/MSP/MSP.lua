@@ -19,7 +19,7 @@ function SIPPYCUP.MSP.EnableIfAvailable()
 	-- Insert our code into the msp callback table
 	table.insert(msp.callback["updated"], function(senderID)
 		-- If MSP status checks are off, don't do anything, or if the addon startup is not done.
-		if not SIPPYCUP.global.MSPStatusCheck or not SIPPYCUP.state.startupLoaded then
+		if not SIPPYCUP.global.MSPStatusCheck or not SIPPYCUP.State.startupLoaded then
 			return;
 		end
 

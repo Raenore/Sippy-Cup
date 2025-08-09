@@ -129,7 +129,7 @@ local CONTINUOUS_CHECK_INTERVAL = 180.0;
 ---StartContinuousCheck begins repeating timers (3 minutes interval) for pre-expiration aura checks and no-aura item usage, if not in combat.
 function SIPPYCUP_Addon:StartContinuousCheck()
 	-- don’t run if we’re in combat or addon is not loaded fully.
-	if InCombatLockdown() or not SIPPYCUP.state.addonLoaded then
+	if InCombatLockdown() or not SIPPYCUP.State.addonLoaded then
 		return;
 	end
 
@@ -176,15 +176,15 @@ function SIPPYCUP_Addon:PLAYER_REGEN_ENABLED()
 	SIPPYCUP.Popups.HandleDeferredActions("combat");
 end
 
----Startup initializes the addon once both the database and consumables are loaded.
----Sets addonLoaded, creates the config frame, initializes MSP with fallback, and starts periodic checks unless.
----@return nil
-function SIPPYCUP_Addon:Startup()
-	if not SIPPYCUP.state.databaseLoaded or not SIPPYCUP.state.consumablesLoaded then
-		return;
-	end
-	SIPPYCUP.state.addonLoaded = true;
-	SIPPYCUP_OUTPUT.Debug("Consumables & Database loaded.");
+local function CheckAddonLoaded()
+    if SIPPYCUP.State.databaseLoaded and SIPPYCUP.State.consumablesLoaded then
+        SIPPYCUP.State.addonLoaded = true;
+    end
+end
+
+SIPPYCUP.State.RegisterListener("addonLoaded", function(_, _)
+	-- newVal, oldVal
+	SIPPYCUP_OUTPUT.Debug("Addon (Consumables & Database) loaded.");
 
 	SIPPYCUP.Config.TryCreateConfigFrame();
 
@@ -192,39 +192,51 @@ function SIPPYCUP_Addon:Startup()
 	SIPPYCUP.MSP.EnableIfAvailable(); -- True/False if enable successfully, we don't need that info right now.
 	-- Depending on if MSP status checks are on or off, we check differently.
 
-	if not SIPPYCUP.state.inLoadingScreen then
+	if not SIPPYCUP.State.inLoadingScreen then
 		SIPPYCUP.Consumables.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
 		SIPPYCUP_Addon:StartContinuousCheck()
 		SIPPYCUP.Popups.HandleDeferredActions("loading");
 
 		-- isFullUpdate can pass through loading screens (but our code can't), so handle it now.
-		if SIPPYCUP.state.hasSeenFullUpdate then
-			SIPPYCUP.state.hasSeenFullUpdate = false;
+		if SIPPYCUP.State.hasSeenFullUpdate then
+			SIPPYCUP.State.hasSeenFullUpdate = false;
 			SIPPYCUP.Auras.CheckAllActiveConsumables();
 		end
 
-		SIPPYCUP.state.startupLoaded = true;
+		SIPPYCUP.State.startupLoaded = true;
 	end
-end
+end)
+
+SIPPYCUP.State.RegisterListener("databaseLoaded", function()
+	CheckAddonLoaded();
+end)
+
+SIPPYCUP.State.RegisterListener("consumablesLoaded", function()
+	CheckAddonLoaded();
+end)
+
+SIPPYCUP.State.RegisterListener("startupLoaded", function()
+	-- We don't use this for now.
+end)
 
 ---PlayerLoading handles loading screen state changes, stopping checks when loading and starting them when done.
 ---@param isLoading boolean True if loading screen is active, false if loading finished.
 local function PlayerLoading(isLoading)
 	if isLoading then
-		SIPPYCUP.state.inLoadingScreen = true;
+		SIPPYCUP.State.inLoadingScreen = true;
 		SIPPYCUP_Addon:StopContinuousCheck();
 	else
-		SIPPYCUP.state.inLoadingScreen = false;
-		if not SIPPYCUP.state.startupLoaded then
+		SIPPYCUP.State.inLoadingScreen = false;
+		if not SIPPYCUP.State.startupLoaded then
 			SIPPYCUP.Consumables.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
-			SIPPYCUP.state.startupLoaded = true;
+			SIPPYCUP.State.startupLoaded = true;
 		end
 		SIPPYCUP_Addon:StartContinuousCheck()
 		SIPPYCUP.Popups.HandleDeferredActions("loading");
 
 		-- isFullUpdate can pass through loading screens (but our code can't), so handle it now.
-		if SIPPYCUP.state.hasSeenFullUpdate then
-			SIPPYCUP.state.hasSeenFullUpdate = false;
+		if SIPPYCUP.State.hasSeenFullUpdate then
+			SIPPYCUP.State.hasSeenFullUpdate = false;
 			SIPPYCUP.Auras.CheckAllActiveConsumables();
 		end
 	end
@@ -249,7 +261,7 @@ end
 
 ---ZONE_CHANGED_NEW_AREA handles zone changes to exit loading screen state if needed.
 function SIPPYCUP_Addon:ZONE_CHANGED_NEW_AREA()
-	if SIPPYCUP.state.inLoadingScreen then
+	if SIPPYCUP.State.inLoadingScreen then
 		PlayerLoading(false);
 	end
 end

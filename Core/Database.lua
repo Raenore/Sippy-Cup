@@ -396,9 +396,7 @@ function SIPPYCUP.Database.Setup()
 	-- Set resolved working profile for runtime use
 	SIPPYCUP.profile = workingProfile;
 
-	SIPPYCUP.state.databaseLoaded = true;
-	-- Attempt Addon startup.
-	SIPPYCUP_Addon:Startup();
+	SIPPYCUP.State.databaseLoaded = true;
 end
 
 ---GetAllProfiles returns a table of profile names keyed by name.
