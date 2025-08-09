@@ -283,7 +283,7 @@ end
 ---GetPopup returns an available popup frame of the specified template type.
 ---It reuses inactive popups from the pool or creates a new one if under the max limit.
 ---@param templateType string? The optional popup template type, defaults to "SIPPYCUP_RefreshPopupTemplate".
----@return Frame|nil popup The popup frame or nil if the max popup count is reached.
+---@return Frame? popup The popup frame or nil if the max popup count is reached.
 local function GetPopup(templateType)
 	templateType = templateType or "SIPPYCUP_RefreshPopupTemplate";
 
@@ -302,23 +302,27 @@ end
 
 ---UpdatePopupVisuals updates the popup frame visuals based on the given data.
 ---@param popup Frame The popup frame to update.
----@param data table Holds all the popup information.
+---@param data ReminderPopupData Table containing all necessary information about the consumable and profile.
 ---@return nil
 local function UpdatePopupVisuals(popup, data)
-	local itemID = data.consumableData.itemID;
+	local consumableData = data.consumableData;
+	local profileConsumableData = data.profileConsumableData;
+
+	local itemID = consumableData.itemID;
+
 	local itemName, itemLink = C_Item.GetItemInfo(itemID);
-	itemName = itemName or data.consumableData.name;
+	itemName = itemName or consumableData.name;
 
 	local item = Item:CreateFromItemID(itemID);
 
 	item:ContinueOnItemLoad(function()
-		local icon = item:GetItemIcon();
+		local icon = item:GetItemIcon()
 		-- If for some reason itemName or itemLink is still not valid by now, pull it again.
 		if not itemName or not itemLink then
 			itemName = item:GetItemName();
 			itemLink = item:GetItemLink();
 			-- Save it for good measure
-			data.consumableData.name = itemName;
+			consumableData.name = itemName;
 		end
 
 		popup.Title:SetText(SIPPYCUP.AddonMetadata.title);
@@ -329,12 +333,12 @@ local function UpdatePopupVisuals(popup, data)
 			local text = L.POPUP_LOW_STACK_COUNT_TEXT;
 			if data.reason == SIPPYCUP.Popups.Reason.PRE_EXPIRATION then
 				text = L.POPUP_EXPIRING_SOON_TEXT;
-			elseif not data.consumableData.stacks then
+			elseif not consumableData.stacks then
 				text = L.POPUP_NOT_ACTIVE_TEXT;
 			end
 
 			popup.Text:SetText((text or ""));
-			popup.Counter:SetText(data.profileConsumableData.currentStacks .. " / " .. data.profileConsumableData.desiredStacks);
+			popup.Counter:SetText(profileConsumableData.currentStacks .. " / " .. profileConsumableData.desiredStacks);
 
 			popup.RefreshButton:SetText(REFRESH);
 			popup.RefreshButton:SetAttribute("type", "item");
@@ -368,9 +372,9 @@ local function UpdatePopupVisuals(popup, data)
 				popup.RefreshButton:Enable();
 			end
 		elseif popup.templateType == "SIPPYCUP_MissingPopupTemplate" then
-			local itemCount = C_Item.GetItemCount(itemID);
-			local text = L.POPUP_INSUFFICIENT_NEXT_REFRESH_TEXT:format(itemCount, data.profileConsumableData.desiredStacks);
-			popup.Text:SetText((text or ""));
+			local itemCount = C_Item.GetItemCount(itemID) or 0;
+			local text = L.POPUP_INSUFFICIENT_NEXT_REFRESH_TEXT:format(itemCount, profileConsumableData.desiredStacks);
+			popup.Text:SetText(text or "");
 			popup.OkayButton:SetText(OKAY);
 
 			if ElvUI and ElvUI[1] and popup.SetBackdropBorderColor then
@@ -392,7 +396,9 @@ end
 ---@param data ReminderPopupData Table containing all necessary information about the consumable and profile.
 ---@param templateTypeID? number What kind of template to create (0 = reminder, 1 = missing); defaults to 0.
 function SIPPYCUP.Popups.HandleReminderPopup(data, templateTypeID)
-	if not SIPPYCUP or not SIPPYCUP.db or not SIPPYCUP.db.global then return; end
+	if not SIPPYCUP or not SIPPYCUP.db or not SIPPYCUP.db.global then
+		return;
+	end
 
 	local loc = data.consumableData.loc;
 	templateTypeID = templateTypeID or 0;  -- default to 0 if nil
@@ -400,17 +406,17 @@ function SIPPYCUP.Popups.HandleReminderPopup(data, templateTypeID)
 	local popup = activePopupByLoc[loc];
 	local popupInstance = popup and popup:IsShown();
 
-	-- Special popup handling.
+	-- If missing popup is still shown, we remove that first before showing new ones.
 	if popup and popup.templateType == "SIPPYCUP_MissingPopupTemplate" then
-		-- If missing popup is still shown, we remove that first before showing new ones.
 		if popupInstance then
 			popup:Hide();
 		end
 
-		-- We then fire a new refresh popup with the same data to handle that.
 		SIPPYCUP.Popups.HandleReminderPopup(data, 0);
 		return;
-	elseif templateTypeID == 0 then
+	end;
+
+	if templateTypeID == 0 then
 		-- Popup request for addition, but we already have enough (or too many) required stacks?
 		if data.reason == SIPPYCUP.Popups.Reason.ADDITION and data.requiredStacks <= 0 then
 			-- If a popup is currently shown, we bail out.
@@ -421,7 +427,7 @@ function SIPPYCUP.Popups.HandleReminderPopup(data, templateTypeID)
 			-- If user wants a missing reminder, we'll do that now.
 			if data.itemCount < data.profileConsumableData.desiredStacks and SIPPYCUP.global.InsufficientReminder then
 				SIPPYCUP.Popups.HandleReminderPopup(data, 1);
-			end
+			end;
 			return;
 		end
 	end
@@ -451,7 +457,7 @@ function SIPPYCUP.Popups.HandleReminderPopup(data, templateTypeID)
 	UpdatePopupVisuals(popup, data);
 
 	-- Show the popup and manage active lists
-	if popup and not popup:IsShown() then
+	if not popup:IsShown() then
 		popup:Show();
 	end
 
