@@ -914,7 +914,7 @@ local function CreateWidgetRowContainer(parent, widgetData, widgetsPerRow, rowSp
 		local createFunc = factory[widgetType];
 		if createFunc then
 			local widget = createFunc(elementContainer, data);
-			tinsert(widgets, widget);
+			widgets[#widgets + 1] = widget;
 		end
 	end
 

@@ -208,18 +208,19 @@ local function CreatePopup(templateType)
 						tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_ON_COOLDOWN_TEXT .. "|r";
 					end
 				else
-					if currentPopup and currentPopup.popupData then
-						local consumableData = currentPopup.popupData.consumableData;
-						local profileConsumableData = currentPopup.popupData.profileConsumableData;
+					local popupData = currentPopup and currentPopup.popupData;
+					if popupData then
+						local consumableData = popupData.consumableData;
+						local profileConsumableData = popupData.profileConsumableData;
 
 						local itemID = consumableData.itemID;
 						local itemCount = C_Item.GetItemCount(itemID);
 						local maxCount = itemCount + profileConsumableData.currentStacks;
 
 						if itemCount == 0 then
-							tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_NOT_IN_INVENTORY_TEXT:gsub("^%l", string.upper) .. "|r";
+							tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_NOT_IN_INVENTORY_TEXT .. "|r";
 						elseif maxCount < profileConsumableData.desiredStacks then
-							tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_NOT_ENOUGH_IN_INVENTORY_TEXT:gsub("^%l", string.upper):format(profileConsumableData.desiredStacks - maxCount);
+							tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_NOT_ENOUGH_IN_INVENTORY_TEXT:format(profileConsumableData.desiredStacks - maxCount);
 						end
 					end
 				end
@@ -273,7 +274,7 @@ local function CreatePopup(templateType)
 		popup.isScriptSetup = true;
 	end
 
-	tinsert(popupPool, popup);
+	popupPool[#popupPool + 1] = popup;
 	return popup;
 end
 
@@ -330,7 +331,7 @@ local function UpdatePopupVisuals(popup, data)
 				text = L.POPUP_NOT_ACTIVE_TEXT;
 			end
 
-			popup.Text:SetText((text or ""):gsub("^%l", string.upper));
+			popup.Text:SetText((text or ""));
 			popup.Counter:SetText(data.profileConsumableData.currentStacks .. " / " .. data.profileConsumableData.desiredStacks);
 
 			popup.RefreshButton:SetText(REFRESH);
@@ -367,7 +368,7 @@ local function UpdatePopupVisuals(popup, data)
 		elseif popup.templateType == "SIPPYCUP_MissingPopupTemplate" then
 			local itemCount = C_Item.GetItemCount(itemID);
 			local text = L.POPUP_INSUFFICIENT_NEXT_REFRESH_TEXT:format(itemCount, data.profileConsumableData.desiredStacks);
-			popup.Text:SetText((text or ""):gsub("^%l", string.upper));
+			popup.Text:SetText((text or ""));
 			popup.OkayButton:SetText(OKAY);
 
 			if ElvUI and ElvUI[1] and popup.SetBackdropBorderColor then
@@ -454,7 +455,7 @@ function SIPPYCUP.Popups.HandleReminderPopup(data, templateTypeID)
 
 	local shouldPlayAlert = false;
 	if not popupInstance then
-		tinsert(activePopups, popup); -- Add to active list only if it's a new instance
+		activePopups[#activePopups + 1] = popup; -- Add to active list only if it's a new instance
 		activePopupByLoc[loc] = popup; -- Store in lookup for loc-based replacement
 		shouldPlayAlert = true;
 	elseif lastProfileAlert ~= SIPPYCUP.Database.GetCurrentProfileName() then
@@ -648,11 +649,11 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 			reason = reason,
 		};
 
-		tinsert(deferredActions, {
+		deferredActions[#deferredActions + 1] = {
 			data = deferredData,
 			caller = caller,
 			blockedBy = blockedBy,
-		});
+		};
 		return;
 	end
 
