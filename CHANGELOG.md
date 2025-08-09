@@ -10,6 +10,8 @@ Second patch on the major 0.3.0 rework release, adding some new requested featur
 - Ability to queue reminders that happen during combat and loading screens, and fire them at a time when it is more permissible and sensible for Sippy Cup to do so. [#52](https://github.com/Raenore/Sippy-Cup/pull/52)  
 - Enabling "Pre-Expiration Reminders" now also takes into account currently activated consumables, so they also get a reminder popup. [#52](https://github.com/Raenore/Sippy-Cup/pull/52)  
 - Added a proper state listener to improve the addon's reliability in knowing when data can be properly used. [#52](https://github.com/Raenore/Sippy-Cup/pull/52)  
+- While in flight, Sippy Cup will now no longer let you refresh consumables to prevent dismounting accidents. [#55](https://github.com/Raenore/Sippy-Cup/pull/55)  
+- The spam protection on the Refresh button is now improved, significantly reducing the chances of over-using an item. [#55](https://github.com/Raenore/Sippy-Cup/pull/55)  
 
 ### Changed  
 - Adjusted how aura data is received from the game, which should resolve the random "your item is not active" popups that sometimes appeared after loading screens. [#43](https://github.com/Raenore/Sippy-Cup/pull/43)  
