@@ -12,16 +12,14 @@ function SIPPYCUP.MSP.EnableIfAvailable()
 		return false;
 	end
 
-	local startupCheck = true;
-	local refreshedStackSizes = false;
+	-- First run we set everything in order.
+	local isOOC = SIPPYCUP_PLAYER.CheckOOCStatus();
+	SIPPYCUP.Player.OOC = isOOC;
 
+	-- Insert our code into the msp callback table
 	table.insert(msp.callback["updated"], function(senderID)
-		if not SIPPYCUP.global.MSPStatusCheck then
-			if startupCheck then
-				SIPPYCUP.Consumables.RefreshStackSizes(false);
-				startupCheck = false;
-				refreshedStackSizes = true;
-			end
+		-- If MSP status checks are off, don't do anything, or if the addon startup is not done.
+		if not SIPPYCUP.global.MSPStatusCheck or not SIPPYCUP.State.startupLoaded then
 			return;
 		end
 
@@ -35,33 +33,16 @@ function SIPPYCUP.MSP.EnableIfAvailable()
 			return;
 		end
 
-		-- When update callback is found, we check the IC PLAYER if all their enabled (even inactive ones) consumable stack sizes are in order.
-		if startupCheck and not SIPPYCUP.Player.OOC then
-			SIPPYCUP.Consumables.RefreshStackSizes(true);
-			startupCheck = false;
-			refreshedStackSizes = true;
-			return;
-		end
-
 		if SIPPYCUP.Player.FullName == senderID then
-			-- Handle IC update, we check if all their enabled (even inactive ones) consumable stack sizes are in order.
 			if not SIPPYCUP.Player.OOC then
+				-- Handle IC update, we check if all their enabled (even inactive ones) consumable stack sizes are in order.
 				SIPPYCUP.Consumables.RefreshStackSizes(true);
-				refreshedStackSizes = true;
-			-- Handle OOC update, we remove all popups.
 			else
+				-- Handle OOC update, we remove all popups.
 				SIPPYCUP.Popups.HideAllRefreshPopups();
 			end
 		end
 	end);
-
-	-- First run we set everything in order.
-	local isOOC = SIPPYCUP_PLAYER.CheckOOCStatus();
-	SIPPYCUP.Player.OOC = isOOC;
-
-	if not refreshedStackSizes then
-		SIPPYCUP.Consumables.RefreshStackSizes(true);
-	end
 
 	return true;
 end

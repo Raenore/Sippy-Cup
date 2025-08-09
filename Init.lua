@@ -4,11 +4,46 @@
 ---@class SIPPYCUP
 local _, SIPPYCUP = ...;
 
-SIPPYCUP.state = {
+local _state = {
 	addonLoaded = false,
 	consumablesLoaded = false,
 	databaseLoaded = false,
+	hasSeenFullUpdate = false,
+	inLoadingScreen = true,
+	startupLoaded = false,
 };
+
+-- Table of listeners keyed by state key
+local stateListeners = {};
+
+-- Function to register a listener callback for a specific state key
+local function State_RegisterListener(key, callback)
+	if not stateListeners[key] then
+		stateListeners[key] = {};
+	end
+	table.insert(stateListeners[key], callback);
+end
+
+-- Proxy table with metatable to handle listener notification
+SIPPYCUP.State = setmetatable({}, {
+	__index = function(_, k)
+		return _state[k];
+	end,
+	__newindex = function(_, k, v)
+		local oldValue = _state[k];
+		if oldValue ~= v then
+			_state[k] = v;
+			if stateListeners[k] then
+				for _, callback in ipairs(stateListeners[k]) do
+					callback(v, oldValue);
+				end
+			end
+		end
+	end,
+});
+
+-- Expose the listener registration function on SIPPYCUP.State
+SIPPYCUP.State.RegisterListener = State_RegisterListener;
 
 -- Create a single event dispatcher frame for all addon events
 local events = CreateFrame("Frame", "SIPPYCUP_EventFrame");
@@ -47,6 +82,4 @@ SIPPYCUP.IS_DEV_BUILD = true;
 SIPPYCUP.IS_DEV_BUILD = false;
 --@end-non-debug@]===]
 
-SIPPYCUP.InLoadingScreen = true;
-SIPPYCUP.hasSeenFullUpdate = false;
 _G.SIPPYCUP = SIPPYCUP;

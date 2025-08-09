@@ -1242,7 +1242,9 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			end,
 			set = function(val)
 				SIPPYCUP.Database.UpdateSetting("global", "PreExpirationChecks", nil, val);
-				if not val then
+				if val then
+					SIPPYCUP.Consumables.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck, false);
+				else
 					SIPPYCUP.Auras.CancelAllPreExpirationTimers();
 					SIPPYCUP.Items.CancelAllItemTimers(2);
 				end
@@ -1458,7 +1460,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 					categoryData[#categoryData + 1] = {
 						type = "slider",
 						label = L.OPTIONS_DESIRED_STACKS,
-						tooltip = L.OPTIONS_SLIDER_TEXT and L.OPTIONS_SLIDER_TEXT:format(consumableAura) or nil,
+						tooltip = L.OPTIONS_SLIDER_TEXT and L.OPTIONS_SLIDER_TEXT:format(consumableName) or nil,
 						min = 1,
 						max = consumableData.maxStacks,
 						step = 1,
@@ -1570,7 +1572,6 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 	self.allWidgets[#self.allWidgets + 1] = CreateWidgetRowContainer(profilesPanel, profilesData, 3, 40);
 
 	SIPPYCUP.ElvUI.RegisterSkinnableElement(self, "frame");
-	SIPPYCUP.ElvUI.SkinRegisteredElements();
 end
 
 function SIPPYCUP_ConfigMixin:OnDragStart()
@@ -1593,5 +1594,6 @@ function SIPPYCUP_ConfigMixin:OnShow()
 	self:SetWidth(totalWidth + 0); -- padding
 
 	self:RefreshWidgets();
+	SIPPYCUP.ElvUI.SkinRegisteredElements();
 	self:SetTab(1);  -- Show first tab by default
 end

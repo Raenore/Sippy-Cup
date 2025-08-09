@@ -122,18 +122,20 @@ for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
 				return SIPPYCUP_TEXT.Normalize(a.name:lower()) < SIPPYCUP_TEXT.Normalize(b.name:lower());
 			end);
 
-			SIPPYCUP.state.consumablesLoaded = true;
-			-- Attempt Addon startup.
-			SIPPYCUP_Addon:Startup();
+			SIPPYCUP.State.consumablesLoaded = true;
 		end
 	end);
 end
 
 ---RefreshStackSizes iterates over all enabled Sippy Cup consumables to set the correct stack sizes (startup / profile change / etc).
 ---@param checkAll boolean? If true, it will also check the inactive enabled ones.
+---@param reset boolean? If true, all popups will be reset. Defaults to true
 ---@return nil
-function SIPPYCUP.Consumables.RefreshStackSizes(checkAll)
+function SIPPYCUP.Consumables.RefreshStackSizes(checkAll, reset)
 	local GetPlayerAuraBySpellID = C_UnitAuras.GetPlayerAuraBySpellID;
+	if reset == nil then
+		reset = true;
+	end
 
 	-- Helper to check cooldown startTime for item or spell trackable
 	local function GetCooldownStartTime(consumable)
@@ -155,7 +157,9 @@ function SIPPYCUP.Consumables.RefreshStackSizes(checkAll)
 	-- Reset timers and popups
 	SIPPYCUP.Auras.CancelAllPreExpirationTimers();
 	SIPPYCUP.Items.CancelAllItemTimers();
-	SIPPYCUP.Popups.HideAllRefreshPopups();
+	if reset then
+		SIPPYCUP.Popups.HideAllRefreshPopups();
+	end
 
 	-- Rebuild the aura map from the latest database data that we have.
 	SIPPYCUP.Database.RebuildAuraMap();
@@ -168,7 +172,7 @@ function SIPPYCUP.Consumables.RefreshStackSizes(checkAll)
 		local startTime = GetCooldownStartTime(consumableData);
 		local active = startTime ~= nil;
 
-		if not SIPPYCUP.InLoadingScreen then
+		if not SIPPYCUP.State.inLoadingScreen then
 			local preExpireFired;
 			if profileConsumableData.noAuraTrackable then
 				preExpireFired = SIPPYCUP.Items.CheckNoAuraSingleConsumable(profileConsumableData, auraID, nil, startTime);
@@ -177,10 +181,19 @@ function SIPPYCUP.Consumables.RefreshStackSizes(checkAll)
 			end
 
 			if not preExpireFired then
+				local data = {
+					active = auraInfo and true or active,
+					auraID = auraID,
+					auraInfo = auraInfo,
+					consumableData = consumableData,
+					profileConsumableData = profileConsumableData,
+				};
 				if auraInfo or active then
-					SIPPYCUP.Popups.QueuePopupAction(SIPPYCUP.Popups.Reason.ADDITION, auraID, auraInfo, auraInfo and auraInfo.auraInstanceID, "CheckConsumableStackSizes - active");
+					data.reason = SIPPYCUP.Popups.Reason.ADDITION;
+					SIPPYCUP.Popups.QueuePopupAction(data, "CheckConsumableStackSizes - active");
 				elseif checkAll then
-					SIPPYCUP.Popups.QueuePopupAction(SIPPYCUP.Popups.Reason.REMOVAL, auraID, nil, nil, "CheckConsumableStackSizes - checkAll");
+					data.reason = SIPPYCUP.Popups.Reason.REMOVAL;
+					SIPPYCUP.Popups.QueuePopupAction(data, "CheckConsumableStackSizes - checkAll");
 				end
 			end
 		end

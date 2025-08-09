@@ -10,6 +10,7 @@ SIPPYCUP.Popups.Reason = {
 	ADDITION = 0,
 	REMOVAL = 1,
 	PRE_EXPIRATION = 2,
+	TOGGLE = 3,
 };
 
 ---PlayPopupSound plays the chosen alert sound during a popup.
@@ -161,7 +162,7 @@ local function CreatePopup(templateType)
 		-- Show next in queue if any
 		if #popupQueue > 0 then
 			local nextData = tremove(popupQueue, 1);
-			SIPPYCUP.Popups.CreateReminderPopup(nextData);
+			SIPPYCUP.Popups.HandleReminderPopup(nextData);
 		end
 
 		GameTooltip:Hide(); -- Hide any tooltip lingering from this popup
@@ -361,49 +362,56 @@ local function UpdatePopupVisuals(popup, data)
 end
 
 ---@class ReminderPopupData
+---@field active boolean Whether the consumable is considered active (false = inactive, true = active).
 ---@field consumableData table Contains the consumable's data (e.g. itemID, loc, profile, etc.).
----@field profileConsumableData table Profile-related data for the consumable (e.g. enabled state, currentInstanceID, etc.).
----@field requiredStacks number Number of item stacks required for the reminder to be satisfied.
----@field reason number Why the popup was triggered: 0 = add/update, 1 = removal, 2 = pre-expire.
 ---@field itemCount number Number of matching items in the player's inventory when the popup is created.
+---@field profileConsumableData table Profile-related data for the consumable (e.g. enabled state, currentInstanceID, etc.).
+---@field reason number Why the popup was triggered. (0 - add/update, 1 = removal, 2 = pre-expire, 3 = toggle)
+---@field requiredStacks number Number of item stacks required for the reminder to be satisfied.
 
----CreateReminderPopup Displays a popup with reminder and item interaction options.
+---HandleReminderPopup Handles whether a popup with reminder and item interaction options should be displayed or not.
 ---@param data ReminderPopupData Table containing all necessary information about the consumable and profile.
 ---@param templateTypeID? number What kind of template to create (0 = reminder, 1 = missing); defaults to 0.
-function SIPPYCUP.Popups.CreateReminderPopup(data, templateTypeID)
+function SIPPYCUP.Popups.HandleReminderPopup(data, templateTypeID)
 	if not SIPPYCUP or not SIPPYCUP.db or not SIPPYCUP.db.global then return; end
 
 	local loc = data.consumableData.loc;
 	templateTypeID = templateTypeID or 0;  -- default to 0 if nil
 	local templateType = (templateTypeID == 1) and "SIPPYCUP_MissingPopupTemplate" or "SIPPYCUP_RefreshPopupTemplate";
 	local popup = activePopupByLoc[loc];
-	local isNew = not popup or not popup:IsShown();
+	local popupInstance = popup and popup:IsShown();
 
-	-- If correct stack count reached, we're done!
-	if data.reason == SIPPYCUP.Popups.Reason.ADDITION and templateTypeID == 0 and data.requiredStacks <= 0 then
-		if popup and popup:IsShown() then
+	-- Special popup handling.
+	if popup and popup.templateType == "SIPPYCUP_MissingPopupTemplate" then
+		-- If missing popup is still shown, we remove that first before showing new ones.
+		if popupInstance then
 			popup:Hide();
 		end
 
-		-- If user wants a missing reminder, we'll do that now.
-		if data.itemCount < data.profileConsumableData.desiredStacks and SIPPYCUP.global.InsufficientReminder then
-			SIPPYCUP.Popups.CreateReminderPopup(data, 1);
-		end
+		-- We then fire a new refresh popup with the same data to handle that.
+		SIPPYCUP.Popups.HandleReminderPopup(data, 0);
 		return;
-	elseif popup and popup.templateType == "SIPPYCUP_MissingPopupTemplate" then
-	-- If missing popup is still shown, we remove that first before showing new ones.
-		if popup and popup:IsShown() then
-			popup:Hide();
-		end
+	elseif templateTypeID == 0 then
+		-- Popup request for addition, but we already have enough (or too many) required stacks?
+		if data.reason == SIPPYCUP.Popups.Reason.ADDITION and data.requiredStacks <= 0 then
+			-- If a popup is currently shown, we bail out.
+			if popupInstance then
+				popup:Hide();
+			end
 
-		SIPPYCUP.Popups.CreateReminderPopup(data, 0);
-		return;
+			-- If user wants a missing reminder, we'll do that now.
+			if data.itemCount < data.profileConsumableData.desiredStacks and SIPPYCUP.global.InsufficientReminder then
+				SIPPYCUP.Popups.HandleReminderPopup(data, 1);
+			end
+			return;
+		end
 	end
 
-	if isNew then
+	if not popupInstance then
 		popup = GetPopup(templateType);
+		-- Nil when the queue is full (5 popups shown).
 		if not popup then
-			tinsert(popupQueue, data);
+			popupQueue[#popupQueue + 1] = data;
 			return;
 		end
 	end
@@ -413,7 +421,7 @@ function SIPPYCUP.Popups.CreateReminderPopup(data, templateTypeID)
 
 	-- Position the popup only if it's a new instance being added to the active list
 	-- or if it was previously hidden and is now being re-shown.
-	if isNew then
+	if not popupInstance then
 		local index = #activePopups + 1;
 		local offsetY, anchor = CalculatePopupOffset(index);
 		popup:ClearAllPoints();
@@ -424,19 +432,24 @@ function SIPPYCUP.Popups.CreateReminderPopup(data, templateTypeID)
 	UpdatePopupVisuals(popup, data);
 
 	-- Show the popup and manage active lists
-	if not popup:IsShown() then
+	if popup and not popup:IsShown() then
 		popup:Show();
 	end
 
-	if isNew then
+	local shouldPlayAlert = false;
+	if not popupInstance then
 		tinsert(activePopups, popup); -- Add to active list only if it's a new instance
 		activePopupByLoc[loc] = popup; -- Store in lookup for loc-based replacement
-		HandleAlerts();
-	elseif data.reason == SIPPYCUP.Popups.Reason.REMOVAL then
-		-- Removal popups should always fire an alert, because they might come after pre-expiration
-		HandleAlerts();
+		shouldPlayAlert = true;
 	elseif lastProfileAlert ~= SIPPYCUP.Database.GetCurrentProfileName() then
 		-- If profile change happens, fire an alert as-is for popups (throttle will still hold them)
+		shouldPlayAlert = true;
+	elseif data.reason == SIPPYCUP.Popups.Reason.REMOVAL then
+		-- Removal popups should always fire an alert, because they might come after pre-expiration
+		shouldPlayAlert = true;
+	end
+
+	if shouldPlayAlert then
 		HandleAlerts();
 	end
 end
@@ -509,32 +522,44 @@ function SIPPYCUP.Popups.Toggle(itemName, auraID, enabled)
 
 	-- Only queue popup if no pre-expiration has already fired
 	if not preExpireFired then
+		local data = {
+			active = auraInfo and true or active,
+			auraID = consumableData.auraID,
+			auraInfo = auraInfo,
+			consumableData = consumableData,
+			profileConsumableData = profileConsumableData,
+			reason = SIPPYCUP.Popups.Reason.TOGGLE,
+		};
+
 		-- auraInfo may be truthy/table; active is boolean from cooldown check
-		SIPPYCUP.Popups.QueuePopupAction((auraInfo or active) and SIPPYCUP.Popups.Reason.ADDITION or SIPPYCUP.Popups.Reason.REMOVAL, consumableData.auraID, auraInfo, auraInfo and auraInfo.auraInstanceID, "Toggle");
+		SIPPYCUP.Popups.QueuePopupAction(data, "Toggle");
 	end
 end
 
 local DEBOUNCE_DELAY = 0.05;
 local pendingCalls = {};
 
+---@class PopupActionData
+---@field active boolean Whether the consumable is considered active (false = inactive, true = active).
+---@field auraID number The aura ID.
+---@field auraInfo table? Aura information for the popup action.
+---@field consumableData table? Consumable item data.
+---@field profileConsumableData table? Profile-specific consumable item data.
+---@field reason number Reason for triggering the popup action. (0 - add/update, 1 = removal, 2 = pre-expire, 3 = toggle)
+
 ---QueuePopupAction queues up popup action calls, adding a debounce to avoid repeated calls (UNIT_AURA & COMBAT_LOG_EVENT_UNFILTERED).
----@param reason number Why a popup is getting called (0 - add/update, 1 = removal, 2 = pre-expire)
----@param auraID number The aura ID.
----@param auraInfo table|nil Information about the aura, or nil if not present.
----@param auraInstanceID number|nil The instance ID of the aura, or nil if not applicable.
+---@param data PopupActionData Data bundle containing aura and consumable context for the popup action.
 ---@param caller string What function called the popup action.
 ---@return nil
-function SIPPYCUP.Popups.QueuePopupAction(reason, auraID, auraInfo, auraInstanceID,  caller)
-	if InCombatLockdown() then return; end
-
+function SIPPYCUP.Popups.QueuePopupAction(data,  caller)
 	-- If MSP status checks are on and the character is currently OOC, we skip everything.
 	if SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck and SIPPYCUP.Player.OOC then
 		return;
 	end
 
 	-- Use a composite key of auraID and reason so different reasons don't collide
-	local key = tostring(auraID) .. "-" .. tostring(reason);
-	local args = { reason, auraID, auraInfo, auraInstanceID, caller };
+	local key = tostring(data.auraID) .. "-" .. tostring(data.reason);
+	local args = { data, caller };
 
 	if pendingCalls[key] then
 		-- Update the existing entry with the latest arguments for this auraID+reason
@@ -552,25 +577,27 @@ function SIPPYCUP.Popups.QueuePopupAction(reason, auraID, auraInfo, auraInstance
 			return;
 		end
 
-		local res, aID, aI, aIID, c = unpack(entry.args);
-		SIPPYCUP.Popups.HandlePopupAction(res, aID, aI, aIID, c);
+		local d, c = unpack(entry.args);
+		SIPPYCUP.Popups.HandlePopupAction(d, c);
 	end)
 end
 
 ---HandlePopupAction executes the popup action for a consumable aura.
----@param reason number Why a popup is getting called (0 - add/update, 1 = removal, 2 = pre-expire)
----@param auraID number The aura ID.
----@param auraInfo table|nil Information about the aura, or nil if not present.
----@param auraInstanceID number|nil The instance ID of the aura, or nil if not applicable.
+---@param data PopupActionData Data bundle containing aura and consumable context for the popup action.
 ---@param caller string What function called the popup action.
 ---@return nil
-function SIPPYCUP.Popups.HandlePopupAction(reason, auraID, auraInfo, auraInstanceID, caller)
-	if InCombatLockdown() then return end;
+function SIPPYCUP.Popups.HandlePopupAction(data, caller)
+	local consumableData = data.consumableData or SIPPYCUP.Consumables.ByAuraID[data.auraID];
+	local profileConsumableData = data.profileConsumableData or SIPPYCUP.profile[data.auraID];
 
-	SIPPYCUP_OUTPUT.Debug({ caller = caller });
+	local reason = data.reason;
+	local active = data.active;
 
-	local consumableData = SIPPYCUP.Consumables.ByAuraID[auraID];
-	local profileConsumableData = consumableData and SIPPYCUP.profile[consumableData.auraID];
+	local auraID = data.auraID;
+	local auraInfo = data.auraInfo;
+	local auraInstanceID = data.auraInfo and data.auraInfo.auraInstanceID;
+
+	SIPPYCUP_OUTPUT.Debug({ caller = caller, auraID = consumableData.auraID, itemID = consumableData.itemID, name = consumableData.name });
 
 	if not consumableData or not profileConsumableData or SIPPYCUP.Popups.IsIgnored(consumableData.auraID) then
 		return;
@@ -582,23 +609,40 @@ function SIPPYCUP.Popups.HandlePopupAction(reason, auraID, auraInfo, auraInstanc
 		SIPPYCUP.Items.HandleBagUpdate();
 	end
 
-	-- Bag data is desynch'd from UNIT_AURA fires, defer handling.
-	if SIPPYCUP.Items.bagUpdateUnhandled then
-		-- Consumable items go to deferredPopups to wait for BAG_UPDATE_DELAYED.
-		tinsert(deferredActions, {
-			loc = consumableData.loc,
+	-- We defer popups in three situations:
+	-- > Bag data is desynch'd from UNIT_AURA.
+	-- > We're in combat (experimental).
+	-- > We're in a loading screen.
+	if SIPPYCUP.Items.bagUpdateUnhandled or InCombatLockdown() or SIPPYCUP.InLoadingScreen then
+		local blockedBy;
+		if SIPPYCUP.Items.bagUpdateUnhandled then
+			blockedBy = "bag";
+		elseif InCombatLockdown() then
+			blockedBy = "combat";
+		elseif SIPPYCUP.State.inLoadingScreen then
+			blockedBy = "loading";
+		end
+
+		local deferredData = {
+			active = active,
 			auraID = auraID,
-			reason = reason,
 			auraInfo = auraInfo,
-			auraInstanceID = auraInstanceID,
-			caller = caller
+			consumableData = consumableData,
+			profileConsumableData = profileConsumableData,
+			reason = reason,
+		};
+
+		tinsert(deferredActions, {
+			data = deferredData,
+			caller = caller,
+			blockedBy = blockedBy,
 		});
 		return;
 	end
 
 	-- First, let's grab the latest currentInstanceID (or have it be nil if none which is fine).
 	profileConsumableData.currentInstanceID = (auraInfo and auraInfo.auraInstanceID) or auraInstanceID;
-	profileConsumableData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, reason);
+	profileConsumableData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, reason, active);
 
 	-- If the consumable does not support stacks, we always desire just 1.
 	profileConsumableData.desiredStacks = consumableData.stacks and profileConsumableData.desiredStacks or 1;
@@ -606,12 +650,13 @@ function SIPPYCUP.Popups.HandlePopupAction(reason, auraID, auraInfo, auraInstanc
 	local requiredStacks = profileConsumableData.desiredStacks - profileConsumableData.currentStacks;
 	local itemCount = C_Item.GetItemCount(consumableData.itemID);
 
-	SIPPYCUP.Popups.CreateReminderPopup({
+	SIPPYCUP.Popups.HandleReminderPopup({
 		consumableData = consumableData,
 		profileConsumableData = profileConsumableData,
 		requiredStacks = requiredStacks,
 		reason = reason,
-		itemCount = itemCount
+		itemCount = itemCount,
+		active = active,
 	});
 end
 
@@ -629,18 +674,23 @@ end
 
 ---HandleDeferredActions Processes and flushes all queued popup actions.
 -- Called after bag data is synced (BAG_UPDATE_DELAYED) to ensure accurate context.
-function SIPPYCUP.Popups.HandleDeferredActions()
-	if not deferredActions then return; end
-
-	for _, action in ipairs(deferredActions) do
-		SIPPYCUP.Popups.QueuePopupAction(
-			action.reason,
-			action.auraID,
-			action.auraInfo,
-			action.auraInstanceID,
-			action.caller
-		);
+---@param reason number Why a deferred action is being handled (0 - bag, 1 - combat, 2 - loading)
+function SIPPYCUP.Popups.HandleDeferredActions(reasonKey)
+	if not deferredActions or #deferredActions == 0 then
+		return;
 	end
 
-	wipe(deferredActions);
+	local i = 1;
+	while i <= #deferredActions do
+		local action = deferredActions[i];
+		if action.blockedBy == reasonKey then
+			SIPPYCUP.Popups.QueuePopupAction(
+				action.data,
+				action.caller
+			);
+			tremove(deferredActions, i); -- remove handled item, don't increment
+		else
+			i = i + 1; -- skip non-matching item
+		end
+	end
 end
