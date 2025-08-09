@@ -19,7 +19,7 @@
 ## Category-zhCN: 角色扮演
 ## Category-zhTW: 角色扮演
 
-## OptionalDeps: ElvUI
+## OptionalDeps: ElvUI, totalRP3, MyRolePlay, XRP
 ## SavedVariables: SippyCupDB
 
 ## X-Build: 110200
