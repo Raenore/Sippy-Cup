@@ -175,6 +175,62 @@ function SIPPYCUP.Database.RebuildAuraMap()
 	end
 end
 
+---UpdateAuraMapForConsumable updates or removes a single consumable's entries in the aura, instance, and noAura mappings.
+---@param profileConsumableData table The profile consumable data to update.
+---@param enabled boolean Whether the consumable is enabled or disabled.
+---@return nil
+function SIPPYCUP.Database.UpdateAuraMapForConsumable(profileConsumableData, enabled)
+	if not profileConsumableData or not profileConsumableData.aura then
+		return;
+	end
+
+	local auraID = profileConsumableData.aura;
+
+	if enabled then
+		-- Add/update auraToProfile
+		SIPPYCUP.Database.auraToProfile[auraID] = profileConsumableData;
+
+		-- Update instanceToProfile if aura is currently active
+		local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(auraID);
+		if auraInfo then
+			local instanceID = auraInfo.auraInstanceID;
+			profileConsumableData.currentInstanceID = instanceID;
+
+			if instanceID then
+				SIPPYCUP.Database.instanceToProfile[instanceID] = profileConsumableData;
+			end
+		else
+			profileConsumableData.currentInstanceID = nil;
+		end
+
+		-- Update noAuraTrackableProfile if applicable
+		if profileConsumableData.noAuraTrackable then
+			local consumableData = SIPPYCUP.Consumables.ByAuraID[auraID];
+			if consumableData and consumableData.itemID then
+				SIPPYCUP.Database.noAuraTrackableProfile[consumableData.itemID] = profileConsumableData;
+			end
+		end
+	else
+		-- Remove from auraToProfile
+		SIPPYCUP.Database.auraToProfile[auraID] = nil;
+
+		-- Remove from instanceToProfile if currentInstanceID is set
+		local instanceID = profileConsumableData.currentInstanceID;
+		if instanceID then
+			SIPPYCUP.Database.instanceToProfile[instanceID] = nil;
+			profileConsumableData.currentInstanceID = nil;
+		end
+
+		-- Remove from noAuraTrackableProfile if applicable
+		if profileConsumableData.noAuraTrackable then
+			local consumableData = SIPPYCUP.Consumables.ByAuraID[auraID];
+			if consumableData and consumableData.itemID then
+				SIPPYCUP.Database.noAuraTrackableProfile[consumableData.itemID] = nil;
+			end
+		end
+	end
+end
+
 ---FindMatchingConsumable returns consumable profile data matching a spell ID, aura instance ID, or item ID.
 ---@param spellId number? Spell ID to match against `auraToProfile`.
 ---@param instanceID number? Aura instance ID to match against `instanceToProfile`.

@@ -472,9 +472,15 @@ function SIPPYCUP.Popups.Toggle(itemName, auraID, enabled)
 	if not consumableData then
 		return;
 	end
-	SIPPYCUP.Database.RebuildAuraMap();
 
 	local profileConsumableData = SIPPYCUP.profile[consumableData.auraID];
+	if not profileConsumableData then
+		return;
+	end
+
+	-- Update aura map incrementally for this consumable
+	SIPPYCUP.Database.UpdateAuraMapForConsumable(profileConsumableData, enabled);
+
 	-- If the consumable is not enabled, kill all its associated popups and timers!
 	if not enabled then
 		RemoveDeferredActionsByLoc(consumableData.loc);
