@@ -514,6 +514,7 @@ stds.wow = {
 		"IsChatAFK",
 		"IsChatDND",
 		"IsControlKeyDown",
+		"IsFlying",
 		"IsGuildMember",
 		"IsInGroup",
 		"IsInGuild",

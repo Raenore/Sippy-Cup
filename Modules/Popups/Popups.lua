@@ -193,10 +193,20 @@ local function CreatePopup(templateType)
 
 		if templateType == "SIPPYCUP_RefreshPopupTemplate" then
 			popup.RefreshButton:HookScript("OnEnter", function(self)
+				local isFlying = IsFlying();
 				local tooltipText;
 				local currentPopup = self:GetParent();
+
+				if isFlying then
+					self:Disable();
+				end
+
 				if not self:IsEnabled() then
-					tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_ON_COOLDOWN_TEXT:gsub("^%l", string.upper) .. "|r";
+					if isFlying then
+						tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_IN_FLIGHT_TEXT .. "|r";
+					else
+						tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_ON_COOLDOWN_TEXT .. "|r";
+					end
 				else
 					if currentPopup and currentPopup.popupData then
 						local consumableData = currentPopup.popupData.consumableData;
@@ -220,7 +230,8 @@ local function CreatePopup(templateType)
 				end
 			end);
 
-			popup.RefreshButton:HookScript("OnLeave", function()
+			popup.RefreshButton:HookScript("OnLeave", function(self)
+				self:Enable();
 				GameTooltip:Hide();
 			end);
 
