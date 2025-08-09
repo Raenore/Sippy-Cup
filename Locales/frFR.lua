@@ -12,6 +12,7 @@ L = {
 
 	--/ Popup dialog /--
 	POPUP_ON_COOLDOWN_TEXT = "actuellement en recharge.", -- (TEXT CHANGE IN ENGLISH)
+	POPUP_IN_FLIGHT_TEXT = "Disabled to prevent dismount during flight.", -- (NEW)
 	POPUP_NOT_IN_INVENTORY_TEXT = "introuvable dans votre inventaire.", -- (TEXT CHANGE IN ENGLISH)
 	POPUP_NOT_ENOUGH_IN_INVENTORY_TEXT = "insuffisant dans votre inventaire.|n(%d manquant)", -- (TEXT CHANGE IN ENGLISH)
 	POPUP_INSUFFICIENT_NEXT_REFRESH_TEXT = "insuffisant (%d / %d) pour le prochain rafraîchissement.", -- (TEXT CHANGE IN ENGLISH)
@@ -113,7 +114,7 @@ L = {
 	OPTIONS_PROFILES_COPYFROM_NAME = "Copy From", -- (NEW)
 	OPTIONS_PROFILES_COPYFROM_DESC = "Copy settings from the selected profile into your current profile.", -- (NEW)
 	OPTIONS_PROFILES_DELETEPROFILE_NAME = "Delete Profile", -- (NEW)
-	OPTIONS_PROFILES_DELETEPROFILE_DESC = "Delete the selected profile from the database." -- (NEW)
+	OPTIONS_PROFILES_DELETEPROFILE_DESC = "Delete the selected profile from the database.", -- (NEW)
 };
 
 SIPPYCUP.L_FRFR = L;

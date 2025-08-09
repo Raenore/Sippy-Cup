@@ -12,6 +12,7 @@ L = {
 
 	--/ Popup dialog /--
 	POPUP_ON_COOLDOWN_TEXT = "currently on cooldown.", -- NEW
+	POPUP_IN_FLIGHT_TEXT = "Disabled to prevent dismount during flight.", -- (NEW)
 	POPUP_NOT_IN_INVENTORY_TEXT = "не найден в вашем инвентаре.", -- (TEXT CHANGE IN ENGLISH)
 	POPUP_NOT_ENOUGH_IN_INVENTORY_TEXT = "недостаточно в вашем инвентаре.|n(%d missing)", -- NEW (Ending)
 	POPUP_INSUFFICIENT_NEXT_REFRESH_TEXT = "insufficient (%d / %d) for next refresh.", -- NEW
@@ -113,7 +114,7 @@ L = {
 	OPTIONS_PROFILES_COPYFROM_NAME = "Copy From", -- (NEW)
 	OPTIONS_PROFILES_COPYFROM_DESC = "Copy settings from the selected profile into your current profile.", -- (NEW)
 	OPTIONS_PROFILES_DELETEPROFILE_NAME = "Delete Profile", -- (NEW)
-	OPTIONS_PROFILES_DELETEPROFILE_DESC = "Delete the selected profile from the database." -- (NEW)
+	OPTIONS_PROFILES_DELETEPROFILE_DESC = "Delete the selected profile from the database.", -- (NEW)
 };
 
 SIPPYCUP.L_RURU = L;
