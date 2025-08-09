@@ -224,6 +224,11 @@ local function CreatePopup(templateType)
 				GameTooltip:Hide();
 			end);
 
+			popup.RefreshButton:HookScript("OnClick", function(self)
+				-- Prevent spam; resets when next charge is ready.
+				self:Disable();
+			end);
+
 			popup.IgnoreButton:HookScript("OnEnter", function()
 				GameTooltip:SetOwner(popup.IgnoreButton, "ANCHOR_BOTTOM", 0, -5);
 				GameTooltip:SetText(IGNORE, 1, 1, 1);
