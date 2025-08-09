@@ -232,7 +232,9 @@ local function CreatePopup(templateType)
 			end);
 
 			popup.RefreshButton:HookScript("OnLeave", function(self)
-				self:Enable();
+				if IsFlying() then
+					self:Enable();
+				end
 				GameTooltip:Hide();
 			end);
 
