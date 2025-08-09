@@ -177,9 +177,9 @@ function SIPPYCUP_Addon:PLAYER_REGEN_ENABLED()
 end
 
 local function CheckAddonLoaded()
-    if SIPPYCUP.State.databaseLoaded and SIPPYCUP.State.consumablesLoaded then
-        SIPPYCUP.State.addonLoaded = true;
-    end
+	if SIPPYCUP.State.databaseLoaded and SIPPYCUP.State.consumablesLoaded then
+		SIPPYCUP.State.addonLoaded = true;
+	end
 end
 
 SIPPYCUP.State.RegisterListener("addonLoaded", function(_, _)
