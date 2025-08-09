@@ -20,6 +20,7 @@ Second patch on the major 0.3.0 rework release, adding some new requested featur
 - Popup handling has been tweaked to supply extra data, making the addon smarter at handling certain popup reminder situations. [#52](https://github.com/Raenore/Sippy-Cup/pull/52)  
 - MSP-related code (addons like TRP, MRP, XRP, etc.) has been improved and simplified to work better and be less prone to errors. [#52](https://github.com/Raenore/Sippy-Cup/pull/52)  
 - On login, reminders for missing popups or popups that will expire soon should be more robust and effective. [#52](https://github.com/Raenore/Sippy-Cup/pull/52)  
+- The logic for toggling consumables in the settings has been improved. This may not be noticeable unless you have many consumables enabled at once. [#56](https://github.com/Raenore/Sippy-Cup/pull/56)  
 
 ### Fixed
 - Resolved an issue caused by ignoring consumables through their reminder popup before the settings page had ever been opened. [#49](https://github.com/Raenore/Sippy-Cup/pull/49)  
