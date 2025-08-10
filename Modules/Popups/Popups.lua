@@ -417,8 +417,8 @@ function SIPPYCUP.Popups.HandleReminderPopup(data, templateTypeID)
 	end;
 
 	if templateTypeID == 0 then
-		-- Popup request for addition, but we already have enough (or too many) required stacks?
-		if data.reason == SIPPYCUP.Popups.Reason.ADDITION and data.requiredStacks <= 0 then
+		-- Popup request for addition or toggle, but we already have enough (or too many) required stacks?
+		if (data.reason == SIPPYCUP.Popups.Reason.ADDITION or data.reason == SIPPYCUP.Popups.Reason.TOGGLE) and data.requiredStacks <= 0 then
 			-- If a popup is currently shown, we bail out.
 			if popupInstance then
 				popup:Hide();
