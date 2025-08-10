@@ -326,36 +326,36 @@ local function AttachEditBoxTooltip(frames, title, description, style, anchor) -
 		GameTooltip:Hide();
 	end
 
-    ApplyToFrames(frames, function(f)
-        f:SetScript("OnEscapePressed", function(self)
-            self:ClearFocus();
-            HideTooltip();
-        end)
+	ApplyToFrames(frames, function(f)
+		f:SetScript("OnEscapePressed", function(self)
+			self:ClearFocus();
+			HideTooltip();
+		end)
 
-        f:SetScript("OnEditFocusGained", function(self)
-            self:HighlightText();
-            ShowTooltip(self);
-        end)
+		f:SetScript("OnEditFocusGained", function(self)
+			self:HighlightText();
+			ShowTooltip(self);
+		end)
 
-        f:SetScript("OnEditFocusLost", function(self)
-            if not self:IsMouseOver() then
-                HideTooltip();
-            end
-        end)
+		f:SetScript("OnEditFocusLost", function(self)
+			if not self:IsMouseOver() then
+				HideTooltip();
+			end
+		end)
 
-        f:SetScript("OnEnter", function(self) ShowTooltip(self) end)
-        f:SetScript("OnLeave", function(self)
-            if not self:HasFocus() then
-                HideTooltip();
-            end
-        end)
+		f:SetScript("OnEnter", function(self) ShowTooltip(self) end)
+		f:SetScript("OnLeave", function(self)
+			if not self:HasFocus() then
+				HideTooltip();
+			end
+		end)
 
-        f:SetScript("OnTextChanged", function(self)
-            if self:HasFocus() then
-                ShowTooltip(self);
-            end
-        end);
-    end);
+		f:SetScript("OnTextChanged", function(self)
+			if self:HasFocus() then
+				ShowTooltip(self);
+			end
+		end);
+	end);
 end
 
 ---ApplyTooltip attaches a tooltip with a label and description to the given widget.
