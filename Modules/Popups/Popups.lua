@@ -692,14 +692,28 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 end
 
 --- HideAllRefreshPopups cleans up all visible and queued popups.
-function SIPPYCUP.Popups.HideAllRefreshPopups()
-	-- Clear the popup queue entirely
-	wipe(popupQueue);
+---@param reason number? Optional reason for hiding popups. (0 - add/update, 1 = removal, 2 = pre-expire, 3 = toggle)
+function SIPPYCUP.Popups.HideAllRefreshPopups(reason)
+	if not reason then
+		-- Clear the popup queue entirely
+		wipe(popupQueue);
+	else
+		for i = #popupQueue, 1, -1 do
+			local popup = popupQueue[i];
+
+			if popup.popupData.reason == reason then
+				table.remove(popupQueue, i);
+			end
+		end
+	end
 
 	-- Hide and remove all active popups
 	for i = #activePopups, 1, -1 do
 		local popup = activePopups[i];
-		popup:Hide(); -- Cleans up activePopupByLoc and other stuff.
+
+		if not reason or popup.popupData.reason == reason then
+			popup:Hide(); -- Cleans up activePopupByLoc and other stuff.
+		end
 	end
 end
 

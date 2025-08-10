@@ -1253,8 +1253,10 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 				if val then
 					SIPPYCUP.Consumables.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck, false);
 				else
+					local reason = SIPPYCUP.Popups.Reason.PRE_EXPIRATION;
 					SIPPYCUP.Auras.CancelAllPreExpirationTimers();
-					SIPPYCUP.Items.CancelAllItemTimers(2);
+					SIPPYCUP.Items.CancelAllItemTimers(reason);
+					SIPPYCUP.Popups.HideAllRefreshPopups(reason);
 				end
 			end,
 		},
