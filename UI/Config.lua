@@ -240,11 +240,9 @@ local function AttachTooltip(frames, title, description, style, anchor) -- luach
 
 	anchor = anchor or "ANCHOR_TOP";
 
-	local tooltipTitle = title;
-
 	local function OnEnter(self)
 		GameTooltip:SetOwner(firstFrame or frames, anchor);
-		GameTooltip:SetText(tooltipTitle, WHITE_FONT_COLOR:GetRGB());
+		GameTooltip:SetText(title, WHITE_FONT_COLOR:GetRGB());
 		GameTooltip:AddLine(description, nil, nil, nil, true);
 		SIPPYCUP.ElvUI.SkinTooltip(GameTooltip);
 		GameTooltip:Show();
