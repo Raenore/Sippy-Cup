@@ -8,11 +8,9 @@ Second patch on the major 0.3.0 rework release, adding some new requested featur
 ### Added  
 - When ignored popups are reset, Sippy Cup will try to fire the popups for consumables you have enabled reminders for. [#48](https://github.com/Raenore/Sippy-Cup/pull/48)  
 - Ability to queue reminders that happen during combat and loading screens, and fire them at a time when it is more permissible and sensible for Sippy Cup to do so. [#52](https://github.com/Raenore/Sippy-Cup/pull/52)  
-- Enabling "Pre-Expiration Reminders" now also takes into account currently activated consumables, so they also get a reminder popup. [#52](https://github.com/Raenore/Sippy-Cup/pull/52)  
-- Disabling "Pre-Expiration Reminders" will hide all pre-expiration related popups. [#58](https://github.com/Raenore/Sippy-Cup/pull/58)  
+- Enabling "Pre-Expiration Reminders" now also takes into account currently activated consumables, so they also get a reminder popup, while disabling it will hide all pre-expiration related popups. [#52](https://github.com/Raenore/Sippy-Cup/pull/52) and [#58](https://github.com/Raenore/Sippy-Cup/pull/58) 
 - Added a proper state listener to improve the addon's reliability in knowing when data can be properly used. [#47](https://github.com/Raenore/Sippy-Cup/pull/47) and [#52](https://github.com/Raenore/Sippy-Cup/pull/52)  
-- While in flight, Sippy Cup will now no longer let you refresh consumables to prevent dismounting accidents. [#55](https://github.com/Raenore/Sippy-Cup/pull/55)  
-- The spam protection on the Refresh button is now improved, significantly reducing the chances of over-using an item. [#55](https://github.com/Raenore/Sippy-Cup/pull/55)  
+- While in flight, Sippy Cup will now no longer let you refresh consumables to prevent dismounting accidents, and the spam protection on the Refresh button is improved, significantly reducing the chances of over-using an item. [#55](https://github.com/Raenore/Sippy-Cup/pull/55)  
 
 ### Changed  
 - Adjusted how aura data is received from the game, which should resolve the random "your item is not active" popups that sometimes appeared after loading screens. [#43](https://github.com/Raenore/Sippy-Cup/pull/43)  
