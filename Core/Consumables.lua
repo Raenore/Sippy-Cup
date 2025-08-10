@@ -130,17 +130,16 @@ end
 ---RefreshStackSizes iterates over all enabled Sippy Cup consumables to set the correct stack sizes (startup / profile change / etc).
 ---@param checkAll boolean? If true, it will also check the inactive enabled ones.
 ---@param reset boolean? If true, all popups will be reset. Defaults to true
+---@param preExpireOnly boolean? If true, only handles pre-expirations. Defaults to false
 ---@return nil
-function SIPPYCUP.Consumables.RefreshStackSizes(checkAll, reset)
-	local GetPlayerAuraBySpellID = C_UnitAuras.GetPlayerAuraBySpellID;
-	if reset == nil then
-		reset = true;
-	end
+function SIPPYCUP.Consumables.RefreshStackSizes(checkAll, reset, preExpireOnly)
+	reset = (reset ~= false);
+	preExpireOnly = preExpireOnly or false;
 
 	-- Helper to check cooldown startTime for item or spell trackable
 	local function GetCooldownStartTime(consumable)
 		if consumable.itemTrackable then
-			local startTime = select(1, C_Item.GetItemCooldown(consumable.itemID));
+			local startTime = C_Item.GetItemCooldown(consumable.itemID);
 			if startTime and startTime > 0 then
 				return startTime;
 			end
@@ -164,11 +163,15 @@ function SIPPYCUP.Consumables.RefreshStackSizes(checkAll, reset)
 	-- Rebuild the aura map from the latest database data that we have.
 	SIPPYCUP.Database.RebuildAuraMap();
 
+	local GetPlayerAuraBySpellID = C_UnitAuras.GetPlayerAuraBySpellID;
+	local auraToProfile = SIPPYCUP.Database.auraToProfile;
+	local ByAuraID = SIPPYCUP.Consumables.ByAuraID;
+
 	-- auraToProfile will iterate over all the enabled (not active!) consumables.
-	for _, profileConsumableData in pairs(SIPPYCUP.Database.auraToProfile) do
+	for _, profileConsumableData in pairs(auraToProfile) do
 		local auraID = profileConsumableData.aura;
 		local auraInfo = GetPlayerAuraBySpellID(auraID);
-		local consumableData = SIPPYCUP.Consumables.ByAuraID[auraID];
+		local consumableData = ByAuraID[auraID];
 		local startTime = GetCooldownStartTime(consumableData);
 		local active = startTime ~= nil;
 
@@ -180,7 +183,7 @@ function SIPPYCUP.Consumables.RefreshStackSizes(checkAll, reset)
 				preExpireFired = SIPPYCUP.Auras.CheckPreExpirationForSingleConsumable(profileConsumableData, nil);
 			end
 
-			if not preExpireFired then
+			if not preExpireFired and not preExpireOnly then
 				local data = {
 					active = auraInfo and true or active,
 					auraID = auraID,
