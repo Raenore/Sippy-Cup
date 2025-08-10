@@ -18,6 +18,7 @@ Major patch following the 0.3.0 rework release, introducing several new requeste
 - MSP-related code (addons like TRP, MRP, XRP, etc.) has been improved and simplified to work better and be less prone to errors. [#52](https://github.com/Raenore/Sippy-Cup/pull/52)  
 - On login, reminders for missing popups or popups that will expire soon are now more robust and effective. [#52](https://github.com/Raenore/Sippy-Cup/pull/52)  
 - The logic for toggling consumables in the settings has been improved. This may not be noticeable unless you have many consumables enabled at once. [#56](https://github.com/Raenore/Sippy-Cup/pull/56)  
+- Updated the French translation with all recent changes (thanks to Solanya). The Russian translation remains outdated for now. [#60](https://github.com/Raenore/Sippy-Cup/pull/60)  
 
 ### Fixed  
 - Resolved an issue caused by ignoring consumables through their reminder popup before the settings page had ever been opened. [#49](https://github.com/Raenore/Sippy-Cup/pull/49)  
