@@ -295,6 +295,71 @@ local function AttachItemTooltip(frames, itemID, anchor)
 	end);
 end
 
+---AttachEditBoxTooltip attaches a tooltip with a title and description to one or more EditBox frames.
+---The tooltip will display:
+--- - On mouseover
+--- - While the edit box is focused (including while typing)
+---It will hide when the mouse leaves (unless still focused) or when focus is lost.
+---
+---@param frames EditBox|EditBox[] Either a single EditBox frame or a list of EditBox frames.
+---@param title string The title text for the tooltip.
+---@param description string The description text for the tooltip.
+---@param style string? Currently unused; reserved for future styling options.
+---@param anchor string? Anchor point for the tooltip. Defaults to "ANCHOR_TOP".
+---@return nil
+local function AttachEditBoxTooltip(frames, title, description, style, anchor) -- luacheck: no unused (style)
+	if not title or not description then return; end
+
+	local isList = type(frames) == "table" and not frames.GetObjectType;
+	local firstFrame = isList and frames[1] or frames;
+	if not firstFrame then return; end
+
+	anchor = anchor or "ANCHOR_TOP";
+
+	local function ShowTooltip()
+		GameTooltip:SetOwner(firstFrame or frames, anchor);
+		GameTooltip:SetText(title, WHITE_FONT_COLOR:GetRGB());
+		GameTooltip:AddLine(description, nil, nil, nil, true);
+		SIPPYCUP.ElvUI.SkinTooltip(GameTooltip);
+		GameTooltip:Show();
+	end
+
+	local function HideTooltip()
+		GameTooltip:Hide();
+	end
+
+    ApplyToFrames(frames, function(f)
+        f:SetScript("OnEscapePressed", function(self)
+            self:ClearFocus();
+            HideTooltip();
+        end)
+
+        f:SetScript("OnEditFocusGained", function(self)
+            self:HighlightText();
+            ShowTooltip(self);
+        end)
+
+        f:SetScript("OnEditFocusLost", function(self)
+            if not self:IsMouseOver() then
+                HideTooltip();
+            end
+        end)
+
+        f:SetScript("OnEnter", function(self) ShowTooltip(self) end)
+        f:SetScript("OnLeave", function(self)
+            if not self:HasFocus() then
+                HideTooltip();
+            end
+        end)
+
+        f:SetScript("OnTextChanged", function(self)
+            if self:HasFocus() then
+                ShowTooltip(self);
+            end
+        end);
+    end);
+end
+
 ---ApplyTooltip attaches a tooltip with a label and description to the given widget.
 ---@param widget table The frame or widget to attach the tooltip to.
 ---@param label string The title or label of the tooltip.
@@ -769,16 +834,8 @@ local function CreateConfigEditBox(elementContainer, data)
 		end);
 	end
 
-	widget:SetScript("OnEscapePressed", function(self)
-		self:ClearFocus();
-	end);
-
-	widget:SetScript("OnEditFocusGained", function(self)
-		self:HighlightText();
-	end);
-
 	if data.tooltip then
-		ApplyTooltip(widget, data.label, data.tooltip);
+		AttachEditBoxTooltip(widget, data.label, data.tooltip);
 	end
 
 	SIPPYCUP.ElvUI.RegisterSkinnableElement(widget, "editbox");
