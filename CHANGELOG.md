@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.4.0] - 2025-08-xx  
+## [0.4.0] - 2025-08-10  
 Major patch following the 0.3.0 rework release, introducing several new requested features, significant internal optimizations, and fixes for reported bugs.
 
 ### Added  
