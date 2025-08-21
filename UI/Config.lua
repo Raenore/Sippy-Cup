@@ -1432,7 +1432,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			end,
 			set = function(val)
 				SIPPYCUP.Database.UpdateSetting("global", "MSPStatusCheck", nil, val);
-				SIPPYCUP.Player.OOC = SIPPYCUP_PLAYER.CheckOOCStatus();
+				SIPPYCUP.MSP.CheckRPStatus();
 				if val then
 					SIPPYCUP.Consumables.RefreshStackSizes(val);
 				else
