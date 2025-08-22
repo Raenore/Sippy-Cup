@@ -116,26 +116,6 @@ function SIPPYCUP_OUTPUT.Debug(...)
 	Print("|cnTRANSMOGRIFY_FONT_COLOR:" .. finalOutput .. "|r");
 end
 
-SIPPYCUP.Player = {};
-SIPPYCUP.Player.FullName = "";
-SIPPYCUP.Player.OOC = true;
-
-SIPPYCUP_PLAYER = {};
-
-function SIPPYCUP_PLAYER.GetFullName()
-	local name, realm = UnitFullName("player");
-	SIPPYCUP.Player.FullName = format("%s-%s", name, realm);
-end
-
-function SIPPYCUP_PLAYER.CheckOOCStatus()
-	-- msp.my.FC can be nil sometimes, mostly on login.
-	if not (msp and msp.my and msp.my.FC) then
-		return nil;
-	end
-
-	return (msp.my.FC == "1");
-end
-
 SIPPYCUP_TEXT = {};
 
 function SIPPYCUP_TEXT.Normalize(str)

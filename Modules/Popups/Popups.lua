@@ -584,8 +584,11 @@ local pendingCalls = {};
 ---@return nil
 function SIPPYCUP.Popups.QueuePopupAction(data,  caller)
 	-- If MSP status checks are on and the character is currently OOC, we skip everything.
-	if SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck and SIPPYCUP.Player.OOC then
-		return;
+	if SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck then
+		local _, _, isIC = SIPPYCUP.MSP.CheckRPStatus();
+		if not isIC then
+			return;
+		end
 	end
 
 	-- Use a composite key of auraID and reason so different reasons don't collide
