@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.1] - 2025-08-xx  
+First bugfix patch targeting the 0.4.0 internal rework, improving MSP handling and streamlining some startup code.  
+
+### Added  
+- Added additional internal states to ensure Sippy Cup correctly tracks when certain data is available and ready to be used. No user-facing changes ([#62](https://github.com/Raenore/Sippy-Cup/pull/62))  
+
+### Changed  
+- Improved MSP-related code (addons like TRP, MRP, XRP, etc.) to handle edge cases where, on login, Sippy Cup incorrectly thought the player was IC. ([#63](https://github.com/Raenore/Sippy-Cup/pull/63))  
+
 ## [0.4.0] - 2025-08-10  
 Major patch following the 0.3.0 rework release, introducing several new requested features, significant internal optimizations, and fixes for reported bugs.
 
