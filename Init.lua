@@ -6,10 +6,12 @@ local _, SIPPYCUP = ...;
 
 local _state = {
 	addonLoaded = false,
+	addonReady = false,
 	consumablesLoaded = false,
 	databaseLoaded = false,
 	hasSeenFullUpdate = false,
 	inLoadingScreen = true,
+	playerLogin = false,
 	startupLoaded = false,
 };
 

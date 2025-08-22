@@ -41,9 +41,8 @@ end
 
 ---PLAYER_LOGIN triggers the addon OnEnable phase after the UI is fully loaded.
 function SIPPYCUP_Addon:PLAYER_LOGIN()
-	self:OnEnable();
-
 	SIPPYCUP.Events:UnregisterEvent("PLAYER_LOGIN");
+	self:OnEnable();
 end
 
 ---OpenSettings toggles the main configuration frame and switches to a specified tab.
@@ -74,41 +73,7 @@ function SIPPYCUP_Addon:OnEnable()
 	SIPPYCUP.Events:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");
 	SIPPYCUP.Events:RegisterEvent("BAG_UPDATE_DELAYED");
 
-	local realCharKey = SIPPYCUP.Database.GetUnitName();
-	if realCharKey then
-		local db = SIPPYCUP.db;
-		if db.profileKeys["Unknown"] and not db.profileKeys[realCharKey] then
-			db.profileKeys[realCharKey] = db.profileKeys["Unknown"];
-			db.profileKeys["Unknown"] = nil;
-			-- Optional: move profile data as well if you saved it under Unknown profile
-			-- local profileName = db.profileKeys[realCharKey];
-			-- if db.profiles and db.profiles[profileName] then
-			--     db.profiles[profileName] = db.profiles[profileName] or {};
-			-- end
-		end
-		SIPPYCUP.Database.Setup();
-	end
-
-	-- Adapt saved variables structures between versions
-	SIPPYCUP.Flyway:ApplyPatches();
-
-	-- 1 - We set up the minimap buttons.
-	SIPPYCUP.Minimap:SetupMinimapButtons();
-
-	-- 2 - We get the player's full name (for MSP checks).
-	SIPPYCUP_PLAYER.GetFullName();
-
-	-- 3 - If msp exists, we listen to its update callbacks from the own player.
-	-- Handled in PlayerLoading on login/reloads.
-
-	-- 4 - We start our 3m Pre-Expiration Check if it's enabled (check is done within the function itself).
-	-- Handled in PLAYER_ENTERING_WORLD on login through self:StartContinuousCheck();
-
-	-- 5 - If we've gotten here, we can send our Welcome Message (if it's enabled).
-	if SIPPYCUP.global.WelcomeMessage then
-		SIPPYCUP_OUTPUT.Write(L.WELCOMEMSG_VERSION:format(SIPPYCUP.Database.GetCurrentProfileName(), SIPPYCUP.AddonMetadata.version));
-		SIPPYCUP_OUTPUT.Write(L.WELCOMEMSG_OPTIONS);
-	end
+	SIPPYCUP.State.playerLogin = true;
 end
 
 ---UNIT_AURA handles aura updates for the player, flags bag update desync, and triggers aura conversion.
@@ -182,6 +147,12 @@ local function CheckAddonLoaded()
 	end
 end
 
+local function CheckAddonReady()
+	if SIPPYCUP.State.playerLogin and SIPPYCUP.State.startupLoaded then
+		SIPPYCUP.State.addonReady = true;
+	end
+end
+
 SIPPYCUP.State.RegisterListener("addonLoaded", function(_, _)
 	-- newVal, oldVal
 	SIPPYCUP_OUTPUT.Debug("Addon (Consumables & Database) loaded.");
@@ -215,8 +186,47 @@ SIPPYCUP.State.RegisterListener("consumablesLoaded", function()
 	CheckAddonLoaded();
 end)
 
+SIPPYCUP.State.RegisterListener("playerLogin", function()
+	CheckAddonReady();
+end)
+
 SIPPYCUP.State.RegisterListener("startupLoaded", function()
-	-- We don't use this for now.
+	CheckAddonReady();
+end)
+
+SIPPYCUP.State.RegisterListener("addonReady", function()
+	local realCharKey = SIPPYCUP.Database.GetUnitName();
+	if realCharKey then
+		local db = SIPPYCUP.db;
+		if db.profileKeys["Unknown"] and not db.profileKeys[realCharKey] then
+			db.profileKeys[realCharKey] = db.profileKeys["Unknown"];
+			db.profileKeys["Unknown"] = nil;
+			-- Optional: move profile data as well if you saved it under Unknown profile
+			-- local profileName = db.profileKeys[realCharKey];
+			-- if db.profiles and db.profiles[profileName] then
+			--     db.profiles[profileName] = db.profiles[profileName] or {};
+			-- end
+		end
+		SIPPYCUP.Database.Setup();
+	end
+
+	-- Adapt saved variables structures between versions
+	SIPPYCUP.Flyway:ApplyPatches();
+
+	-- 1 - We set up the minimap buttons.
+	SIPPYCUP.Minimap:SetupMinimapButtons();
+
+	-- 2 - If msp exists, we listen to its update callbacks from the own player.
+	-- Handled in PlayerLoading on login/reloads.
+
+	-- 3 - We start our 3m Pre-Expiration Check if it's enabled (check is done within the function itself).
+	-- Handled in PLAYER_ENTERING_WORLD on login through self:StartContinuousCheck();
+
+	-- 4 - If we've gotten here, we can send our Welcome Message (if it's enabled).
+	if SIPPYCUP.global.WelcomeMessage then
+		SIPPYCUP_OUTPUT.Write(L.WELCOMEMSG_VERSION:format(SIPPYCUP.Database.GetCurrentProfileName(), SIPPYCUP.AddonMetadata.version));
+		SIPPYCUP_OUTPUT.Write(L.WELCOMEMSG_OPTIONS);
+	end
 end)
 
 ---PlayerLoading handles loading screen state changes, stopping checks when loading and starting them when done.
