@@ -240,7 +240,18 @@ local function CreatePopup(templateType)
 
 			popup.RefreshButton:HookScript("OnClick", function(self)
 				-- Prevent spam; resets when next charge is ready.
-				self:Disable();
+				local currentPopup = self:GetParent();
+				local popupData = currentPopup and currentPopup.popupData;
+				local consumableData = popupData.consumableData;
+				local itemID = consumableData.itemID;
+				local itemCount = C_Item.GetItemCount(itemID);
+
+				-- If no more charges, don't disable as next charge doesn't exist to re-enable.
+				if itemCount > 0 then
+					self:Disable();
+				else
+					self:Enable();
+				end
 			end);
 
 			popup.IgnoreButton:HookScript("OnEnter", function()
