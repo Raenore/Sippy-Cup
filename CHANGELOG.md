@@ -10,6 +10,7 @@ First bugfix patch targeting the 0.4.0 internal rework, improving MSP handling a
 
 ### Changed  
 - Improved MSP-related code (addons like TRP, MRP, XRP, etc.) to handle edge cases where, on login, Sippy Cup incorrectly thought the player was IC. ([#63](https://github.com/Raenore/Sippy-Cup/pull/63))  
+- Optimized the code that checks for auras and spell cast tracking to improve performance ([#66](https://github.com/Raenore/Sippy-Cup/pull/66)).  
 
 ### Fixed  
 - Fixed an issue where the refresh button remained disabled after being clicked with zero items left in the bag ([#65](https://github.com/Raenore/Sippy-Cup/pull/65)).  
