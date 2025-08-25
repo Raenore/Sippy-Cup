@@ -2,8 +2,8 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.4.1] - 2025-08-xx  
-First bugfix patch targeting the 0.4.0 internal rework, improving MSP handling and streamlining some startup code.  
+## [0.5.0] - 2025-08-xx  
+Major patch following the 0.4.0 internal optimizations, targeting further internal reworks and streamlining for performance.  
 
 ### Added  
 - Added additional internal states to ensure Sippy Cup correctly tracks when certain data is available and ready to be used. No user-facing changes ([#62](https://github.com/Raenore/Sippy-Cup/pull/62))  
@@ -11,6 +11,7 @@ First bugfix patch targeting the 0.4.0 internal rework, improving MSP handling a
 ### Changed  
 - Improved MSP-related code (addons like TRP, MRP, XRP, etc.) to handle edge cases where, on login, Sippy Cup incorrectly thought the player was IC. ([#63](https://github.com/Raenore/Sippy-Cup/pull/63))  
 - Optimized the code that checks for auras and spell cast tracking to improve performance ([#66](https://github.com/Raenore/Sippy-Cup/pull/66)).  
+- Rewrote Sippy Cup's events and state system to be more robust, which should improve long-term performance ([#67](https://github.com/Raenore/Sippy-Cup/pull/67)).  
 
 ### Fixed  
 - Fixed an issue where the refresh button remained disabled after being clicked with zero items left in the bag ([#65](https://github.com/Raenore/Sippy-Cup/pull/65)).  
