@@ -90,41 +90,43 @@ local function NormalizeLocName(name)
 	return name:upper():gsub("[^%w]+", "_");
 end
 
-local remaining = {};
-for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
-	remaining[consumable.itemID] = true;
+function SIPPYCUP.Consumables.Setup()
+	local remaining = {};
+	for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
+		remaining[consumable.itemID] = true;
 
-	SIPPYCUP.Consumables.ByAuraID[consumable.auraID] = consumable;
-	SIPPYCUP.Consumables.ByItemID[consumable.itemID] = consumable;
-end
+		SIPPYCUP.Consumables.ByAuraID[consumable.auraID] = consumable;
+		SIPPYCUP.Consumables.ByItemID[consumable.itemID] = consumable;
+	end
 
-for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
-	local item = Item:CreateFromItemID(consumable.itemID);
-	item:ContinueOnItemLoad(function()
-		consumable.name = item:GetItemName();
+	for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
+		local item = Item:CreateFromItemID(consumable.itemID);
+		item:ContinueOnItemLoad(function()
+			consumable.name = item:GetItemName();
 
-		-- `loc` from name, e.g. "Noggenfogger Select UP" -> "NOGGENFOGGER_SELECT_UP" and "Half-Eaten Takeout" -> "HALF_EATEN_TAKEOUT"
-		consumable.loc = NormalizeLocName(consumable.name);
+			-- `loc` from name, e.g. "Noggenfogger Select UP" -> "NOGGENFOGGER_SELECT_UP" and "Half-Eaten Takeout" -> "HALF_EATEN_TAKEOUT"
+			consumable.loc = NormalizeLocName(consumable.name);
 
-		-- `profile` from loc, e.g. "PYGMY_OIL" -> "pygmyOil"
-		consumable.profile = string.gsub(string.lower(consumable.loc), "_(%a)", function(c)
-			return c:upper();
-		end);
-
-		consumable.icon = item:GetItemIcon();
-
-		remaining[consumable.itemID] = nil;
-		SIPPYCUP.Consumables.ByName[consumable.name] = consumable;
-
-		if next(remaining) == nil then
-			-- All items loaded — safe to proceed
-			table.sort(SIPPYCUP.Consumables.Data, function(a, b)
-				return SIPPYCUP_TEXT.Normalize(a.name:lower()) < SIPPYCUP_TEXT.Normalize(b.name:lower());
+			-- `profile` from loc, e.g. "PYGMY_OIL" -> "pygmyOil"
+			consumable.profile = string.gsub(string.lower(consumable.loc), "_(%a)", function(c)
+				return c:upper();
 			end);
 
-			SIPPYCUP.State.consumablesLoaded = true;
-		end
-	end);
+			consumable.icon = item:GetItemIcon();
+
+			remaining[consumable.itemID] = nil;
+			SIPPYCUP.Consumables.ByName[consumable.name] = consumable;
+
+			if next(remaining) == nil then
+				-- All items loaded — safe to proceed
+				table.sort(SIPPYCUP.Consumables.Data, function(a, b)
+					return SIPPYCUP_TEXT.Normalize(a.name:lower()) < SIPPYCUP_TEXT.Normalize(b.name:lower());
+				end);
+
+				SIPPYCUP.Callbacks:TriggerEvent(SIPPYCUP.Events.CONSUMABLES_LOADED);
+			end
+		end);
+	end
 end
 
 ---RefreshStackSizes iterates over all enabled Sippy Cup consumables to set the correct stack sizes (startup / profile change / etc).
@@ -175,7 +177,7 @@ function SIPPYCUP.Consumables.RefreshStackSizes(checkAll, reset, preExpireOnly)
 		local startTime = GetCooldownStartTime(consumableData);
 		local active = startTime ~= nil;
 
-		if not SIPPYCUP.State.inLoadingScreen then
+		if not SIPPYCUP.States.loadingScreen then
 			local preExpireFired;
 			if profileConsumableData.noAuraTrackable then
 				preExpireFired = SIPPYCUP.Items.CheckNoAuraSingleConsumable(profileConsumableData, auraID, nil, startTime);
