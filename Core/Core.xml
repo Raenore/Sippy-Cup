@@ -9,6 +9,8 @@
 	<Include file="Auras.lua"/>
 	<Include file="Items.lua"/>
 
+	<Include file="Timers.lua"/>
+
 	<Include file="..\UI\Config.xml"/>
 
 	<Include file="Consumables.lua"/>

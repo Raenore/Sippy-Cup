@@ -4,66 +4,49 @@
 ---@class SIPPYCUP
 local _, SIPPYCUP = ...;
 
-local _state = {
-	addonLoaded = false,
-	addonReady = false,
-	consumablesLoaded = false,
-	databaseLoaded = false,
-	hasSeenFullUpdate = false,
-	inLoadingScreen = true,
-	playerLogin = false,
-	startupLoaded = false,
-};
-
--- Table of listeners keyed by state key
-local stateListeners = {};
-
--- Function to register a listener callback for a specific state key
-local function State_RegisterListener(key, callback)
-	if not stateListeners[key] then
-		stateListeners[key] = {};
-	end
-	table.insert(stateListeners[key], callback);
-end
-
--- Proxy table with metatable to handle listener notification
-SIPPYCUP.State = setmetatable({}, {
-	__index = function(_, k)
-		return _state[k];
-	end,
-	__newindex = function(_, k, v)
-		local oldValue = _state[k];
-		if oldValue ~= v then
-			_state[k] = v;
-			if stateListeners[k] then
-				for _, callback in ipairs(stateListeners[k]) do
-					callback(v, oldValue);
-				end
-			end
-		end
-	end,
-});
-
--- Expose the listener registration function on SIPPYCUP.State
-SIPPYCUP.State.RegisterListener = State_RegisterListener;
-
 -- Create a single event dispatcher frame for all addon events
-local events = CreateFrame("Frame", "SIPPYCUP_EventFrame");
-_G.SIPPYCUP_Addon = events;
+local SIPPYCUP_Addon = CreateFrame("Frame", "SIPPYCUP_EventFrame");
 
 -- Set up event handler to call methods on SIPPYCUP_Addon by event name
-events:SetScript("OnEvent", function(self, event, ...)
+SIPPYCUP_Addon:SetScript("OnEvent", function(self, event, ...)
 	if self[event] then
 		self[event](self, event, ...);
 	end
 end);
 
 -- Register initial events needed on addon load and login
-events:RegisterEvent("ADDON_LOADED");
-events:RegisterEvent("PLAYER_LOGIN");
+SIPPYCUP_Addon:RegisterEvent("ADDON_LOADED");
+SIPPYCUP_Addon:RegisterEvent("PLAYER_LOGIN");
 
--- Expose the event dispatcher frame as SIPPYCUP.Events
-SIPPYCUP.Events = events;
+local CallbackHandler = LibStub("CallbackHandler-1.0");
+
+SIPPYCUP.Callbacks = {};
+
+SIPPYCUP.Callbacks.callbacks = CallbackHandler:New(SIPPYCUP.Callbacks);
+
+function SIPPYCUP.Callbacks:TriggerEvent(eventTable, ...)
+	self.callbacks:Fire(eventTable, ...);
+end
+
+SIPPYCUP.Events = {
+	-- Startup
+	CONSUMABLES_LOADED = "CONSUMABLES_LOADED",
+	DATABASE_LOADED = "DATABASE_LOADED",
+	ADDON_IS_READY = "ADDON_IS_READY",
+
+	-- Loading Screens
+	LOADING_SCREEN_STARTED = "LOADING_SCREEN_STARTED",
+	LOADING_SCREEN_ENDED = "LOADING_SCREEN_ENDED",
+};
+
+SIPPYCUP.States = {
+	addonReady = false,
+	consumablesLoaded = false,
+	databaseLoaded = false,
+	hasSeenFullUpdate = false,
+	loadingScreen = true,
+	playerLoggedIn = false,
+};
 
 SIPPYCUP.AddonMetadata = {
 	addonBuild = C_AddOns.GetAddOnMetadata("SippyCup", "X-Build"),
@@ -84,4 +67,5 @@ SIPPYCUP.IS_DEV_BUILD = true;
 SIPPYCUP.IS_DEV_BUILD = false;
 --@end-non-debug@]===]
 
+_G.SIPPYCUP_Addon = SIPPYCUP_Addon;
 _G.SIPPYCUP = SIPPYCUP;

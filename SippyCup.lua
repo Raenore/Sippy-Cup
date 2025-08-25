@@ -3,15 +3,16 @@
 
 local L = SIPPYCUP.L;
 
----ADDON_LOADED initializes addon on matching name.
+---ADDON_LOADED Initializes the addon when ADDON_LOADED fires for "SippyCup".
+---Unregisters the event and calls OnInitialize.
 function SIPPYCUP_Addon:ADDON_LOADED(_, addonName)
 	if addonName == "SippyCup" then
-		SIPPYCUP.Events:UnregisterEvent("ADDON_LOADED");
+		SIPPYCUP_Addon:UnregisterEvent("ADDON_LOADED");
 		self:OnInitialize();
 	end
 end
 
----OnInitialize runs during ADDON_LOADED, load saved variables and set up slash commands.
+---OnInitialize Loads saved variables, sets up database, consumables, and slash commands.
 function SIPPYCUP_Addon:OnInitialize()
 	if not SippyCupDB then
 		SippyCupDB = {
@@ -23,8 +24,9 @@ function SIPPYCUP_Addon:OnInitialize()
 
 	SIPPYCUP.db = SippyCupDB;
 
-	-- Set up DB internals
+	-- Set up DB internals & Consumables
 	SIPPYCUP.Database.Setup();
+	SIPPYCUP.Consumables.Setup();
 
 	-- Register slash commands
 	SLASH_SIPPYCUP1, SLASH_SIPPYCUP2 = "/sc", "/sippycup";
@@ -39,14 +41,8 @@ function SIPPYCUP_Addon:OnInitialize()
 	end
 end
 
----PLAYER_LOGIN triggers the addon OnEnable phase after the UI is fully loaded.
-function SIPPYCUP_Addon:PLAYER_LOGIN()
-	SIPPYCUP.Events:UnregisterEvent("PLAYER_LOGIN");
-	self:OnEnable();
-end
-
----OpenSettings toggles the main configuration frame and switches to a specified tab.
----@param view number? Optional tab number to open, defaults to 1.
+---OpenSettings Toggles the main config frame and optionally switches to a specified tab.
+---@param view number? Optional tab index, defaults to 1.
 function SIPPYCUP_Addon:OpenSettings(view)
 	if not SIPPYCUP.configFrame then
 		SIPPYCUP.Config.TryCreateConfigFrame();
@@ -61,137 +57,51 @@ function SIPPYCUP_Addon:OpenSettings(view)
 	end
 end
 
----OnEnable runs during PLAYER_LOGIN, register game events, hook functions, create frames, etc.
-function SIPPYCUP_Addon:OnEnable()
+---CheckPlayerLogin Ensures PLAYER_LOGIN processing runs after DB and consumables are loaded.
+local function CheckPlayerLogin()
+	if SIPPYCUP.States.databaseLoaded and SIPPYCUP.States.consumablesLoaded and SIPPYCUP.States.playerLoggedIn then
+		SIPPYCUP_OUTPUT.Debug("Addon (Consumables & Database) loaded.");
+		SIPPYCUP_Addon:OnPlayerLogin();
+	end
+end
+
+---PLAYER_LOGIN Fires after the UI is fully loaded, triggers OnPlayerLogin if DB and consumables are ready.
+function SIPPYCUP_Addon:PLAYER_LOGIN()
+	SIPPYCUP_Addon:UnregisterEvent("PLAYER_LOGIN");
+	SIPPYCUP.States.playerLoggedIn = true;
+	CheckPlayerLogin();
+end
+
+---CONSUMABLES_LOADED Callback triggered when all consumable data is loaded from the game.
+---Sets consumablesLoaded state and checks if PLAYER_LOGIN processing can proceed.
+SIPPYCUP.Callbacks:RegisterCallback(SIPPYCUP.Events.CONSUMABLES_LOADED, function()
+	SIPPYCUP.States.consumablesLoaded = true;
+	CheckPlayerLogin();
+end);
+
+---OnPlayerLogin Handles game event registration and config frame creation after player login.
+function SIPPYCUP_Addon:OnPlayerLogin()
 	-- Register game events on the unified event frame
-	SIPPYCUP.Events:RegisterUnitEvent("UNIT_AURA", "player");
-	SIPPYCUP.Events:RegisterEvent("PLAYER_REGEN_DISABLED");
-	SIPPYCUP.Events:RegisterEvent("PLAYER_REGEN_ENABLED");
-	SIPPYCUP.Events:RegisterEvent("PLAYER_ENTERING_WORLD");
-	SIPPYCUP.Events:RegisterEvent("PLAYER_LEAVING_WORLD");
-	SIPPYCUP.Events:RegisterEvent("ZONE_CHANGED_NEW_AREA");
-	SIPPYCUP.Events:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player");
-	SIPPYCUP.Events:RegisterEvent("BAG_UPDATE_DELAYED");
-
-	SIPPYCUP.State.playerLogin = true;
-end
-
----UNIT_AURA handles aura updates for the player, flags bag update desync, and triggers aura conversion.
----@param event string Event name (ignored)
----@param unitTarget string Unit affected, automatically "player" through RegisterUnitEvent.
----@param updateInfo any Update data passed to aura conversion
-function SIPPYCUP_Addon:UNIT_AURA(_, unitTarget, updateInfo) -- luacheck: no unused (unitTarget)
-
-	-- Bag data is not synched immediately when UNIT_AURA fires, signal desync to the addon.
-	SIPPYCUP.Items.bagUpdateUnhandled = true;
-	SIPPYCUP.Auras.Convert(SIPPYCUP.Auras.Sources.UNIT_AURA, updateInfo);
-end
-
-local CONTINUOUS_CHECK_INTERVAL = 180.0;
----StartContinuousCheck begins repeating timers (3 minutes interval) for pre-expiration aura checks and no-aura item usage, if not in combat.
-function SIPPYCUP_Addon:StartContinuousCheck()
-	-- don’t run if we’re in combat or addon is not loaded fully.
-	if InCombatLockdown() or not SIPPYCUP.State.addonLoaded then
-		return;
-	end
-
-	-- Both below timers don't need an immediate run as startup + new enables run these partially.
-
-	if not self.preExpTicker then
-		-- schedule and keep the handle so we can cancel it later
-		self.preExpTicker = C_Timer.NewTicker(CONTINUOUS_CHECK_INTERVAL, function()
-			SIPPYCUP.Auras.CheckPreExpirationForAllActiveConsumables();
-		end);
-	end
-
-	if not self.itemTicker then
-		-- schedule and keep the handle so we can cancel it later
-		self.itemTicker = C_Timer.NewTicker(CONTINUOUS_CHECK_INTERVAL, function()
-			SIPPYCUP.Items.CheckNoAuraItemUsage();
-		end);
-	end
-end
-
----StopContinuousCheck cancels all continuous check timers if active.
-function SIPPYCUP_Addon:StopContinuousCheck()
-	if self.preExpTicker then
-		self.preExpTicker:Cancel();
-		self.preExpTicker = nil;
-	end
-
-	if self.itemTicker then
-		self.itemTicker:Cancel();
-		self.itemTicker = nil;
-	end
-end
-
----PLAYER_REGEN_DISABLED handles entering combat by stopping aura and continuous checks.
-function SIPPYCUP_Addon:PLAYER_REGEN_DISABLED()
-	-- Combat is entered when regen is disabled.
-	self:StopContinuousCheck();
-end
-
----PLAYER_REGEN_ENABLED handles leaving combat by restarting aura and continuous checks.
-function SIPPYCUP_Addon:PLAYER_REGEN_ENABLED()
-	-- Combat is left when regen is enabled.
-	self:StartContinuousCheck();
-	SIPPYCUP.Popups.HandleDeferredActions("combat");
-end
-
-local function CheckAddonLoaded()
-	if SIPPYCUP.State.databaseLoaded and SIPPYCUP.State.consumablesLoaded then
-		SIPPYCUP.State.addonLoaded = true;
-	end
-end
-
-local function CheckAddonReady()
-	if SIPPYCUP.State.playerLogin and SIPPYCUP.State.startupLoaded then
-		SIPPYCUP.State.addonReady = true;
-	end
-end
-
-SIPPYCUP.State.RegisterListener("addonLoaded", function(_, _)
-	-- newVal, oldVal
-	SIPPYCUP_OUTPUT.Debug("Addon (Consumables & Database) loaded.");
+	SIPPYCUP_Addon:RegisterUnitEvent("UNIT_AURA", "player");
+	SIPPYCUP_Addon:RegisterEvent("PLAYER_REGEN_DISABLED");
+	SIPPYCUP_Addon:RegisterEvent("PLAYER_REGEN_ENABLED");
+	SIPPYCUP_Addon:RegisterEvent("PLAYER_ENTERING_WORLD");
+	SIPPYCUP_Addon:RegisterEvent("PLAYER_LEAVING_WORLD");
+	SIPPYCUP_Addon:RegisterEvent("ZONE_CHANGED_NEW_AREA");
+	SIPPYCUP_Addon:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player");
+	SIPPYCUP_Addon:RegisterEvent("BAG_UPDATE_DELAYED");
 
 	SIPPYCUP.Config.TryCreateConfigFrame();
+end
 
+---OnInitialPlayerInWorld Runs initial setup after the player enters the world for the first time.
+---Handles MSP checks, DB profile migration, saved variable patches, and minimap setup.
+function SIPPYCUP_Addon:OnInitialPlayerInWorld()
 	-- Prepare our MSP checks.
 	SIPPYCUP.MSP.EnableIfAvailable(); -- True/False if enable successfully, we don't need that info right now.
 	-- Depending on if MSP status checks are on or off, we check differently.
+	SIPPYCUP.Consumables.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
 
-	if not SIPPYCUP.State.inLoadingScreen then
-		SIPPYCUP.Consumables.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
-		SIPPYCUP_Addon:StartContinuousCheck()
-		SIPPYCUP.Popups.HandleDeferredActions("loading");
-
-		-- isFullUpdate can pass through loading screens (but our code can't), so handle it now.
-		if SIPPYCUP.State.hasSeenFullUpdate then
-			SIPPYCUP.State.hasSeenFullUpdate = false;
-			SIPPYCUP.Auras.CheckAllActiveConsumables();
-		end
-
-		SIPPYCUP.State.startupLoaded = true;
-	end
-end)
-
-SIPPYCUP.State.RegisterListener("databaseLoaded", function()
-	CheckAddonLoaded();
-end)
-
-SIPPYCUP.State.RegisterListener("consumablesLoaded", function()
-	CheckAddonLoaded();
-end)
-
-SIPPYCUP.State.RegisterListener("playerLogin", function()
-	CheckAddonReady();
-end)
-
-SIPPYCUP.State.RegisterListener("startupLoaded", function()
-	CheckAddonReady();
-end)
-
-SIPPYCUP.State.RegisterListener("addonReady", function()
 	local realCharKey = SIPPYCUP.Database.GetUnitName();
 	if realCharKey then
 		local db = SIPPYCUP.db;
@@ -210,46 +120,22 @@ SIPPYCUP.State.RegisterListener("addonReady", function()
 	-- Adapt saved variables structures between versions
 	SIPPYCUP.Flyway:ApplyPatches();
 
-	-- 1 - We set up the minimap buttons.
 	SIPPYCUP.Minimap:SetupMinimapButtons();
 
-	-- 2 - If msp exists, we listen to its update callbacks from the own player.
-	-- Handled in PlayerLoading on login/reloads.
-
-	-- 3 - We start our 3m Pre-Expiration Check if it's enabled (check is done within the function itself).
-	-- Handled in PLAYER_ENTERING_WORLD on login through self:StartContinuousCheck();
-
-	-- 4 - If we've gotten here, we can send our Welcome Message (if it's enabled).
 	if SIPPYCUP.global.WelcomeMessage then
 		SIPPYCUP_OUTPUT.Write(L.WELCOMEMSG_VERSION:format(SIPPYCUP.Database.GetCurrentProfileName(), SIPPYCUP.AddonMetadata.version));
 		SIPPYCUP_OUTPUT.Write(L.WELCOMEMSG_OPTIONS);
 	end
-end)
 
----PlayerLoading handles loading screen state changes, stopping checks when loading and starting them when done.
----@param isLoading boolean True if loading screen is active, false if loading finished.
-local function PlayerLoading(isLoading)
-	if isLoading then
-		SIPPYCUP.State.inLoadingScreen = true;
-		SIPPYCUP_Addon:StopContinuousCheck();
-	else
-		SIPPYCUP.State.inLoadingScreen = false;
-		if not SIPPYCUP.State.startupLoaded then
-			SIPPYCUP.Consumables.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
-			SIPPYCUP.State.startupLoaded = true;
-		end
-		SIPPYCUP_Addon:StartContinuousCheck()
-		SIPPYCUP.Popups.HandleDeferredActions("loading");
-
-		-- isFullUpdate can pass through loading screens (but our code can't), so handle it now.
-		if SIPPYCUP.State.hasSeenFullUpdate then
-			SIPPYCUP.State.hasSeenFullUpdate = false;
-			SIPPYCUP.Auras.CheckAllActiveConsumables();
-		end
-	end
+	SIPPYCUP.States.addonReady = true;
 end
 
----PLAYER_ENTERING_WORLD handles the event when the player enters the world or reloads UI; triggers loading screen exit logic.
+---BAG_UPDATE_DELAYED Handles delayed bag updates and triggers item update processing.
+function SIPPYCUP_Addon:BAG_UPDATE_DELAYED()
+	SIPPYCUP.Items.HandleBagUpdate();
+end
+
+---PLAYER_ENTERING_WORLD Handles player entering world or UI reload; triggers loading screen end logic if reloading.
 ---@param event string Event name (ignored)
 ---@param isInitialLogin boolean Unused
 ---@param isReloadingUi boolean Whether UI is reloading
@@ -257,23 +143,39 @@ function SIPPYCUP_Addon:PLAYER_ENTERING_WORLD(_, _, isReloadingUi)
 	-- ZONE_CHANGED_NEW_AREA fires on isInitialLogin, but not on isReloadingUi
 	if isReloadingUi then
 		-- Reloading fires PLAYER_ENTERING_WORLD when reload is done, data is fine.
-		PlayerLoading(false);
+		SIPPYCUP.Callbacks:TriggerEvent(SIPPYCUP.Events.LOADING_SCREEN_ENDED);
 	end
 end
 
----PLAYER_LEAVING_WORLD handles the event when the player leaves the world; triggers loading screen enter logic.
+---PLAYER_LEAVING_WORLD Handles leaving the world; triggers loading screen start logic.
 function SIPPYCUP_Addon:PLAYER_LEAVING_WORLD()
-	PlayerLoading(true);
+	SIPPYCUP.Callbacks:TriggerEvent(SIPPYCUP.Events.LOADING_SCREEN_STARTED);
 end
 
----ZONE_CHANGED_NEW_AREA handles zone changes to exit loading screen state if needed.
-function SIPPYCUP_Addon:ZONE_CHANGED_NEW_AREA()
-	if SIPPYCUP.State.inLoadingScreen then
-		PlayerLoading(false);
-	end
+---PLAYER_REGEN_DISABLED Stops continuous checks when entering combat.
+function SIPPYCUP_Addon:PLAYER_REGEN_DISABLED()
+	-- Combat is entered when regen is disabled.
+	self:StopContinuousCheck();
 end
 
----UNIT_SPELLCAST_SUCCEEDED handles successful spell casts by the player; checks for items that don't trigger aura events.
+---PLAYER_REGEN_ENABLED Restarts continuous checks and handles deferred combat actions after leaving combat.
+function SIPPYCUP_Addon:PLAYER_REGEN_ENABLED()
+	-- Combat is left when regen is enabled.
+	self:StartContinuousCheck();
+	SIPPYCUP.Popups.HandleDeferredActions("combat");
+end
+
+---UNIT_AURA Handles player aura updates, flags bag desync, and triggers aura conversion.
+---@param event string Event name (ignored)
+---@param unitTarget string Unit affected, automatically "player" through RegisterUnitEvent.
+---@param updateInfo any Update data passed to aura conversion
+function SIPPYCUP_Addon:UNIT_AURA(_, unitTarget, updateInfo) -- luacheck: no unused (unitTarget)
+	-- Bag data is not synched immediately when UNIT_AURA fires, signal desync to the addon.
+	SIPPYCUP.Items.bagUpdateUnhandled = true;
+	SIPPYCUP.Auras.Convert(SIPPYCUP.Auras.Sources.UNIT_AURA, updateInfo);
+end
+
+---UNIT_SPELLCAST_SUCCEEDED Handles successful player spell casts; checks items that don't trigger UNIT_AURA.
 ---@param event string Event name (ignored)
 ---@param unitTarget string Unit that cast the spell, automatically "player" through RegisterUnitEvent.
 ---@param _, _ Ignored parameters
@@ -283,7 +185,40 @@ function SIPPYCUP_Addon:UNIT_SPELLCAST_SUCCEEDED(_, unitTarget, _, spellID) -- l
 	SIPPYCUP.Items.CheckNoAuraSingleConsumable(nil, spellID);
 end
 
----BAG_UPDATE_DELAYED handles delayed bag updates; triggers item update handling.
-function SIPPYCUP_Addon:BAG_UPDATE_DELAYED()
-	SIPPYCUP.Items.HandleBagUpdate();
+---ZONE_CHANGED_NEW_AREA Handles zone changes and triggers loading screen end logic if needed.
+function SIPPYCUP_Addon:ZONE_CHANGED_NEW_AREA()
+	SIPPYCUP.Callbacks:TriggerEvent(SIPPYCUP.Events.LOADING_SCREEN_ENDED);
 end
+
+---LOADING_SCREEN_STARTED Callback triggered when a loading screen begins.
+---Sets loading screen state and stops continuous checks if addon is ready.
+SIPPYCUP.Callbacks:RegisterCallback(SIPPYCUP.Events.LOADING_SCREEN_STARTED, function()
+	SIPPYCUP.States.loadingScreen = true;
+
+	-- Do not continue if addon is not ready.
+	if not SIPPYCUP.States.addonReady then
+		return;
+	end
+
+	SIPPYCUP_Addon:StopContinuousCheck();
+end);
+
+---LOADING_SCREEN_ENDED Callback triggered when a loading screen ends.
+---Runs initial world setup, starts continuous checks, handles deferred actions, and processes full aura updates if pending.
+SIPPYCUP.Callbacks:RegisterCallback(SIPPYCUP.Events.LOADING_SCREEN_ENDED, function()
+	SIPPYCUP.States.loadingScreen = false;
+
+	-- Initial loading screen data run.
+	if not SIPPYCUP.States.addonReady then
+		SIPPYCUP_Addon:OnInitialPlayerInWorld();
+	end
+
+	SIPPYCUP_Addon:StartContinuousCheck()
+	SIPPYCUP.Popups.HandleDeferredActions("loading");
+
+	-- isFullUpdate can pass through loading screens (but our code can't), so handle it now.
+	if SIPPYCUP.States.hasSeenFullUpdate then
+		SIPPYCUP.States.hasSeenFullUpdate = false;
+		SIPPYCUP.Auras.CheckAllActiveConsumables();
+	end
+end);
