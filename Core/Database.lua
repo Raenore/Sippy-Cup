@@ -452,7 +452,7 @@ function SIPPYCUP.Database.Setup()
 	-- Set resolved working profile for runtime use
 	SIPPYCUP.profile = workingProfile;
 
-	SIPPYCUP.State.databaseLoaded = true;
+	SIPPYCUP.States.databaseLoaded = true;
 end
 
 ---GetAllProfiles returns a table of profile names keyed by name.

@@ -664,7 +664,7 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 			blockedBy = "bag";
 		elseif InCombatLockdown() then
 			blockedBy = "combat";
-		elseif SIPPYCUP.State.inLoadingScreen then
+		elseif SIPPYCUP.States.loadingScreen then
 			blockedBy = "loading";
 		end
 

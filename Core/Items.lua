@@ -125,7 +125,7 @@ end
 ---@return nil
 function SIPPYCUP.Items.CheckNoAuraItemUsage(minSeconds)
 	-- Data sent through/around loading screens will not be reliable, so skip that.
-	if SIPPYCUP.State.inLoadingScreen then
+	if SIPPYCUP.States.loadingScreen then
 		return;
 	end
 
@@ -149,7 +149,7 @@ function SIPPYCUP.Items.CheckNoAuraSingleConsumable(profileConsumableData, spell
 	local preExpireFired = false;
 
 	-- Data sent through/around loading screens will not be reliable, so skip that.
-	if SIPPYCUP.State.inLoadingScreen then
+	if SIPPYCUP.States.loadingScreen then
 		return preExpireFired;
 	end
 
