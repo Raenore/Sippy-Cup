@@ -11,6 +11,9 @@ First bugfix patch targeting the 0.4.0 internal rework, improving MSP handling a
 ### Changed  
 - Improved MSP-related code (addons like TRP, MRP, XRP, etc.) to handle edge cases where, on login, Sippy Cup incorrectly thought the player was IC. ([#63](https://github.com/Raenore/Sippy-Cup/pull/63))  
 
+### Fixed  
+- Fixed an issue where the refresh button remained disabled after being clicked with zero items left in the bag ([#65](https://github.com/Raenore/Sippy-Cup/pull/65)).  
+
 ## [0.4.0] - 2025-08-10  
 Major patch following the 0.3.0 rework release, introducing several new requested features, significant internal optimizations, and fixes for reported bugs.
 
