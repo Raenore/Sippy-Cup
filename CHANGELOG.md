@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.5.0] - 2025-08-xx  
+## [0.5.0] - 2025-08-25  
 Major patch following the 0.4.0 internal optimizations, targeting further internal reworks and streamlining for performance.  
 
 ### Added  
