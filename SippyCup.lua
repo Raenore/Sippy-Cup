@@ -64,13 +64,13 @@ end
 ---OnEnable runs during PLAYER_LOGIN, register game events, hook functions, create frames, etc.
 function SIPPYCUP_Addon:OnEnable()
 	-- Register game events on the unified event frame
-	SIPPYCUP.Events:RegisterEvent("UNIT_AURA");
+	SIPPYCUP.Events:RegisterUnitEvent("UNIT_AURA", "player");
 	SIPPYCUP.Events:RegisterEvent("PLAYER_REGEN_DISABLED");
 	SIPPYCUP.Events:RegisterEvent("PLAYER_REGEN_ENABLED");
 	SIPPYCUP.Events:RegisterEvent("PLAYER_ENTERING_WORLD");
 	SIPPYCUP.Events:RegisterEvent("PLAYER_LEAVING_WORLD");
 	SIPPYCUP.Events:RegisterEvent("ZONE_CHANGED_NEW_AREA");
-	SIPPYCUP.Events:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");
+	SIPPYCUP.Events:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player");
 	SIPPYCUP.Events:RegisterEvent("BAG_UPDATE_DELAYED");
 
 	SIPPYCUP.State.playerLogin = true;
@@ -78,12 +78,9 @@ end
 
 ---UNIT_AURA handles aura updates for the player, flags bag update desync, and triggers aura conversion.
 ---@param event string Event name (ignored)
----@param unitTarget string Unit affected, must be "player"
+---@param unitTarget string Unit affected, automatically "player" through RegisterUnitEvent.
 ---@param updateInfo any Update data passed to aura conversion
-function SIPPYCUP_Addon:UNIT_AURA(_, unitTarget, updateInfo)
-	if unitTarget ~= "player" then
-		return;
-	end
+function SIPPYCUP_Addon:UNIT_AURA(_, unitTarget, updateInfo) -- luacheck: no unused (unitTarget)
 
 	-- Bag data is not synched immediately when UNIT_AURA fires, signal desync to the addon.
 	SIPPYCUP.Items.bagUpdateUnhandled = true;
@@ -278,14 +275,10 @@ end
 
 ---UNIT_SPELLCAST_SUCCEEDED handles successful spell casts by the player; checks for items that don't trigger aura events.
 ---@param event string Event name (ignored)
----@param unitTarget string Unit that cast the spell, must be "player"
+---@param unitTarget string Unit that cast the spell, automatically "player" through RegisterUnitEvent.
 ---@param _, _ Ignored parameters
 ---@param spellID number Spell identifier
-function SIPPYCUP_Addon:UNIT_SPELLCAST_SUCCEEDED(_, unitTarget, _, spellID)
-	if unitTarget ~= "player" then
-		return;
-	end
-
+function SIPPYCUP_Addon:UNIT_SPELLCAST_SUCCEEDED(_, unitTarget, _, spellID) -- luacheck: no unused (unitTarget)
 	-- Necessary to handle items that don't fire UNIT_AURA.
 	SIPPYCUP.Items.CheckNoAuraSingleConsumable(nil, spellID);
 end
