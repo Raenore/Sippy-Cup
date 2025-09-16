@@ -12,6 +12,7 @@ L = {
 	--/ Popup dialog /--
 	POPUP_ON_COOLDOWN_TEXT = "On Cooldown",
 	POPUP_IN_FLIGHT_TEXT = "Disabled to prevent dismount during flight.",
+	POPUP_FOOD_BUFF_TEXT = "Disappears once food buff is applied. Do not move!",
 	POPUP_NOT_IN_INVENTORY_TEXT = "Not in Inventory",
 	POPUP_NOT_ENOUGH_IN_INVENTORY_TEXT = "Not Enough (%d Missing)",
 	POPUP_INSUFFICIENT_NEXT_REFRESH_TEXT = "insufficient (%d / %d) for next refresh.",

@@ -13,6 +13,7 @@ L = {
 	--/ Popup dialog /--
 	POPUP_ON_COOLDOWN_TEXT = "En recharge",
 	POPUP_IN_FLIGHT_TEXT = "Désactivé pour ne pas tomber de la monture durant le vol.",
+	POPUP_FOOD_BUFF_TEXT = "Disappears once food buff is applied. Do not move!", -- (NEW)
 	POPUP_NOT_IN_INVENTORY_TEXT = "Pas dans l'inventaire",
 	POPUP_NOT_ENOUGH_IN_INVENTORY_TEXT = "Insuffisant (%d manquant)",
 	POPUP_INSUFFICIENT_NEXT_REFRESH_TEXT = "Insuffisant (%d / %d) pour le prochain rafraîchissement.",
