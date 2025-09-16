@@ -206,6 +206,8 @@ local function CreatePopup(templateType)
 				if not self:IsEnabled() then
 					if isFlying then
 						tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_IN_FLIGHT_TEXT .. "|r";
+					elseif popupData and popupData.consumableData and popupData.consumableData.delayedAura then
+						tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_FOOD_BUFF_TEXT .. "|r";
 					else
 						tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_ON_COOLDOWN_TEXT .. "|r";
 					end
@@ -657,7 +659,8 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 
 	-- Removal of a spell/aura count generally is not due to an item's action, mark bag as synchronized.
 	-- Pre-expiration also does not do any bag changes, so mark as synchronised in case.
-	if reason == 1 or reason == 2 then
+	-- Delayed (e.g. eating x seconds) UNIT_AURA calls, mark bag as synchronized (as it was removed earlier).
+	if reason == 1 or reason == 2 or consumableData.delayedAura then
 		SIPPYCUP.Items.HandleBagUpdate();
 	end
 

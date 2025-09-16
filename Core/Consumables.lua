@@ -19,6 +19,7 @@ SIPPYCUP.Consumables.ByName = {};
 ---@param params.profile table The consumable's associated DB profile (automatically generated).
 ---@param params.name string The consumable's name (automatically generated).
 ---@param params.refreshable boolean Whether the consumable is can be refreshed, on false it means you lose the stack with no effect.
+---@param params.delayedAura boolean Whether the consumable is applied after a delay (e.g. food buff), on false a buff is applied instantly.
 ---@return table consumable The created consumable object.
 local function NewConsumable(params)
 	return {
@@ -34,6 +35,7 @@ local function NewConsumable(params)
 		unrefreshable = params.unrefreshable or false,
 		itemTrackable = params.itemTrackable or false,
 		spellTrackable = params.spellTrackable or false,
+		delayedAura = params.delayedAura or false,
 	};
 end
 
@@ -55,10 +57,10 @@ SIPPYCUP.Consumables.Data = {
 	NewConsumable{ auraID = 8212, itemID = 6662, category = "SIZE", preExpiration = 1 }, -- ELIXIR_OF_GIANT_GROWTH
 	NewConsumable{ auraID = 2336, itemID = 2460, category = "EFFECT", preExpiration = 1 }, -- ELIXIR_OF_TONGUES
 	NewConsumable{ auraID = 162906, itemID = 112321, category = "EFFECT", preExpiration = 1 }, -- ENCHANTED_DUST
-	NewConsumable{ auraID = 398458, itemID = 202290, category = "SIZE", preExpiration = 1 }, -- FIREWATER_SORBET
+	NewConsumable{ auraID = 398458, itemID = 202290, category = "SIZE", preExpiration = 1, delayedAura = true }, -- FIREWATER_SORBET
 	NewConsumable{ auraID = 393977, itemID = 201427, category = "EFFECT" }, -- FLEETING_SANDS
 	NewConsumable{ auraID = 454799, itemID = 225253, category = "HANDHELD", preExpiration = 1 }, -- FLICKERING_FLAME_HOLDER
-	NewConsumable{ auraID = 58468, itemID = 43478, category = "SIZE", preExpiration = 1 }, -- GIGANTIC_FEAST
+	NewConsumable{ auraID = 58468, itemID = 43478, category = "SIZE", preExpiration = 1, delayedAura = true }, -- GIGANTIC_FEAST
 	NewConsumable{ auraID = 244014, itemID = 151257, category = "HANDHELD", preExpiration = 1 }, -- GREEN_DANCE_STICK
 	NewConsumable{ auraID = 1222840, itemID = 237334, category = "HANDHELD", preExpiration = 1 }, -- HALF_EATEN_TAKEOUT
 	NewConsumable{ auraID = 443688, itemID = 216708, category = "PLACEMENT", spellTrackable = true }, -- HOLY_CANDLE
@@ -75,7 +77,7 @@ SIPPYCUP.Consumables.Data = {
 	NewConsumable{ auraID = 163219, itemID = 112384, category = "PRISM", preExpiration = 1 }, -- REFLECTING_PRISM
 	NewConsumable{ auraID = 279742, itemID = 163695, category = "EFFECT" }, -- SCROLL_OF_INNER_TRUTH
 	NewConsumable{ auraID = 1222834, itemID = 237332, category = "PLACEMENT", spellTrackable = true }, -- SINGLE_USE_GRILL
-	NewConsumable{ auraID = 58479, itemID = 43480, category = "SIZE", preExpiration = 1 }, -- SMALL_FEAST
+	NewConsumable{ auraID = 58479, itemID = 43480, category = "SIZE", preExpiration = 1, delayedAura = true }, -- SMALL_FEAST
 	NewConsumable{ auraID = 382729, itemID = 197766, category = "HANDHELD", preExpiration = 1 }, -- SNOW_IN_A_CONE
 	NewConsumable{ auraID = 442106, itemID = 218107, category = "HANDHELD", preExpiration = 1 }, -- SPARKBUG_JAR
 	NewConsumable{ auraID = 404840, itemID = 204370, category = "EFFECT", preExpiration = 1 }, -- STINKY_BRIGHT_POTION
