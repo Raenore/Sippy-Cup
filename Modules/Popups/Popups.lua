@@ -196,8 +196,10 @@ local function CreatePopup(templateType)
 				local isFlying = IsFlying();
 				local tooltipText;
 				local currentPopup = self:GetParent();
+				local popupData = currentPopup and currentPopup.popupData;
 
 				if isFlying then
+					popupData.isFlying = true;
 					self:Disable();
 				end
 
@@ -208,7 +210,6 @@ local function CreatePopup(templateType)
 						tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_ON_COOLDOWN_TEXT .. "|r";
 					end
 				else
-					local popupData = currentPopup and currentPopup.popupData;
 					if popupData then
 						local consumableData = popupData.consumableData;
 						local profileConsumableData = popupData.profileConsumableData;
@@ -232,7 +233,12 @@ local function CreatePopup(templateType)
 			end);
 
 			popup.RefreshButton:HookScript("OnLeave", function(self)
-				if IsFlying() then
+				local currentPopup = self:GetParent();
+				local popupData = currentPopup and currentPopup.popupData;
+
+				-- We re-enable the button always and account for potential isFlying left-overs during landing.
+				if IsFlying() or (not IsFlying() and popupData.isFlying) then
+					popupData.isFlying = false;
 					self:Enable();
 				end
 				GameTooltip:Hide();
@@ -411,6 +417,7 @@ function SIPPYCUP.Popups.HandleReminderPopup(data, templateTypeID)
 		return;
 	end
 
+	data.isFlying = false;
 	local loc = data.consumableData.loc;
 	templateTypeID = templateTypeID or 0;  -- default to 0 if nil
 	local templateType = (templateTypeID == 1) and "SIPPYCUP_MissingPopupTemplate" or "SIPPYCUP_RefreshPopupTemplate";
@@ -425,7 +432,7 @@ function SIPPYCUP.Popups.HandleReminderPopup(data, templateTypeID)
 
 		SIPPYCUP.Popups.HandleReminderPopup(data, 0);
 		return;
-	end;
+	end
 
 	if templateTypeID == 0 then
 		-- Popup request for addition or toggle, but we already have enough (or too many) required stacks?
@@ -438,7 +445,7 @@ function SIPPYCUP.Popups.HandleReminderPopup(data, templateTypeID)
 			-- If user wants a missing reminder, we'll do that now.
 			if data.itemCount < data.profileConsumableData.desiredStacks and SIPPYCUP.global.InsufficientReminder then
 				SIPPYCUP.Popups.HandleReminderPopup(data, 1);
-			end;
+			end
 			return;
 		end
 	end
