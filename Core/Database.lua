@@ -261,12 +261,6 @@ table.sort(categories, function(a, b)
 	return SIPPYCUP_TEXT.Normalize(locA:lower()) < SIPPYCUP_TEXT.Normalize(locB:lower());
 end);
 
-local function cleanEmptyTable(tbl, key)
-	if tbl[key] and next(tbl[key]) == nil then
-		tbl[key] = nil
-	end
-end
-
 ---UpdateSetting updates a value in the saved minimal table and runtime resolved table.
 ---If the value matches default, it removes the saved override to keep minimal data clean.
 ---@param scope string Either "profile" or "global"
