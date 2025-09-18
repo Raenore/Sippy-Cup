@@ -60,8 +60,8 @@ function SIPPYCUP.MSP.EnableIfAvailable()
 
 			if SIPPYCUP.MSP.FullName == senderID then
 				if isIC then
-					-- Handle IC update, we check if all their enabled (even inactive ones) consumable stack sizes are in order.
-					SIPPYCUP.Consumables.RefreshStackSizes(true);
+					-- Handle IC update, we check if all their enabled (even inactive ones) option stack sizes are in order.
+					SIPPYCUP.Options.RefreshStackSizes(true);
 				else
 					-- Handle OOC update, we remove all popups.
 					SIPPYCUP.Popups.HideAllRefreshPopups();

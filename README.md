@@ -1,6 +1,6 @@
 # Sippy Cup 🥤
 
-**Sippy Cup** tracks and reminds you of your roleplay consumables, helping keep you focused on what matters most: *Roleplay*.  
+**Sippy Cup** tracks and reminds you of your roleplay consumables and toys, helping keep you focused on what matters most: *Roleplay*.  
 Available on [CurseForge](https://www.curseforge.com/wow/addons/sippy-cup), [Wago.io](https://addons.wago.io/addons/sippy-cup) and [WoWInterface](https://www.wowinterface.com/downloads/info26933-SippyCup.html)!  
 
 ## 🛠️ How It Works
@@ -17,9 +17,9 @@ Once enabled, Sippy Cup will display a reminder popup when:
   </tr>
 </table>
 
-**Note:** On login, a popup will appear for tracked consumables with active stacks. If the **Only when "In Character"** option is enabled, it will also remind you about inactive stacks.
+**Note:** On login, a popup will appear for tracked consumables/toys with active stacks. If the **Only when "In Character"** option is enabled, it will also remind you about inactive stacks.
 
-If multiple consumables expire simultaneously, Sippy Cup will display multiple popups.  
+If multiple consumables/toys expire simultaneously, Sippy Cup will display multiple popups.  
 Once you have 5 popups active, additional ones will be queued and shown as you dismiss or resolve existing ones.
 
 <table>
@@ -61,7 +61,7 @@ Here you can:
 - Configure integration with the **Addon compartment** of UI mods.
 
 The **Reminder Popups** section offers detailed control over how reminders appear:  
-- **Pre-expiration Reminder** to notify you before items expire (only for supported consumables).  
+- **Pre-expiration Reminder** to notify you before items expire (only for supported consumables/toys).  
 - **Insufficient Reminder** to alert you when you don’t have enough items for the next refresh.  
 - **Customize their position** on the screen (Top, Center, or Bottom).  
 - Choose a **sound** for reminders and decide if they should **flash your taskbar**.
@@ -96,7 +96,7 @@ Sippy Cup supports a variety of consumable categories:
 - **Prism:** Changes your appearance.  
 - **Size:** Alters your character’s size.
 
-[Click here for a complete list of supported consumables](https://github.com/Raenore/Sippy-Cup/wiki#supported-consumables).
+[Click here for a complete list of supported consumables/toys](https://github.com/Raenore/Sippy-Cup/wiki#supported-options).
 
 Below you can find a screenshot of the **Size** category for reference.
 

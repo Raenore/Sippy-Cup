@@ -13,6 +13,6 @@
 
 	<Include file="..\UI\Config.xml"/>
 
-	<Include file="Consumables.lua"/>
+	<Include file="Options.lua"/>
 	<Include file="Database.lua"/>
 </Ui>
