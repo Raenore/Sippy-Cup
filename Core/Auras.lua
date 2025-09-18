@@ -162,17 +162,17 @@ local function flushAuraQueue()
 			end
 		end
 
-		local updatedAuraInstanceIDs = updateInfo.updatedAuraInstanceIDs;
-		if updatedAuraInstanceIDs then
-			for i = 1, #updatedAuraInstanceIDs do
-				seenUpdate[updatedAuraInstanceIDs[i]] = true;
+		local updated = updateInfo.updatedAuraInstanceIDs;
+		if updated then
+			for i = 1, #updated do
+				seenUpdate[updated[i]] = true;
 			end
 		end
 
-		local removedAuraInstanceIDs = updateInfo.removedAuraInstanceIDs;
-		if removedAuraInstanceIDs then
-			for i = 1, #removedAuraInstanceIDs do
-				seenRemoval[removedAuraInstanceIDs[i]] = true;
+		local removed = updateInfo.removedAuraInstanceIDs;
+		if removed then
+			for i = 1, #removed do
+				seenRemoval[removed[i]] = true;
 			end
 		end
 
@@ -220,12 +220,12 @@ local function flushAuraQueue()
 		combined.addedAuras[#combined.addedAuras + 1] = auraInfo;
 	end
 
-	for updatedAuraInstanceIDs in pairs(seenUpdate) do
-		combined.updatedAuraInstanceIDs[#combined.updatedAuraInstanceIDs + 1] = updatedAuraInstanceIDs;
+	for instanceID in pairs(seenUpdate) do
+		combined.updatedAuraInstanceIDs[#combined.updatedAuraInstanceIDs + 1] = instanceID;
 	end
 
-	for removedAuraInstanceIDs in pairs(seenRemoval) do
-		combined.removedAuraInstanceIDs[#combined.removedAuraInstanceIDs + 1] = removedAuraInstanceIDs;
+	for instanceID in pairs(seenRemoval) do
+		combined.removedAuraInstanceIDs[#combined.removedAuraInstanceIDs + 1] = instanceID;
 	end
 
 	combined.isFullUpdate = isFullUpdate;
@@ -250,16 +250,15 @@ function SIPPYCUP.Auras.Convert(source, data)
 	local updateInfo = {};
 
 	if source == SIPPYCUP.Auras.Sources.UNIT_AURA then
-		-- Source 1: UNIT_AURA gives us a table already in the right shape,
-		-- but we shallow-copy to avoid buffering Blizzard’s reuse.
+		-- Source 1: UNIT_AURA provides the right shape, but copy to avoid Blizzard table reuse.
 		if data.addedAuras then
-			updateInfo.addedAuras = data.addedAuras;
+			updateInfo.addedAuras = { unpack(data.addedAuras) };
 		end
 		if data.updatedAuraInstanceIDs then
-			updateInfo.updatedAuraInstanceIDs = data.updatedAuraInstanceIDs;
+			updateInfo.updatedAuraInstanceIDs = { unpack(data.updatedAuraInstanceIDs) };
 		end
 		if data.removedAuraInstanceIDs then
-			updateInfo.removedAuraInstanceIDs = data.removedAuraInstanceIDs;
+			updateInfo.removedAuraInstanceIDs = { unpack(data.removedAuraInstanceIDs) };
 		end
 		updateInfo.isFullUpdate = data.isFullUpdate;
 	elseif source == SIPPYCUP.Auras.Sources.CLE then
@@ -267,8 +266,8 @@ function SIPPYCUP.Auras.Convert(source, data)
 		-- Currently unused, but might return at some point.
 		local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(data[2]);
 
-		if data[1] == "SPELL_AURA_APPLIED" then
-			updateInfo.addedAuras = { data[2] };
+		if data[1] == "SPELL_AURA_APPLIED" and auraInfo then
+			updateInfo.addedAuras = { auraInfo };
 		elseif data[1] == "SPELL_AURA_APPLIED_DOSE" and auraInfo then
 			updateInfo.updatedAuraInstanceIDs = { auraInfo.auraInstanceID };
 		elseif data[1] == "SPELL_AURA_REMOVED" and auraInfo then
@@ -295,7 +294,7 @@ function SIPPYCUP.Auras.Convert(source, data)
 	end
 
 	-- buffer it instead of parsing immediately
-	table.insert(SIPPYCUP.Auras.auraQueue, updateInfo);
+	SIPPYCUP.Auras.auraQueue[#SIPPYCUP.Auras.auraQueue + 1] = updateInfo
 
 	-- flush on the next frame (which will run the batched UNIT_AURAs)
 	if not SIPPYCUP.Auras.auraQueueScheduled then
@@ -395,11 +394,15 @@ end
 
 local scheduledPreExpirationAuraTimers = {};
 
----CreatePreExpirationTimer will create a pre-expiration timer for a specific aura.
----Either pass in `key` directly, or pass `auraID` and `auraInstanceID` to build it.
----@param fireIn number The amount of seconds that should elapse before the timer fires.
----@param auraInfo table? Optional information about the aura.
----@param key string? Optional pre-expiration timer key. If not provided, will be built from auraID and auraInstanceID.
+local function BuildAuraKey(auraID, instanceID)
+	return tostring(auraID) .. "-" .. tostring(instanceID)
+end
+
+---CreatePreExpirationTimer schedules a pre-expiration popup for a specific aura.
+---Either pass in `key` directly, or provide `auraID` and `auraInstanceID` to build it.
+---@param fireIn number Seconds until the timer fires.
+---@param auraInfo table? Optional aura information.
+---@param key string? Optional timer key. Built from auraID/auraInstanceID if nil.
 ---@param auraID number? Required if key is not provided.
 ---@param auraInstanceID number? Required if key is not provided.
 ---@return nil
@@ -420,7 +423,7 @@ function SIPPYCUP.Auras.CreatePreExpirationTimer(fireIn, auraInfo, key, auraID, 
 		if type(auraID) ~= "number" or type(auraInstanceID) ~= "number" then
 			return;
 		end
-		key = tostring(auraID) .. "-" .. tostring(auraInstanceID);
+		key = BuildAuraKey(auraID, auraInstanceID);
 	end
 
 	-- Avoid double‐scheduling
@@ -457,7 +460,7 @@ function SIPPYCUP.Auras.CancelPreExpirationTimer(key, auraID, auraInstanceID)
 	-- If no key was provided, build it from auraID and auraInstanceID
 	if not key then
 		if auraID and auraInstanceID then
-			key = tostring(auraID) .. "-" .. tostring(auraInstanceID);
+			key = BuildAuraKey(auraID, auraInstanceID);
 		elseif auraID and not auraInstanceID then
 			-- Only auraID is available: cancel all timers with matching auraID
 			local targetPrefix = tostring(auraID) .. "-";
@@ -490,8 +493,8 @@ function SIPPYCUP.Auras.CancelAllPreExpirationTimers()
 	end
 end
 
----CheckPreExpirationForAllActiveOptions Handles pre-expiration timer setup where appropriate, calculating the pre-expiration time before popup.
----@param minSeconds number? The minimum amount of seconds the duration should be above before it starts handling more, default is 180 (3 minutes).
+---CheckPreExpirationForAllActiveOptions sets up pre-expiration timers for all active options before popup.
+---@param minSeconds number? Minimum duration in seconds required before scheduling a timer. Default is 180.
 ---@return nil
 function SIPPYCUP.Auras.CheckPreExpirationForAllActiveOptions(minSeconds)
 	-- Data sent through/around loading screens will not be reliable, so skip that.
@@ -517,10 +520,7 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData, min
 		return preExpireFired;
 	end
 
-	if not minSeconds then
-		minSeconds = 180.0;
-	end
-
+	minSeconds = minSeconds or 180.0;
 	-- default warning offset to 60s
 	local preOffset = 60.0;
 	local auraID = profileOptionData.aura;
@@ -531,14 +531,15 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData, min
 		return preExpireFired;
 	end
 
-	local key = tostring(auraID) .. "-" .. tostring(auraInfo.auraInstanceID);
+	local active = true;
+	local key = BuildAuraKey(auraID, auraInfo.auraInstanceID);
 	local optionData = SIPPYCUP.Options.ByAuraID[auraID];
 
 	if not optionData.preExpiration or scheduledPreExpirationAuraTimers[key] then
 		return preExpireFired;
 	end
 
-	profileOptionData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, 0, auraInfo ~= nil);
+	profileOptionData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, 0, active);
 
 	-- Some stack items can be pre-expired for refresh but ONLY if the current stacks == maxStacks
 	if optionData.stacks and profileOptionData.currentStacks ~= optionData.maxStacks then
@@ -559,18 +560,16 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData, min
 
 	-- Only care about auras that will expire before our next 180s (or custom) scan
 	if remaining > 0 and remaining <= windowHigh then
-		-- Schedule for “preOffset” seconds before expiration
+		-- Schedule for "preOffset" seconds before expiration
 		local fireIn = remaining - preOffset;
 
 		if fireIn <= 0 and SIPPYCUP.global.PreExpirationChecks then
 			-- Less than 60s left and we want pre-expiration popup: fire immediately
-
-			local spellId = auraInfo and auraInfo.spellId or profileOptionData.aura;
 			preExpireFired = true;
 
 			local data = {
 				active = auraInfo ~= nil,
-				auraID = spellId,
+				auraID = auraID,
 				auraInfo = auraInfo,
 				optionData = optionData,
 				profileOptionData = profileOptionData,
@@ -592,7 +591,7 @@ end
 ---@param active boolean Whether the aura is currently active (false = inactive, true = active).
 ---@return number currentStacks The current stacks for this aura.
 function SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, reason, active)
-	reason = reason or 0;
+	reason = reason or SIPPYCUP.Popups.Reason.ADDITION;
 
 	if not auraInfo then
 		auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(auraID);
