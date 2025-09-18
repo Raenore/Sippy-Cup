@@ -2,11 +2,11 @@
 ## Title: |cnCONTEXT_FEEDBACK_COLOR:Sippy Cup|r
 ## Author: Raenore (Argent Dawn EU)
 ## Version: @project-version@
-## Notes: Sippy Cup tracks and reminds you of your roleplay consumables, helping keep you focused on what matters most: Roleplay.
+## Notes: Sippy Cup tracks and reminds you of your roleplay consumables and toys, helping keep you focused on what matters most: Roleplay.
 ## IconTexture: 4621578
 
-## Notes-deDE: Sippy Cup hilft euch, eure Rollenspiel-Verbrauchsgüter im Blick zu behalten und erinnert euch daran, damit ihr euch aufs Wesentliche konzentrieren könnt: Rollenspiel.
-## Notes-frFR: Sippy Cup garde un oeil sur vos consommables pour le jeu de rôle et vous les rappelle quand nécessaire, vous permettant de vous concentrer sur ce qui compte le plus: le jeu de rôle.
+## Notes-deDE: Sippy Cup hilft euch, eure Rollenspiel-Verbrauchsgüter und Spielzeuge im Blick zu behalten und erinnert euch daran, damit ihr euch aufs Wesentliche konzentrieren könnt: Rollenspiel.
+## Notes-frFR: Sippy Cup garde un oeil sur vos consommables et jouets de jeu de rôle et vous les rappelle quand nécessaire, vous permettant de vous concentrer sur ce qui compte le plus : le jeu de rôle.
 ## Category-enUS: Roleplay
 ## Category-deDE: Rollenspiel
 ## Category-esES: Juego de rol

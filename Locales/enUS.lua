@@ -19,7 +19,7 @@ L = {
 	POPUP_LOW_STACK_COUNT_TEXT = "Low Stack Count!",
 	POPUP_NOT_ACTIVE_TEXT = "Not Active!",
 	POPUP_EXPIRING_SOON_TEXT = "Expiring Soon!",
-	POPUP_IGNORE_TT = "Blocks reminders for this consumable until your next session.",
+	POPUP_IGNORE_TT = "Blocks reminders for this consumable/toy until your next session.",
 	POPUP_LINK = "|n|nPress |cnGREEN_FONT_COLOR:CTRL-C|r to copy the highlighted, then paste it in your web browser with |cnGREEN_FONT_COLOR:CTRL-V|r.",
 	COPY_SYSTEM_MESSAGE = "Copied to clipboard.",
 
@@ -37,9 +37,11 @@ L = {
 	OPTIONS_GENERAL_POPUPS_POSITION_NAME = "Position",
 	OPTIONS_GENERAL_POPUPS_POSITION_DESC = "Select where reminder popups appear on your screen.",
 	OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE = "Pre-Expiration Reminder",
-	OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE_DESC = "Toggles showing pre-expiration reminders shortly before the consumable expires.|n|n|cnWARNING_FONT_COLOR:Not all items support this; see the tooltip when enabled.|r",
+	OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE_DESC = "Toggles showing pre-expiration reminders shortly before the consumable/toy expires.|n|n|cnWARNING_FONT_COLOR:Not all options support this; see the tooltip when enabled.|r",
 	OPTIONS_GENERAL_POPUPS_INSUFFICIENT_REMINDER_ENABLE = "Insufficient Reminder",
 	OPTIONS_GENERAL_POPUPS_INSUFFICIENT_REMINDER_ENABLE_DESC = "Toggles showing a popup when there is insufficient quantity for the next refresh.",
+	OPTIONS_GENERAL_POPUPS_TRACK_TOY_ITEM_CD_ENABLE = "Use Toy Cooldown",
+	OPTIONS_GENERAL_POPUPS_TRACK_TOY_ITEM_CD_ENABLE_DESC = "Toggles tracking toy cooldowns from the toy itself instead of its effect, ensuring the popup only appears when the toy can be used.|n|n|cnWARNING_FONT_COLOR:This only affects 'Cooldown Mismatch' toys.|r",
 	OPTIONS_GENERAL_POPUPS_IGNORES = "Reset ignored popups",
 	OPTIONS_GENERAL_POPUPS_IGNORES_TEXT = "Resets all reminder popups ignored during this session, making them visible again.",
 	OPTIONS_GENERAL_POPUPS_ALERT_SOUND_DESC = "Choose the sound to play when a reminder popup appears.",
@@ -60,46 +62,48 @@ L = {
 	-- Generic
 	OPTIONS_SLIDER_TEXT = "Set the desired stack count for |cnGREEN_FONT_COLOR:%s|r.|n|nReminders will continue until the desired stack count is reached.",
 	OPTIONS_DESIRED_STACKS = "Desired stacks",
-	OPTIONS_TITLE_EXTRA = "|n|nOn login, a popup will appear for tracked consumables with active stacks. If the 'Only when \"In Character\"' option is enabled, it will also remind you about inactive stacks.",
+	OPTIONS_TITLE_EXTRA = "|n|nOn login, a popup will appear for tracked consumables/toys with active stacks. If the 'Only when \"In Character\"' option is enabled, it will also remind you about inactive stacks.",
 	OPTIONS_LEGENDA_PRE_EXPIRATION_NAME = "Pre-Expiration Support",
-	OPTIONS_LEGENDA_PRE_EXPIRATION_DESC = "This consumable supports pre-expiration reminders and will notify you shortly before it expires when the pre-expiration reminder option is enabled.",
+	OPTIONS_LEGENDA_PRE_EXPIRATION_DESC = "This consumable/toy supports pre-expiration reminders and will notify you shortly before it expires when the pre-expiration reminder option is enabled.",
 	OPTIONS_LEGENDA_NON_REFRESHABLE_NAME = "Non-Refreshable",
-	OPTIONS_LEGENDA_NON_REFRESHABLE_DESC = "Refreshing this consumable early will waste the stack without renewing its effect or timer.",
+	OPTIONS_LEGENDA_NON_REFRESHABLE_DESC = "Refreshing this consumable/toy early will waste the stack without renewing its effect or timer.",
 	OPTIONS_LEGENDA_STACKS_NAME = "Stack Count Support",
-	OPTIONS_LEGENDA_STACKS_DESC = "This consumable supports setting a desired stack count and will remind you when your current stacks are below that number.",
+	OPTIONS_LEGENDA_STACKS_DESC = "This consumable/toy supports setting a desired stack count and will remind you when your current stacks are below that number.",
 	OPTIONS_LEGENDA_NO_AURA_NAME = "Tracking Limitations",
-	OPTIONS_LEGENDA_NO_AURA_DESC = "This consumable is harder to track and may occasionally cause irregularities.",
+	OPTIONS_LEGENDA_NO_AURA_DESC = "This consumable/toy is harder to track and may occasionally cause irregularities.",
+	OPTIONS_LEGENDA_COOLDOWN_NAME = "Cooldown Mismatch",
+	OPTIONS_LEGENDA_COOLDOWN_DESC = "This consumable/toy has a longer cooldown than its effect duration, which may cause the reminder popup to appear while the refresh button is still on cooldown.|n|n|cnWARNING_FONT_COLOR:This can be mitigated by enabling 'Use Toy Cooldown' in the General menu.|r",
 
 	-- Appearance
-	OPTIONS_CONSUMABLE_APPEARANCE_TITLE = "Appearance",
-	OPTIONS_CONSUMABLE_APPEARANCE_INSTRUCTION = "These options control all reminders for consumables that alter your appearance.",
+	OPTIONS_TABAPPEARANCE_TITLE = "Appearance",
+	OPTIONS_TABAPPEARANCE_INSTRUCTION = "These options control all reminders for consumables/toys that alter your appearance.",
 
 	-- Effect
-	OPTIONS_CONSUMABLE_EFFECT_TITLE = "Effect",
-	OPTIONS_CONSUMABLE_EFFECT_INSTRUCTION = "These options control all reminders for consumables that apply a visual.",
+	OPTIONS_TABEFFECT_TITLE = "Effect",
+	OPTIONS_TABEFFECT_INSTRUCTION = "These options control all reminders for consumables/toys that apply a visual.",
 
 	-- Handheld
-	OPTIONS_CONSUMABLE_HANDHELD_TITLE = "Handheld",
-	OPTIONS_CONSUMABLE_HANDHELD_INSTRUCTION = "These options control all reminders for consumables that make your character hold an item.",
+	OPTIONS_TABHANDHELD_TITLE = "Handheld",
+	OPTIONS_TABHANDHELD_INSTRUCTION = "These options control all reminders for consumables/toys that make your character hold an item.",
 
 	-- Placement
-	OPTIONS_CONSUMABLE_PLACEMENT_TITLE = "Placement",
-	OPTIONS_CONSUMABLE_PLACEMENT_INSTRUCTION = "These options control all reminders for consumables that are placed on the ground.",
+	OPTIONS_TABPLACEMENT_TITLE = "Placement",
+	OPTIONS_TABPLACEMENT_INSTRUCTION = "These options control all reminders for consumables/toys that are placed on the ground.",
 
 	-- Prism
-	OPTIONS_CONSUMABLE_PRISM_TITLE = "Prism",
-	OPTIONS_CONSUMABLE_PRISM_INSTRUCTION = "These options control all reminders for prism consumables that change your appearance.",
+	OPTIONS_TABPRISM_TITLE = "Prism",
+	OPTIONS_TABPRISM_INSTRUCTION = "These options control all reminders for prism consumables/toys that change your appearance.",
 
 	-- Size
-	OPTIONS_CONSUMABLE_SIZE_TITLE = "Size",
-	OPTIONS_CONSUMABLE_SIZE_INSTRUCTION = "These options control all reminders for consumables that change your character's size.",
+	OPTIONS_TABSIZE_TITLE = "Size",
+	OPTIONS_TABSIZE_INSTRUCTION = "These options control all reminders for consumables/toys that change your character's size.",
 
 	--/ Addon Compartment /--
 	ADDON_COMPARTMENT_DESC = "|cnGREEN_FONT_COLOR:Left-Click: Open options|nRight-Click: Open profiles|r",
 
 	-- Profiles
 	OPTIONS_PROFILES_HEADER = "Profiles",
-	OPTIONS_PROFILES_INSTRUCTION = "Settings under the General tab are global, while all consumable settings are profile-specific.",
+	OPTIONS_PROFILES_INSTRUCTION = "Settings under the General tab are global, while all consumable/toys settings are profile-specific.",
 	OPTIONS_PROFILES_RESETBUTTON_NAME = "Reset Profile",
 	OPTIONS_PROFILES_RESETBUTTON_DESC = "Reset the current profile to its default settings.",
 	OPTIONS_PROFILES_CURRENTPROFILE = "Current Profile: %s",

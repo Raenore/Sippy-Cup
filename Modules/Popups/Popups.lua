@@ -53,18 +53,18 @@ end
 
 local sessionData = {};
 
----ResetIgnored clears all the session-based consumable popups.
+---ResetIgnored clears all the session-based option popups.
 ---@return nil
 function SIPPYCUP.Popups.ResetIgnored()
 	for auraID in pairs(sessionData) do
-		local profileConsumableData = SIPPYCUP.profile[auraID];
-		SIPPYCUP.Popups.Toggle(nil, auraID, profileConsumableData.enable);
+		local profileOptionData = SIPPYCUP.profile[auraID];
+		SIPPYCUP.Popups.Toggle(nil, auraID, profileOptionData.enable);
 	end
 
 	wipe(sessionData);
 end
 
----IsEmpty returns true if no consumables are currently ignored in the session.
+---IsEmpty returns true if no options are currently ignored in the session.
 ---@return boolean isEmpty True if SessionData is empty, otherwise false.
 function SIPPYCUP.Popups.IsEmpty()
 	return next(sessionData) == nil;
@@ -147,7 +147,7 @@ local function CreatePopup(templateType)
 		end
 
 		-- Clear loc mapping if it exists
-		local loc = self.popupData and self.popupData.consumableData and self.popupData.consumableData.loc;
+		local loc = self.popupData and self.popupData.optionData and self.popupData.optionData.loc;
 		if loc then
 			activePopupByLoc[loc] = nil;
 		end
@@ -174,7 +174,7 @@ local function CreatePopup(templateType)
 		popup.ItemIcon:SetScript("OnEnter", function(self)
 			local currentPopup = self:GetParent();
 			local data = currentPopup and currentPopup.popupData;
-			local itemID = data and data.consumableData and data.consumableData.itemID;
+			local itemID = data and data.optionData and data.optionData.itemID;
 			if not itemID then return; end
 
 			local item = Item:CreateFromItemID(itemID);
@@ -206,24 +206,26 @@ local function CreatePopup(templateType)
 				if not self:IsEnabled() then
 					if isFlying then
 						tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_IN_FLIGHT_TEXT .. "|r";
-					elseif popupData and popupData.consumableData and popupData.consumableData.delayedAura then
+					elseif popupData and popupData.optionData and popupData.optionData.delayedAura then
 						tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_FOOD_BUFF_TEXT .. "|r";
 					else
 						tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_ON_COOLDOWN_TEXT .. "|r";
 					end
 				else
 					if popupData then
-						local consumableData = popupData.consumableData;
-						local profileConsumableData = popupData.profileConsumableData;
+						local optionData = popupData.optionData;
+						if optionData.type == 0 then
+							local profileOptionData = popupData.profileOptionData;
 
-						local itemID = consumableData.itemID;
-						local itemCount = C_Item.GetItemCount(itemID);
-						local maxCount = itemCount + profileConsumableData.currentStacks;
+							local itemID = optionData.itemID;
+							local itemCount = C_Item.GetItemCount(itemID);
+							local maxCount = itemCount + profileOptionData.currentStacks;
 
-						if itemCount == 0 then
-							tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_NOT_IN_INVENTORY_TEXT .. "|r";
-						elseif maxCount < profileConsumableData.desiredStacks then
-							tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_NOT_ENOUGH_IN_INVENTORY_TEXT:format(profileConsumableData.desiredStacks - maxCount);
+							if itemCount == 0 then
+								tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_NOT_IN_INVENTORY_TEXT .. "|r";
+							elseif maxCount < profileOptionData.desiredStacks then
+								tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_NOT_ENOUGH_IN_INVENTORY_TEXT:format(profileOptionData.desiredStacks - maxCount);
+							end
 						end
 					end
 				end
@@ -250,8 +252,8 @@ local function CreatePopup(templateType)
 				-- Prevent spam; resets when next charge is ready.
 				local currentPopup = self:GetParent();
 				local popupData = currentPopup and currentPopup.popupData;
-				local consumableData = popupData.consumableData;
-				local itemID = consumableData.itemID;
+				local optionData = popupData.optionData;
+				local itemID = optionData.itemID;
 				local itemCount = C_Item.GetItemCount(itemID);
 
 				-- If no more charges, don't disable as next charge doesn't exist to re-enable.
@@ -274,8 +276,8 @@ local function CreatePopup(templateType)
 			end);
 
 			popup.IgnoreButton:SetScript("OnClick", function()
-				if sessionData and popup.popupData and popup.popupData.consumableData then
-					sessionData[popup.popupData.consumableData.auraID] = true;
+				if sessionData and popup.popupData and popup.popupData.optionData then
+					sessionData[popup.popupData.optionData.auraID] = true;
 					if SIPPYCUP.configFrame then
 						SIPPYCUP_ConfigMenuFrame:RefreshWidgets();
 					end
@@ -321,16 +323,16 @@ end
 
 ---UpdatePopupVisuals updates the popup frame visuals based on the given data.
 ---@param popup Frame The popup frame to update.
----@param data ReminderPopupData Table containing all necessary information about the consumable and profile.
+---@param data ReminderPopupData Table containing all necessary information about the option and profile.
 ---@return nil
 local function UpdatePopupVisuals(popup, data)
-	local consumableData = data.consumableData;
-	local profileConsumableData = data.profileConsumableData;
+	local optionData = data.optionData;
+	local profileOptionData = data.profileOptionData;
 
-	local itemID = consumableData.itemID;
+	local itemID = optionData.itemID;
 
 	local itemName, itemLink = C_Item.GetItemInfo(itemID);
-	itemName = itemName or consumableData.name;
+	itemName = itemName or optionData.name;
 
 	local item = Item:CreateFromItemID(itemID);
 
@@ -341,10 +343,13 @@ local function UpdatePopupVisuals(popup, data)
 			itemName = item:GetItemName();
 			itemLink = item:GetItemLink();
 			-- Save it for good measure
-			consumableData.name = itemName;
+			optionData.name = itemName;
 		end
 
 		popup.Title:SetText(SIPPYCUP.AddonMetadata.title);
+		if #itemName > 30 then
+			itemName = string.sub(itemName, 1, 27) .. "...";
+		end
 		popup.Name:SetText("|cnGREEN_FONT_COLOR:" .. itemName .. "|r");
 		popup.ItemIcon:SetTexture(icon);
 
@@ -352,12 +357,12 @@ local function UpdatePopupVisuals(popup, data)
 			local text = L.POPUP_LOW_STACK_COUNT_TEXT;
 			if data.reason == SIPPYCUP.Popups.Reason.PRE_EXPIRATION then
 				text = L.POPUP_EXPIRING_SOON_TEXT;
-			elseif not consumableData.stacks then
+			elseif not optionData.stacks then
 				text = L.POPUP_NOT_ACTIVE_TEXT;
 			end
 
 			popup.Text:SetText((text or ""));
-			popup.Counter:SetText(profileConsumableData.currentStacks .. " / " .. profileConsumableData.desiredStacks);
+			popup.Counter:SetText(profileOptionData.currentStacks .. " / " .. profileOptionData.desiredStacks);
 
 			popup.RefreshButton:SetText(REFRESH);
 			popup.RefreshButton:SetAttribute("type", "item");
@@ -392,7 +397,7 @@ local function UpdatePopupVisuals(popup, data)
 			end
 		elseif popup.templateType == "SIPPYCUP_MissingPopupTemplate" then
 			local itemCount = C_Item.GetItemCount(itemID) or 0;
-			local text = L.POPUP_INSUFFICIENT_NEXT_REFRESH_TEXT:format(itemCount, profileConsumableData.desiredStacks);
+			local text = L.POPUP_INSUFFICIENT_NEXT_REFRESH_TEXT:format(itemCount, profileOptionData.desiredStacks);
 			popup.Text:SetText(text or "");
 			popup.OkayButton:SetText(OKAY);
 
@@ -404,15 +409,15 @@ local function UpdatePopupVisuals(popup, data)
 end
 
 ---@class ReminderPopupData
----@field active boolean Whether the consumable is considered active (false = inactive, true = active).
----@field consumableData table Contains the consumable's data (e.g. itemID, loc, profile, etc.).
+---@field active boolean Whether the option is considered active (false = inactive, true = active).
+---@field optionData table Contains the option's data (e.g. itemID, loc, profile, etc.).
 ---@field itemCount number Number of matching items in the player's inventory when the popup is created.
----@field profileConsumableData table Profile-related data for the consumable (e.g. enabled state, currentInstanceID, etc.).
+---@field profileOptionData table Profile-related data for the option (e.g. enabled state, currentInstanceID, etc.).
 ---@field reason number Why the popup was triggered. (0 - add/update, 1 = removal, 2 = pre-expire, 3 = toggle)
 ---@field requiredStacks number Number of item stacks required for the reminder to be satisfied.
 
 ---HandleReminderPopup Handles whether a popup with reminder and item interaction options should be displayed or not.
----@param data ReminderPopupData Table containing all necessary information about the consumable and profile.
+---@param data ReminderPopupData Table containing all necessary information about the option and profile.
 ---@param templateTypeID? number What kind of template to create (0 = reminder, 1 = missing); defaults to 0.
 function SIPPYCUP.Popups.HandleReminderPopup(data, templateTypeID)
 	if not SIPPYCUP or not SIPPYCUP.db or not SIPPYCUP.db.global then
@@ -420,7 +425,7 @@ function SIPPYCUP.Popups.HandleReminderPopup(data, templateTypeID)
 	end
 
 	data.isFlying = false;
-	local loc = data.consumableData.loc;
+	local loc = data.optionData.loc;
 	templateTypeID = templateTypeID or 0;  -- default to 0 if nil
 	local templateType = (templateTypeID == 1) and "SIPPYCUP_MissingPopupTemplate" or "SIPPYCUP_RefreshPopupTemplate";
 	local popup = activePopupByLoc[loc];
@@ -444,8 +449,8 @@ function SIPPYCUP.Popups.HandleReminderPopup(data, templateTypeID)
 				popup:Hide();
 			end
 
-			-- If user wants a missing reminder, we'll do that now.
-			if data.itemCount < data.profileConsumableData.desiredStacks and SIPPYCUP.global.InsufficientReminder then
+			-- If user wants a missing reminder, we'll do that now (unless it's a toy as that has no item counts).
+			if data.itemCount < data.profileOptionData.desiredStacks and SIPPYCUP.global.InsufficientReminder and data.optionData.type ~= 1 then
 				SIPPYCUP.Popups.HandleReminderPopup(data, 1);
 			end
 			return;
@@ -499,65 +504,87 @@ function SIPPYCUP.Popups.HandleReminderPopup(data, templateTypeID)
 	end
 end
 
----Toggle handles what should happen after a consumable is enabled or disabled in regards to popup logic.
----@param itemName string? The toggled consumable's name.
----@param auraID number? The aura ID of the consumable.
----@param enabled boolean Whether the consumable tracking is enabled or disabled.
+---Toggle handles what should happen after a option is enabled or disabled in regards to popup logic.
+---@param itemName string? The toggled option's name.
+---@param auraID number? The aura ID of the option.
+---@param enabled boolean Whether the option tracking is enabled or disabled.
 ---@return nil
 function SIPPYCUP.Popups.Toggle(itemName, auraID, enabled)
-	-- Grab the right consumable by name, and check if aura exists.
-	local consumableData;
+	-- Grab the right option by name, and check if aura exists.
+	local optionData;
 
 	if itemName then
-		consumableData = SIPPYCUP.Consumables.ByName[itemName];
+		optionData = SIPPYCUP.Options.ByName[itemName];
 	elseif auraID then
-		consumableData = SIPPYCUP.Consumables.ByAuraID[auraID];
+		optionData = SIPPYCUP.Options.ByAuraID[auraID];
 	end
 
-	if not consumableData then
+	if not optionData then
 		return;
 	end
 
-	local profileConsumableData = SIPPYCUP.profile[consumableData.auraID];
-	if not profileConsumableData then
+	local profileOptionData = SIPPYCUP.profile[optionData.auraID];
+	if not profileOptionData then
 		return;
 	end
 
-	-- Update aura map incrementally for this consumable
-	SIPPYCUP.Database.UpdateAuraMapForConsumable(profileConsumableData, enabled);
+	-- Update aura map incrementally for this option
+	SIPPYCUP.Database.UpdateAuraMapForOption(profileOptionData, enabled);
 
-	-- If the consumable is not enabled, kill all its associated popups and timers!
+	-- If the option is not enabled, kill all its associated popups and timers!
 	if not enabled then
-		RemoveDeferredActionsByLoc(consumableData.loc);
-		local existingPopup = SIPPYCUP.Popups.activeByLoc[consumableData.loc];
+		RemoveDeferredActionsByLoc(optionData.loc);
+		local existingPopup = SIPPYCUP.Popups.activeByLoc[optionData.loc];
 
 		if existingPopup and existingPopup:IsShown() then
 			existingPopup:Hide();
 		end
 
-		if profileConsumableData.noAuraTrackable then
-			SIPPYCUP.Items.CancelItemTimer(nil, consumableData.auraID);
+		if profileOptionData.noAuraTrackable then
+			SIPPYCUP.Items.CancelItemTimer(nil, optionData.auraID);
 		else
-			SIPPYCUP.Auras.CancelPreExpirationTimer(nil, consumableData.auraID);
+			SIPPYCUP.Auras.CancelPreExpirationTimer(nil, optionData.auraID);
 		end
 
 		return;
 	end
 
 	-- For the enabled case: we need to check auraInfo and possibly cooldown. We'll define continuation logic.
-	local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(consumableData.auraID);
+	local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(optionData.auraID);
 	local active = false;
 	local startTime = 0;
+	local trackBySpell = false;
+	local trackByItem = false;
+
+	if optionData.type == 0 then
+		trackBySpell = optionData.spellTrackable;
+		trackByItem = optionData.itemTrackable;
+	elseif optionData.type == 1 then
+		-- Always track by item if itemTrackable
+		if optionData.itemTrackable then
+			trackByItem = true;
+		end
+
+		if optionData.spellTrackable then
+			if SIPPYCUP.global.UseToyCooldown then
+				trackByItem = true;
+			else
+				trackBySpell = true;
+			end
+		end
+	end
 
 	-- If item can only be tracked by the item cooldown (worst)
-	if consumableData.itemTrackable then
-		startTime = C_Item.GetItemCooldown(consumableData.itemID);
+	if trackByItem then
+		SIPPYCUP_OUTPUT.Debug("Tracking through Item");
+		startTime = C_Item.GetItemCooldown(optionData.itemID);
 		if startTime and startTime > 0 then
 			active = true;
 		end
 	-- If item can be tracked through the spell cooldown (fine).
-	elseif consumableData.spellTrackable then
-		local spellCooldownInfo = C_Spell.GetSpellCooldown(consumableData.auraID);
+	elseif trackBySpell then
+		SIPPYCUP_OUTPUT.Debug("Tracking through Spell");
+		local spellCooldownInfo = C_Spell.GetSpellCooldown(optionData.auraID);
 		startTime = spellCooldownInfo and spellCooldownInfo.startTime;
 		if startTime and startTime > 0 then
 			active = true;
@@ -565,20 +592,20 @@ function SIPPYCUP.Popups.Toggle(itemName, auraID, enabled)
 	end
 
 	local preExpireFired;
-	if profileConsumableData.noAuraTrackable then
-		preExpireFired = SIPPYCUP.Items.CheckNoAuraSingleConsumable(profileConsumableData, consumableData.auraID, nil, startTime);
+	if profileOptionData.noAuraTrackable then
+		preExpireFired = SIPPYCUP.Items.CheckNoAuraSingleOption(profileOptionData, optionData.auraID, nil, startTime);
 	else
-		preExpireFired = SIPPYCUP.Auras.CheckPreExpirationForSingleConsumable(profileConsumableData);
+		preExpireFired = SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData);
 	end
 
 	-- Only queue popup if no pre-expiration has already fired
 	if not preExpireFired then
 		local data = {
 			active = auraInfo and true or active,
-			auraID = consumableData.auraID,
+			auraID = optionData.auraID,
 			auraInfo = auraInfo,
-			consumableData = consumableData,
-			profileConsumableData = profileConsumableData,
+			optionData = optionData,
+			profileOptionData = profileOptionData,
 			reason = SIPPYCUP.Popups.Reason.TOGGLE,
 		};
 
@@ -591,18 +618,19 @@ local DEBOUNCE_DELAY = 0.05;
 local pendingCalls = {};
 
 ---@class PopupActionData
----@field active boolean Whether the consumable is considered active (false = inactive, true = active).
+---@field active boolean Whether the option is considered active (false = inactive, true = active).
 ---@field auraID number The aura ID.
 ---@field auraInfo table? Aura information for the popup action.
----@field consumableData table? Consumable item data.
----@field profileConsumableData table? Profile-specific consumable item data.
+---@field optionData table? option item data.
+---@field profileOptionData table? Profile-specific option item data.
 ---@field reason number Reason for triggering the popup action. (0 - add/update, 1 = removal, 2 = pre-expire, 3 = toggle)
 
 ---QueuePopupAction queues up popup action calls, adding a debounce to avoid repeated calls (UNIT_AURA & COMBAT_LOG_EVENT_UNFILTERED).
----@param data PopupActionData Data bundle containing aura and consumable context for the popup action.
+---@param data PopupActionData Data bundle containing aura and option context for the popup action.
 ---@param caller string What function called the popup action.
 ---@return nil
 function SIPPYCUP.Popups.QueuePopupAction(data,  caller)
+	SIPPYCUP_OUTPUT.Debug("QueuePopupAction");
 	-- If MSP status checks are on and the character is currently OOC, we skip everything.
 	if SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck then
 		local _, _, isIC = SIPPYCUP.MSP.CheckRPStatus();
@@ -636,31 +664,59 @@ function SIPPYCUP.Popups.QueuePopupAction(data,  caller)
 	end)
 end
 
----HandlePopupAction executes the popup action for a consumable aura.
----@param data PopupActionData Data bundle containing aura and consumable context for the popup action.
+---HandlePopupAction executes the popup action for a option aura.
+---@param data PopupActionData Data bundle containing aura and option context for the popup action.
 ---@param caller string What function called the popup action.
 ---@return nil
 function SIPPYCUP.Popups.HandlePopupAction(data, caller)
-	local consumableData = data.consumableData or SIPPYCUP.Consumables.ByAuraID[data.auraID];
-	local profileConsumableData = data.profileConsumableData or SIPPYCUP.profile[data.auraID];
+	SIPPYCUP_OUTPUT.Debug("HandlePopupAction");
+	local optionData = data.optionData or SIPPYCUP.Options.ByAuraID[data.auraID];
+	local profileOptionData = data.profileOptionData or SIPPYCUP.profile[data.auraID];
 
 	local reason = data.reason;
 	local active = data.active;
+
+	-- Extra check because toys have longer cooldowns than option tend to, so don't fire if cd is still up.
+	if optionData.type == 1 and reason == SIPPYCUP.Popups.Reason.REMOVAL then
+		local cooldownActive = false;
+		-- If item can only be tracked by the item cooldown (worst)
+		if optionData.itemTrackable then
+			local startTime = C_Item.GetItemCooldown(optionData.itemID);
+			SIPPYCUP_OUTPUT.Debug(startTime);
+			if startTime and startTime > 0 then
+				cooldownActive = true;
+			end
+		-- If item can be tracked through the spell cooldown (fine).
+		elseif optionData.spellTrackable then
+			local spellCooldownInfo = C_Spell.GetSpellCooldown(optionData.auraID);
+			local startTime = spellCooldownInfo and spellCooldownInfo.startTime;
+			SIPPYCUP_OUTPUT.Debug(startTime);
+			if startTime and startTime > 0 then
+				cooldownActive = true;
+			end
+		end
+
+		-- Cooldown is active when removal happened? We don't show anything.
+		if cooldownActive then
+			return;
+		end
+	end
 
 	local auraID = data.auraID;
 	local auraInfo = data.auraInfo;
 	local auraInstanceID = data.auraInfo and data.auraInfo.auraInstanceID;
 
-	SIPPYCUP_OUTPUT.Debug({ caller = caller, auraID = consumableData.auraID, itemID = consumableData.itemID, name = consumableData.name });
+	SIPPYCUP_OUTPUT.Debug({ caller = caller, auraID = optionData.auraID, itemID = optionData.itemID, name = optionData.name });
 
-	if not consumableData or not profileConsumableData or SIPPYCUP.Popups.IsIgnored(consumableData.auraID) then
+	if not optionData or not profileOptionData or SIPPYCUP.Popups.IsIgnored(optionData.auraID) then
 		return;
 	end
 
 	-- Removal of a spell/aura count generally is not due to an item's action, mark bag as synchronized.
 	-- Pre-expiration also does not do any bag changes, so mark as synchronised in case.
 	-- Delayed (e.g. eating x seconds) UNIT_AURA calls, mark bag as synchronized (as it was removed earlier).
-	if reason == 1 or reason == 2 or consumableData.delayedAura then
+	-- Toys (type 1) UNIT_AURA calls, mark bag as synchronized (as no items are actually used).
+	if reason == SIPPYCUP.Popups.Reason.REMOVAL or reason == SIPPYCUP.Popups.Reason.PRE_EXPIRATION or optionData.delayedAura or optionData.type == 1 then
 		SIPPYCUP.Items.HandleBagUpdate();
 	end
 
@@ -682,8 +738,8 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 			active = active,
 			auraID = auraID,
 			auraInfo = auraInfo,
-			consumableData = consumableData,
-			profileConsumableData = profileConsumableData,
+			optionData = optionData,
+			profileOptionData = profileOptionData,
 			reason = reason,
 		};
 
@@ -696,18 +752,29 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	end
 
 	-- First, let's grab the latest currentInstanceID (or have it be nil if none which is fine).
-	profileConsumableData.currentInstanceID = (auraInfo and auraInfo.auraInstanceID) or auraInstanceID;
-	profileConsumableData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, reason, active);
+	profileOptionData.currentInstanceID = (auraInfo and auraInfo.auraInstanceID) or auraInstanceID;
 
-	-- If the consumable does not support stacks, we always desire just 1.
-	profileConsumableData.desiredStacks = consumableData.stacks and profileConsumableData.desiredStacks or 1;
+	-- If the option does not support stacks, we always desire just 1.
+	profileOptionData.desiredStacks = optionData.stacks and profileOptionData.desiredStacks or 1;
 
-	local requiredStacks = profileConsumableData.desiredStacks - profileConsumableData.currentStacks;
-	local itemCount = C_Item.GetItemCount(consumableData.itemID);
+	local itemCount;
+	if optionData.type == 0 then
+		profileOptionData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, reason, active);
+		itemCount = C_Item.GetItemCount(optionData.itemID);
+	elseif optionData.type == 1 then
+		if auraInfo then
+			profileOptionData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, reason, active);
+		else
+			profileOptionData.currentStacks = active and 1 or 0;
+		end
+		itemCount = PlayerHasToy(optionData.itemID) and 1 or 0;
+	end
+
+	local requiredStacks = profileOptionData.desiredStacks - profileOptionData.currentStacks;
 
 	SIPPYCUP.Popups.HandleReminderPopup({
-		consumableData = consumableData,
-		profileConsumableData = profileConsumableData,
+		optionData = optionData,
+		profileOptionData = profileOptionData,
 		requiredStacks = requiredStacks,
 		reason = reason,
 		itemCount = itemCount,

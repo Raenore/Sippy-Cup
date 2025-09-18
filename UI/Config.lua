@@ -5,6 +5,8 @@ local L = SIPPYCUP.L;
 local SharedMedia = LibStub("LibSharedMedia-3.0");
 SIPPYCUP.Config = {};
 
+local MISMATCH_ICON = "|TInterface\\AddOns\\SippyCup\\Resources\\UI\\ui-icon-mismatch:16:16|t";
+
 local defaultSounds = {
 	{ key = "aggro_enter_warning_state", fid = 567401 },
 	{ key = "belltollhorde", fid = 565853 },
@@ -400,12 +402,24 @@ local function ApplyDisabledState(widget, disabledFunc, isSlider)
 		widget:Enable();
 	end
 
+	local r, g, b = (disabled and GRAY_FONT_COLOR or WHITE_FONT_COLOR):GetRGB();
+
 	if isSlider then
-		local color = disabled and GRAY_FONT_COLOR or WHITE_FONT_COLOR;
-		local r, g, b = color:GetRGB();
 		widget.RightText:SetVertexColor(r, g, b);
 		widget.MinText:SetVertexColor(r, g, b);
 		widget.MaxText:SetVertexColor(r, g, b);
+	end
+
+	-- recolor direct FontString children
+	for _, child in ipairs({widget:GetChildren()}) do
+		if child:IsObjectType("FontString") then
+			child:SetVertexColor(r, g, b);
+		end
+	end
+
+	-- explicitly recolor a stored label
+	if widget.label and widget.label.SetVertexColor then
+		widget.label:SetVertexColor(r, g, b);
 	end
 end
 
@@ -436,7 +450,11 @@ local function CreateTitleWithDescription(parent, titleText, descText, optionsPa
 	if optionsPage then
 		local function CreateLegendaButton(icon, pointTo, tooltipName, tooltipDesc)
 			local btn = CreateFrame("Button", nil, parent, "UIPanelDynamicResizeButtonTemplate");
-			btn:SetText("|A:" .. icon .. ":16:16|a");
+			if icon:sub(1, 2) == "|T" then
+				btn:SetText(icon);
+			else
+				btn:SetText("|A:" .. icon .. ":16:16|a");
+			end
 			btn:SetWidth(30);
 			btn:SetPoint("TOPLEFT", pointTo, "TOPRIGHT", 5, 0);
 			SIPPYCUP.ElvUI.RegisterSkinnableElement(btn, "button");
@@ -453,7 +471,8 @@ local function CreateTitleWithDescription(parent, titleText, descText, optionsPa
 
 		local nonRefreshableButton = CreateLegendaButton("uitools-icon-close", preExpirationButton, L.OPTIONS_LEGENDA_NON_REFRESHABLE_NAME, L.OPTIONS_LEGENDA_NON_REFRESHABLE_DESC);
 		local stacksButton = CreateLegendaButton("uitools-icon-plus", nonRefreshableButton, L.OPTIONS_LEGENDA_STACKS_NAME, L.OPTIONS_LEGENDA_STACKS_DESC);
-		local noAuraButton = CreateLegendaButton("uitools-icon-minus", stacksButton, L.OPTIONS_LEGENDA_NO_AURA_NAME, L.OPTIONS_LEGENDA_NO_AURA_DESC); -- luacheck: no unused (noAuraButton)
+		local noAuraButton = CreateLegendaButton("uitools-icon-minus", stacksButton, L.OPTIONS_LEGENDA_NO_AURA_NAME, L.OPTIONS_LEGENDA_NO_AURA_DESC);
+		local cooldownMismatchButton = CreateLegendaButton(MISMATCH_ICON, noAuraButton, L.OPTIONS_LEGENDA_COOLDOWN_NAME, L.OPTIONS_LEGENDA_COOLDOWN_DESC); -- luacheck: no unused (cooldownButton)
 	end
 
 	return title, description;
@@ -605,9 +624,12 @@ local function CreateConfigCheckBox(elementContainer, data)
 
 	-- Icon and label setup
 	local labelText = data.label or "";
+	if #labelText > 30 then
+		labelText = string.sub(labelText, 1, 27) .. "...";
+	end
 	local icon;
 
-	if data.style == "consumable" then
+	if data.style == "option" then
 		icon = elementContainer:CreateTexture(nil, "ARTWORK");
 		icon:SetTexture(data.icon);
 		icon:SetSize(size, size);
@@ -615,18 +637,20 @@ local function CreateConfigCheckBox(elementContainer, data)
 		SIPPYCUP.ElvUI.RegisterSkinnableElement(icon, "icon");
 
 		local addition = "";
-		if data.preExpiration or data.unrefreshable or data.nonAura or data.stacks then
+		if data.preExpiration or data.unrefreshable or data.nonAura or data.stacks or data.cooldownMismatch then
 			addition = " (";
 			if data.preExpiration then addition = addition .. "|A:uitools-icon-refresh:16:16|a"; end
 			if data.unrefreshable then addition = addition .. "|A:uitools-icon-close:16:16|a"; end
 			if data.stacks then addition = addition .. "|A:uitools-icon-plus:16:16|a"; end
-			if data.nonAura then addition = addition .. "|A:uitools-icon-minus:16:16|a"; end
+			if data.nonAura and not data.cooldownMismatch then addition = addition .. "|A:uitools-icon-minus:16:16|a"; end
+			if data.cooldownMismatch then addition = addition .. MISMATCH_ICON; end
 			addition = addition .. ")";
 		end
 		labelText = labelText .. addition;
 	end
 
 	local label = widget:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
+	widget.label = label;
 	if icon then
 		label:SetPoint("LEFT", icon, "RIGHT", 5, 0);
 	else
@@ -672,8 +696,8 @@ local function CreateConfigCheckBox(elementContainer, data)
 	elementContainer:SetScript("OnMouseUp", OnLabelOrIconClick);
 	widget:SetScript("OnClick", TriggerCheckboxClick);
 
-	if data.tooltip or data.style == "consumable" then
-		if data.style == "consumable" then
+	if data.tooltip or data.style == "option" then
+		if data.style == "option" then
 			AttachItemTooltip({label, elementContainer, icon, widget}, data.itemID);
 		else
 			ApplyTooltip({label, elementContainer, widget}, data.label, data.tooltip, data.style);
@@ -1174,8 +1198,8 @@ local categories = { "Appearance", "Effect", "Handheld", "Placement", "Prism", "
 
 -- Sort `categories` in-place by their localized title:
 table.sort(categories, function(a, b)
-	local locA = L["OPTIONS_CONSUMABLE_" .. string.upper(a) .. "_TITLE"] or "";
-	local locB = L["OPTIONS_CONSUMABLE_" .. string.upper(b) .. "_TITLE"] or "";
+	local locA = L["OPTIONS_TAB" .. string.upper(a) .. "_TITLE"] or "";
+	local locB = L["OPTIONS_TAB" .. string.upper(b) .. "_TITLE"] or "";
 
 	-- Normalize and lowercase for case-insensitive comparison
 	return SIPPYCUP_TEXT.Normalize(locA:lower()) < SIPPYCUP_TEXT.Normalize(locB:lower());
@@ -1306,7 +1330,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			set = function(val)
 				SIPPYCUP.Database.UpdateSetting("global", "PreExpirationChecks", nil, val);
 				if val then
-					SIPPYCUP.Consumables.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck, false, true);
+					SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck, false, true);
 				else
 					local reason = SIPPYCUP.Popups.Reason.PRE_EXPIRATION;
 					SIPPYCUP.Auras.CancelAllPreExpirationTimers();
@@ -1324,6 +1348,17 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			end,
 			set = function(val)
 				SIPPYCUP.Database.UpdateSetting("global", "InsufficientReminder", nil, val);
+			end,
+		},
+		{
+			type = "checkbox",
+			label = L.OPTIONS_GENERAL_POPUPS_TRACK_TOY_ITEM_CD_ENABLE,
+			tooltip = L.OPTIONS_GENERAL_POPUPS_TRACK_TOY_ITEM_CD_ENABLE_DESC,
+			get = function()
+				return SIPPYCUP.Database.GetSetting("global", "UseToyCooldown", nil);
+			end,
+			set = function(val)
+				SIPPYCUP.Database.UpdateSetting("global", "UseToyCooldown", nil, val);
 			end,
 		},
 		{
@@ -1400,9 +1435,6 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			end,
 		},
 		{
-			type = "blank",
-		},
-		{
 			type = "checkbox",
 			label = L.OPTIONS_GENERAL_POPUPS_FLASHTASKBAR_ENABLE,
 			tooltip = L.OPTIONS_GENERAL_POPUPS_FLASHTASKBAR_ENABLE_DESC,
@@ -1434,7 +1466,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 				SIPPYCUP.Database.UpdateSetting("global", "MSPStatusCheck", nil, val);
 				SIPPYCUP.MSP.CheckRPStatus();
 				if val then
-					SIPPYCUP.Consumables.RefreshStackSizes(val);
+					SIPPYCUP.Options.RefreshStackSizes(val);
 				else
 					SIPPYCUP.Popups.HideAllRefreshPopups();
 				end
@@ -1484,31 +1516,34 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 		local categoryName = string.upper(category);
 		local categoryPanel = self.PanelsByName[categoryName];
 
-		local title = L["OPTIONS_CONSUMABLE_" .. categoryName .. "_TITLE"] or categoryName;
-		local instruction = L["OPTIONS_CONSUMABLE_" .. categoryName .. "_INSTRUCTION"] or "";
+		local title = L["OPTIONS_TAB" .. categoryName .. "_TITLE"] or categoryName;
+		local instruction = L["OPTIONS_TAB" .. categoryName .. "_INSTRUCTION"] or "";
 		CreateTitleWithDescription(categoryPanel, title, instruction, true);
 
 		local categoryData = {};
 
-		for _, consumableData in ipairs(SIPPYCUP.Consumables.Data) do
-			if consumableData.category == categoryName then
-				local consumableAura = consumableData.auraID;
-				local consumableName = consumableData.name;
-				local consumableID = consumableData.itemID;
-				local consumableIcon = consumableData.icon;
+		for _, optionData in ipairs(SIPPYCUP.Options.Data) do
+			if optionData.category == categoryName and optionData.type == 0 then
+				local consumableAura = optionData.auraID;
+				local consumableName = optionData.name;
+				local consumableID = optionData.itemID;
+				local consumableIcon = optionData.icon;
+				local consumableType = optionData.type;
 
 				local checkboxProfileKey = consumableAura;
 
 				categoryData[#categoryData + 1] = {
+					dataType = consumableType,
 					type = "checkbox",
 					label = consumableName,
 					icon = consumableIcon,
-					style = "consumable",
+					style = "option",
 					itemID = consumableID,
-					preExpiration = consumableData.preExpiration,
-					unrefreshable = consumableData.unrefreshable,
-					nonAura = consumableData.itemTrackable or consumableData.spellTrackable,
-					stacks = consumableData.stacks,
+					preExpiration = optionData.preExpiration,
+					unrefreshable = optionData.unrefreshable,
+					nonAura = optionData.itemTrackable or optionData.spellTrackable,
+					cooldownMismatch = optionData.cooldownMismatch,
+					stacks = optionData.stacks,
 					get = function()
 						return SIPPYCUP.Database.GetSetting("profile", checkboxProfileKey, "enable");
 					end,
@@ -1519,15 +1554,16 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 				};
 
 				-- Slider: Desired stacks (if applicable)
-				if consumableData.stacks then
+				if optionData.stacks then
 					local sliderProfileKey = consumableAura;
 
 					categoryData[#categoryData + 1] = {
+						dataType = consumableType,
 						type = "slider",
 						label = L.OPTIONS_DESIRED_STACKS,
 						tooltip = L.OPTIONS_SLIDER_TEXT and L.OPTIONS_SLIDER_TEXT:format(consumableName) or nil,
 						min = 1,
-						max = consumableData.maxStacks,
+						max = optionData.maxStacks,
 						step = 1,
 						disabled = function()
 							return not SIPPYCUP.Database.GetSetting("profile", sliderProfileKey, "enable");
@@ -1546,9 +1582,78 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			end
 		end
 
+		CreateCategoryHeader(categoryPanel, BAG_FILTER_CONSUMABLES);
+		local widgets = CreateWidgetRowContainer(categoryPanel, categoryData, 2, 40, 20, true);
+		self.profileWidgets[#self.profileWidgets + 1] = widgets;
+		self.allWidgets[#self.allWidgets + 1] = widgets;
 
+		categoryData = {};
 
-		local widgets = CreateWidgetRowContainer(categoryPanel, categoryData, 2, 40)
+		for _, optionData in ipairs(SIPPYCUP.Options.Data) do
+			if optionData.category == categoryName and optionData.type == 1 then
+				local toyAura = optionData.auraID;
+				local toyName = optionData.name;
+				local toyID = optionData.itemID;
+				local toyIcon = optionData.icon;
+				local toyType = optionData.type;
+
+				local checkboxProfileKey = toyAura;
+
+				categoryData[#categoryData + 1] = {
+					dataType = toyType,
+					type = "checkbox",
+					label = toyName,
+					icon = toyIcon,
+					style = "option",
+					itemID = toyID,
+					preExpiration = optionData.preExpiration,
+					unrefreshable = optionData.unrefreshable,
+					nonAura = optionData.itemTrackable or optionData.spellTrackable,
+					cooldownMismatch = optionData.cooldownMismatch,
+					stacks = optionData.stacks,
+					disabled = function()
+						return not PlayerHasToy(toyID);
+					end,
+					get = function()
+						return SIPPYCUP.Database.GetSetting("profile", checkboxProfileKey, "enable");
+					end,
+					set = function(val)
+						SIPPYCUP.Database.UpdateSetting("profile", checkboxProfileKey, "enable", val);
+						SIPPYCUP.Popups.Toggle(toyName, toyAura, val);
+					end,
+				};
+
+				-- Slider: Desired stacks (if applicable)
+				if optionData.stacks then
+					local sliderProfileKey = toyAura;
+
+					categoryData[#categoryData + 1] = {
+						type = "slider",
+						label = L.OPTIONS_DESIRED_STACKS,
+						tooltip = L.OPTIONS_SLIDER_TEXT and L.OPTIONS_SLIDER_TEXT:format(toyName) or nil,
+						min = 1,
+						max = optionData.maxStacks,
+						step = 1,
+						disabled = function()
+							return not SIPPYCUP.Database.GetSetting("profile", sliderProfileKey, "enable");
+						end,
+						get = function()
+							return SIPPYCUP.Database.GetSetting("profile", sliderProfileKey, "desiredStacks");
+						end,
+						set = function(val)
+							SIPPYCUP.Database.UpdateSetting("profile", sliderProfileKey, "desiredStacks", val);
+							if SIPPYCUP.profile[sliderProfileKey].enable then
+								SIPPYCUP.Popups.Toggle(toyName, toyAura, true);
+							end
+						end,
+					};
+				end
+			end
+		end
+
+		CreateCategoryHeader(categoryPanel, TOY_BOX);
+
+		widgets = CreateWidgetRowContainer(categoryPanel, categoryData, 2, 40, 20, true);
 
 		self.profileWidgets[#self.profileWidgets + 1] = widgets;
 		self.allWidgets[#self.allWidgets + 1] = widgets;

@@ -49,10 +49,10 @@ local function GetMinimalTable(current, default)
 end
 
 ---Default saved variable structure for the SippyCup addon.
----Contains both global options and profile-specific consumable settings.
+---Contains both global options and profile-specific option settings.
 ---@class SIPPYCUPDefaults
 ---@field global SIPPYCUPGlobalSettings Global settings shared across all profiles.
----@field profiles table<string, table<string, SIPPYCUPProfileConsumable>> Table of profiles, each mapping to a table of profile keys.
+---@field profiles table<string, table<string, SIPPYCUPProfileOption>> Table of profiles, each mapping to a table of profile keys.
 
 ---Global addon settings shared across all user profiles.
 ---@class SIPPYCUPGlobalSettings
@@ -88,36 +88,37 @@ SIPPYCUP.Database.defaults = {
 			Log = "",
 		},
 		InsufficientReminder = false,
-		MSPStatusCheck = true,
-		PopupPosition = "TOP",
-		PreExpirationChecks = true,
-		WelcomeMessage = true,
 		MinimapButton = {
 			Hide = false,
 			ShowAddonCompartmentButton = true,
 		},
+		MSPStatusCheck = true,
+		PopupPosition = "TOP",
+		PreExpirationChecks = true,
+		UseToyCooldown = false,
+		WelcomeMessage = true,
 	},
 	profiles = {
-		Default = {},  -- will hold all consumables per profile
+		Default = {},  -- will hold all options per profile
 	},
 }
 
 local defaults = SIPPYCUP.Database.defaults;
 
----Represents a single consumable's tracking settings within a user profile.
----@class SIPPYCUPProfileConsumable
----@field enable boolean Whether the consumable is enabled for tracking.
+---Represents a single option's tracking settings within a user profile.
+---@class SIPPYCUPProfileOption
+---@field enable boolean Whether the option is enabled for tracking.
 ---@field desiredStacks number Number of stacks the user wants to maintain.
 ---@field currentInstanceID number? Aura instance ID currently being tracked (if any).
 ---@field currentStacks number Current number of detected stacks.
----@field aura number The associated aura ID for this consumable.
----@field noAuraTrackable boolean Whether this consumable can be tracked via its aura or not.
----Populate the default profile's consumables table keyed by aura ID, with all known entries from SIPPYCUP.Consumables.Data.
----This defines initial tracking settings for each consumable by its aura ID key.
-local function PopulateDefaultConsumables()
-	for _, consumable in ipairs(SIPPYCUP.Consumables.Data) do
-		local spellID = consumable.auraID;
-		local noAuraTrackable = consumable.itemTrackable or consumable.spellTrackable;
+---@field aura number The associated aura ID for this option.
+---@field noAuraTrackable boolean Whether this option can be tracked via its aura or not.
+---Populate the default option's table keyed by aura ID, with all known entries from SIPPYCUP.Options.Data.
+---This defines initial tracking settings for each option by its aura ID key.
+local function PopulateDefaultOptions()
+	for _, option in ipairs(SIPPYCUP.Options.Data) do
+		local spellID = option.auraID;
+		local noAuraTrackable = option.itemTrackable or option.spellTrackable;
 
 		if spellID then
 			-- Use auraID as the key, not profileKey
@@ -133,13 +134,13 @@ local function PopulateDefaultConsumables()
 	end
 end
 
-PopulateDefaultConsumables();
+PopulateDefaultOptions();
 
 SIPPYCUP.Database.auraToProfile = {}; -- auraID --> profile data
 SIPPYCUP.Database.instanceToProfile = {}; -- instanceID --> profile data
 SIPPYCUP.Database.noAuraTrackableProfile = {}; -- itemID --> profile data (only if no aura)
 
----RebuildAuraMap rebuilds internal lookup tables for aura and instance-based consumable tracking.
+---RebuildAuraMap rebuilds internal lookup tables for aura and instance-based option tracking.
 ---@return nil
 function SIPPYCUP.Database.RebuildAuraMap()
 	-- Reset fast lookup tables
@@ -147,67 +148,67 @@ function SIPPYCUP.Database.RebuildAuraMap()
 	wipe(SIPPYCUP.Database.instanceToProfile);
 	wipe(SIPPYCUP.Database.noAuraTrackableProfile);
 
-	for _, profileConsumableData in pairs(SIPPYCUP.profile) do
-		if profileConsumableData.enable and profileConsumableData.aura then
-			local auraID = profileConsumableData.aura;
-			SIPPYCUP.Database.auraToProfile[auraID] = profileConsumableData;
+	for _, profileOptionData in pairs(SIPPYCUP.profile) do
+		if profileOptionData.enable and profileOptionData.aura then
+			local auraID = profileOptionData.aura;
+			SIPPYCUP.Database.auraToProfile[auraID] = profileOptionData;
 
 			-- Update instance ID if aura is currently active
 			local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(auraID);
 			if auraInfo then
 				local instanceID = auraInfo.auraInstanceID;
-				profileConsumableData.currentInstanceID = instanceID;
+				profileOptionData.currentInstanceID = instanceID;
 				if instanceID then
-					SIPPYCUP.Database.instanceToProfile[instanceID] = profileConsumableData;
+					SIPPYCUP.Database.instanceToProfile[instanceID] = profileOptionData;
 				end
 			else
-				profileConsumableData.currentInstanceID = nil;
+				profileOptionData.currentInstanceID = nil;
 			end
 
-			-- Handle consumables that are trackable without auras (via itemID)
-			if profileConsumableData.noAuraTrackable then
-				local consumableData = SIPPYCUP.Consumables.ByAuraID[auraID];
-				if consumableData and consumableData.itemID then
-					SIPPYCUP.Database.noAuraTrackableProfile[consumableData.itemID] = profileConsumableData;
+			-- Handle options that are trackable without auras (via itemID)
+			if profileOptionData.noAuraTrackable then
+				local optionData = SIPPYCUP.Options.ByAuraID[auraID];
+				if optionData and optionData.itemID then
+					SIPPYCUP.Database.noAuraTrackableProfile[optionData.itemID] = profileOptionData;
 				end
 			end
 		end
 	end
 end
 
----UpdateAuraMapForConsumable updates or removes a single consumable's entries in the aura, instance, and noAura mappings.
----@param profileConsumableData table The profile consumable data to update.
----@param enabled boolean Whether the consumable is enabled or disabled.
+---UpdateAuraMapForOption updates or removes a single profile's entries in the aura, instance, and noAura mappings.
+---@param profileOptionData table The profile data to update.
+---@param enabled boolean Whether the profile is enabled or disabled.
 ---@return nil
-function SIPPYCUP.Database.UpdateAuraMapForConsumable(profileConsumableData, enabled)
-	if not profileConsumableData or not profileConsumableData.aura then
+function SIPPYCUP.Database.UpdateAuraMapForOption(profileOptionData, enabled)
+	if not profileOptionData or not profileOptionData.aura then
 		return;
 	end
 
-	local auraID = profileConsumableData.aura;
+	local auraID = profileOptionData.aura;
 
 	if enabled then
 		-- Add/update auraToProfile
-		SIPPYCUP.Database.auraToProfile[auraID] = profileConsumableData;
+		SIPPYCUP.Database.auraToProfile[auraID] = profileOptionData;
 
 		-- Update instanceToProfile if aura is currently active
 		local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(auraID);
 		if auraInfo then
 			local instanceID = auraInfo.auraInstanceID;
-			profileConsumableData.currentInstanceID = instanceID;
+			profileOptionData.currentInstanceID = instanceID;
 
 			if instanceID then
-				SIPPYCUP.Database.instanceToProfile[instanceID] = profileConsumableData;
+				SIPPYCUP.Database.instanceToProfile[instanceID] = profileOptionData;
 			end
 		else
-			profileConsumableData.currentInstanceID = nil;
+			profileOptionData.currentInstanceID = nil;
 		end
 
 		-- Update noAuraTrackableProfile if applicable
-		if profileConsumableData.noAuraTrackable then
-			local consumableData = SIPPYCUP.Consumables.ByAuraID[auraID];
-			if consumableData and consumableData.itemID then
-				SIPPYCUP.Database.noAuraTrackableProfile[consumableData.itemID] = profileConsumableData;
+		if profileOptionData.noAuraTrackable then
+			local optionData = SIPPYCUP.Options.ByAuraID[auraID];
+			if optionData and optionData.itemID then
+				SIPPYCUP.Database.noAuraTrackableProfile[optionData.itemID] = profileOptionData;
 			end
 		end
 	else
@@ -215,28 +216,28 @@ function SIPPYCUP.Database.UpdateAuraMapForConsumable(profileConsumableData, ena
 		SIPPYCUP.Database.auraToProfile[auraID] = nil;
 
 		-- Remove from instanceToProfile if currentInstanceID is set
-		local instanceID = profileConsumableData.currentInstanceID;
+		local instanceID = profileOptionData.currentInstanceID;
 		if instanceID then
 			SIPPYCUP.Database.instanceToProfile[instanceID] = nil;
-			profileConsumableData.currentInstanceID = nil;
+			profileOptionData.currentInstanceID = nil;
 		end
 
 		-- Remove from noAuraTrackableProfile if applicable
-		if profileConsumableData.noAuraTrackable then
-			local consumableData = SIPPYCUP.Consumables.ByAuraID[auraID];
-			if consumableData and consumableData.itemID then
-				SIPPYCUP.Database.noAuraTrackableProfile[consumableData.itemID] = nil;
+		if profileOptionData.noAuraTrackable then
+			local optionData = SIPPYCUP.Options.ByAuraID[auraID];
+			if optionData and optionData.itemID then
+				SIPPYCUP.Database.noAuraTrackableProfile[optionData.itemID] = nil;
 			end
 		end
 	end
 end
 
----FindMatchingConsumable returns consumable profile data matching a spell ID, aura instance ID, or item ID.
+---FindMatchingProfile returns profile data matching a spell ID, aura instance ID, or item ID.
 ---@param spellId number? Spell ID to match against `auraToProfile`.
 ---@param instanceID number? Aura instance ID to match against `instanceToProfile`.
 ---@param itemID number? Item ID to match against `noAuraTrackableProfile`.
----@return SIPPYCUPProfileConsumable|nil profileConsumableData #Matching profile entry if found, otherwise nil.
-function SIPPYCUP.Database.FindMatchingConsumable(spellId, instanceID, itemID)
+---@return SIPPYCUPProfileOption|nil profileOptionData #Matching profile entry if found, otherwise nil.
+function SIPPYCUP.Database.FindMatchingProfile(spellId, instanceID, itemID)
 	if spellId ~= nil then
 		return SIPPYCUP.Database.auraToProfile[spellId];
 	elseif instanceID ~= nil then
@@ -252,8 +253,8 @@ local categories = { "Appearance", "Effect", "Handheld", "Placement", "Prism", "
 
 -- Sort `categories` in-place by their localized title:
 table.sort(categories, function(a, b)
-	local locA = L["OPTIONS_CONSUMABLE_" .. string.upper(a) .. "_TITLE"];
-	local locB = L["OPTIONS_CONSUMABLE_" .. string.upper(b) .. "_TITLE"];
+	local locA = L["OPTIONS_TAB" .. string.upper(a) .. "_TITLE"];
+	local locB = L["OPTIONS_TAB" .. string.upper(b) .. "_TITLE"];
 	return SIPPYCUP_TEXT.Normalize(locA:lower()) < SIPPYCUP_TEXT.Normalize(locB:lower());
 end);
 

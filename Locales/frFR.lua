@@ -75,28 +75,28 @@ L = {
 	OPTIONS_LEGENDA_NO_AURA_DESC = "Ce consommable est plus difficile à suivre et peut occasionnellement causer des irrégularités.",
 
 	-- Appearance
-	OPTIONS_CONSUMABLE_APPEARANCE_TITLE = "Apparence",
-	OPTIONS_CONSUMABLE_APPEARANCE_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables qui altèrent votre apparence.",
+	OPTIONS_TABAPPEARANCE_TITLE = "Apparence",
+	OPTIONS_TABAPPEARANCE_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables qui altèrent votre apparence.",
 
 	-- Effect
-	OPTIONS_CONSUMABLE_EFFECT_TITLE = "Effet",
-	OPTIONS_CONSUMABLE_EFFECT_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables qui appliquent un effet visuel.",
+	OPTIONS_TABEFFECT_TITLE = "Effet",
+	OPTIONS_TABEFFECT_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables qui appliquent un effet visuel.",
 
 	-- Handheld
-	OPTIONS_CONSUMABLE_HANDHELD_TITLE = "En main",
-	OPTIONS_CONSUMABLE_HANDHELD_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables qui font porter un objet à votre personnage.",
+	OPTIONS_TABHANDHELD_TITLE = "En main",
+	OPTIONS_TABHANDHELD_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables qui font porter un objet à votre personnage.",
 
 	-- Placement
-	OPTIONS_CONSUMABLE_PLACEMENT_TITLE = "Placement",
-	OPTIONS_CONSUMABLE_PLACEMENT_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables qui sont placés au sol.",
+	OPTIONS_TABPLACEMENT_TITLE = "Placement",
+	OPTIONS_TABPLACEMENT_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables qui sont placés au sol.",
 
 	-- Prism
-	OPTIONS_CONSUMABLE_PRISM_TITLE = "Prisme",
-	OPTIONS_CONSUMABLE_PRISM_INSTRUCTION = "Ces options contrôlent tous les rappels pour les prismes consommables qui altèrent votre apparence.",
+	OPTIONS_TABPRISM_TITLE = "Prisme",
+	OPTIONS_TABPRISM_INSTRUCTION = "Ces options contrôlent tous les rappels pour les prismes consommables qui altèrent votre apparence.",
 
 	-- Size
-	OPTIONS_CONSUMABLE_SIZE_TITLE = "Taille",
-	OPTIONS_CONSUMABLE_SIZE_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables qui changent la taille de votre personnage.",
+	OPTIONS_TABSIZE_TITLE = "Taille",
+	OPTIONS_TABSIZE_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables qui changent la taille de votre personnage.",
 
 	--/ Addon Compartment /--
 	ADDON_COMPARTMENT_DESC = "|cnGREEN_FONT_COLOR:Clic gauche : Ouvrir les options|nClic droit : Ouvrir les profils|r",

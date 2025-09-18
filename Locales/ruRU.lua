@@ -76,28 +76,28 @@ L = {
 	OPTIONS_LEGENDA_NO_AURA_DESC = "This consumable is harder to track and may occasionally cause irregularities.", -- (NEW)
 
 	-- Appearance
-	OPTIONS_CONSUMABLE_APPEARANCE_TITLE = "Appearance", -- NEW
-	OPTIONS_CONSUMABLE_APPEARANCE_INSTRUCTION = "These options control all reminders for consumables that alter your appearance.", -- NEW
+	OPTIONS_TABAPPEARANCE_TITLE = "Appearance", -- NEW
+	OPTIONS_TABAPPEARANCE_INSTRUCTION = "These options control all reminders for consumables that alter your appearance.", -- NEW
 
 	-- Effect
-	OPTIONS_CONSUMABLE_EFFECT_TITLE = "Эффект",
-	OPTIONS_CONSUMABLE_EFFECT_INSTRUCTION = "Эти настройки управляют всеми напоминаниями о расходуемых предметах, которые создают эффект.",
+	OPTIONS_TABEFFECT_TITLE = "Эффект",
+	OPTIONS_TABEFFECT_INSTRUCTION = "Эти настройки управляют всеми напоминаниями о расходуемых предметах, которые создают эффект.",
 
 	-- Handheld
-	OPTIONS_CONSUMABLE_HANDHELD_TITLE = "Handheld", -- NEW
-	OPTIONS_CONSUMABLE_HANDHELD_INSTRUCTION = "These options control all reminders for consumables that make the character hold something.", -- NEW
+	OPTIONS_TABHANDHELD_TITLE = "Handheld", -- NEW
+	OPTIONS_TABHANDHELD_INSTRUCTION = "These options control all reminders for consumables that make the character hold something.", -- NEW
 
 	-- Placement
-	OPTIONS_CONSUMABLE_PLACEMENT_TITLE = "Placement", -- NEW
-	OPTIONS_CONSUMABLE_PLACEMENT_INSTRUCTION = "These options control all reminders for consumables that can be placed on the ground.", -- NEW
+	OPTIONS_TABPLACEMENT_TITLE = "Placement", -- NEW
+	OPTIONS_TABPLACEMENT_INSTRUCTION = "These options control all reminders for consumables that can be placed on the ground.", -- NEW
 
 	-- Prism
-	OPTIONS_CONSUMABLE_PRISM_TITLE = "Prism", -- NEW
-	OPTIONS_CONSUMABLE_PRISM_INSTRUCTION = "These options control all reminders for prism consumables to alter your appearance.", -- NEW
+	OPTIONS_TABPRISM_TITLE = "Prism", -- NEW
+	OPTIONS_TABPRISM_INSTRUCTION = "These options control all reminders for prism consumables to alter your appearance.", -- NEW
 
 	-- Size
-	OPTIONS_CONSUMABLE_SIZE_TITLE = "Размер",
-	OPTIONS_CONSUMABLE_SIZE_INSTRUCTION = "Эти настройки управляют всеми напоминаниями о расходуемых предметах, которые изменяют размер персонажа.",
+	OPTIONS_TABSIZE_TITLE = "Размер",
+	OPTIONS_TABSIZE_INSTRUCTION = "Эти настройки управляют всеми напоминаниями о расходуемых предметах, которые изменяют размер персонажа.",
 
 	--/ Addon Compartment /--
 	ADDON_COMPARTMENT_DESC = "|cnGREEN_FONT_COLOR:ЛКМ: Открыть настройки|nПКМ: Открыть профили|r",

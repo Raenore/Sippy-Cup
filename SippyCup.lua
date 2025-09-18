@@ -12,7 +12,7 @@ function SIPPYCUP_Addon:ADDON_LOADED(_, addonName)
 	end
 end
 
----OnInitialize Loads saved variables, sets up database, consumables, and slash commands.
+---OnInitialize Loads saved variables, sets up database, options, and slash commands.
 function SIPPYCUP_Addon:OnInitialize()
 	if not SippyCupDB then
 		SippyCupDB = {
@@ -24,9 +24,9 @@ function SIPPYCUP_Addon:OnInitialize()
 
 	SIPPYCUP.db = SippyCupDB;
 
-	-- Set up DB internals & Consumables
+	-- Set up DB internals & Options
 	SIPPYCUP.Database.Setup();
-	SIPPYCUP.Consumables.Setup();
+	SIPPYCUP.Options.Setup();
 
 	-- Register slash commands
 	SLASH_SIPPYCUP1, SLASH_SIPPYCUP2 = "/sc", "/sippycup";
@@ -57,25 +57,25 @@ function SIPPYCUP_Addon:OpenSettings(view)
 	end
 end
 
----CheckPlayerLogin Ensures PLAYER_LOGIN processing runs after DB and consumables are loaded.
+---CheckPlayerLogin Ensures PLAYER_LOGIN processing runs after DB and options are loaded.
 local function CheckPlayerLogin()
-	if SIPPYCUP.States.databaseLoaded and SIPPYCUP.States.consumablesLoaded and SIPPYCUP.States.playerLoggedIn then
-		SIPPYCUP_OUTPUT.Debug("Addon (Consumables & Database) loaded.");
+	if SIPPYCUP.States.databaseLoaded and SIPPYCUP.States.optionsLoaded and SIPPYCUP.States.playerLoggedIn then
+		SIPPYCUP_OUTPUT.Debug("Addon (Options & Database) loaded.");
 		SIPPYCUP_Addon:OnPlayerLogin();
 	end
 end
 
----PLAYER_LOGIN Fires after the UI is fully loaded, triggers OnPlayerLogin if DB and consumables are ready.
+---PLAYER_LOGIN Fires after the UI is fully loaded, triggers OnPlayerLogin if DB and options are ready.
 function SIPPYCUP_Addon:PLAYER_LOGIN()
 	SIPPYCUP_Addon:UnregisterEvent("PLAYER_LOGIN");
 	SIPPYCUP.States.playerLoggedIn = true;
 	CheckPlayerLogin();
 end
 
----CONSUMABLES_LOADED Callback triggered when all consumable data is loaded from the game.
----Sets consumablesLoaded state and checks if PLAYER_LOGIN processing can proceed.
-SIPPYCUP.Callbacks:RegisterCallback(SIPPYCUP.Events.CONSUMABLES_LOADED, function()
-	SIPPYCUP.States.consumablesLoaded = true;
+---OPTIONS_LOADED Callback triggered when all option data is loaded from the game.
+---Sets optionsLoaded state and checks if PLAYER_LOGIN processing can proceed.
+SIPPYCUP.Callbacks:RegisterCallback(SIPPYCUP.Events.OPTIONS_LOADED, function()
+	SIPPYCUP.States.optionsLoaded = true;
 	CheckPlayerLogin();
 end);
 
@@ -100,7 +100,7 @@ function SIPPYCUP_Addon:OnInitialPlayerInWorld()
 	-- Prepare our MSP checks.
 	SIPPYCUP.MSP.EnableIfAvailable(); -- True/False if enable successfully, we don't need that info right now.
 	-- Depending on if MSP status checks are on or off, we check differently.
-	SIPPYCUP.Consumables.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
+	SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
 
 	local realCharKey = SIPPYCUP.Database.GetUnitName();
 	if realCharKey then
@@ -173,16 +173,17 @@ function SIPPYCUP_Addon:UNIT_AURA(_, unitTarget, updateInfo) -- luacheck: no unu
 	-- Bag data is not synched immediately when UNIT_AURA fires, signal desync to the addon.
 	SIPPYCUP.Items.bagUpdateUnhandled = true;
 	SIPPYCUP.Auras.Convert(SIPPYCUP.Auras.Sources.UNIT_AURA, updateInfo);
+	-- DevTools_Dump(updateInfo);
 end
 
----UNIT_SPELLCAST_SUCCEEDED Handles successful player spell casts; checks items that don't trigger UNIT_AURA.
+---UNIT_SPELLCAST_SUCCEEDED Handles successful player spell casts; checks consumables/toys that don't trigger UNIT_AURA.
 ---@param event string Event name (ignored)
 ---@param unitTarget string Unit that cast the spell, automatically "player" through RegisterUnitEvent.
 ---@param _, _ Ignored parameters
 ---@param spellID number Spell identifier
 function SIPPYCUP_Addon:UNIT_SPELLCAST_SUCCEEDED(_, unitTarget, _, spellID) -- luacheck: no unused (unitTarget)
 	-- Necessary to handle items that don't fire UNIT_AURA.
-	SIPPYCUP.Items.CheckNoAuraSingleConsumable(nil, spellID);
+	SIPPYCUP.Items.CheckNoAuraSingleOption(nil, spellID);
 end
 
 ---ZONE_CHANGED_NEW_AREA Handles zone changes and triggers loading screen end logic if needed.
@@ -219,6 +220,6 @@ SIPPYCUP.Callbacks:RegisterCallback(SIPPYCUP.Events.LOADING_SCREEN_ENDED, functi
 	-- isFullUpdate can pass through loading screens (but our code can't), so handle it now.
 	if SIPPYCUP.States.hasSeenFullUpdate then
 		SIPPYCUP.States.hasSeenFullUpdate = false;
-		SIPPYCUP.Auras.CheckAllActiveConsumables();
+		SIPPYCUP.Auras.CheckAllActiveOptions();
 	end
 end);
