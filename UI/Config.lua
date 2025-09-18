@@ -1198,8 +1198,8 @@ local categories = { "Appearance", "Effect", "Handheld", "Placement", "Prism", "
 
 -- Sort `categories` in-place by their localized title:
 table.sort(categories, function(a, b)
-	local locA = L["OPTIONS_TAB" .. string.upper(a) .. "_TITLE"] or "";
-	local locB = L["OPTIONS_TAB" .. string.upper(b) .. "_TITLE"] or "";
+	local locA = L["OPTIONS_TAB_" .. string.upper(a) .. "_TITLE"] or "";
+	local locB = L["OPTIONS_TAB_" .. string.upper(b) .. "_TITLE"] or "";
 
 	-- Normalize and lowercase for case-insensitive comparison
 	return SIPPYCUP_TEXT.Normalize(locA:lower()) < SIPPYCUP_TEXT.Normalize(locB:lower());
@@ -1516,8 +1516,8 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 		local categoryName = string.upper(category);
 		local categoryPanel = self.PanelsByName[categoryName];
 
-		local title = L["OPTIONS_TAB" .. categoryName .. "_TITLE"] or categoryName;
-		local instruction = L["OPTIONS_TAB" .. categoryName .. "_INSTRUCTION"] or "";
+		local title = L["OPTIONS_TAB_" .. categoryName .. "_TITLE"] or categoryName;
+		local instruction = L["OPTIONS_TAB_" .. categoryName .. "_INSTRUCTION"] or "";
 		CreateTitleWithDescription(categoryPanel, title, instruction, true);
 
 		local categoryData = {};

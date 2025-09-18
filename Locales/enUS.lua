@@ -75,28 +75,28 @@ L = {
 	OPTIONS_LEGENDA_COOLDOWN_DESC = "This consumable/toy has a longer cooldown than its effect duration, which may cause the reminder popup to appear while the refresh button is still on cooldown.|n|n|cnWARNING_FONT_COLOR:This can be mitigated by enabling 'Use Toy Cooldown' in the General menu.|r",
 
 	-- Appearance
-	OPTIONS_TABAPPEARANCE_TITLE = "Appearance",
-	OPTIONS_TABAPPEARANCE_INSTRUCTION = "These options control all reminders for consumables/toys that alter your appearance.",
+	OPTIONS_TAB_APPEARANCE_TITLE = "Appearance",
+	OPTIONS_TAB_APPEARANCE_INSTRUCTION = "These options control all reminders for consumables/toys that alter your appearance.",
 
 	-- Effect
-	OPTIONS_TABEFFECT_TITLE = "Effect",
-	OPTIONS_TABEFFECT_INSTRUCTION = "These options control all reminders for consumables/toys that apply a visual.",
+	OPTIONS_TAB_EFFECT_TITLE = "Effect",
+	OPTIONS_TAB_EFFECT_INSTRUCTION = "These options control all reminders for consumables/toys that apply a visual.",
 
 	-- Handheld
-	OPTIONS_TABHANDHELD_TITLE = "Handheld",
-	OPTIONS_TABHANDHELD_INSTRUCTION = "These options control all reminders for consumables/toys that make your character hold an item.",
+	OPTIONS_TAB_HANDHELD_TITLE = "Handheld",
+	OPTIONS_TAB_HANDHELD_INSTRUCTION = "These options control all reminders for consumables/toys that make your character hold an item.",
 
 	-- Placement
-	OPTIONS_TABPLACEMENT_TITLE = "Placement",
-	OPTIONS_TABPLACEMENT_INSTRUCTION = "These options control all reminders for consumables/toys that are placed on the ground.",
+	OPTIONS_TAB_PLACEMENT_TITLE = "Placement",
+	OPTIONS_TAB_PLACEMENT_INSTRUCTION = "These options control all reminders for consumables/toys that are placed on the ground.",
 
 	-- Prism
-	OPTIONS_TABPRISM_TITLE = "Prism",
-	OPTIONS_TABPRISM_INSTRUCTION = "These options control all reminders for prism consumables/toys that change your appearance.",
+	OPTIONS_TAB_PRISM_TITLE = "Prism",
+	OPTIONS_TAB_PRISM_INSTRUCTION = "These options control all reminders for prism consumables/toys that change your appearance.",
 
 	-- Size
-	OPTIONS_TABSIZE_TITLE = "Size",
-	OPTIONS_TABSIZE_INSTRUCTION = "These options control all reminders for consumables/toys that change your character's size.",
+	OPTIONS_TAB_SIZE_TITLE = "Size",
+	OPTIONS_TAB_SIZE_INSTRUCTION = "These options control all reminders for consumables/toys that change your character's size.",
 
 	--/ Addon Compartment /--
 	ADDON_COMPARTMENT_DESC = "|cnGREEN_FONT_COLOR:Left-Click: Open options|nRight-Click: Open profiles|r",
