@@ -6,7 +6,7 @@ SIPPYCUP.Items = {};
 local scheduledItemTimers = {};
 
 local function BuildItemKey(auraID, itemID, reason)
-    return table.concat({auraID, itemID, reason}, "-")
+	return table.concat({auraID, itemID, reason}, "-")
 end
 
 ---CreateItemTimer will create a pre-expiration timer for a specific aura.
