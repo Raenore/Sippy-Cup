@@ -4,8 +4,10 @@
 local L = SIPPYCUP.L;
 SIPPYCUP.Database = {};
 
--- Copies keys from source to target only if target key is nil.
--- Does not overwrite existing keys in target.
+---Copies keys from source to target only if target key is nil (recursive).
+---@param source table Source table to copy defaults from.
+---@param target table Target table to copy defaults into.
+---@return nil
 local function DeepCopyDefaults(source, target)
 	for k, v in pairs(source) do
 		if type(v) == "table" then
@@ -17,8 +19,11 @@ local function DeepCopyDefaults(source, target)
 	end
 end
 
+---Copies keys from source to target, overwriting target keys (recursive).
+---@param source table Source table.
+---@param target table Target table to merge into.
+---@return nil
 local function DeepMerge(source, target)
-	-- Like DeepCopy but overwrites target keys with source keys
 	for k, v in pairs(source) do
 		if type(v) == "table" then
 			target[k] = target[k] or {};
@@ -29,6 +34,10 @@ local function DeepMerge(source, target)
 	end
 end
 
+---Returns a minimal table containing only values from current that differ from default.
+---@param current table The table with current values.
+---@param default table? Optional default table to compare against.
+---@return table minimal The minimal table with only differing values.
 local function GetMinimalTable(current, default)
 	local minimal = {};
 	for k, v in pairs(current) do
@@ -61,11 +70,12 @@ end
 ---@field FlashTaskbar boolean Whether to flash the taskbar on alerts.
 ---@field Flyway SIPPYCUPFlyway Database patch versioning and migration tracking.
 ---@field InsufficientReminder boolean Whether to show a reminder if not enough consumables are found.
+---@field MinimapButton SIPPYCUPMinimapSettings Configuration for the minimap button.
 ---@field MSPStatusCheck boolean Whether to check MSP OOC status before alerting.
 ---@field PopupPosition string Position of the popup ("TOP", "BOTTOM", etc.).
 ---@field PreExpirationChecks boolean Whether to perform checks shortly before aura expiration.
+---@field UseToyCooldown boolean Whether to use toy cooldowns for popups instead.
 ---@field WelcomeMessage boolean Whether to display a welcome message on login.
----@field MinimapButton SIPPYCUPMinimapSettings Configuration for the minimap button.
 
 ---Minimap button configuration options.
 ---@class SIPPYCUPMinimapSettings
@@ -115,10 +125,13 @@ local defaults = SIPPYCUP.Database.defaults;
 ---@field noAuraTrackable boolean Whether this option can be tracked via its aura or not.
 ---Populate the default option's table keyed by aura ID, with all known entries from SIPPYCUP.Options.Data.
 ---This defines initial tracking settings for each option by its aura ID key.
+---@return nil
 local function PopulateDefaultOptions()
-	for _, option in ipairs(SIPPYCUP.Options.Data) do
+	local optionsData = SIPPYCUP.Options.Data;
+	for i = 1, #optionsData do
+		local option = optionsData[i];
 		local spellID = option.auraID;
-		local noAuraTrackable = option.itemTrackable or option.spellTrackable;
+		local noAuraTrackable = not (option.itemTrackable or option.spellTrackable);
 
 		if spellID then
 			-- Use auraID as the key, not profileKey
@@ -144,32 +157,29 @@ SIPPYCUP.Database.noAuraTrackableProfile = {}; -- itemID --> profile data (only 
 ---@return nil
 function SIPPYCUP.Database.RebuildAuraMap()
 	-- Reset fast lookup tables
-	wipe(SIPPYCUP.Database.auraToProfile);
-	wipe(SIPPYCUP.Database.instanceToProfile);
-	wipe(SIPPYCUP.Database.noAuraTrackableProfile);
+	local db = SIPPYCUP.Database;
+	wipe(db.auraToProfile);
+	wipe(db.instanceToProfile);
+	wipe(db.noAuraTrackableProfile);
 
 	for _, profileOptionData in pairs(SIPPYCUP.profile) do
 		if profileOptionData.enable and profileOptionData.aura then
 			local auraID = profileOptionData.aura;
-			SIPPYCUP.Database.auraToProfile[auraID] = profileOptionData;
+			db.auraToProfile[auraID] = profileOptionData;
 
 			-- Update instance ID if aura is currently active
 			local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(auraID);
-			if auraInfo then
-				local instanceID = auraInfo.auraInstanceID;
-				profileOptionData.currentInstanceID = instanceID;
-				if instanceID then
-					SIPPYCUP.Database.instanceToProfile[instanceID] = profileOptionData;
-				end
-			else
-				profileOptionData.currentInstanceID = nil;
+			local instanceID = auraInfo and auraInfo.auraInstanceID;
+			profileOptionData.currentInstanceID = instanceID;
+			if instanceID then
+				db.instanceToProfile[instanceID] = profileOptionData;
 			end
 
 			-- Handle options that are trackable without auras (via itemID)
 			if profileOptionData.noAuraTrackable then
 				local optionData = SIPPYCUP.Options.ByAuraID[auraID];
 				if optionData and optionData.itemID then
-					SIPPYCUP.Database.noAuraTrackableProfile[optionData.itemID] = profileOptionData;
+					db.noAuraTrackableProfile[optionData.itemID] = profileOptionData;
 				end
 			end
 		end
@@ -185,65 +195,58 @@ function SIPPYCUP.Database.UpdateAuraMapForOption(profileOptionData, enabled)
 		return;
 	end
 
+	local db = SIPPYCUP.Database;
 	local auraID = profileOptionData.aura;
+	local optionData = SIPPYCUP.Options.ByAuraID[auraID];
 
 	if enabled then
 		-- Add/update auraToProfile
-		SIPPYCUP.Database.auraToProfile[auraID] = profileOptionData;
+		db.auraToProfile[auraID] = profileOptionData;
 
 		-- Update instanceToProfile if aura is currently active
 		local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(auraID);
-		if auraInfo then
-			local instanceID = auraInfo.auraInstanceID;
-			profileOptionData.currentInstanceID = instanceID;
-
-			if instanceID then
-				SIPPYCUP.Database.instanceToProfile[instanceID] = profileOptionData;
-			end
-		else
-			profileOptionData.currentInstanceID = nil;
+		local instanceID = auraInfo and auraInfo.auraInstanceID;
+		profileOptionData.currentInstanceID = instanceID;
+		if instanceID then
+			db.instanceToProfile[instanceID] = profileOptionData;
 		end
 
 		-- Update noAuraTrackableProfile if applicable
-		if profileOptionData.noAuraTrackable then
-			local optionData = SIPPYCUP.Options.ByAuraID[auraID];
-			if optionData and optionData.itemID then
-				SIPPYCUP.Database.noAuraTrackableProfile[optionData.itemID] = profileOptionData;
-			end
+		if profileOptionData.noAuraTrackable and optionData and optionData.itemID then
+			db.noAuraTrackableProfile[optionData.itemID] = profileOptionData;
 		end
 	else
 		-- Remove from auraToProfile
-		SIPPYCUP.Database.auraToProfile[auraID] = nil;
+		db.auraToProfile[auraID] = nil;
 
 		-- Remove from instanceToProfile if currentInstanceID is set
 		local instanceID = profileOptionData.currentInstanceID;
 		if instanceID then
-			SIPPYCUP.Database.instanceToProfile[instanceID] = nil;
+			db.instanceToProfile[instanceID] = nil;
 			profileOptionData.currentInstanceID = nil;
 		end
 
 		-- Remove from noAuraTrackableProfile if applicable
-		if profileOptionData.noAuraTrackable then
-			local optionData = SIPPYCUP.Options.ByAuraID[auraID];
-			if optionData and optionData.itemID then
-				SIPPYCUP.Database.noAuraTrackableProfile[optionData.itemID] = nil;
-			end
+		if profileOptionData.noAuraTrackable and optionData and optionData.itemID then
+			db.noAuraTrackableProfile[optionData.itemID] = nil;
 		end
 	end
 end
 
----FindMatchingProfile returns profile data matching a spell ID, aura instance ID, or item ID.
----@param spellId number? Spell ID to match against `auraToProfile`.
----@param instanceID number? Aura instance ID to match against `instanceToProfile`.
----@param itemID number? Item ID to match against `noAuraTrackableProfile`.
----@return SIPPYCUPProfileOption|nil profileOptionData #Matching profile entry if found, otherwise nil.
+---Returns profile data matching spell ID, aura instance ID, or item ID.
+---@param spellId number? Spell ID to match `auraToProfile`.
+---@param instanceID number? Aura instance ID to match `instanceToProfile`.
+---@param itemID number? Item ID to match `noAuraTrackableProfile`.
+---@return SIPPYCUPProfileOption? profileOptionData
 function SIPPYCUP.Database.FindMatchingProfile(spellId, instanceID, itemID)
+	local db = SIPPYCUP.Database;
+
 	if spellId ~= nil then
-		return SIPPYCUP.Database.auraToProfile[spellId];
+		return db.auraToProfile[spellId];
 	elseif instanceID ~= nil then
-		return SIPPYCUP.Database.instanceToProfile[instanceID];
+		return db.instanceToProfile[instanceID];
 	elseif itemID ~= nil then
-		return SIPPYCUP.Database.noAuraTrackableProfile[itemID];
+		return db.noAuraTrackableProfile[itemID];
 	end
 
 	return nil;
@@ -258,6 +261,12 @@ table.sort(categories, function(a, b)
 	return SIPPYCUP_TEXT.Normalize(locA:lower()) < SIPPYCUP_TEXT.Normalize(locB:lower());
 end);
 
+local function cleanEmptyTable(tbl, key)
+	if tbl[key] and next(tbl[key]) == nil then
+		tbl[key] = nil
+	end
+end
+
 ---UpdateSetting updates a value in the saved minimal table and runtime resolved table.
 ---If the value matches default, it removes the saved override to keep minimal data clean.
 ---@param scope string Either "profile" or "global"
@@ -267,9 +276,7 @@ end);
 ---@return boolean success True if update was successful, false if scope invalid or profile missing.
 function SIPPYCUP.Database.UpdateSetting(scope, key, subKey, value)
 	local db = SIPPYCUP.db;
-	local defaultTable;
-	local targetMinimal;
-	local targetRuntime;
+	local defaultTable, targetMinimal, targetRuntime;
 
 	if scope == "profile" then
 		local profileName = SIPPYCUP.Database.GetCurrentProfileName();
