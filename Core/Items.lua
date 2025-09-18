@@ -247,7 +247,6 @@ function SIPPYCUP.Items.CheckNoAuraSingleOption(profileOptionData, spellID, minS
 	if remaining > 0 and remaining <= windowHigh then
 		-- Schedule for “preOffset” seconds before expiration
 		local fireIn = remaining - preOffset;
-		local reason;
 
 		if fireIn <= 0 then
 			-- Less than 60s left and we want pre-expiration popup: fire immediately
