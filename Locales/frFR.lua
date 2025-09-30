@@ -20,7 +20,7 @@ L = {
 	POPUP_LOW_STACK_COUNT_TEXT = "Faible nombre de stacks !",
 	POPUP_NOT_ACTIVE_TEXT = "Inactif !",
 	POPUP_EXPIRING_SOON_TEXT = "Expire bientôt !",
-	POPUP_IGNORE_TT = "Bloque les rappels pour ce consommable jusqu'à la prochaine session.", -- (TEXT CHANGE IN ENGLISH)
+	POPUP_IGNORE_TT = "Bloque les rappels pour ce consommable/jouet jusqu'à la prochaine session.",
 	POPUP_LINK = "|n|nAppuyez sur |cnGREEN_FONT_COLOR:CTRL-C|r pour copier le texte surligné, puis copiez dans votre navigateur avec |cnGREEN_FONT_COLOR:CTRL-V|r.",
 	COPY_SYSTEM_MESSAGE = "Copié dans le presse-papiers.",
 
@@ -39,11 +39,11 @@ L = {
 	OPTIONS_GENERAL_POPUPS_POSITION_NAME = "Position",
 	OPTIONS_GENERAL_POPUPS_POSITION_DESC = "Sélectionne où vous souhaitez que les fenêtres de rappel s'affichent sur votre écran.",
 	OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE = "Rappel pré-expiration",
-	OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE_DESC = "Active l'affichage des rappels pré-expiration juste avant que le consommable expire.|n|n|cnWARNING_FONT_COLOR:Tous les objets ne supportent pas cette option; voir l'infobulle quand activé.|r", -- UPDATED
+	OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE_DESC = "Active l'affichage des rappels pré-expiration juste avant que le consommable/jouet expire.|n|n|cnWARNING_FONT_COLOR:Tous les objets ne supportent pas cette option; voir l'infobulle quand activé.|r",
 	OPTIONS_GENERAL_POPUPS_INSUFFICIENT_REMINDER_ENABLE = "Rappel insuffisant",
 	OPTIONS_GENERAL_POPUPS_INSUFFICIENT_REMINDER_ENABLE_DESC = "Active l'affichage d'un rappel lorsque la quantité de consommables est insuffisante pour le prochain rafraîchissement.",
-	OPTIONS_GENERAL_POPUPS_TRACK_TOY_ITEM_CD_ENABLE = "Use Toy Cooldown", -- (NEW)
-	OPTIONS_GENERAL_POPUPS_TRACK_TOY_ITEM_CD_ENABLE_DESC = "Toggles tracking toy cooldowns from the toy itself instead of its effect, ensuring the popup only appears when the toy can be used.|n|n|cnWARNING_FONT_COLOR:This only affects 'Cooldown Mismatch' toys.|r", -- (NEW)
+	OPTIONS_GENERAL_POPUPS_TRACK_TOY_ITEM_CD_ENABLE = "Utiliser la recharge du jouet",
+	OPTIONS_GENERAL_POPUPS_TRACK_TOY_ITEM_CD_ENABLE_DESC = "Active le suivi du temps de recharge du jouet directement au lieu de la durée de son effet, s'assurant que la fenêtre de rappel ne s'affiche que lorsque l'objet peut être utilisé.|n|n|cnWARNING_FONT_COLOR:Ceci n'affecte que les jouets avec 'Recharge décalée'.|r",
 	OPTIONS_GENERAL_POPUPS_IGNORES = "Réinitialiser fenêtres ignorées",
 	OPTIONS_GENERAL_POPUPS_IGNORES_TEXT = "Réinitialise toutes les fenêtres de rappel ignorées durant cette session, les rendant à nouveau visibles.",
 	OPTIONS_GENERAL_POPUPS_ALERT_SOUND_DESC = "Choisit quel son est joué lorsque la fenêtre de rappel est affichée.",
@@ -66,48 +66,48 @@ L = {
 	-- Generic
 	OPTIONS_SLIDER_TEXT = "Définit le nombre de stacks désirés pour |cnGREEN_FONT_COLOR:%s|r.|n|nLes rappels continueront de s'afficher jusqu'à ce que le nombre de stacks désirés soit atteint.",
 	OPTIONS_DESIRED_STACKS = "Stacks désirés",
-	OPTIONS_TITLE_EXTRA = "|n|nNote : Au login, une fenêtre apparaîtra pour les consommables suivis avec des stacks actifs. Si l'option \"Seulement quand le personnage est joué\" est activée, elle vous rappelera aussi pour les stacks inactifs.", -- (TEXT CHANGE IN ENGLISH)
+	OPTIONS_TITLE_EXTRA = "|n|nNote : Au login, une fenêtre apparaîtra pour les consommables/jouets suivis avec des stacks actifs. Si l'option \"Seulement quand le personnage est joué\" est activée, elle vous rappelera aussi pour les stacks inactifs.",
 	OPTIONS_LEGENDA_PRE_EXPIRATION_NAME = "Gestion pré-expiration",
-	OPTIONS_LEGENDA_PRE_EXPIRATION_DESC = "Ce consommable supporte les rappels pré-expiration et vous notifiera juste avant qu'il expire si l'option de rappel pré-expiration est activée.", -- (TEXT CHANGE IN ENGLISH)
+	OPTIONS_LEGENDA_PRE_EXPIRATION_DESC = "Ce consommable/jouet supporte les rappels pré-expiration et vous notifiera juste avant qu'il expire si l'option de rappel pré-expiration est activée.",
 	OPTIONS_LEGENDA_NON_REFRESHABLE_NAME = "Non-rafraîchissable",
-	OPTIONS_LEGENDA_NON_REFRESHABLE_DESC = "Rafraîchir ce consommable trop tôt le gaspille sans renouveler l'effet ou la durée.", -- (TEXT CHANGE IN ENGLISH)
+	OPTIONS_LEGENDA_NON_REFRESHABLE_DESC = "Rafraîchir ce consommable/jouet trop tôt le gaspille sans renouveler l'effet ou la durée.",
 	OPTIONS_LEGENDA_STACKS_NAME = "Gestion nombre de stacks",
-	OPTIONS_LEGENDA_STACKS_DESC = "Ce consommable supporte la définition d'un nombre de stacks désirés et vous rappelera lorsque vos stacks actuels sont en-dessous de ce nombre.", -- (TEXT CHANGE IN ENGLISH)
+	OPTIONS_LEGENDA_STACKS_DESC = "Ce consommable/jouet supporte la définition d'un nombre de stacks désirés et vous rappelera lorsque vos stacks actuels sont en-dessous de ce nombre.",
 	OPTIONS_LEGENDA_NO_AURA_NAME = "Limitations du suivi",
-	OPTIONS_LEGENDA_NO_AURA_DESC = "Ce consommable est plus difficile à suivre et peut occasionnellement causer des irrégularités.", -- (TEXT CHANGE IN ENGLISH)
-	OPTIONS_LEGENDA_COOLDOWN_NAME = "Cooldown Mismatch", -- (NEW)
-	OPTIONS_LEGENDA_COOLDOWN_DESC = "This consumable/toy has a longer cooldown than its effect duration, which may cause the reminder popup to appear while the refresh button is still on cooldown.|n|n|cnWARNING_FONT_COLOR:This can be mitigated by enabling 'Use Toy Cooldown' in the General menu.|r", -- (NEW)
+	OPTIONS_LEGENDA_NO_AURA_DESC = "Ce consommable/jouet est plus difficile à suivre et peut occasionnellement causer des irrégularités.",
+	OPTIONS_LEGENDA_COOLDOWN_NAME = "Recharge décalée",
+	OPTIONS_LEGENDA_COOLDOWN_DESC = "Ce consommable/jouet a un temps de recharge plus long que la durée de son effet, ce qui peut causer l'apparition de la fenêtre de rappel alors que le bouton de rafraîchissement est toujours en recharge.|n|n|cnWARNING_FONT_COLOR:Ceci peut être compensé en activant 'Utiliser la recharge du jouet' dans le menu Général.|r",
 
 	-- Appearance
 	OPTIONS_TAB_APPEARANCE_TITLE = "Apparence",
-	OPTIONS_TAB_APPEARANCE_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables qui altèrent votre apparence.", -- (TEXT CHANGE IN ENGLISH)
+	OPTIONS_TAB_APPEARANCE_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables/jouets qui altèrent votre apparence.",
 
 	-- Effect
 	OPTIONS_TAB_EFFECT_TITLE = "Effet",
-	OPTIONS_TAB_EFFECT_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables qui appliquent un effet visuel.", -- (TEXT CHANGE IN ENGLISH)
+	OPTIONS_TAB_EFFECT_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables/jouets qui appliquent un effet visuel.",
 
 	-- Handheld
 	OPTIONS_TAB_HANDHELD_TITLE = "En main",
-	OPTIONS_TAB_HANDHELD_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables qui font porter un objet à votre personnage.", -- (TEXT CHANGE IN ENGLISH)
+	OPTIONS_TAB_HANDHELD_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables/jouets qui font porter un objet à votre personnage.",
 
 	-- Placement
 	OPTIONS_TAB_PLACEMENT_TITLE = "Placement",
-	OPTIONS_TAB_PLACEMENT_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables qui sont placés au sol.", -- (TEXT CHANGE IN ENGLISH)
+	OPTIONS_TAB_PLACEMENT_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables/jouets qui sont placés au sol.", 
 
 	-- Prism
 	OPTIONS_TAB_PRISM_TITLE = "Prisme",
-	OPTIONS_TAB_PRISM_INSTRUCTION = "Ces options contrôlent tous les rappels pour les prismes consommables qui altèrent votre apparence.", -- (TEXT CHANGE IN ENGLISH)
+	OPTIONS_TAB_PRISM_INSTRUCTION = "Ces options contrôlent tous les rappels pour les prismes consommables/jouets qui altèrent votre apparence.",
 
 	-- Size
 	OPTIONS_TAB_SIZE_TITLE = "Taille",
-	OPTIONS_TAB_SIZE_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables qui changent la taille de votre personnage.",
+	OPTIONS_TAB_SIZE_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables/jouets qui changent la taille de votre personnage.",
 
 	--/ Addon Compartment /--
 	ADDON_COMPARTMENT_DESC = "|cnGREEN_FONT_COLOR:Clic gauche : Ouvrir les options|nClic droit : Ouvrir les profils|r",
 
 	-- Profiles
 	OPTIONS_PROFILES_HEADER = "Profils",
-	OPTIONS_PROFILES_INSTRUCTION = "Les paramètres dans l'onglet Général sont globaux, tandis que les paramètres de consommables sont spécifiques au profil.", -- (TEXT CHANGE IN ENGLISH)
+	OPTIONS_PROFILES_INSTRUCTION = "Les paramètres dans l'onglet Général sont globaux, tandis que les paramètres de consommables/jouets sont spécifiques au profil.",
 	OPTIONS_PROFILES_RESETBUTTON_NAME = "Réinitialiser profil",
 	OPTIONS_PROFILES_RESETBUTTON_DESC = "Réinitialise le profil actuel avec les paramètres par défaut.",
 	OPTIONS_PROFILES_CURRENTPROFILE = "Profil actuel : %s",
