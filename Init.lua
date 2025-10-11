@@ -30,7 +30,7 @@ end
 
 SIPPYCUP.Events = {
 	-- Startup
-	CONSUMABLES_LOADED = "CONSUMABLES_LOADED",
+	OPTIONS_LOADED = "OPTIONS_LOADED",
 	DATABASE_LOADED = "DATABASE_LOADED",
 	ADDON_IS_READY = "ADDON_IS_READY",
 
@@ -41,7 +41,7 @@ SIPPYCUP.Events = {
 
 SIPPYCUP.States = {
 	addonReady = false,
-	consumablesLoaded = false,
+	optionsLoaded = false,
 	databaseLoaded = false,
 	hasSeenFullUpdate = false,
 	loadingScreen = true,

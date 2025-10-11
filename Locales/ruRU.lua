@@ -11,15 +11,15 @@ L = {
 	WELCOMEMSG_OPTIONS = "Настройки доступны через |cnGREEN_FONT_COLOR:/sc|r или |cnGREEN_FONT_COLOR:/sippycup|r.",
 
 	--/ Popup dialog /--
-	POPUP_ON_COOLDOWN_TEXT = "currently on cooldown.", -- NEW
+	POPUP_ON_COOLDOWN_TEXT = "currently on cooldown.", -- (NEW)
 	POPUP_IN_FLIGHT_TEXT = "Disabled to prevent dismount during flight.", -- (NEW)
 	POPUP_FOOD_BUFF_TEXT = "Disappears once food buff is applied. Do not move!", -- (NEW)
 	POPUP_NOT_IN_INVENTORY_TEXT = "не найден в вашем инвентаре.", -- (TEXT CHANGE IN ENGLISH)
-	POPUP_NOT_ENOUGH_IN_INVENTORY_TEXT = "недостаточно в вашем инвентаре.|n(%d missing)", -- NEW (Ending)
-	POPUP_INSUFFICIENT_NEXT_REFRESH_TEXT = "insufficient (%d / %d) for next refresh.", -- NEW
+	POPUP_NOT_ENOUGH_IN_INVENTORY_TEXT = "недостаточно в вашем инвентаре.|n(%d missing)", -- (NEW) (Ending)
+	POPUP_INSUFFICIENT_NEXT_REFRESH_TEXT = "insufficient (%d / %d) for next refresh.", -- (NEW)
 	POPUP_LOW_STACK_COUNT_TEXT = "не соответствует желаемому количеству в стопке!", -- (TEXT CHANGE IN ENGLISH)
-	POPUP_NOT_ACTIVE_TEXT = "is not active!", -- NEW
-	POPUP_EXPIRING_SOON_TEXT = "is expiring soon!", -- NEW
+	POPUP_NOT_ACTIVE_TEXT = "is not active!", -- (NEW)
+	POPUP_EXPIRING_SOON_TEXT = "is expiring soon!", -- (NEW)
 	POPUP_IGNORE_TT = "блокирует напоминания до следующей сессии.", -- (TEXT CHANGE IN ENGLISH)
 	POPUP_LINK = "|n|nНажмите |cnGREEN_FONT_COLOR:CTRL-C|r, чтобы скопировать выделенное, затем вставьте в браузер с помощью |cnGREEN_FONT_COLOR:CTRL-V|r.",
 	COPY_SYSTEM_MESSAGE = "Скопировано в буфер обмена.",
@@ -38,10 +38,12 @@ L = {
 	OPTIONS_GENERAL_POPUPS_HEADER = "Всплывающие напоминания",
 	OPTIONS_GENERAL_POPUPS_POSITION_NAME = "Положение",
 	OPTIONS_GENERAL_POPUPS_POSITION_DESC = "Выберите, где на экране будут отображаться всплывающие напоминания.",
-	OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE = "Pre-Expiration Reminder", -- NEW
-	OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE_DESC = "Toggles whether pre-expiration reminders should show close to the consumable expiring.|n|n|cnWARNING_FONT_COLOR:Keep in mind that not all items support this (it will be displayed on the enable tooltip).|r", -- NEW
-	OPTIONS_GENERAL_POPUPS_INSUFFICIENT_REMINDER_ENABLE = "Insufficient Reminder", -- NEW
-	OPTIONS_GENERAL_POPUPS_INSUFFICIENT_REMINDER_ENABLE_DESC = "Toggles whether an insufficient quantity popup for next refresh should show.", -- NEW
+	OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE = "Pre-Expiration Reminder", -- (NEW)
+	OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE_DESC = "Toggles whether pre-expiration reminders should show close to the consumable expiring.|n|n|cnWARNING_FONT_COLOR:Keep in mind that not all items support this (it will be displayed on the enable tooltip).|r", -- (NEW)
+	OPTIONS_GENERAL_POPUPS_INSUFFICIENT_REMINDER_ENABLE = "Insufficient Reminder", -- (NEW)
+	OPTIONS_GENERAL_POPUPS_INSUFFICIENT_REMINDER_ENABLE_DESC = "Toggles whether an insufficient quantity popup for next refresh should show.", -- (NEW)
+	OPTIONS_GENERAL_POPUPS_TRACK_TOY_ITEM_CD_ENABLE = "Use Toy Cooldown", -- (NEW)
+	OPTIONS_GENERAL_POPUPS_TRACK_TOY_ITEM_CD_ENABLE_DESC = "Toggles tracking toy cooldowns from the toy itself instead of its effect, ensuring the popup only appears when the toy can be used.|n|n|cnWARNING_FONT_COLOR:This only affects 'Cooldown Mismatch' toys.|r", -- (NEW)
 	OPTIONS_GENERAL_POPUPS_IGNORES = "Сбросить проигнорированные напоминания",
 	OPTIONS_GENERAL_POPUPS_IGNORES_TEXT = "Сбросить все всплывающие напоминания, проигнорированные в этой сессии, чтобы они снова стали видны.", -- (TEXT CHANGE IN ENGLISH)
 	OPTIONS_GENERAL_POPUPS_ALERT_SOUND_DESC = "Выберите звук, который будет воспроизводиться при появлении всплывающего напоминания.", -- (TEXT CHANGE IN ENGLISH)
@@ -74,30 +76,32 @@ L = {
 	OPTIONS_LEGENDA_STACKS_DESC = "This consumable supports setting a desired stack count and will remind you when your current stacks are below that number.", -- (NEW)
 	OPTIONS_LEGENDA_NO_AURA_NAME = "Tracking Limitations", -- (NEW)
 	OPTIONS_LEGENDA_NO_AURA_DESC = "This consumable is harder to track and may occasionally cause irregularities.", -- (NEW)
+	OPTIONS_LEGENDA_COOLDOWN_NAME = "Cooldown Mismatch", -- (NEW)
+	OPTIONS_LEGENDA_COOLDOWN_DESC = "This consumable/toy has a longer cooldown than its effect duration, which may cause the reminder popup to appear while the refresh button is still on cooldown.|n|n|cnWARNING_FONT_COLOR:This can be mitigated by enabling 'Use Toy Cooldown' in the General menu.|r", -- (NEW)
 
 	-- Appearance
-	OPTIONS_CONSUMABLE_APPEARANCE_TITLE = "Appearance", -- NEW
-	OPTIONS_CONSUMABLE_APPEARANCE_INSTRUCTION = "These options control all reminders for consumables that alter your appearance.", -- NEW
+	OPTIONS_TAB_APPEARANCE_TITLE = "Appearance", -- (NEW)
+	OPTIONS_TAB_APPEARANCE_INSTRUCTION = "These options control all reminders for consumables/toys that alter your appearance.", -- (NEW)
 
 	-- Effect
-	OPTIONS_CONSUMABLE_EFFECT_TITLE = "Эффект",
-	OPTIONS_CONSUMABLE_EFFECT_INSTRUCTION = "Эти настройки управляют всеми напоминаниями о расходуемых предметах, которые создают эффект.",
+	OPTIONS_TAB_EFFECT_TITLE = "Эффект",
+	OPTIONS_TAB_EFFECT_INSTRUCTION = "Эти настройки управляют всеми напоминаниями о расходуемых предметах, которые создают эффект.",
 
 	-- Handheld
-	OPTIONS_CONSUMABLE_HANDHELD_TITLE = "Handheld", -- NEW
-	OPTIONS_CONSUMABLE_HANDHELD_INSTRUCTION = "These options control all reminders for consumables that make the character hold something.", -- NEW
+	OPTIONS_TAB_HANDHELD_TITLE = "Handheld", -- (NEW)
+	OPTIONS_TAB_HANDHELD_INSTRUCTION = "These options control all reminders for consumables/toys that make the character hold something.", -- (NEW)
 
 	-- Placement
-	OPTIONS_CONSUMABLE_PLACEMENT_TITLE = "Placement", -- NEW
-	OPTIONS_CONSUMABLE_PLACEMENT_INSTRUCTION = "These options control all reminders for consumables that can be placed on the ground.", -- NEW
+	OPTIONS_TAB_PLACEMENT_TITLE = "Placement", -- (NEW)
+	OPTIONS_TAB_PLACEMENT_INSTRUCTION = "These options control all reminders for consumables/toys that can be placed on the ground.", -- (NEW)
 
 	-- Prism
-	OPTIONS_CONSUMABLE_PRISM_TITLE = "Prism", -- NEW
-	OPTIONS_CONSUMABLE_PRISM_INSTRUCTION = "These options control all reminders for prism consumables to alter your appearance.", -- NEW
+	OPTIONS_TAB_PRISM_TITLE = "Prism", -- (NEW)
+	OPTIONS_TAB_PRISM_INSTRUCTION = "These options control all reminders for prism consumables/toys to alter your appearance.", -- (NEW)
 
 	-- Size
-	OPTIONS_CONSUMABLE_SIZE_TITLE = "Размер",
-	OPTIONS_CONSUMABLE_SIZE_INSTRUCTION = "Эти настройки управляют всеми напоминаниями о расходуемых предметах, которые изменяют размер персонажа.",
+	OPTIONS_TAB_SIZE_TITLE = "Размер",
+	OPTIONS_TAB_SIZE_INSTRUCTION = "Эти настройки управляют всеми напоминаниями о расходуемых предметах, которые изменяют размер персонажа.",
 
 	--/ Addon Compartment /--
 	ADDON_COMPARTMENT_DESC = "|cnGREEN_FONT_COLOR:ЛКМ: Открыть настройки|nПКМ: Открыть профили|r",

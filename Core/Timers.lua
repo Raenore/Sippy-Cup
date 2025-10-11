@@ -18,7 +18,7 @@ function SIPPYCUP_Addon:StartContinuousCheck()
 	-- Both below timers don't need an immediate run as startup + new enables run these partially.
 
 	createTicker(self, "preExpTicker", CONTINUOUS_CHECK_INTERVAL, function()
-		SIPPYCUP.Auras.CheckPreExpirationForAllActiveConsumables();
+		SIPPYCUP.Auras.CheckPreExpirationForAllActiveOptions();
 	end)
 
 	createTicker(self, "itemTicker", CONTINUOUS_CHECK_INTERVAL, function()
