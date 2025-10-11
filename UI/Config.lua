@@ -1520,7 +1520,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 		local instruction = L["OPTIONS_TAB_" .. categoryName .. "_INSTRUCTION"] or "";
 		CreateTitleWithDescription(categoryPanel, title, instruction, true);
 
-		local categoryData = {};
+		local categoryConsumablesData = {};
 
 		for _, optionData in ipairs(SIPPYCUP.Options.Data) do
 			if optionData.category == categoryName and optionData.type == 0 then
@@ -1532,7 +1532,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 
 				local checkboxProfileKey = consumableAura;
 
-				categoryData[#categoryData + 1] = {
+				categoryConsumablesData[#categoryConsumablesData + 1] = {
 					dataType = consumableType,
 					type = "checkbox",
 					label = consumableName,
@@ -1557,7 +1557,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 				if optionData.stacks then
 					local sliderProfileKey = consumableAura;
 
-					categoryData[#categoryData + 1] = {
+					categoryConsumablesData[#categoryConsumablesData + 1] = {
 						dataType = consumableType,
 						type = "slider",
 						label = L.OPTIONS_DESIRED_STACKS,
@@ -1582,12 +1582,16 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			end
 		end
 
-		CreateCategoryHeader(categoryPanel, BAG_FILTER_CONSUMABLES);
-		local widgets = CreateWidgetRowContainer(categoryPanel, categoryData, 2, 40, 20, true);
-		self.profileWidgets[#self.profileWidgets + 1] = widgets;
-		self.allWidgets[#self.allWidgets + 1] = widgets;
+		if #categoryConsumablesData > 0 then
+			CreateCategoryHeader(categoryPanel, BAG_FILTER_CONSUMABLES);
 
-		categoryData = {};
+			local widgets = CreateWidgetRowContainer(categoryPanel, categoryConsumablesData, 2, 40, 20, true);
+
+			self.profileWidgets[#self.profileWidgets + 1] = widgets;
+			self.allWidgets[#self.allWidgets + 1] = widgets;
+		end
+
+		local categoryToysData = {};
 
 		for _, optionData in ipairs(SIPPYCUP.Options.Data) do
 			if optionData.category == categoryName and optionData.type == 1 then
@@ -1599,7 +1603,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 
 				local checkboxProfileKey = toyAura;
 
-				categoryData[#categoryData + 1] = {
+				categoryToysData[#categoryToysData + 1] = {
 					dataType = toyType,
 					type = "checkbox",
 					label = toyName,
@@ -1627,7 +1631,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 				if optionData.stacks then
 					local sliderProfileKey = toyAura;
 
-					categoryData[#categoryData + 1] = {
+					categoryToysData[#categoryToysData + 1] = {
 						type = "slider",
 						label = L.OPTIONS_DESIRED_STACKS,
 						tooltip = L.OPTIONS_SLIDER_TEXT and L.OPTIONS_SLIDER_TEXT:format(toyName) or nil,
@@ -1651,12 +1655,14 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			end
 		end
 
-		CreateCategoryHeader(categoryPanel, TOY_BOX);
+		if #categoryToysData > 0 then
+			CreateCategoryHeader(categoryPanel, TOY_BOX);
 
-		widgets = CreateWidgetRowContainer(categoryPanel, categoryData, 2, 40, 20, true);
+			local widgets = CreateWidgetRowContainer(categoryPanel, categoryToysData, 2, 40, 20, true);
 
-		self.profileWidgets[#self.profileWidgets + 1] = widgets;
-		self.allWidgets[#self.allWidgets + 1] = widgets;
+			self.profileWidgets[#self.profileWidgets + 1] = widgets;
+			self.allWidgets[#self.allWidgets + 1] = widgets;
+		end
 
 		-- update scroll content height & scrollbar visibility
 		UpdateScrollableContentHeight(categoryPanel);
