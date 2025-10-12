@@ -525,6 +525,7 @@ stds.wow = {
 		"IsMetaKeyDown",
 		"IsModifierKeyDown",
 		"IsMounted",
+		"issecretvalue",
 		"IsShiftKeyDown",
 		"IsSpellKnown",
 		"IsTrialAccount",
