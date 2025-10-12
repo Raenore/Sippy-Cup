@@ -585,7 +585,7 @@ function SIPPYCUP.Popups.Toggle(itemName, auraID, enabled)
 	elseif trackBySpell then
 		SIPPYCUP_OUTPUT.Debug("Tracking through Spell");
 		local spellCooldownInfo = C_Spell.GetSpellCooldown(optionData.auraID);
-		startTime = spellCooldownInfo and spellCooldownInfo.startTime;
+		startTime = not issecretvalue(spellCooldownInfo) and spellCooldownInfo and spellCooldownInfo.startTime;
 		if startTime and startTime > 0 then
 			active = true;
 		end
