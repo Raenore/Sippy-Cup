@@ -1,4 +1,4 @@
-## Interface: 110205, 110200
+## Interface: 120000, 110205
 ## Title: |cnCONTEXT_FEEDBACK_COLOR:Sippy Cup|r
 ## Author: Raenore (Argent Dawn EU)
 ## Version: @project-version@
@@ -22,7 +22,7 @@
 ## OptionalDeps: ElvUI, totalRP3, MyRolePlay, XRP
 ## SavedVariables: SippyCupDB
 
-## X-Build: 110205, 110200
+## X-Build: 120000, 110205
 ## X-Category: Roleplay
 ## X-Curse-Project-ID: 1245290
 ## X-Wago-ID: 96doOnNO
