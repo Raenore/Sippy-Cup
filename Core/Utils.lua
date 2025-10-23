@@ -46,10 +46,18 @@ function SIPPYCUP_BUILDINFO.Output(colorized)
 	end
 
 	local output;
+
+	-- Try to find a match in addonBuild
 	for token in string.gmatch(addonBuild, "[^,%s]+") do
 		if token == liveBuild then
 			output = FormatBuild(token);
+			break;
 		end
+	end
+
+	-- Fallback if no match was found
+	if not output then
+		output = FormatBuild(addonBuild);
 	end
 
 	if colorized then
