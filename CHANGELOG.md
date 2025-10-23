@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.1] - 2025-10-23  
+Minor bugfixes for issues that appeared with Patch 11.2.5.  
+
+### Added  
+- Added additional tooltip information to the refresh button when an aura is applied after a delay (e.g., from eating food for several seconds) ([#69](https://github.com/Raenore/Sippy-Cup/pull/69)).  
+
+### Fixed  
+- Fixed an issue with parsing build information that caused the addon's settings pages to break.  
+- Fixed a rare issue where the refresh button remained stuck after flight ended ([#68](https://github.com/Raenore/Sippy-Cup/pull/68)).  
+- Fixed tracking for consumables that apply their effects after a delay (e.g., from eating food for several seconds) ([#69](https://github.com/Raenore/Sippy-Cup/pull/69)).  
+
 ## [0.5.0] - 2025-08-25  
 Major patch following the 0.4.0 internal optimizations, targeting further internal reworks and streamlining for performance.  
 
