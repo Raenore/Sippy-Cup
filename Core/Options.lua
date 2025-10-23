@@ -182,6 +182,9 @@ SIPPYCUP.Options.Data = {
 	NewOption{ type = 1, auraID = 1244178, itemID = 246903, category = "EFFECT", preExpiration = true }, -- Guise of the Phase Diver
 
 	NewOption{ type = 1, auraID = 47770, itemID = 36863, category = "EFFECT", itemTrackable = true }, -- Decahedral Dwarven Dice
+
+	-- Midnight
+	NewOption{ auraID = 1250761, itemID = 250325, category = "EFFECT", preExpiration = true }, -- Night's Embrace
 };
 
 local function NormalizeLocName(name)
