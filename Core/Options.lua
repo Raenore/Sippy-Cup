@@ -190,6 +190,8 @@ SIPPYCUP.Options.Data = {
 
 	-- Midnight
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1250761, itemID = 250325, category = "EFFECT", preExpiration = true }, -- Night's Embrace
+
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 987654321, itemID = 987654321, category = "EFFECT", preExpiration = true }, -- Does not exist, test
 };
 
 local function NormalizeLocName(name)
@@ -197,40 +199,71 @@ local function NormalizeLocName(name)
 end
 
 function SIPPYCUP.Options.Setup()
+	local data = SIPPYCUP.Options.Data;
 	local remaining = {};
-	for _, option in ipairs(SIPPYCUP.Options.Data) do
-		remaining[option.itemID] = true;
 
+	-- Build lookups
+	for _, option in ipairs(data) do
+		remaining[option.itemID] = true;
 		SIPPYCUP.Options.ByAuraID[option.auraID] = option;
 		SIPPYCUP.Options.ByItemID[option.itemID] = option;
 	end
 
-	for _, option in ipairs(SIPPYCUP.Options.Data) do
+	-- Fast prune: remove invalid items before async loads
+	for i = #data, 1, -1 do
+		local option = data[i];
+
+		if C_Item.GetItemInfoInstant(option.itemID) == nil then
+			SIPPYCUP.Options.ByAuraID[option.auraID] = nil;
+			SIPPYCUP.Options.ByItemID[option.itemID] = nil;
+
+			table.remove(data, i);
+			remaining[option.itemID] = nil;
+		end
+	end
+
+	-- Early complete if nothing left
+	if next(remaining) == nil then
+		table.sort(data, function(a, b)
+			return SIPPYCUP_TEXT.Normalize(a.name:lower()) < SIPPYCUP_TEXT.Normalize(b.name:lower());
+		end);
+		SIPPYCUP.Callbacks:TriggerEvent(SIPPYCUP.Events.OPTIONS_LOADED);
+		return;
+	end
+
+	-- Finalize when no entries remain
+	local function Finalize()
+		if next(remaining) ~= nil then return end;
+
+		table.sort(data, function(a, b)
+			return SIPPYCUP_TEXT.Normalize(a.name:lower()) < SIPPYCUP_TEXT.Normalize(b.name:lower());
+		end);
+
+		SIPPYCUP.Callbacks:TriggerEvent(SIPPYCUP.Events.OPTIONS_LOADED);
+	end
+
+	-- Async load for all valid items
+	for _, option in ipairs(data) do
 		local item = Item:CreateFromItemID(option.itemID);
+
 		item:ContinueOnItemLoad(function()
-			option.name = item:GetItemName();
+			-- Skip if removed by earlier pruning
+			if not remaining[option.itemID] then return end;
 
-			-- `loc` from name, e.g. "Noggenfogger Select UP" -> "NOGGENFOGGER_SELECT_UP" and "Half-Eaten Takeout" -> "HALF_EATEN_TAKEOUT"
-			option.loc = NormalizeLocName(option.name);
+			local name = item:GetItemName();
 
-			-- `profile` from loc, e.g. "PYGMY_OIL" -> "pygmyOil"
+			option.name = name;
+			option.loc = NormalizeLocName(name);
+
 			option.profile = string.gsub(string.lower(option.loc), "_(%a)", function(c)
 				return c:upper();
 			end);
 
 			option.icon = item:GetItemIcon();
+			SIPPYCUP.Options.ByName[name] = option;
 
 			remaining[option.itemID] = nil;
-			SIPPYCUP.Options.ByName[option.name] = option;
-
-			if next(remaining) == nil then
-				-- All options loaded — safe to proceed
-				table.sort(SIPPYCUP.Options.Data, function(a, b)
-					return SIPPYCUP_TEXT.Normalize(a.name:lower()) < SIPPYCUP_TEXT.Normalize(b.name:lower());
-				end);
-
-				SIPPYCUP.Callbacks:TriggerEvent(SIPPYCUP.Events.OPTIONS_LOADED);
-			end
+			Finalize();
 		end);
 	end
 end

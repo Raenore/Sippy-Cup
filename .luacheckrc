@@ -192,6 +192,7 @@ stds.wow = {
 				"GetItemCount",
 				"GetItemIconByID",
 				"GetItemInfo",
+				"GetItemInfoInstant",
 				"GetItemNameByID",
 				"IsItemInRange",
 				"RequestLoadItemDataByID",
