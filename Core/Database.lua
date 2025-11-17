@@ -241,7 +241,7 @@ end
 function SIPPYCUP.Database.FindMatchingProfile(spellId, instanceID, itemID)
 	local db = SIPPYCUP.Database;
 
-	if not issecretvalue(spellId) and spellId ~= nil then
+	if spellId ~= nil then
 		return db.auraToProfile[spellId];
 	elseif instanceID ~= nil then
 		return db.instanceToProfile[instanceID];
