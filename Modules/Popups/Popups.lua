@@ -676,21 +676,43 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	local reason = data.reason;
 	local active = data.active;
 
+	local trackBySpell = false;
+	local trackByItem = false;
+
+	if optionData.type == SIPPYCUP.Options.Type.CONSUMABLE then
+		trackBySpell = optionData.spellTrackable;
+		trackByItem = optionData.itemTrackable;
+	elseif optionData.type == SIPPYCUP.Options.Type.TOY then
+		-- Always track by item if itemTrackable
+		if optionData.itemTrackable then
+			trackByItem = true;
+		end
+
+		if optionData.spellTrackable then
+			if SIPPYCUP.global.UseToyCooldown then
+				trackByItem = true;
+			else
+				trackBySpell = true;
+			end
+		end
+	end
+
 	-- Extra check because toys have longer cooldowns than option tend to, so don't fire if cd is still up.
 	if optionData.type == SIPPYCUP.Options.Type.TOY and reason == SIPPYCUP.Popups.Reason.REMOVAL then
 		local cooldownActive = false;
+
 		-- If item can only be tracked by the item cooldown (worst)
-		if optionData.itemTrackable then
+		if trackByItem then
+			SIPPYCUP_OUTPUT.Debug("Tracking through Item");
 			local startTime = C_Item.GetItemCooldown(optionData.itemID);
-			SIPPYCUP_OUTPUT.Debug(startTime);
 			if startTime and startTime > 0 then
 				cooldownActive = true;
 			end
 		-- If item can be tracked through the spell cooldown (fine).
-		elseif optionData.spellTrackable then
+		elseif trackBySpell then
+			SIPPYCUP_OUTPUT.Debug("Tracking through Spell");
 			local spellCooldownInfo = C_Spell.GetSpellCooldown(optionData.auraID);
-			local startTime = spellCooldownInfo and spellCooldownInfo.startTime;
-			SIPPYCUP_OUTPUT.Debug(startTime);
+			local startTime = issecretvalue and (not issecretvalue(spellCooldownInfo) and spellCooldownInfo and spellCooldownInfo.startTime) or spellCooldownInfo and spellCooldownInfo.startTime;
 			if startTime and startTime > 0 then
 				cooldownActive = true;
 			end
