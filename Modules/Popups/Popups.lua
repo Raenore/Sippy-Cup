@@ -540,7 +540,7 @@ function SIPPYCUP.Popups.Toggle(itemName, auraID, enabled)
 			existingPopup:Hide();
 		end
 
-		if profileOptionData.noAuraTrackable then
+		if profileOptionData.untrackableByAura then
 			SIPPYCUP.Items.CancelItemTimer(nil, optionData.auraID);
 		else
 			SIPPYCUP.Auras.CancelPreExpirationTimer(nil, optionData.auraID);
@@ -592,7 +592,7 @@ function SIPPYCUP.Popups.Toggle(itemName, auraID, enabled)
 	end
 
 	local preExpireFired;
-	if profileOptionData.noAuraTrackable then
+	if profileOptionData.untrackableByAura then
 		preExpireFired = SIPPYCUP.Items.CheckNoAuraSingleOption(profileOptionData, optionData.auraID, nil, startTime);
 	else
 		preExpireFired = SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData);

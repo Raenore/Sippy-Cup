@@ -347,7 +347,7 @@ function SIPPYCUP.Options.RefreshStackSizes(checkAll, reset, preExpireOnly)
 
 		if not SIPPYCUP.States.loadingScreen then
 			local preExpireFired;
-			if profileOptionData.noAuraTrackable then
+			if profileOptionData.untrackableByAura then
 				preExpireFired = SIPPYCUP.Items.CheckNoAuraSingleOption(profileOptionData, auraID, nil, startTime);
 			else
 				preExpireFired = SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData, nil);

@@ -124,7 +124,8 @@ local defaults = SIPPYCUP.Database.defaults;
 ---@field currentInstanceID number? Aura instance ID currently being tracked (if any).
 ---@field currentStacks number Current number of detected stacks.
 ---@field aura number The associated aura ID for this option.
----@field noAuraTrackable boolean Whether this option can be tracked via its aura or not.
+---@field untrackableByAura boolean Whether this option can be tracked via its aura or not.
+
 ---Populate the default option's table keyed by aura ID, with all known entries from SIPPYCUP.Options.Data.
 ---This defines initial tracking settings for each option by its aura ID key.
 ---@return nil
@@ -133,7 +134,7 @@ local function PopulateDefaultOptions()
 	for i = 1, #optionsData do
 		local option = optionsData[i];
 		local spellID = option.auraID;
-		local noAuraTrackable = not (option.itemTrackable or option.spellTrackable);
+		local untrackableByAura = option.itemTrackable or option.spellTrackable;
 
 		if spellID then
 			-- Use auraID as the key, not profileKey
@@ -143,7 +144,7 @@ local function PopulateDefaultOptions()
 				currentInstanceID = nil,
 				currentStacks = 0,
 				aura = spellID,
-				noAuraTrackable = noAuraTrackable,
+				untrackableByAura = untrackableByAura,
 			};
 		end
 	end
@@ -165,7 +166,7 @@ function SIPPYCUP.Database.RebuildAuraMap()
 	local db = SIPPYCUP.Database;
 	wipe(db.auraToProfile);
 	wipe(db.instanceToProfile);
-	wipe(db.noAuraTrackableProfile);
+	wipe(db.untrackableByAuraProfile);
 
 	for _, profileOptionData in pairs(SIPPYCUP.Profile) do
 		if profileOptionData.enable and profileOptionData.aura then
@@ -181,10 +182,10 @@ function SIPPYCUP.Database.RebuildAuraMap()
 			end
 
 			-- Handle options that are trackable without auras (via itemID)
-			if profileOptionData.noAuraTrackable then
+			if profileOptionData.untrackableByAura then
 				local optionData = SIPPYCUP.Options.ByAuraID[auraID];
 				if optionData and optionData.itemID then
-					db.noAuraTrackableProfile[optionData.itemID] = profileOptionData;
+					db.untrackableByAuraProfile[optionData.itemID] = profileOptionData;
 				end
 			end
 		end
@@ -216,9 +217,9 @@ function SIPPYCUP.Database.UpdateAuraMapForOption(profileOptionData, enabled)
 			db.instanceToProfile[instanceID] = profileOptionData;
 		end
 
-		-- Update noAuraTrackableProfile if applicable
-		if profileOptionData.noAuraTrackable and optionData and optionData.itemID then
-			db.noAuraTrackableProfile[optionData.itemID] = profileOptionData;
+		-- Update untrackableByAuraProfile if applicable
+		if profileOptionData.untrackableByAura and optionData and optionData.itemID then
+			db.untrackableByAuraProfile[optionData.itemID] = profileOptionData;
 		end
 	else
 		-- Remove from auraToProfile
@@ -231,9 +232,9 @@ function SIPPYCUP.Database.UpdateAuraMapForOption(profileOptionData, enabled)
 			profileOptionData.currentInstanceID = nil;
 		end
 
-		-- Remove from noAuraTrackableProfile if applicable
-		if profileOptionData.noAuraTrackable and optionData and optionData.itemID then
-			db.noAuraTrackableProfile[optionData.itemID] = nil;
+		-- Remove from untrackableByAuraProfile if applicable
+		if profileOptionData.untrackableByAura and optionData and optionData.itemID then
+			db.untrackableByAuraProfile[optionData.itemID] = nil;
 		end
 	end
 end
@@ -241,7 +242,7 @@ end
 ---Returns profile data matching spell ID, aura instance ID, or item ID.
 ---@param spellId number? Spell ID to match `auraToProfile`.
 ---@param instanceID number? Aura instance ID to match `instanceToProfile`.
----@param itemID number? Item ID to match `noAuraTrackableProfile`.
+---@param itemID number? Item ID to match `untrackableByAuraProfile`.
 ---@return SIPPYCUPProfileOption? profileOptionData
 function SIPPYCUP.Database.FindMatchingProfile(spellId, instanceID, itemID)
 	local db = SIPPYCUP.Database;
@@ -251,7 +252,7 @@ function SIPPYCUP.Database.FindMatchingProfile(spellId, instanceID, itemID)
 	elseif instanceID ~= nil then
 		return db.instanceToProfile[instanceID];
 	elseif itemID ~= nil then
-		return db.noAuraTrackableProfile[itemID];
+		return db.untrackableByAuraProfile[itemID];
 	end
 
 	return nil;
