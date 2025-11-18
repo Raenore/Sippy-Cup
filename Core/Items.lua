@@ -133,8 +133,8 @@ function SIPPYCUP.Items.CheckNoAuraItemUsage(minSeconds)
 		return;
 	end
 
-	-- noAuraTrackableProfile holds only enabled no aura options.
-	for _, profileOptionData in pairs(SIPPYCUP.Database.noAuraTrackableProfile) do
+	-- untrackableByAuraProfile holds only enabled no aura options.
+	for _, profileOptionData in pairs(SIPPYCUP.Database.untrackableByAuraProfile) do
 		SIPPYCUP.Items.CheckNoAuraSingleOption(profileOptionData, profileOptionData.aura, minSeconds);
 	end
 end
@@ -159,7 +159,7 @@ function SIPPYCUP.Items.CheckNoAuraSingleOption(profileOptionData, spellID, minS
 	end
 
 	-- Sanity check: if profileOptionData is nil or is not a no aura, bail out
-	if not profileOptionData or not profileOptionData.noAuraTrackable then
+	if not profileOptionData or not profileOptionData.untrackableByAura then
 		return preExpireFired;
 	end
 
@@ -180,10 +180,10 @@ function SIPPYCUP.Items.CheckNoAuraSingleOption(profileOptionData, spellID, minS
 	local trackByItem = false;
 
 	-- Determine tracking method
-	if optionData.type == 0 then
+	if optionData.type == SIPPYCUP.Options.Type.CONSUMABLE then
 		trackBySpell = optionData.spellTrackable;
 		trackByItem = optionData.itemTrackable;
-	elseif optionData.type == 1 then
+	elseif optionData.type == SIPPYCUP.Options.Type.TOY then
 		-- Always track by item if itemTrackable
 		if optionData.itemTrackable then
 			trackByItem = true;
@@ -212,10 +212,10 @@ function SIPPYCUP.Items.CheckNoAuraSingleOption(profileOptionData, spellID, minS
 	-- Cleanup opened popups, nontrackable auras don't fire stack updates so we can't evaluate it in other places.
 	local existingPopup = SIPPYCUP.Popups.activeByLoc[optionData.loc];
 
-	-- This is a reliable check, but toys (type 1) might not immediately report a cooldown. But their usage generally means we can close their popup.
-	if startTime and startTime > 0 or optionData.type == 1 then
+	-- This is a reliable check, but toys might not immediately report a cooldown. But their usage generally means we can close their popup.
+	if startTime and startTime > 0 or optionData.type == SIPPYCUP.Options.Type.TOY then
 		profileOptionData.currentStacks = 1;
-		SIPPYCUP.Database.noAuraTrackableProfile[optionData.itemID] = profileOptionData;
+		SIPPYCUP.Database.untrackableByAuraProfile[optionData.itemID] = profileOptionData;
 
 		if existingPopup and existingPopup:IsShown() then
 			existingPopup:Hide();

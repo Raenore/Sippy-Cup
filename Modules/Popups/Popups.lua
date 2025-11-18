@@ -57,7 +57,7 @@ local sessionData = {};
 ---@return nil
 function SIPPYCUP.Popups.ResetIgnored()
 	for auraID in pairs(sessionData) do
-		local profileOptionData = SIPPYCUP.profile[auraID];
+		local profileOptionData = SIPPYCUP.Profile[auraID];
 		SIPPYCUP.Popups.Toggle(nil, auraID, profileOptionData.enable);
 	end
 
@@ -214,7 +214,7 @@ local function CreatePopup(templateType)
 				else
 					if popupData then
 						local optionData = popupData.optionData;
-						if optionData.type == 0 then
+						if optionData.type == SIPPYCUP.Options.Type.CONSUMABLE then
 							local profileOptionData = popupData.profileOptionData;
 
 							local itemID = optionData.itemID;
@@ -450,7 +450,7 @@ function SIPPYCUP.Popups.HandleReminderPopup(data, templateTypeID)
 			end
 
 			-- If user wants a missing reminder, we'll do that now (unless it's a toy as that has no item counts).
-			if data.itemCount < data.profileOptionData.desiredStacks and SIPPYCUP.global.InsufficientReminder and data.optionData.type ~= 1 then
+			if data.itemCount < data.profileOptionData.desiredStacks and SIPPYCUP.global.InsufficientReminder and data.optionData.type ~= SIPPYCUP.Options.Type.TOY then
 				SIPPYCUP.Popups.HandleReminderPopup(data, 1);
 			end
 			return;
@@ -523,7 +523,7 @@ function SIPPYCUP.Popups.Toggle(itemName, auraID, enabled)
 		return;
 	end
 
-	local profileOptionData = SIPPYCUP.profile[optionData.auraID];
+	local profileOptionData = SIPPYCUP.Profile[optionData.auraID];
 	if not profileOptionData then
 		return;
 	end
@@ -540,7 +540,7 @@ function SIPPYCUP.Popups.Toggle(itemName, auraID, enabled)
 			existingPopup:Hide();
 		end
 
-		if profileOptionData.noAuraTrackable then
+		if profileOptionData.untrackableByAura then
 			SIPPYCUP.Items.CancelItemTimer(nil, optionData.auraID);
 		else
 			SIPPYCUP.Auras.CancelPreExpirationTimer(nil, optionData.auraID);
@@ -556,10 +556,10 @@ function SIPPYCUP.Popups.Toggle(itemName, auraID, enabled)
 	local trackBySpell = false;
 	local trackByItem = false;
 
-	if optionData.type == 0 then
+	if optionData.type == SIPPYCUP.Options.Type.CONSUMABLE then
 		trackBySpell = optionData.spellTrackable;
 		trackByItem = optionData.itemTrackable;
-	elseif optionData.type == 1 then
+	elseif optionData.type == SIPPYCUP.Options.Type.TOY then
 		-- Always track by item if itemTrackable
 		if optionData.itemTrackable then
 			trackByItem = true;
@@ -585,14 +585,14 @@ function SIPPYCUP.Popups.Toggle(itemName, auraID, enabled)
 	elseif trackBySpell then
 		SIPPYCUP_OUTPUT.Debug("Tracking through Spell");
 		local spellCooldownInfo = C_Spell.GetSpellCooldown(optionData.auraID);
-		startTime = spellCooldownInfo and spellCooldownInfo.startTime;
+		startTime = issecretvalue and (not issecretvalue(spellCooldownInfo) and spellCooldownInfo and spellCooldownInfo.startTime) or spellCooldownInfo and spellCooldownInfo.startTime;
 		if startTime and startTime > 0 then
 			active = true;
 		end
 	end
 
 	local preExpireFired;
-	if profileOptionData.noAuraTrackable then
+	if profileOptionData.untrackableByAura then
 		preExpireFired = SIPPYCUP.Items.CheckNoAuraSingleOption(profileOptionData, optionData.auraID, nil, startTime);
 	else
 		preExpireFired = SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData);
@@ -671,26 +671,48 @@ end
 function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	SIPPYCUP_OUTPUT.Debug("HandlePopupAction");
 	local optionData = data.optionData or SIPPYCUP.Options.ByAuraID[data.auraID];
-	local profileOptionData = data.profileOptionData or SIPPYCUP.profile[data.auraID];
+	local profileOptionData = data.profileOptionData or SIPPYCUP.Profile[data.auraID];
 
 	local reason = data.reason;
 	local active = data.active;
 
-	-- Extra check because toys have longer cooldowns than option tend to, so don't fire if cd is still up.
-	if optionData.type == 1 and reason == SIPPYCUP.Popups.Reason.REMOVAL then
-		local cooldownActive = false;
-		-- If item can only be tracked by the item cooldown (worst)
+	local trackBySpell = false;
+	local trackByItem = false;
+
+	if optionData.type == SIPPYCUP.Options.Type.CONSUMABLE then
+		trackBySpell = optionData.spellTrackable;
+		trackByItem = optionData.itemTrackable;
+	elseif optionData.type == SIPPYCUP.Options.Type.TOY then
+		-- Always track by item if itemTrackable
 		if optionData.itemTrackable then
+			trackByItem = true;
+		end
+
+		if optionData.spellTrackable then
+			if SIPPYCUP.global.UseToyCooldown then
+				trackByItem = true;
+			else
+				trackBySpell = true;
+			end
+		end
+	end
+
+	-- Extra check because toys have longer cooldowns than option tend to, so don't fire if cd is still up.
+	if optionData.type == SIPPYCUP.Options.Type.TOY and reason == SIPPYCUP.Popups.Reason.REMOVAL then
+		local cooldownActive = false;
+
+		-- If item can only be tracked by the item cooldown (worst)
+		if trackByItem then
+			SIPPYCUP_OUTPUT.Debug("Tracking through Item");
 			local startTime = C_Item.GetItemCooldown(optionData.itemID);
-			SIPPYCUP_OUTPUT.Debug(startTime);
 			if startTime and startTime > 0 then
 				cooldownActive = true;
 			end
 		-- If item can be tracked through the spell cooldown (fine).
-		elseif optionData.spellTrackable then
+		elseif trackBySpell then
+			SIPPYCUP_OUTPUT.Debug("Tracking through Spell");
 			local spellCooldownInfo = C_Spell.GetSpellCooldown(optionData.auraID);
-			local startTime = spellCooldownInfo and spellCooldownInfo.startTime;
-			SIPPYCUP_OUTPUT.Debug(startTime);
+			local startTime = issecretvalue and (not issecretvalue(spellCooldownInfo) and spellCooldownInfo and spellCooldownInfo.startTime) or spellCooldownInfo and spellCooldownInfo.startTime;
 			if startTime and startTime > 0 then
 				cooldownActive = true;
 			end
@@ -715,8 +737,8 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	-- Removal of a spell/aura count generally is not due to an item's action, mark bag as synchronized.
 	-- Pre-expiration also does not do any bag changes, so mark as synchronised in case.
 	-- Delayed (e.g. eating x seconds) UNIT_AURA calls, mark bag as synchronized (as it was removed earlier).
-	-- Toys (type 1) UNIT_AURA calls, mark bag as synchronized (as no items are actually used).
-	if reason == SIPPYCUP.Popups.Reason.REMOVAL or reason == SIPPYCUP.Popups.Reason.PRE_EXPIRATION or optionData.delayedAura or optionData.type == 1 then
+	-- Toys UNIT_AURA calls, mark bag as synchronized (as no items are actually used).
+	if reason == SIPPYCUP.Popups.Reason.REMOVAL or reason == SIPPYCUP.Popups.Reason.PRE_EXPIRATION or optionData.delayedAura or optionData.type == SIPPYCUP.Options.Type.TOY then
 		SIPPYCUP.Items.HandleBagUpdate();
 	end
 
@@ -758,10 +780,10 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	profileOptionData.desiredStacks = optionData.stacks and profileOptionData.desiredStacks or 1;
 
 	local itemCount;
-	if optionData.type == 0 then
+	if optionData.type == SIPPYCUP.Options.Type.CONSUMABLE then
 		profileOptionData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, reason, active);
 		itemCount = C_Item.GetItemCount(optionData.itemID);
-	elseif optionData.type == 1 then
+	elseif optionData.type == SIPPYCUP.Options.Type.TOY then
 		if auraInfo then
 			profileOptionData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, reason, active);
 		else

@@ -249,6 +249,11 @@ SIPPYCUP.Auras.Sources = {
 function SIPPYCUP.Auras.Convert(source, data)
 	local updateInfo = {};
 
+	-- Bail out if we can't read the aura data due to secrets (combat, etc).
+	if issecretvalue and issecretvalue(data) then
+		return;
+	end
+
 	if source == SIPPYCUP.Auras.Sources.UNIT_AURA then
 		-- Source 1: UNIT_AURA provides the right shape, but copy to avoid Blizzard table reuse.
 		if data.addedAuras then
@@ -605,7 +610,7 @@ function SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, reason, active)
 	-- Case 2: Pre-expiration (return maxStacks - 1 for stackable that require 1 re-application for full)
 	if reason == SIPPYCUP.Popups.Reason.PRE_EXPIRATION then
 		local optionData = SIPPYCUP.Options.ByAuraID[auraID];
-		local profileOptionData = SIPPYCUP.profile[auraID];
+		local profileOptionData = SIPPYCUP.Profile[auraID];
 
 		if optionData.stacks and profileOptionData.currentStacks == optionData.maxStacks then
 			return optionData.maxStacks - 1;

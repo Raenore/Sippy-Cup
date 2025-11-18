@@ -1523,7 +1523,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 		local categoryConsumablesData = {};
 
 		for _, optionData in ipairs(SIPPYCUP.Options.Data) do
-			if optionData.category == categoryName and optionData.type == 0 then
+			if optionData.category == categoryName and optionData.type == SIPPYCUP.Options.Type.CONSUMABLE then
 				local consumableAura = optionData.auraID;
 				local consumableName = optionData.name;
 				local consumableID = optionData.itemID;
@@ -1573,7 +1573,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 						end,
 						set = function(val)
 							SIPPYCUP.Database.UpdateSetting("profile", sliderProfileKey, "desiredStacks", val);
-							if SIPPYCUP.profile[sliderProfileKey].enable then
+							if SIPPYCUP.Profile[sliderProfileKey].enable then
 								SIPPYCUP.Popups.Toggle(consumableName, consumableAura, true);
 							end
 						end,
@@ -1594,7 +1594,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 		local categoryToysData = {};
 
 		for _, optionData in ipairs(SIPPYCUP.Options.Data) do
-			if optionData.category == categoryName and optionData.type == 1 then
+			if optionData.category == categoryName and optionData.type == SIPPYCUP.Options.Type.TOY then
 				local toyAura = optionData.auraID;
 				local toyName = optionData.name;
 				local toyID = optionData.itemID;
@@ -1646,7 +1646,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 						end,
 						set = function(val)
 							SIPPYCUP.Database.UpdateSetting("profile", sliderProfileKey, "desiredStacks", val);
-							if SIPPYCUP.profile[sliderProfileKey].enable then
+							if SIPPYCUP.Profile[sliderProfileKey].enable then
 								SIPPYCUP.Popups.Toggle(toyName, toyAura, true);
 							end
 						end,
