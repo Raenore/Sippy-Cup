@@ -3,6 +3,8 @@
 
 local L = SIPPYCUP.L;
 SIPPYCUP.Database = {};
+---@type table<number, SIPPYCUPProfileOption>
+SIPPYCUP.Profile = {};
 
 ---Copies keys from source to target only if target key is nil (recursive).
 ---@param source table Source table to copy defaults from.
@@ -116,7 +118,7 @@ SIPPYCUP.Database.defaults = {
 local defaults = SIPPYCUP.Database.defaults;
 
 ---Represents a single option's tracking settings within a user profile.
----@class SIPPYCUPProfileOption
+---@class SIPPYCUPProfileOption: table
 ---@field enable boolean Whether the option is enabled for tracking.
 ---@field desiredStacks number Number of stacks the user wants to maintain.
 ---@field currentInstanceID number? Aura instance ID currently being tracked (if any).
@@ -149,9 +151,12 @@ end
 
 PopulateDefaultOptions();
 
+---@type table<number, SIPPYCUPProfileOption>
 SIPPYCUP.Database.auraToProfile = {}; -- auraID --> profile data
+---@type table<number, SIPPYCUPProfileOption>
 SIPPYCUP.Database.instanceToProfile = {}; -- instanceID --> profile data
-SIPPYCUP.Database.noAuraTrackableProfile = {}; -- itemID --> profile data (only if no aura)
+---@type table<number, SIPPYCUPProfileOption>
+SIPPYCUP.Database.untrackableByAuraProfile = {}; -- itemID --> profile data (only if no aura)
 
 ---RebuildAuraMap rebuilds internal lookup tables for aura and instance-based option tracking.
 ---@return nil
@@ -162,7 +167,7 @@ function SIPPYCUP.Database.RebuildAuraMap()
 	wipe(db.instanceToProfile);
 	wipe(db.noAuraTrackableProfile);
 
-	for _, profileOptionData in pairs(SIPPYCUP.profile) do
+	for _, profileOptionData in pairs(SIPPYCUP.Profile) do
 		if profileOptionData.enable and profileOptionData.aura then
 			local auraID = profileOptionData.aura;
 			db.auraToProfile[auraID] = profileOptionData;
@@ -187,7 +192,7 @@ function SIPPYCUP.Database.RebuildAuraMap()
 end
 
 ---UpdateAuraMapForOption updates or removes a single profile's entries in the aura, instance, and noAura mappings.
----@param profileOptionData table The profile data to update.
+---@param profileOptionData SIPPYCUPProfileOption The profile data to update.
 ---@param enabled boolean Whether the profile is enabled or disabled.
 ---@return nil
 function SIPPYCUP.Database.UpdateAuraMapForOption(profileOptionData, enabled)
@@ -280,8 +285,8 @@ function SIPPYCUP.Database.UpdateSetting(scope, key, subKey, value)
 		db.profiles[profileName] = db.profiles[profileName] or {};
 		targetMinimal = db.profiles[profileName];
 
-		SIPPYCUP.profile = SIPPYCUP.profile or {};
-		targetRuntime = SIPPYCUP.profile;
+		SIPPYCUP.Profile = SIPPYCUP.Profile or {};
+		targetRuntime = SIPPYCUP.Profile;
 
 		defaultTable = defaults.profiles.Default;
 
@@ -340,7 +345,7 @@ end
 ---@return any value The resolved value from runtime or default, or nil if not found
 function SIPPYCUP.Database.GetSetting(scope, key, subKey)
 	if scope == "profile" then
-		local profile = SIPPYCUP.profile or {};
+		local profile = SIPPYCUP.Profile or {};
 		if subKey then
 			if profile[key] and profile[key][subKey] ~= nil then
 				return profile[key][subKey];
@@ -452,7 +457,7 @@ function SIPPYCUP.Database.Setup()
 	db.profiles[profileName] = minimalProfile;
 
 	-- Set resolved working profile for runtime use
-	SIPPYCUP.profile = workingProfile;
+	SIPPYCUP.Profile = workingProfile;
 
 	SIPPYCUP.States.databaseLoaded = true;
 end
@@ -533,7 +538,7 @@ function SIPPYCUP.Database.SetProfile(profileName)
 	local key = SIPPYCUP.Database.GetUnitName();
 	SIPPYCUP.db.profileKeys[key] = profileName;
 
-	SIPPYCUP.profile = resolvedProfile;
+	SIPPYCUP.Profile = resolvedProfile;
 	SIPPYCUP.Database.RefreshUI();
 
 	return true;
@@ -563,8 +568,8 @@ function SIPPYCUP.Database.CreateProfile(profileName)
 
 	-- Set runtime profile as default profile since minimal is empty
 	local defaultProfile = defaults.profiles.Default or {};
-	SIPPYCUP.profile = {};
-	DeepCopyDefaults(defaultProfile, SIPPYCUP.profile);
+	SIPPYCUP.Profile = {};
+	DeepCopyDefaults(defaultProfile, SIPPYCUP.Profile);
 
 	SIPPYCUP.Database.RefreshUI();
 
@@ -592,8 +597,8 @@ function SIPPYCUP.Database.ResetProfile(profileName)
 	if profileName == currentProfileName then
 		local defaultProfile = defaults.profiles.Default or {};
 
-		SIPPYCUP.profile = {};
-		DeepCopyDefaults(defaultProfile, SIPPYCUP.profile);
+		SIPPYCUP.Profile = {};
+		DeepCopyDefaults(defaultProfile, SIPPYCUP.Profile);
 		-- No minimal overrides after reset
 
 		SIPPYCUP.Database.RefreshUI();
@@ -636,9 +641,9 @@ function SIPPYCUP.Database.CopyProfile(sourceProfileName)
 	SIPPYCUP.db.profiles[currentProfileName] = minimalCopy;
 
 	-- Update runtime shortcut for current profile
-	SIPPYCUP.profile = {};
-	DeepCopyDefaults(defaultProfile, SIPPYCUP.profile);
-	DeepMerge(minimalCopy, SIPPYCUP.profile);
+	SIPPYCUP.Profile = {};
+	DeepCopyDefaults(defaultProfile, SIPPYCUP.Profile);
+	DeepMerge(minimalCopy, SIPPYCUP.Profile);
 
 	SIPPYCUP.Database.RefreshUI();
 
@@ -689,9 +694,9 @@ function SIPPYCUP.Database.DeleteProfile(profileName)
 		end
 
 		-- Update runtime shortcut with full Default profile data
-		SIPPYCUP.profile = {};
-		DeepCopyDefaults(defaults.profiles.Default, SIPPYCUP.profile);
-		DeepMerge(SIPPYCUP.db.profiles["Default"], SIPPYCUP.profile);
+		SIPPYCUP.Profile = {};
+		DeepCopyDefaults(defaults.profiles.Default, SIPPYCUP.Profile);
+		DeepMerge(SIPPYCUP.db.profiles["Default"], SIPPYCUP.Profile);
 
 		SIPPYCUP.Database.RefreshUI();
 	end

@@ -2,8 +2,11 @@
 -- SPDX-License-Identifier: Apache-2.0
 
 SIPPYCUP.Options = {};
+---@type table<number, SIPPYCUPOption>
 SIPPYCUP.Options.ByAuraID = {};
+---@type table<number, SIPPYCUPOption>
 SIPPYCUP.Options.ByItemID = {};
+---@type table<string, SIPPYCUPOption>
 SIPPYCUP.Options.ByName = {};
 
 SIPPYCUP.Options.Type = {
@@ -11,22 +14,27 @@ SIPPYCUP.Options.Type = {
 	TOY = 1,
 };
 
+---@class SIPPYCUPOption: table
+---@field type string Whether this option is a consumable (0) or toy (1).
+---@field auraID number The option's aura ID.
+---@field itemID number The option's item ID.
+---@field loc string The option's localization key (auto-gen).
+---@field category string The option's category (e.g., potion, food).
+---@field profile table The option's associated DB profile (auto-gen).
+---@field icon string The option's icon texture name.
+---@field stacks boolean Whether the option is capable of having stacks, defaults to `false`.
+---@field maxStacks number The option's max stack amount it can achieve, defaults to `1`.
+---@field preExpiration boolean The option's pre-expiration settings, defaults to `false`.
+---@field unrefreshable boolean Whether the option is can be refreshed, on false it means you lose the stack with no effect.
+---@field itemTrackable boolean Whether the option can only be tracked through the item itself (cooldowns, etc.).
+---@field spellTrackable boolean Whether the option can only be tracked through the spell itself (cooldowns, etc.).
+---@field delayedAura boolean Whether the option is applied after a delay (e.g. food buff), on false a buff is applied instantly.
+---@field cooldownMismatch boolean Whether the option has a mismatch in cooldowns (cd longer than buff lasts), on false there is no mismatch.
+
+
 ---NewOption creates a new object with the specified parameters.
----@param params table A table containing parameters for the new option.
----@param params.auraID number The option's aura ID.
----@param params.itemID number The option's item ID.
----@param params.loc string The option's localization key.
----@param params.category string The option's category (e.g., potion, food).
----@param params.icon string The option's icon texture name.
----@param params.stacks boolean|number? Whether the option is capable of having stacks (optional, defaults to `false`).
----@param params.maxStacks number? The option's max stack amount it can achieve (optional, defaults to `1`).
----@param params.preExpiration number? The option's pre-expiration settings.
----@param params.profile table The option's associated DB profile (automatically generated).
----@param params.name string The option's name (automatically generated).
----@param params.refreshable boolean Whether the option is can be refreshed, on false it means you lose the stack with no effect.
----@param params.delayedAura boolean Whether the option is applied after a delay (e.g. food buff), on false a buff is applied instantly.
----@param params.cooldownMismatch boolean Whether the option has a mismatch in cooldowns (cd longer than buff lasts), on false there is no mismatch.
----@return table option The created option object.
+---@param params SIPPYCUPOption A table containing parameters for the new option.
+---@return SIPPYCUPOption
 local function NewOption(params)
 	return {
 		type  = params.type or SIPPYCUP.Options.Type.CONSUMABLE,

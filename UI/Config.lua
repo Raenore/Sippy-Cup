@@ -1573,7 +1573,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 						end,
 						set = function(val)
 							SIPPYCUP.Database.UpdateSetting("profile", sliderProfileKey, "desiredStacks", val);
-							if SIPPYCUP.profile[sliderProfileKey].enable then
+							if SIPPYCUP.Profile[sliderProfileKey].enable then
 								SIPPYCUP.Popups.Toggle(consumableName, consumableAura, true);
 							end
 						end,
@@ -1646,7 +1646,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 						end,
 						set = function(val)
 							SIPPYCUP.Database.UpdateSetting("profile", sliderProfileKey, "desiredStacks", val);
-							if SIPPYCUP.profile[sliderProfileKey].enable then
+							if SIPPYCUP.Profile[sliderProfileKey].enable then
 								SIPPYCUP.Popups.Toggle(toyName, toyAura, true);
 							end
 						end,
