@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.2] - 2025-11-18  
+Minor bugfixes for issues introduced with Patch 11.2.5.  
+
+### Fixed  
+- Fixed a rare (but very annoying) issue where Sippy Cup sometimes did not register the correct game events on login or reload, leading to failed refreshes and other oddities.  
+
 ## [0.5.1] - 2025-10-23  
 Minor bugfixes for issues that appeared with Patch 11.2.5.  
 
