@@ -65,9 +65,17 @@ local function CheckPlayerLogin()
 	end
 end
 
----PLAYER_LOGIN Fires after the UI is fully loaded, triggers OnPlayerLogin if DB and consumables are ready.
+---PLAYER_LOGIN Fires after the UI is fully loaded with essential game event registration, triggers OnPlayerLogin if DB and consumables are ready.
 function SIPPYCUP_Addon:PLAYER_LOGIN()
 	SIPPYCUP_Addon:UnregisterEvent("PLAYER_LOGIN");
+	-- Initial game event registration, necessary to correctly track all states on login.
+	SIPPYCUP_Addon:RegisterEvent("PLAYER_REGEN_DISABLED");
+	SIPPYCUP_Addon:RegisterEvent("PLAYER_REGEN_ENABLED");
+	SIPPYCUP_Addon:RegisterEvent("PLAYER_ENTERING_WORLD");
+	SIPPYCUP_Addon:RegisterEvent("PLAYER_LEAVING_WORLD");
+	SIPPYCUP_Addon:RegisterEvent("ZONE_CHANGED_NEW_AREA");
+	SIPPYCUP_Addon:RegisterEvent("BAG_UPDATE_DELAYED");
+
 	SIPPYCUP.States.playerLoggedIn = true;
 	CheckPlayerLogin();
 end
@@ -81,15 +89,9 @@ end);
 
 ---OnPlayerLogin Handles game event registration and config frame creation after player login.
 function SIPPYCUP_Addon:OnPlayerLogin()
-	-- Register game events on the unified event frame
+	-- Register game events related to aura and spell tracking for Sippy Cup.
 	SIPPYCUP_Addon:RegisterUnitEvent("UNIT_AURA", "player");
-	SIPPYCUP_Addon:RegisterEvent("PLAYER_REGEN_DISABLED");
-	SIPPYCUP_Addon:RegisterEvent("PLAYER_REGEN_ENABLED");
-	SIPPYCUP_Addon:RegisterEvent("PLAYER_ENTERING_WORLD");
-	SIPPYCUP_Addon:RegisterEvent("PLAYER_LEAVING_WORLD");
-	SIPPYCUP_Addon:RegisterEvent("ZONE_CHANGED_NEW_AREA");
 	SIPPYCUP_Addon:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player");
-	SIPPYCUP_Addon:RegisterEvent("BAG_UPDATE_DELAYED");
 
 	SIPPYCUP.Config.TryCreateConfigFrame();
 end
