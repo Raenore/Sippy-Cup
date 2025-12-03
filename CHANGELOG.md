@@ -1,6 +1,12 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to this project will be documented in this file.  
+
+## [0.5.3] - 2025-12-03  
+11.2.7 release; nothing that realistically affects Sippy Cup. Expect larger changes around Midnight.  
+
+### Changed  
+- Updated the TOC for Patch 11.2.7.  
 
 ## [0.5.2] - 2025-11-18  
 Minor bugfixes for issues introduced with Patch 11.2.5.  
