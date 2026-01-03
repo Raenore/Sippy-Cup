@@ -422,6 +422,7 @@ stds.wow = {
 		"ButtonFrameTemplate_HidePortrait",
 		"ButtonFrameTemplate_HideButtonBar",
 		"CalculateStringEditDistance",
+		"canaccessvalue",
 		"Chat_GetChatFrame",
 		"ChatConfigChannelSettings_SwapChannelsByIndex",
 		"ChatEdit_FocusActiveWindow",

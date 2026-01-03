@@ -250,7 +250,7 @@ function SIPPYCUP.Auras.Convert(source, data)
 	local updateInfo = {};
 
 	-- Bail out if we can't read the aura data due to secrets (combat, etc).
-	if issecretvalue and issecretvalue(data) then
+	if canaccessvalue and not canaccessvalue(data) then
 		return;
 	end
 
