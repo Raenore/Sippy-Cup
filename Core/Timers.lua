@@ -15,6 +15,9 @@ function SIPPYCUP_Addon:StartContinuousCheck()
 		return;
 	end
 
+	-- Check if stack sizes are still correct, handles expirations during combat.
+	SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
+
 	-- Both below timers don't need an immediate run as startup + new enables run these partially.
 
 	createTicker(self, "preExpTicker", CONTINUOUS_CHECK_INTERVAL, function()
