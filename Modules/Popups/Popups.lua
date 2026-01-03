@@ -830,6 +830,56 @@ function SIPPYCUP.Popups.HideAllRefreshPopups(reason)
 	end
 end
 
+---DeferAllRefreshPopups defers all active and queued popups to be processed later.
+-- Typically called when popups cannot be shown due to bags, combat, or loading screen.
+---@param reason number Why a deferred action is being handled (0 - bag, 1 - combat, 2 - loading)
+---@return nil
+function SIPPYCUP.Popups.DeferAllRefreshPopups(reasonKey)
+	local blockedBy;
+	if reasonKey == 0 or SIPPYCUP.Items.bagUpdateUnhandled then
+		blockedBy = "bag";
+	elseif reasonKey == 1 or InCombatLockdown() then
+		blockedBy = "combat";
+	elseif reasonKey == 2 or SIPPYCUP.States.loadingScreen then
+		blockedBy = "loading";
+	end
+
+	local function MakeDeferredData(popup)
+		local d = popup.popupData;
+		return {
+			active = d.active,
+			auraID = d.optionData.auraID,
+			auraInfo = nil, -- Cannot query at this point (e.g. combat lockdown)
+			optionData = d.optionData,
+			profileOptionData = d.profileOptionData,
+			reason = d.reason,
+		};
+	end
+
+	-- Defer queued popups
+	for i = #popupQueue, 1, -1 do
+		local popup = popupQueue[i];
+		deferredActions[#deferredActions + 1] = {
+			data = MakeDeferredData(popup),
+			caller = "DeferAllRefreshPopups - popupQueue",
+			blockedBy = blockedBy,
+		};
+		table.remove(popupQueue, i);
+	end
+
+	-- Defer and hide active popups
+	for i = #activePopups, 1, -1 do
+		local popup = activePopups[i];
+		-- Preserves order of active popups
+		table.insert(deferredActions, 1, {
+			data = MakeDeferredData(popup),
+			caller = "DeferAllRefreshPopups - activePopups",
+			blockedBy = blockedBy,
+		});
+		popup:Hide(); -- Also removes from activePopups and activePopupByLoc
+	end
+end
+
 ---HandleDeferredActions Processes and flushes all queued popup actions.
 -- Called after bag data is synced (BAG_UPDATE_DELAYED) to ensure accurate context.
 ---@param reason number Why a deferred action is being handled (0 - bag, 1 - combat, 2 - loading)

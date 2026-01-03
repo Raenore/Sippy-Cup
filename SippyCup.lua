@@ -154,10 +154,11 @@ function SIPPYCUP_Addon:PLAYER_LEAVING_WORLD()
 	SIPPYCUP.Callbacks:TriggerEvent(SIPPYCUP.Events.LOADING_SCREEN_STARTED);
 end
 
----PLAYER_REGEN_DISABLED Stops continuous checks when entering combat.
+---PLAYER_REGEN_DISABLED Stops continuous checks when entering combat and defers all active popups.
 function SIPPYCUP_Addon:PLAYER_REGEN_DISABLED()
 	-- Combat is entered when regen is disabled.
 	self:StopContinuousCheck();
+	SIPPYCUP.Popups.DeferAllRefreshPopups(1);
 end
 
 ---PLAYER_REGEN_ENABLED Restarts continuous checks and handles deferred combat actions after leaving combat.
