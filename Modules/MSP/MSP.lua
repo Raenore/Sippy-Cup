@@ -50,6 +50,12 @@ function SIPPYCUP.MSP.EnableIfAvailable()
 				return;
 			end
 
+			-- If in combat, set SIPPYCUP.MSP.IC but don't handle anything else.
+			if InCombatLockdown() then
+				SIPPYCUP.MSP.CheckRPStatus();
+				return;
+			end
+
 			-- Sometimes this gets spammed, we only care about handling IC/OOC updates.
 			local changed, _, isIC = SIPPYCUP.MSP.CheckRPStatus();
 
