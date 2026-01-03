@@ -28,6 +28,9 @@ end
 
 ---StopContinuousCheck cancels all continuous check timers if active.
 function SIPPYCUP_Addon:StopContinuousCheck()
+	-- Remove all popups as we can't do anything as-is if we hit this part.
+	SIPPYCUP.Popups.HideAllRefreshPopups();
+
 	if self.preExpTicker then
 		self.preExpTicker:Cancel();
 		self.preExpTicker = nil;
