@@ -174,7 +174,7 @@ function SIPPYCUP.Database.RebuildAuraMap()
 			db.auraToProfile[auraID] = profileOptionData;
 
 			-- Update instance ID if aura is currently active
-			local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(auraID);
+			local auraInfo = canaccessvalue and canaccessvalue(auraID) and C_UnitAuras.GetPlayerAuraBySpellID(auraID);
 			local instanceID = auraInfo and auraInfo.auraInstanceID;
 			profileOptionData.currentInstanceID = instanceID;
 			if instanceID then
@@ -247,7 +247,7 @@ end
 function SIPPYCUP.Database.FindMatchingProfile(spellId, instanceID, itemID)
 	local db = SIPPYCUP.Database;
 
-	if spellId ~= nil then
+	if spellId ~= nil and canaccessvalue and canaccessvalue(spellId) then
 		return db.auraToProfile[spellId];
 	elseif instanceID ~= nil then
 		return db.instanceToProfile[instanceID];

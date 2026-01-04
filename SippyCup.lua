@@ -165,7 +165,9 @@ end
 function SIPPYCUP_Addon:PLAYER_REGEN_ENABLED()
 	-- Combat is left when regen is enabled.
 	self:StartContinuousCheck();
+	-- Show 'combat' popups deferred by DeferAllRefreshPopups (reason 1).
 	SIPPYCUP.Popups.HandleDeferredActions("combat");
+	SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
 end
 
 ---UNIT_AURA Handles player aura updates, flags bag desync, and triggers aura conversion.
@@ -173,10 +175,12 @@ end
 ---@param unitTarget string Unit affected, automatically "player" through RegisterUnitEvent.
 ---@param updateInfo any Update data passed to aura conversion
 function SIPPYCUP_Addon:UNIT_AURA(_, unitTarget, updateInfo) -- luacheck: no unused (unitTarget)
+	if InCombatLockdown() then
+		return;
+	end
 	-- Bag data is not synched immediately when UNIT_AURA fires, signal desync to the addon.
 	SIPPYCUP.Items.bagUpdateUnhandled = true;
 	SIPPYCUP.Auras.Convert(SIPPYCUP.Auras.Sources.UNIT_AURA, updateInfo);
-	-- DevTools_Dump(updateInfo);
 end
 
 ---UNIT_SPELLCAST_SUCCEEDED Handles successful player spell casts; checks consumables/toys that don't trigger UNIT_AURA.

@@ -673,8 +673,86 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	local optionData = data.optionData or SIPPYCUP.Options.ByAuraID[data.auraID];
 	local profileOptionData = data.profileOptionData or SIPPYCUP.Profile[data.auraID];
 
+	if not optionData or not profileOptionData or SIPPYCUP.Popups.IsIgnored(optionData.auraID) then
+		return;
+	end
+
 	local reason = data.reason;
 	local active = data.active;
+
+	local auraID = data.auraID;
+	local auraInfo = data.auraInfo;
+	local currentInstanceID = profileOptionData.currentInstanceID;
+
+	-- Removal of a spell/aura count generally is not due to an item's action, mark bag as synchronized.
+	-- Pre-expiration also does not do any bag changes, so mark as synchronised in case.
+	-- Delayed (e.g. eating x seconds) UNIT_AURA calls, mark bag as synchronized (as it was removed earlier).
+	-- Toys UNIT_AURA calls, mark bag as synchronized (as no items are actually used).
+	if reason == SIPPYCUP.Popups.Reason.REMOVAL or reason == SIPPYCUP.Popups.Reason.PRE_EXPIRATION or optionData.delayedAura or optionData.type == SIPPYCUP.Options.Type.TOY then
+		SIPPYCUP.Items.HandleBagUpdate();
+	end
+
+	-- We defer popups in three situations:
+	-- > Bag data is desynch'd from UNIT_AURA.
+	-- > We're in combat (experimental).
+	-- > We're in a loading screen.
+	-- This should be handled before any other logic, as there's no point to calculate deferred logic.
+	if SIPPYCUP.Items.bagUpdateUnhandled or InCombatLockdown() or SIPPYCUP.InLoadingScreen then
+		local blockedBy;
+		if SIPPYCUP.Items.bagUpdateUnhandled then
+			blockedBy = "bag";
+		elseif InCombatLockdown() then
+			blockedBy = "combat"; -- Won't ever happen anymore as UNIT_AURA does not run in combat, legacy code.
+		elseif SIPPYCUP.States.loadingScreen then
+			blockedBy = "loading";
+		end
+
+		local deferredData = {
+			active = active,
+			auraID = auraID,
+			auraInfo = auraInfo,
+			optionData = optionData,
+			profileOptionData = profileOptionData,
+			reason = reason,
+		};
+
+		deferredActions[#deferredActions + 1] = {
+			data = deferredData,
+			caller = caller,
+			blockedBy = blockedBy,
+		};
+		return;
+	end
+	-- At this point, we're certain that we're safe to execute further!
+
+	-- Recover auraInfo if possible (perhaps triggered through combat or other means)
+	-- Or if auraInfo can't be accessed
+	if not auraInfo or (auraInfo and canaccessvalue and not canaccessvalue(auraInfo)) then
+		if currentInstanceID then
+			auraInfo = C_UnitAuras.GetAuraDataByAuraInstanceID("player", currentInstanceID);
+
+			if not auraInfo then
+				SIPPYCUP.Database.instanceToProfile[currentInstanceID] = nil;
+				profileOptionData.currentInstanceID = nil;
+			end
+		else
+			auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(auraID);
+
+			if auraInfo then
+				print("auraInfo found!");
+				local auraInstanceID = auraInfo.auraInstanceID;
+				SIPPYCUP.Database.instanceToProfile[auraInstanceID] = profileOptionData;
+				profileOptionData.currentInstanceID = auraInstanceID;
+			end
+		end
+	end
+
+	if auraInfo then
+		reason = SIPPYCUP.Popups.Reason.TOGGLE;
+		active = true;
+	end
+
+	local auraInstanceID = auraInfo and auraInfo.auraInstanceID;
 
 	local trackBySpell = false;
 	local trackByItem = false;
@@ -724,54 +802,7 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 		end
 	end
 
-	local auraID = data.auraID;
-	local auraInfo = data.auraInfo;
-	local auraInstanceID = data.auraInfo and data.auraInfo.auraInstanceID;
-
 	SIPPYCUP_OUTPUT.Debug({ caller = caller, auraID = optionData.auraID, itemID = optionData.itemID, name = optionData.name });
-
-	if not optionData or not profileOptionData or SIPPYCUP.Popups.IsIgnored(optionData.auraID) then
-		return;
-	end
-
-	-- Removal of a spell/aura count generally is not due to an item's action, mark bag as synchronized.
-	-- Pre-expiration also does not do any bag changes, so mark as synchronised in case.
-	-- Delayed (e.g. eating x seconds) UNIT_AURA calls, mark bag as synchronized (as it was removed earlier).
-	-- Toys UNIT_AURA calls, mark bag as synchronized (as no items are actually used).
-	if reason == SIPPYCUP.Popups.Reason.REMOVAL or reason == SIPPYCUP.Popups.Reason.PRE_EXPIRATION or optionData.delayedAura or optionData.type == SIPPYCUP.Options.Type.TOY then
-		SIPPYCUP.Items.HandleBagUpdate();
-	end
-
-	-- We defer popups in three situations:
-	-- > Bag data is desynch'd from UNIT_AURA.
-	-- > We're in combat (experimental).
-	-- > We're in a loading screen.
-	if SIPPYCUP.Items.bagUpdateUnhandled or InCombatLockdown() or SIPPYCUP.InLoadingScreen then
-		local blockedBy;
-		if SIPPYCUP.Items.bagUpdateUnhandled then
-			blockedBy = "bag";
-		elseif InCombatLockdown() then
-			blockedBy = "combat";
-		elseif SIPPYCUP.States.loadingScreen then
-			blockedBy = "loading";
-		end
-
-		local deferredData = {
-			active = active,
-			auraID = auraID,
-			auraInfo = auraInfo,
-			optionData = optionData,
-			profileOptionData = profileOptionData,
-			reason = reason,
-		};
-
-		deferredActions[#deferredActions + 1] = {
-			data = deferredData,
-			caller = caller,
-			blockedBy = blockedBy,
-		};
-		return;
-	end
 
 	-- First, let's grab the latest currentInstanceID (or have it be nil if none which is fine).
 	profileOptionData.currentInstanceID = (auraInfo and auraInfo.auraInstanceID) or auraInstanceID;
@@ -839,7 +870,7 @@ function SIPPYCUP.Popups.DeferAllRefreshPopups(reasonKey)
 	if reasonKey == 0 or SIPPYCUP.Items.bagUpdateUnhandled then
 		blockedBy = "bag";
 	elseif reasonKey == 1 or InCombatLockdown() then
-		blockedBy = "combat";
+		blockedBy = "combat"; -- Only way combat is ever used, by deferring before combat.
 	elseif reasonKey == 2 or SIPPYCUP.States.loadingScreen then
 		blockedBy = "loading";
 	end

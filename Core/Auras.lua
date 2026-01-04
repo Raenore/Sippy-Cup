@@ -66,7 +66,7 @@ local function ParseAura(updateInfo)
 		end
 	end
 
-	-- On aura application.
+	-- On aura application (spellId secret in combat).
 	local added = updateInfo.addedAuras;
 	if added then
 		for _, auraInfo in ipairs(updateInfo.addedAuras) do
@@ -83,7 +83,7 @@ local function ParseAura(updateInfo)
 		end
 	end
 
-	-- On aura update.
+	-- On aura update (auraInstanceID is not secret).
 	local updated = updateInfo.updatedAuraInstanceIDs;
 	if updated then
 		for _, auraInstanceID in ipairs(updateInfo.updatedAuraInstanceIDs) do
@@ -106,7 +106,7 @@ local function ParseAura(updateInfo)
 		end
 	end
 
-	-- On aura removal.
+	-- On aura removal (auraInstanceID is not secret).
 	local removed = updateInfo.removedAuraInstanceIDs;
 	if removed then
 		for _, auraInstanceID in ipairs(updateInfo.removedAuraInstanceIDs) do
@@ -600,6 +600,12 @@ function SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, reason, active)
 
 	if not auraInfo then
 		auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(auraID);
+	end
+
+	-- Deal with possible inacurracies from deferrment
+	if auraInfo and not active then
+		reason = SIPPYCUP.Popups.Reason.TOGGLE;
+		active = true;
 	end
 
 	-- Case 1: Aura removed or missing
