@@ -585,7 +585,9 @@ function SIPPYCUP.Popups.Toggle(itemName, auraID, enabled)
 	elseif trackBySpell then
 		SIPPYCUP_OUTPUT.Debug("Tracking through Spell");
 		local spellCooldownInfo = C_Spell.GetSpellCooldown(optionData.auraID);
-		startTime = canaccessvalue and (canaccessvalue(spellCooldownInfo) and spellCooldownInfo and spellCooldownInfo.startTime) or spellCooldownInfo and spellCooldownInfo.startTime;
+		if canaccessvalue == nil or canaccessvalue(spellCooldownInfo) then
+			startTime = spellCooldownInfo and spellCooldownInfo.startTime;
+		end
 		if startTime and startTime > 0 then
 			active = true;
 		end
@@ -726,8 +728,9 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	-- At this point, we're certain that we're safe to execute further!
 
 	-- Recover auraInfo if possible (perhaps triggered through combat or other means)
-	-- Or if auraInfo can't be accessed
-	if not auraInfo or (auraInfo and canaccessvalue and not canaccessvalue(auraInfo)) then
+	local auraInfoAccessible = canaccessvalue == nil or (auraInfo and canaccessvalue(auraInfo));
+
+	if auraInfo == nil or not auraInfoAccessible then
 		if currentInstanceID then
 			auraInfo = C_UnitAuras.GetAuraDataByAuraInstanceID("player", currentInstanceID);
 
@@ -790,7 +793,10 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 		elseif trackBySpell then
 			SIPPYCUP_OUTPUT.Debug("Tracking through Spell");
 			local spellCooldownInfo = C_Spell.GetSpellCooldown(optionData.auraID);
-			local startTime = canaccessvalue and (canaccessvalue(spellCooldownInfo) and spellCooldownInfo and spellCooldownInfo.startTime) or spellCooldownInfo and spellCooldownInfo.startTime;
+			local startTime;
+			if canaccessvalue == nil or canaccessvalue(spellCooldownInfo) then
+				startTime = spellCooldownInfo and spellCooldownInfo.startTime;
+			end
 			if startTime and startTime > 0 then
 				cooldownActive = true;
 			end

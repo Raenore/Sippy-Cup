@@ -249,11 +249,6 @@ SIPPYCUP.Auras.Sources = {
 function SIPPYCUP.Auras.Convert(source, data)
 	local updateInfo = {};
 
-	-- Bail out if we can't read the aura data due to secrets (combat, etc).
-	if canaccessvalue and not canaccessvalue(data) then
-		return;
-	end
-
 	if source == SIPPYCUP.Auras.Sources.UNIT_AURA then
 		-- Source 1: UNIT_AURA provides the right shape, but copy to avoid Blizzard table reuse.
 		if data.addedAuras then
