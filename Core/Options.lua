@@ -366,7 +366,7 @@ function SIPPYCUP.Options.RefreshStackSizes(checkAll, reset, preExpireOnly)
 					SIPPYCUP.Popups.QueuePopupAction(data, "RefreshStackSizes - active");
 				elseif checkAll then
 					data.reason = SIPPYCUP.Popups.Reason.REMOVAL;
-					SIPPYCUP.Popups.QueuePopupAction(data, "RefreshStackSizes - checkAll");
+					SIPPYCUP.Popups.QueuePopupAction(data, "RefreshStackSizes - checkAll (inactive)");
 				end
 			end
 		end
