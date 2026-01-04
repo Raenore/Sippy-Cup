@@ -73,8 +73,8 @@ function SIPPYCUP.ElvUI.SkinRegisteredElements()
 				else
 					SkinsModule:HandleInsetFrame(element);
 				end
-			elseif skinType == "scrollbar" and SkinsModule.HandleScrollBar then
-				SkinsModule:HandleScrollBar(element);
+			elseif skinType == "scrollbar" and SkinsModule.HandleTrimScrollBar then
+				SkinsModule:HandleTrimScrollBar(element);
 			elseif skinType == "slider" and SkinsModule.HandleStepSlider then
 				SkinsModule:HandleStepSlider(element);
 			elseif skinType == "toptapbutton" and SkinsModule.HandleTab then
