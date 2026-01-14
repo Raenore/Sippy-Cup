@@ -14,6 +14,7 @@ Given that Sippy Cup never officially supported combat situations, these restric
 
 ### Changed  
 - If you add, update, or remove a consumable's count during combat, Sippy Cup will attempt to reconcile these changes after combat. There is a chance some changes may be missed due to combat restrictions, so keep this in mind when managing consumables during combat. ([#72](https://github.com/Raenore/Sippy-Cup/pull/72))  
+- Settings page scrollbars (both Blizzard and ElvUI variants) have been updated to more modern and proper ones. ([#72](https://github.com/Raenore/Sippy-Cup/pull/72))  
 
 ## [0.5.0] - 2025-08-25  
 Major patch following the 0.4.0 internal optimizations, targeting further internal reworks and streamlining for performance.  
