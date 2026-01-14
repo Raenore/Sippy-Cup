@@ -107,7 +107,7 @@ SIPPYCUP.Database.defaults = {
 		MSPStatusCheck = true,
 		PopupPosition = "TOP",
 		PreExpirationChecks = true,
-		UseToyCooldown = false,
+		UseToyCooldown = true,
 		WelcomeMessage = true,
 	},
 	profiles = {
