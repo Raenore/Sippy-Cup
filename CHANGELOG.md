@@ -2,11 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0] - 2026-01-xx  
+Major patch following the release of Midnight, which introduces addon restrictions and tighter limitations that mostly affect combat-related situations.   
+Given that Sippy Cup never officially supported combat situations, these restrictions pose almost no true problems for the addon. However, there are some notable changes and additions in this release.  
+
+### Added  
+- Reminder popups that are active on your screen will disappear when combat starts and reappear once combat ends. ([#72](https://github.com/Raenore/Sippy-Cup/pull/72))  
+- Initial Toys support! A large number of RP toys have been added to Sippy Cup. ([#72](https://github.com/Raenore/Sippy-Cup/pull/72))  
+  - Toys tracking is more complex than consumables. If you encounter issues, please create an issue report on [the addon's GitHub page](https://github.com/Raenore/Sippy-Cup/issues).  
+  - New "Use Toy Cooldown" option: Addresses the new "Cooldown Mismatch" situation introduced by toys. Some toys/consumables have a longer cooldown than their effect duration, which may trigger reminder popups prematurely. Enabling this option will have Sippy Cup check the item/toy itself and only trigger a reminder popup when it is available again (enabled by default).  
+
+### Changed  
+- If you add, update, or remove a consumable's count during combat, Sippy Cup will attempt to reconcile these changes after combat. There is a chance some changes may be missed due to combat restrictions, so keep this in mind when managing consumables during combat. ([#72](https://github.com/Raenore/Sippy-Cup/pull/72))  
+
 ## [0.5.0] - 2025-08-25  
 Major patch following the 0.4.0 internal optimizations, targeting further internal reworks and streamlining for performance.  
 
 ### Added  
-- Added additional internal states to ensure Sippy Cup correctly tracks when certain data is available and ready to be used. No user-facing changes ([#62](https://github.com/Raenore/Sippy-Cup/pull/62))  
+- Added additional internal states to ensure Sippy Cup correctly tracks when certain data is available and ready to be used. No user-facing changes. ([#62](https://github.com/Raenore/Sippy-Cup/pull/62))  
 
 ### Changed  
 - Improved MSP-related code (addons like TRP, MRP, XRP, etc.) to handle edge cases where, on login, Sippy Cup incorrectly thought the player was IC. ([#63](https://github.com/Raenore/Sippy-Cup/pull/63))  
@@ -15,31 +28,6 @@ Major patch following the 0.4.0 internal optimizations, targeting further intern
 
 ### Fixed  
 - Fixed an issue where the refresh button remained disabled after being clicked with zero items left in the bag ([#65](https://github.com/Raenore/Sippy-Cup/pull/65)).  
-
-## [0.4.0] - 2025-08-10  
-Major patch following the 0.3.0 rework release, introducing several new requested features, significant internal optimizations, and fixes for reported bugs.
-
-### Added  
-- When ignored popups are reset, Sippy Cup will try to fire the popups for consumables you have enabled reminders for. [#48](https://github.com/Raenore/Sippy-Cup/pull/48)  
-- Ability to queue reminders that happen during combat and loading screens, and fire them at a time when it is more permissible and sensible for Sippy Cup to do so. [#52](https://github.com/Raenore/Sippy-Cup/pull/52)  
-- Enabling "Pre-Expiration Reminders" now also takes into account currently activated consumables, so they also get a reminder popup; disabling it will hide all pre-expiration related popups. [#52](https://github.com/Raenore/Sippy-Cup/pull/52) and [#58](https://github.com/Raenore/Sippy-Cup/pull/58)  
-- Added a proper state listener to improve the addon's reliability in knowing when data can be properly used. [#47](https://github.com/Raenore/Sippy-Cup/pull/47) and [#52](https://github.com/Raenore/Sippy-Cup/pull/52)  
-- While in flight, Sippy Cup will no longer allow refreshing consumables to prevent dismounting accidents; spam protection on the Refresh button is improved, significantly reducing the chances of overusing an item. [#55](https://github.com/Raenore/Sippy-Cup/pull/55)  
-
-### Changed  
-- Adjusted how aura data is received from the game, which should resolve the random "your item is not active" popups that sometimes appeared after loading screens. [#43](https://github.com/Raenore/Sippy-Cup/pull/43)  
-- Marked 11.2 as the only compatible version; 11.1.7 is no longer supported, as all live servers have updated. [#45](https://github.com/Raenore/Sippy-Cup/pull/45)  
-- MSP-related code (addons like TRP, MRP, XRP, etc.) has been improved and simplified to work better and be less prone to errors. [#52](https://github.com/Raenore/Sippy-Cup/pull/52) and [#53](https://github.com/Raenore/Sippy-Cup/pull/53)  
-- On login, reminders for missing popups or popups that will expire soon are now more robust and effective. [#52](https://github.com/Raenore/Sippy-Cup/pull/52)  
-- The logic for toggling consumables in the settings has been improved. This may not be noticeable unless you have many consumables enabled at once. [#56](https://github.com/Raenore/Sippy-Cup/pull/56)  
-- Updated the French translation with all recent changes (thanks to Solanya). The Russian translation remains outdated for now. [#60](https://github.com/Raenore/Sippy-Cup/pull/60)  
-
-### Fixed  
-- Resolved an issue caused by ignoring consumables through their reminder popup before the settings page had ever been opened. [#49](https://github.com/Raenore/Sippy-Cup/pull/49)  
-- Fixed an issue where certain checkboxes, such as `Only when "In Character"`, could become stuck in a disabled state even when an MSP-compatible addon was loaded. [#51](https://github.com/Raenore/Sippy-Cup/pull/51)  
-- Stack slider tooltip was not displaying the consumable name correctly; instead, it was showing the spell ID. [#52](https://github.com/Raenore/Sippy-Cup/pull/52)  
-- Fixed potential skinning issues for ElvUI (if enabled) with the config menu. [#52](https://github.com/Raenore/Sippy-Cup/pull/52)  
-- Fixed an issue where the settings window width could be smaller than the tabs it contained. [#54](https://github.com/Raenore/Sippy-Cup/pull/54)  
 
 ## Full Changelog  
 The complete changelog, including older versions, can always be found on [Sippy Cup's GitHub Wiki](https://github.com/Raenore/Sippy-Cup/wiki/Full-Changelog).  
