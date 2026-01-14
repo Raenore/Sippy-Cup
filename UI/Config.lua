@@ -155,36 +155,6 @@ local function GetLowestChildBottomIncludingFontStrings(frame)
 	return lowest;
 end
 
----UpdateScrollableContentHeight adjusts the height of the content frame based on its children's lowest point,
----adding padding, and shows/hides the scrollbar accordingly.
----@param contentFrame table The scrollable content frame that contains a reference to its scrollFrame.
-local function UpdateScrollableContentHeight(contentFrame)
-	local scrollFrame = contentFrame.scrollFrame;
-	if not scrollFrame then return; end
-
-	local visibleHeight = scrollFrame:GetHeight();
-	local parentTop = contentFrame:GetTop();
-	local parentBottom = GetLowestChildBottomIncludingFontStrings(contentFrame);
-	if not parentBottom then return; end
-
-	local relativeBottom = parentTop - parentBottom; -- height of content
-	local padding = 20; -- extra scroll padding
-	local requiredHeight = relativeBottom + padding;
-
-	-- Math.max to prevent zero/negative height.
-	contentFrame:SetHeight(math.max(requiredHeight, 1));
-
-	contentFrame:SetHeight(requiredHeight);
-
-	local scrollbar = scrollFrame.ScrollBar;
-	if scrollbar then
-		local shouldShow = requiredHeight > visibleHeight;
-		if scrollbar:IsShown() ~= shouldShow then
-			scrollbar:SetShown(shouldShow);
-		end
-	end
-end
-
 ---ApplyToFrames applies a given function to a single frame or a list of frames.
 ---@param frame table|table[] A single frame or a list of frames
 ---@param func function The function to apply to each frame
@@ -1625,9 +1595,6 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			self.profileWidgets[#self.profileWidgets + 1] = widgets;
 			self.allWidgets[#self.allWidgets + 1] = widgets;
 		end
-
-		-- update scroll content height & scrollbar visibility
-		UpdateScrollableContentHeight(categoryPanel); -- INVESTIGATE, removing this changes nothing?
 
 		-- Optional if references are ever required:
 		-- self.tabs[categoryName] = categoryTab;
