@@ -3,6 +3,8 @@
 
 local L = SIPPYCUP.L;
 SIPPYCUP.Database = {};
+---@type table<number, SIPPYCUPProfileOption>
+SIPPYCUP.Profile = {};
 
 ---Copies keys from source to target only if target key is nil (recursive).
 ---@param source table Source table to copy defaults from.
@@ -105,7 +107,7 @@ SIPPYCUP.Database.defaults = {
 		MSPStatusCheck = true,
 		PopupPosition = "TOP",
 		PreExpirationChecks = true,
-		UseToyCooldown = false,
+		UseToyCooldown = true,
 		WelcomeMessage = true,
 	},
 	profiles = {
@@ -116,13 +118,14 @@ SIPPYCUP.Database.defaults = {
 local defaults = SIPPYCUP.Database.defaults;
 
 ---Represents a single option's tracking settings within a user profile.
----@class SIPPYCUPProfileOption
+---@class SIPPYCUPProfileOption: table
 ---@field enable boolean Whether the option is enabled for tracking.
 ---@field desiredStacks number Number of stacks the user wants to maintain.
 ---@field currentInstanceID number? Aura instance ID currently being tracked (if any).
 ---@field currentStacks number Current number of detected stacks.
 ---@field aura number The associated aura ID for this option.
----@field noAuraTrackable boolean Whether this option can be tracked via its aura or not.
+---@field untrackableByAura boolean Whether this option can be tracked via its aura or not.
+
 ---Populate the default option's table keyed by aura ID, with all known entries from SIPPYCUP.Options.Data.
 ---This defines initial tracking settings for each option by its aura ID key.
 ---@return nil
@@ -131,7 +134,7 @@ local function PopulateDefaultOptions()
 	for i = 1, #optionsData do
 		local option = optionsData[i];
 		local spellID = option.auraID;
-		local noAuraTrackable = not (option.itemTrackable or option.spellTrackable);
+		local untrackableByAura = option.itemTrackable or option.spellTrackable;
 
 		if spellID then
 			-- Use auraID as the key, not profileKey
@@ -141,7 +144,7 @@ local function PopulateDefaultOptions()
 				currentInstanceID = nil,
 				currentStacks = 0,
 				aura = spellID,
-				noAuraTrackable = noAuraTrackable,
+				untrackableByAura = untrackableByAura,
 			};
 		end
 	end
@@ -149,9 +152,12 @@ end
 
 PopulateDefaultOptions();
 
+---@type table<number, SIPPYCUPProfileOption>
 SIPPYCUP.Database.auraToProfile = {}; -- auraID --> profile data
+---@type table<number, SIPPYCUPProfileOption>
 SIPPYCUP.Database.instanceToProfile = {}; -- instanceID --> profile data
-SIPPYCUP.Database.noAuraTrackableProfile = {}; -- itemID --> profile data (only if no aura)
+---@type table<number, SIPPYCUPProfileOption>
+SIPPYCUP.Database.untrackableByAuraProfile = {}; -- itemID --> profile data (only if no aura)
 
 ---RebuildAuraMap rebuilds internal lookup tables for aura and instance-based option tracking.
 ---@return nil
@@ -160,15 +166,18 @@ function SIPPYCUP.Database.RebuildAuraMap()
 	local db = SIPPYCUP.Database;
 	wipe(db.auraToProfile);
 	wipe(db.instanceToProfile);
-	wipe(db.noAuraTrackableProfile);
+	wipe(db.untrackableByAuraProfile);
 
-	for _, profileOptionData in pairs(SIPPYCUP.profile) do
+	for _, profileOptionData in pairs(SIPPYCUP.Profile) do
 		if profileOptionData.enable and profileOptionData.aura then
 			local auraID = profileOptionData.aura;
 			db.auraToProfile[auraID] = profileOptionData;
 
 			-- Update instance ID if aura is currently active
-			local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(auraID);
+			local auraInfo;
+			if canaccessvalue == nil or canaccessvalue(auraID) then
+				auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(auraID);
+			end
 			local instanceID = auraInfo and auraInfo.auraInstanceID;
 			profileOptionData.currentInstanceID = instanceID;
 			if instanceID then
@@ -176,10 +185,10 @@ function SIPPYCUP.Database.RebuildAuraMap()
 			end
 
 			-- Handle options that are trackable without auras (via itemID)
-			if profileOptionData.noAuraTrackable then
+			if profileOptionData.untrackableByAura then
 				local optionData = SIPPYCUP.Options.ByAuraID[auraID];
 				if optionData and optionData.itemID then
-					db.noAuraTrackableProfile[optionData.itemID] = profileOptionData;
+					db.untrackableByAuraProfile[optionData.itemID] = profileOptionData;
 				end
 			end
 		end
@@ -187,7 +196,7 @@ function SIPPYCUP.Database.RebuildAuraMap()
 end
 
 ---UpdateAuraMapForOption updates or removes a single profile's entries in the aura, instance, and noAura mappings.
----@param profileOptionData table The profile data to update.
+---@param profileOptionData SIPPYCUPProfileOption The profile data to update.
 ---@param enabled boolean Whether the profile is enabled or disabled.
 ---@return nil
 function SIPPYCUP.Database.UpdateAuraMapForOption(profileOptionData, enabled)
@@ -211,9 +220,9 @@ function SIPPYCUP.Database.UpdateAuraMapForOption(profileOptionData, enabled)
 			db.instanceToProfile[instanceID] = profileOptionData;
 		end
 
-		-- Update noAuraTrackableProfile if applicable
-		if profileOptionData.noAuraTrackable and optionData and optionData.itemID then
-			db.noAuraTrackableProfile[optionData.itemID] = profileOptionData;
+		-- Update untrackableByAuraProfile if applicable
+		if profileOptionData.untrackableByAura and optionData and optionData.itemID then
+			db.untrackableByAuraProfile[optionData.itemID] = profileOptionData;
 		end
 	else
 		-- Remove from auraToProfile
@@ -226,9 +235,9 @@ function SIPPYCUP.Database.UpdateAuraMapForOption(profileOptionData, enabled)
 			profileOptionData.currentInstanceID = nil;
 		end
 
-		-- Remove from noAuraTrackableProfile if applicable
-		if profileOptionData.noAuraTrackable and optionData and optionData.itemID then
-			db.noAuraTrackableProfile[optionData.itemID] = nil;
+		-- Remove from untrackableByAuraProfile if applicable
+		if profileOptionData.untrackableByAura and optionData and optionData.itemID then
+			db.untrackableByAuraProfile[optionData.itemID] = nil;
 		end
 	end
 end
@@ -236,17 +245,21 @@ end
 ---Returns profile data matching spell ID, aura instance ID, or item ID.
 ---@param spellId number? Spell ID to match `auraToProfile`.
 ---@param instanceID number? Aura instance ID to match `instanceToProfile`.
----@param itemID number? Item ID to match `noAuraTrackableProfile`.
+---@param itemID number? Item ID to match `untrackableByAuraProfile`.
 ---@return SIPPYCUPProfileOption? profileOptionData
 function SIPPYCUP.Database.FindMatchingProfile(spellId, instanceID, itemID)
 	local db = SIPPYCUP.Database;
 
-	if spellId ~= nil then
-		return db.auraToProfile[spellId];
-	elseif instanceID ~= nil then
+	if canaccessvalue == nil or canaccessvalue(spellId) then
+		if spellId ~= nil then
+			return db.auraToProfile[spellId];
+		end
+	end
+
+	if instanceID ~= nil then
 		return db.instanceToProfile[instanceID];
 	elseif itemID ~= nil then
-		return db.noAuraTrackableProfile[itemID];
+		return db.untrackableByAuraProfile[itemID];
 	end
 
 	return nil;
@@ -280,8 +293,8 @@ function SIPPYCUP.Database.UpdateSetting(scope, key, subKey, value)
 		db.profiles[profileName] = db.profiles[profileName] or {};
 		targetMinimal = db.profiles[profileName];
 
-		SIPPYCUP.profile = SIPPYCUP.profile or {};
-		targetRuntime = SIPPYCUP.profile;
+		SIPPYCUP.Profile = SIPPYCUP.Profile or {};
+		targetRuntime = SIPPYCUP.Profile;
 
 		defaultTable = defaults.profiles.Default;
 
@@ -340,7 +353,7 @@ end
 ---@return any value The resolved value from runtime or default, or nil if not found
 function SIPPYCUP.Database.GetSetting(scope, key, subKey)
 	if scope == "profile" then
-		local profile = SIPPYCUP.profile or {};
+		local profile = SIPPYCUP.Profile or {};
 		if subKey then
 			if profile[key] and profile[key][subKey] ~= nil then
 				return profile[key][subKey];
@@ -452,7 +465,7 @@ function SIPPYCUP.Database.Setup()
 	db.profiles[profileName] = minimalProfile;
 
 	-- Set resolved working profile for runtime use
-	SIPPYCUP.profile = workingProfile;
+	SIPPYCUP.Profile = workingProfile;
 
 	SIPPYCUP.States.databaseLoaded = true;
 end
@@ -533,7 +546,7 @@ function SIPPYCUP.Database.SetProfile(profileName)
 	local key = SIPPYCUP.Database.GetUnitName();
 	SIPPYCUP.db.profileKeys[key] = profileName;
 
-	SIPPYCUP.profile = resolvedProfile;
+	SIPPYCUP.Profile = resolvedProfile;
 	SIPPYCUP.Database.RefreshUI();
 
 	return true;
@@ -563,8 +576,8 @@ function SIPPYCUP.Database.CreateProfile(profileName)
 
 	-- Set runtime profile as default profile since minimal is empty
 	local defaultProfile = defaults.profiles.Default or {};
-	SIPPYCUP.profile = {};
-	DeepCopyDefaults(defaultProfile, SIPPYCUP.profile);
+	SIPPYCUP.Profile = {};
+	DeepCopyDefaults(defaultProfile, SIPPYCUP.Profile);
 
 	SIPPYCUP.Database.RefreshUI();
 
@@ -592,8 +605,8 @@ function SIPPYCUP.Database.ResetProfile(profileName)
 	if profileName == currentProfileName then
 		local defaultProfile = defaults.profiles.Default or {};
 
-		SIPPYCUP.profile = {};
-		DeepCopyDefaults(defaultProfile, SIPPYCUP.profile);
+		SIPPYCUP.Profile = {};
+		DeepCopyDefaults(defaultProfile, SIPPYCUP.Profile);
 		-- No minimal overrides after reset
 
 		SIPPYCUP.Database.RefreshUI();
@@ -636,9 +649,9 @@ function SIPPYCUP.Database.CopyProfile(sourceProfileName)
 	SIPPYCUP.db.profiles[currentProfileName] = minimalCopy;
 
 	-- Update runtime shortcut for current profile
-	SIPPYCUP.profile = {};
-	DeepCopyDefaults(defaultProfile, SIPPYCUP.profile);
-	DeepMerge(minimalCopy, SIPPYCUP.profile);
+	SIPPYCUP.Profile = {};
+	DeepCopyDefaults(defaultProfile, SIPPYCUP.Profile);
+	DeepMerge(minimalCopy, SIPPYCUP.Profile);
 
 	SIPPYCUP.Database.RefreshUI();
 
@@ -689,9 +702,9 @@ function SIPPYCUP.Database.DeleteProfile(profileName)
 		end
 
 		-- Update runtime shortcut with full Default profile data
-		SIPPYCUP.profile = {};
-		DeepCopyDefaults(defaults.profiles.Default, SIPPYCUP.profile);
-		DeepMerge(SIPPYCUP.db.profiles["Default"], SIPPYCUP.profile);
+		SIPPYCUP.Profile = {};
+		DeepCopyDefaults(defaults.profiles.Default, SIPPYCUP.Profile);
+		DeepMerge(SIPPYCUP.db.profiles["Default"], SIPPYCUP.Profile);
 
 		SIPPYCUP.Database.RefreshUI();
 	end

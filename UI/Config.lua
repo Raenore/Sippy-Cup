@@ -74,17 +74,15 @@ local function AddTab(parent)
 	return tab;
 end
 
----GetScrollableWrapperFrame creates a scrollable content frame within the parent frame.
----It wires mousewheel support and adds a scroll frame with consistent padding and clamped scrolling logic.
----@param parent table The parent frame to contain the scrollable wrapper. Must have a `Views` table.
----@return table contentFrame The scrollable content frame with scrollFrame reference and isScrollable flag.
+---GetWrapperFrame creates a content frame within the parent frame.
+---@param parent table The parent frame to contain the wrapper. Must have a `Views` table.
+---@return table contentFrame The content frame.
 local function GetWrapperFrame(parent)
 	local frame = CreateFrame("Frame", nil, parent);
 	frame:SetPoint("TOP", 0, -55);
 	frame:SetPoint("LEFT");
 	frame:SetPoint("RIGHT");
 	frame:SetPoint("BOTTOM");
-	frame:Hide();
 
 	frame.isScrollable = false;
 	frame.scrollFrame = nil;
@@ -95,45 +93,21 @@ local function GetWrapperFrame(parent)
 end
 
 ---GetScrollableWrapperFrame creates a scrollable content frame within the parent frame.
----It wires mousewheel support and adds a scroll frame with consistent padding and clamped scrolling logic.
 ---@param parent table The parent frame to contain the scrollable wrapper. Must have a Views table.
 ---@return table The scrollable content frame, with a reference to its scrollFrame and isScrollable flag.
 local function GetScrollableWrapperFrame(parent)
 	local paddingLeft, paddingRight, paddingTop, paddingBottom = 0, 25, 55, 16;
 
-	local scrollFrame = CreateFrame("ScrollFrame", nil, parent, "UIPanelScrollFrameTemplate");
+	local scrollFrame = CreateFrame("ScrollFrame", nil, parent, "ScrollFrameTemplate");
 	scrollFrame:SetPoint("TOPLEFT", parent, "TOPLEFT", paddingLeft, -paddingTop);
 	scrollFrame:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", -paddingRight, paddingBottom);
-	scrollFrame:EnableMouse(true);
-	scrollFrame:EnableMouseWheel(true);
-	scrollFrame:Hide();
-
-	local function HandleScroll(self, delta)
-		local newScroll = self:GetVerticalScroll() - (delta * 30);
-		local minScroll, maxScroll = 0, self:GetVerticalScrollRange();
-
-		-- Use math.min/max for concise clamping.
-		self:SetVerticalScroll(math.max(minScroll, math.min(newScroll, maxScroll)));
-	end
-
-	scrollFrame:SetScript("OnMouseWheel", HandleScroll);
 
 	local contentFrame = CreateFrame("Frame", nil, scrollFrame);
 	contentFrame:SetSize(scrollFrame:GetWidth(), 500);
 	contentFrame:SetPoint("TOPLEFT");
 	contentFrame:SetPoint("TOPRIGHT");
-	contentFrame:EnableMouse(true);
-	contentFrame:EnableMouseWheel(true);
-	contentFrame:SetScript("OnMouseWheel", function(self, delta)
-		HandleScroll(self:GetParent(), delta);
-	end);
 
 	scrollFrame:SetScrollChild(contentFrame);
-	contentFrame:Hide();
-
-	if scrollFrame.ScrollBar then
-		scrollFrame.ScrollBar:Hide();
-	end
 
 	contentFrame.scrollFrame = scrollFrame;
 	contentFrame.isScrollable = true;
@@ -179,36 +153,6 @@ local function GetLowestChildBottomIncludingFontStrings(frame)
 	end
 
 	return lowest;
-end
-
----UpdateScrollableContentHeight adjusts the height of the content frame based on its children's lowest point,
----adding padding, and shows/hides the scrollbar accordingly.
----@param contentFrame table The scrollable content frame that contains a reference to its scrollFrame.
-local function UpdateScrollableContentHeight(contentFrame)
-	local scrollFrame = contentFrame.scrollFrame;
-	if not scrollFrame then return; end
-
-	local visibleHeight = scrollFrame:GetHeight();
-	local parentTop = contentFrame:GetTop();
-	local parentBottom = GetLowestChildBottomIncludingFontStrings(contentFrame);
-	if not parentBottom then return; end
-
-	local relativeBottom = parentTop - parentBottom; -- height of content
-	local padding = 20; -- extra scroll padding
-	local requiredHeight = relativeBottom + padding;
-
-	-- Math.max to prevent zero/negative height.
-	contentFrame:SetHeight(math.max(requiredHeight, 1));
-
-	contentFrame:SetHeight(requiredHeight);
-
-	local scrollbar = scrollFrame.ScrollBar;
-	if scrollbar then
-		local shouldShow = requiredHeight > visibleHeight;
-		if scrollbar:IsShown() ~= shouldShow then
-			scrollbar:SetShown(shouldShow);
-		end
-	end
 end
 
 ---ApplyToFrames applies a given function to a single frame or a list of frames.
@@ -1212,11 +1156,6 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 
 	self.Inset:Hide();
 
-	-- Hide scrollbar if it exists
-	if self.ScrollFrame and self.ScrollFrame.ScrollBar then
-		self.ScrollFrame.ScrollBar:Hide();
-	end
-
 	self:SetTitle(SIPPYCUP.AddonMetadata.title .. " " .. MAIN_MENU);
 
 	self.Tabs = {};
@@ -1231,13 +1170,6 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 	self.CloseButton:SetScript("OnClick", function()
 		self:Hide();
 	end)
-
-	-- Hide any scrollbar directly attached to self, if exists
-	if self.ScrollFrame and self.ScrollFrame.ScrollBar then
-		self.ScrollFrame.ScrollBar:Hide();
-	elseif self.ScrollBar then
-		self.ScrollBar:Hide();
-	end
 
 	-- Create tabs and their panels
 	local generalTab = AddTab(self);
@@ -1523,7 +1455,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 		local categoryConsumablesData = {};
 
 		for _, optionData in ipairs(SIPPYCUP.Options.Data) do
-			if optionData.category == categoryName and optionData.type == 0 then
+			if optionData.category == categoryName and optionData.type == SIPPYCUP.Options.Type.CONSUMABLE then
 				local consumableAura = optionData.auraID;
 				local consumableName = optionData.name;
 				local consumableID = optionData.itemID;
@@ -1573,7 +1505,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 						end,
 						set = function(val)
 							SIPPYCUP.Database.UpdateSetting("profile", sliderProfileKey, "desiredStacks", val);
-							if SIPPYCUP.profile[sliderProfileKey].enable then
+							if SIPPYCUP.Profile[sliderProfileKey].enable then
 								SIPPYCUP.Popups.Toggle(consumableName, consumableAura, true);
 							end
 						end,
@@ -1594,7 +1526,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 		local categoryToysData = {};
 
 		for _, optionData in ipairs(SIPPYCUP.Options.Data) do
-			if optionData.category == categoryName and optionData.type == 1 then
+			if optionData.category == categoryName and optionData.type == SIPPYCUP.Options.Type.TOY then
 				local toyAura = optionData.auraID;
 				local toyName = optionData.name;
 				local toyID = optionData.itemID;
@@ -1646,7 +1578,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 						end,
 						set = function(val)
 							SIPPYCUP.Database.UpdateSetting("profile", sliderProfileKey, "desiredStacks", val);
-							if SIPPYCUP.profile[sliderProfileKey].enable then
+							if SIPPYCUP.Profile[sliderProfileKey].enable then
 								SIPPYCUP.Popups.Toggle(toyName, toyAura, true);
 							end
 						end,
@@ -1663,9 +1595,6 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			self.profileWidgets[#self.profileWidgets + 1] = widgets;
 			self.allWidgets[#self.allWidgets + 1] = widgets;
 		end
-
-		-- update scroll content height & scrollbar visibility
-		UpdateScrollableContentHeight(categoryPanel);
 
 		-- Optional if references are ever required:
 		-- self.tabs[categoryName] = categoryTab;

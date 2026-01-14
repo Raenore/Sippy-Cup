@@ -192,6 +192,7 @@ stds.wow = {
 				"GetItemCount",
 				"GetItemIconByID",
 				"GetItemInfo",
+				"GetItemInfoInstant",
 				"GetItemNameByID",
 				"IsItemInRange",
 				"RequestLoadItemDataByID",
@@ -262,6 +263,12 @@ stds.wow = {
 			fields = {
 				"GetZonePVPInfo",
 				"IsWarModeActive",
+			},
+		},
+
+		C_Secrets = {
+			fields = {
+				"ShouldAurasBeSecret",
 			},
 		},
 
@@ -421,6 +428,7 @@ stds.wow = {
 		"ButtonFrameTemplate_HidePortrait",
 		"ButtonFrameTemplate_HideButtonBar",
 		"CalculateStringEditDistance",
+		"canaccessvalue",
 		"Chat_GetChatFrame",
 		"ChatConfigChannelSettings_SwapChannelsByIndex",
 		"ChatEdit_FocusActiveWindow",
@@ -525,6 +533,7 @@ stds.wow = {
 		"IsMetaKeyDown",
 		"IsModifierKeyDown",
 		"IsMounted",
+		"issecretvalue",
 		"IsShiftKeyDown",
 		"IsSpellKnown",
 		"IsTrialAccount",

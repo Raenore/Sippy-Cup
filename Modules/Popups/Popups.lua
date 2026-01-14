@@ -57,7 +57,7 @@ local sessionData = {};
 ---@return nil
 function SIPPYCUP.Popups.ResetIgnored()
 	for auraID in pairs(sessionData) do
-		local profileOptionData = SIPPYCUP.profile[auraID];
+		local profileOptionData = SIPPYCUP.Profile[auraID];
 		SIPPYCUP.Popups.Toggle(nil, auraID, profileOptionData.enable);
 	end
 
@@ -214,7 +214,7 @@ local function CreatePopup(templateType)
 				else
 					if popupData then
 						local optionData = popupData.optionData;
-						if optionData.type == 0 then
+						if optionData.type == SIPPYCUP.Options.Type.CONSUMABLE then
 							local profileOptionData = popupData.profileOptionData;
 
 							local itemID = optionData.itemID;
@@ -450,7 +450,7 @@ function SIPPYCUP.Popups.HandleReminderPopup(data, templateTypeID)
 			end
 
 			-- If user wants a missing reminder, we'll do that now (unless it's a toy as that has no item counts).
-			if data.itemCount < data.profileOptionData.desiredStacks and SIPPYCUP.global.InsufficientReminder and data.optionData.type ~= 1 then
+			if data.itemCount < data.profileOptionData.desiredStacks and SIPPYCUP.global.InsufficientReminder and data.optionData.type ~= SIPPYCUP.Options.Type.TOY then
 				SIPPYCUP.Popups.HandleReminderPopup(data, 1);
 			end
 			return;
@@ -523,7 +523,7 @@ function SIPPYCUP.Popups.Toggle(itemName, auraID, enabled)
 		return;
 	end
 
-	local profileOptionData = SIPPYCUP.profile[optionData.auraID];
+	local profileOptionData = SIPPYCUP.Profile[optionData.auraID];
 	if not profileOptionData then
 		return;
 	end
@@ -540,7 +540,7 @@ function SIPPYCUP.Popups.Toggle(itemName, auraID, enabled)
 			existingPopup:Hide();
 		end
 
-		if profileOptionData.noAuraTrackable then
+		if profileOptionData.untrackableByAura then
 			SIPPYCUP.Items.CancelItemTimer(nil, optionData.auraID);
 		else
 			SIPPYCUP.Auras.CancelPreExpirationTimer(nil, optionData.auraID);
@@ -556,10 +556,10 @@ function SIPPYCUP.Popups.Toggle(itemName, auraID, enabled)
 	local trackBySpell = false;
 	local trackByItem = false;
 
-	if optionData.type == 0 then
+	if optionData.type == SIPPYCUP.Options.Type.CONSUMABLE then
 		trackBySpell = optionData.spellTrackable;
 		trackByItem = optionData.itemTrackable;
-	elseif optionData.type == 1 then
+	elseif optionData.type == SIPPYCUP.Options.Type.TOY then
 		-- Always track by item if itemTrackable
 		if optionData.itemTrackable then
 			trackByItem = true;
@@ -585,14 +585,16 @@ function SIPPYCUP.Popups.Toggle(itemName, auraID, enabled)
 	elseif trackBySpell then
 		SIPPYCUP_OUTPUT.Debug("Tracking through Spell");
 		local spellCooldownInfo = C_Spell.GetSpellCooldown(optionData.auraID);
-		startTime = spellCooldownInfo and spellCooldownInfo.startTime;
+		if canaccessvalue == nil or canaccessvalue(spellCooldownInfo) then
+			startTime = spellCooldownInfo and spellCooldownInfo.startTime;
+		end
 		if startTime and startTime > 0 then
 			active = true;
 		end
 	end
 
 	local preExpireFired;
-	if profileOptionData.noAuraTrackable then
+	if profileOptionData.untrackableByAura then
 		preExpireFired = SIPPYCUP.Items.CheckNoAuraSingleOption(profileOptionData, optionData.auraID, nil, startTime);
 	else
 		preExpireFired = SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData);
@@ -671,52 +673,24 @@ end
 function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	SIPPYCUP_OUTPUT.Debug("HandlePopupAction");
 	local optionData = data.optionData or SIPPYCUP.Options.ByAuraID[data.auraID];
-	local profileOptionData = data.profileOptionData or SIPPYCUP.profile[data.auraID];
-
-	local reason = data.reason;
-	local active = data.active;
-
-	-- Extra check because toys have longer cooldowns than option tend to, so don't fire if cd is still up.
-	if optionData.type == 1 and reason == SIPPYCUP.Popups.Reason.REMOVAL then
-		local cooldownActive = false;
-		-- If item can only be tracked by the item cooldown (worst)
-		if optionData.itemTrackable then
-			local startTime = C_Item.GetItemCooldown(optionData.itemID);
-			SIPPYCUP_OUTPUT.Debug(startTime);
-			if startTime and startTime > 0 then
-				cooldownActive = true;
-			end
-		-- If item can be tracked through the spell cooldown (fine).
-		elseif optionData.spellTrackable then
-			local spellCooldownInfo = C_Spell.GetSpellCooldown(optionData.auraID);
-			local startTime = spellCooldownInfo and spellCooldownInfo.startTime;
-			SIPPYCUP_OUTPUT.Debug(startTime);
-			if startTime and startTime > 0 then
-				cooldownActive = true;
-			end
-		end
-
-		-- Cooldown is active when removal happened? We don't show anything.
-		if cooldownActive then
-			return;
-		end
-	end
-
-	local auraID = data.auraID;
-	local auraInfo = data.auraInfo;
-	local auraInstanceID = data.auraInfo and data.auraInfo.auraInstanceID;
-
-	SIPPYCUP_OUTPUT.Debug({ caller = caller, auraID = optionData.auraID, itemID = optionData.itemID, name = optionData.name });
+	local profileOptionData = data.profileOptionData or SIPPYCUP.Profile[data.auraID];
 
 	if not optionData or not profileOptionData or SIPPYCUP.Popups.IsIgnored(optionData.auraID) then
 		return;
 	end
 
+	local reason = data.reason;
+	local active = data.active;
+
+	local auraID = data.auraID;
+	local auraInfo = data.auraInfo;
+	local currentInstanceID = profileOptionData.currentInstanceID;
+
 	-- Removal of a spell/aura count generally is not due to an item's action, mark bag as synchronized.
 	-- Pre-expiration also does not do any bag changes, so mark as synchronised in case.
 	-- Delayed (e.g. eating x seconds) UNIT_AURA calls, mark bag as synchronized (as it was removed earlier).
-	-- Toys (type 1) UNIT_AURA calls, mark bag as synchronized (as no items are actually used).
-	if reason == SIPPYCUP.Popups.Reason.REMOVAL or reason == SIPPYCUP.Popups.Reason.PRE_EXPIRATION or optionData.delayedAura or optionData.type == 1 then
+	-- Toys UNIT_AURA calls, mark bag as synchronized (as no items are actually used).
+	if reason == SIPPYCUP.Popups.Reason.REMOVAL or reason == SIPPYCUP.Popups.Reason.PRE_EXPIRATION or optionData.delayedAura or optionData.type == SIPPYCUP.Options.Type.TOY then
 		SIPPYCUP.Items.HandleBagUpdate();
 	end
 
@@ -724,12 +698,13 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	-- > Bag data is desynch'd from UNIT_AURA.
 	-- > We're in combat (experimental).
 	-- > We're in a loading screen.
+	-- This should be handled before any other logic, as there's no point to calculate deferred logic.
 	if SIPPYCUP.Items.bagUpdateUnhandled or InCombatLockdown() or SIPPYCUP.InLoadingScreen then
 		local blockedBy;
 		if SIPPYCUP.Items.bagUpdateUnhandled then
 			blockedBy = "bag";
 		elseif InCombatLockdown() then
-			blockedBy = "combat";
+			blockedBy = "combat"; -- Won't ever happen anymore as UNIT_AURA does not run in combat, legacy code.
 		elseif SIPPYCUP.States.loadingScreen then
 			blockedBy = "loading";
 		end
@@ -750,6 +725,90 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 		};
 		return;
 	end
+	-- At this point, we're certain that we're safe to execute further!
+
+	-- Recover auraInfo if possible (perhaps triggered through combat or other means)
+	local auraInfoAccessible = canaccessvalue == nil or (auraInfo and canaccessvalue(auraInfo));
+
+	if auraInfo == nil or not auraInfoAccessible then
+		if currentInstanceID then
+			auraInfo = C_UnitAuras.GetAuraDataByAuraInstanceID("player", currentInstanceID);
+
+			if not auraInfo then
+				SIPPYCUP.Database.instanceToProfile[currentInstanceID] = nil;
+				profileOptionData.currentInstanceID = nil;
+			end
+		else
+			auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(auraID);
+
+			if auraInfo then
+				print("auraInfo found!");
+				local auraInstanceID = auraInfo.auraInstanceID;
+				SIPPYCUP.Database.instanceToProfile[auraInstanceID] = profileOptionData;
+				profileOptionData.currentInstanceID = auraInstanceID;
+			end
+		end
+	end
+
+	if auraInfo then
+		reason = SIPPYCUP.Popups.Reason.TOGGLE;
+		active = true;
+	end
+
+	local auraInstanceID = auraInfo and auraInfo.auraInstanceID;
+
+	local trackBySpell = false;
+	local trackByItem = false;
+
+	if optionData.type == SIPPYCUP.Options.Type.CONSUMABLE then
+		trackBySpell = optionData.spellTrackable;
+		trackByItem = optionData.itemTrackable;
+	elseif optionData.type == SIPPYCUP.Options.Type.TOY then
+		-- Always track by item if itemTrackable
+		if optionData.itemTrackable then
+			trackByItem = true;
+		end
+
+		if optionData.spellTrackable then
+			if SIPPYCUP.global.UseToyCooldown then
+				trackByItem = true;
+			else
+				trackBySpell = true;
+			end
+		end
+	end
+
+	-- Extra check because toys have longer cooldowns than option tend to, so don't fire if cd is still up.
+	if optionData.type == SIPPYCUP.Options.Type.TOY and reason == SIPPYCUP.Popups.Reason.REMOVAL then
+		local cooldownActive = false;
+
+		-- If item can only be tracked by the item cooldown (worst)
+		if trackByItem then
+			SIPPYCUP_OUTPUT.Debug("Tracking through Item");
+			local startTime = C_Item.GetItemCooldown(optionData.itemID);
+			if startTime and startTime > 0 then
+				cooldownActive = true;
+			end
+		-- If item can be tracked through the spell cooldown (fine).
+		elseif trackBySpell then
+			SIPPYCUP_OUTPUT.Debug("Tracking through Spell");
+			local spellCooldownInfo = C_Spell.GetSpellCooldown(optionData.auraID);
+			local startTime;
+			if canaccessvalue == nil or canaccessvalue(spellCooldownInfo) then
+				startTime = spellCooldownInfo and spellCooldownInfo.startTime;
+			end
+			if startTime and startTime > 0 then
+				cooldownActive = true;
+			end
+		end
+
+		-- Cooldown is active when removal happened? We don't show anything.
+		if cooldownActive then
+			return;
+		end
+	end
+
+	SIPPYCUP_OUTPUT.Debug({ caller = caller, auraID = optionData.auraID, itemID = optionData.itemID, name = optionData.name });
 
 	-- First, let's grab the latest currentInstanceID (or have it be nil if none which is fine).
 	profileOptionData.currentInstanceID = (auraInfo and auraInfo.auraInstanceID) or auraInstanceID;
@@ -758,10 +817,10 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	profileOptionData.desiredStacks = optionData.stacks and profileOptionData.desiredStacks or 1;
 
 	local itemCount;
-	if optionData.type == 0 then
+	if optionData.type == SIPPYCUP.Options.Type.CONSUMABLE then
 		profileOptionData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, reason, active);
 		itemCount = C_Item.GetItemCount(optionData.itemID);
-	elseif optionData.type == 1 then
+	elseif optionData.type == SIPPYCUP.Options.Type.TOY then
 		if auraInfo then
 			profileOptionData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, reason, active);
 		else
@@ -805,6 +864,56 @@ function SIPPYCUP.Popups.HideAllRefreshPopups(reason)
 		if not reason or popup.popupData.reason == reason then
 			popup:Hide(); -- Cleans up activePopupByLoc and other stuff.
 		end
+	end
+end
+
+---DeferAllRefreshPopups defers all active and queued popups to be processed later.
+-- Typically called when popups cannot be shown due to bags, combat, or loading screen.
+---@param reason number Why a deferred action is being handled (0 - bag, 1 - combat, 2 - loading)
+---@return nil
+function SIPPYCUP.Popups.DeferAllRefreshPopups(reasonKey)
+	local blockedBy;
+	if reasonKey == 0 or SIPPYCUP.Items.bagUpdateUnhandled then
+		blockedBy = "bag";
+	elseif reasonKey == 1 or InCombatLockdown() then
+		blockedBy = "combat"; -- Only way combat is ever used, by deferring before combat.
+	elseif reasonKey == 2 or SIPPYCUP.States.loadingScreen then
+		blockedBy = "loading";
+	end
+
+	local function MakeDeferredData(popup)
+		local d = popup.popupData;
+		return {
+			active = d.active,
+			auraID = d.optionData.auraID,
+			auraInfo = nil, -- Cannot query at this point (e.g. combat lockdown)
+			optionData = d.optionData,
+			profileOptionData = d.profileOptionData,
+			reason = d.reason,
+		};
+	end
+
+	-- Defer queued popups
+	for i = #popupQueue, 1, -1 do
+		local popup = popupQueue[i];
+		deferredActions[#deferredActions + 1] = {
+			data = MakeDeferredData(popup),
+			caller = "DeferAllRefreshPopups - popupQueue",
+			blockedBy = blockedBy,
+		};
+		table.remove(popupQueue, i);
+	end
+
+	-- Defer and hide active popups
+	for i = #activePopups, 1, -1 do
+		local popup = activePopups[i];
+		-- Preserves order of active popups
+		table.insert(deferredActions, 1, {
+			data = MakeDeferredData(popup),
+			caller = "DeferAllRefreshPopups - activePopups",
+			blockedBy = blockedBy,
+		});
+		popup:Hide(); -- Also removes from activePopups and activePopupByLoc
 	end
 end
 

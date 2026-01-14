@@ -65,9 +65,17 @@ local function CheckPlayerLogin()
 	end
 end
 
----PLAYER_LOGIN Fires after the UI is fully loaded, triggers OnPlayerLogin if DB and options are ready.
+---PLAYER_LOGIN Fires after the UI is fully loaded with essential game event registration, triggers OnPlayerLogin if DB and options are ready.
 function SIPPYCUP_Addon:PLAYER_LOGIN()
 	SIPPYCUP_Addon:UnregisterEvent("PLAYER_LOGIN");
+	-- Initial game event registration, necessary to correctly track all states on login.
+	SIPPYCUP_Addon:RegisterEvent("PLAYER_REGEN_DISABLED");
+	SIPPYCUP_Addon:RegisterEvent("PLAYER_REGEN_ENABLED");
+	SIPPYCUP_Addon:RegisterEvent("PLAYER_ENTERING_WORLD");
+	SIPPYCUP_Addon:RegisterEvent("PLAYER_LEAVING_WORLD");
+	SIPPYCUP_Addon:RegisterEvent("ZONE_CHANGED_NEW_AREA");
+	SIPPYCUP_Addon:RegisterEvent("BAG_UPDATE_DELAYED");
+
 	SIPPYCUP.States.playerLoggedIn = true;
 	CheckPlayerLogin();
 end
@@ -81,15 +89,9 @@ end);
 
 ---OnPlayerLogin Handles game event registration and config frame creation after player login.
 function SIPPYCUP_Addon:OnPlayerLogin()
-	-- Register game events on the unified event frame
+	-- Register game events related to aura and spell tracking for Sippy Cup.
 	SIPPYCUP_Addon:RegisterUnitEvent("UNIT_AURA", "player");
-	SIPPYCUP_Addon:RegisterEvent("PLAYER_REGEN_DISABLED");
-	SIPPYCUP_Addon:RegisterEvent("PLAYER_REGEN_ENABLED");
-	SIPPYCUP_Addon:RegisterEvent("PLAYER_ENTERING_WORLD");
-	SIPPYCUP_Addon:RegisterEvent("PLAYER_LEAVING_WORLD");
-	SIPPYCUP_Addon:RegisterEvent("ZONE_CHANGED_NEW_AREA");
 	SIPPYCUP_Addon:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player");
-	SIPPYCUP_Addon:RegisterEvent("BAG_UPDATE_DELAYED");
 
 	SIPPYCUP.Config.TryCreateConfigFrame();
 end
@@ -152,17 +154,20 @@ function SIPPYCUP_Addon:PLAYER_LEAVING_WORLD()
 	SIPPYCUP.Callbacks:TriggerEvent(SIPPYCUP.Events.LOADING_SCREEN_STARTED);
 end
 
----PLAYER_REGEN_DISABLED Stops continuous checks when entering combat.
+---PLAYER_REGEN_DISABLED Stops continuous checks when entering combat and defers all active popups.
 function SIPPYCUP_Addon:PLAYER_REGEN_DISABLED()
 	-- Combat is entered when regen is disabled.
 	self:StopContinuousCheck();
+	SIPPYCUP.Popups.DeferAllRefreshPopups(1);
 end
 
 ---PLAYER_REGEN_ENABLED Restarts continuous checks and handles deferred combat actions after leaving combat.
 function SIPPYCUP_Addon:PLAYER_REGEN_ENABLED()
 	-- Combat is left when regen is enabled.
 	self:StartContinuousCheck();
+	-- Show 'combat' popups deferred by DeferAllRefreshPopups (reason 1).
 	SIPPYCUP.Popups.HandleDeferredActions("combat");
+	SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
 end
 
 ---UNIT_AURA Handles player aura updates, flags bag desync, and triggers aura conversion.
@@ -170,10 +175,12 @@ end
 ---@param unitTarget string Unit affected, automatically "player" through RegisterUnitEvent.
 ---@param updateInfo any Update data passed to aura conversion
 function SIPPYCUP_Addon:UNIT_AURA(_, unitTarget, updateInfo) -- luacheck: no unused (unitTarget)
+	if InCombatLockdown() or C_Secrets and C_Secrets.ShouldAurasBeSecret() then
+		return;
+	end
 	-- Bag data is not synched immediately when UNIT_AURA fires, signal desync to the addon.
 	SIPPYCUP.Items.bagUpdateUnhandled = true;
 	SIPPYCUP.Auras.Convert(SIPPYCUP.Auras.Sources.UNIT_AURA, updateInfo);
-	-- DevTools_Dump(updateInfo);
 end
 
 ---UNIT_SPELLCAST_SUCCEEDED Handles successful player spell casts; checks consumables/toys that don't trigger UNIT_AURA.
