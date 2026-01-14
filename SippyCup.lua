@@ -175,7 +175,7 @@ end
 ---@param unitTarget string Unit affected, automatically "player" through RegisterUnitEvent.
 ---@param updateInfo any Update data passed to aura conversion
 function SIPPYCUP_Addon:UNIT_AURA(_, unitTarget, updateInfo) -- luacheck: no unused (unitTarget)
-	if InCombatLockdown() then
+	if InCombatLockdown() or C_Secrets and C_Secrets.ShouldAurasBeSecret() then
 		return;
 	end
 	-- Bag data is not synched immediately when UNIT_AURA fires, signal desync to the addon.
