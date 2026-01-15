@@ -28,6 +28,8 @@ read_globals = {
 	"ElvUI",
 	"LibStub",
 	"msp",
+	"TRP3_API",
+	"TRP3_Addon",
 
 	-- Common protocol globals
 	"CUSTOM_CLASS_COLORS",
