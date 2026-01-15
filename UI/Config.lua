@@ -1294,9 +1294,6 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			end,
 		},
 		{
-			type = "blank",
-		},
-		{
 			type = "checkbox",
 			label = L.OPTIONS_GENERAL_POPUPS_INSUFFICIENT_REMINDER_ENABLE,
 			tooltip = L.OPTIONS_GENERAL_POPUPS_INSUFFICIENT_REMINDER_ENABLE_DESC,
