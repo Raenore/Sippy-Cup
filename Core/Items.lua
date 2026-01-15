@@ -227,7 +227,7 @@ function SIPPYCUP.Items.CheckNoAuraSingleOption(profileOptionData, spellID, minS
 		return preExpireFired;
 	end
 
-	local preOffset = SIPPYCUP.global.ReminderLeadTimer * 60;
+	local preOffset = SIPPYCUP.global.PreExpirationLeadTimer * 60;
 	-- Calculate how many seconds are left on cooldown right now.
 	local expirationTime = (startTime or 0) + (duration or 0);
 	local remaining = math.max(0, expirationTime - now);

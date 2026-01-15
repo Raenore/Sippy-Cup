@@ -521,7 +521,7 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData, min
 	end
 
 	minSeconds = minSeconds or 180.0;
-	local preOffset = SIPPYCUP.global.ReminderLeadTimer * 60;
+	local preOffset = SIPPYCUP.global.PreExpirationLeadTimer * 60;
 	local auraID = profileOptionData.aura;
 	local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(auraID);
 
