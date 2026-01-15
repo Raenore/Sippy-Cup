@@ -521,8 +521,7 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData, min
 	end
 
 	minSeconds = minSeconds or 180.0;
-	-- default warning offset to 60s
-	local preOffset = 60.0;
+	local preOffset = SIPPYCUP.global.PreExpirationLeadTimer * 60;
 	local auraID = profileOptionData.aura;
 	local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(auraID);
 
@@ -550,9 +549,14 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData, min
 	local remaining = auraInfo.expirationTime - now;
 	local duration = auraInfo.duration;
 
-	-- If the option only lasts for 60 seconds, we warn at 15 seconds.
-	if duration <= 60 then
-		preOffset = 15;
+	-- If the option only lasts for less than user set, we need to change it.
+	if duration <= preOffset then
+		-- Put at 60 seconds, if still lower then we warn at 15 seconds.
+		if duration <= 60 then
+			preOffset = 15;
+		else
+			preOffset = 60;
+		end
 	end
 
 	-- How far out we’ll scan: look‑ahead + warning offset

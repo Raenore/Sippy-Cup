@@ -1272,6 +1272,28 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			end,
 		},
 		{
+			type = "slider",
+			label = L.OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_LEAD_TIMER,
+			tooltip = L.OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_LEAD_TIMER_TEXT,
+			min = 1,
+			max = 5,
+			step = 1,
+			disabled = function()
+				return not SIPPYCUP.Database.GetSetting("global", "PreExpirationChecks", nil);
+			end,
+			get = function()
+				return SIPPYCUP.Database.GetSetting("global", "PreExpirationLeadTimer", nil);
+			end,
+			set = function(val)
+				SIPPYCUP.Database.UpdateSetting("global", "PreExpirationLeadTimer", nil, val);
+				local reason = SIPPYCUP.Popups.Reason.PRE_EXPIRATION;
+				SIPPYCUP.Auras.CancelAllPreExpirationTimers();
+				SIPPYCUP.Items.CancelAllItemTimers(reason);
+				SIPPYCUP.Popups.HideAllRefreshPopups(reason);
+				SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck, false, true);
+			end,
+		},
+		{
 			type = "checkbox",
 			label = L.OPTIONS_GENERAL_POPUPS_INSUFFICIENT_REMINDER_ENABLE,
 			tooltip = L.OPTIONS_GENERAL_POPUPS_INSUFFICIENT_REMINDER_ENABLE_DESC,
@@ -1303,7 +1325,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			func = function()
 				SIPPYCUP.Popups.ResetIgnored();
 			end,
-		},
+		}
 	};
 
 	self.allWidgets[#self.allWidgets + 1] = CreateWidgetRowContainer(generalPanel, reminderCheckboxData);
