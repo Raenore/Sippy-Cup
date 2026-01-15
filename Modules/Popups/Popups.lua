@@ -751,7 +751,10 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	end
 
 	if auraInfo then
-		reason = SIPPYCUP.Popups.Reason.TOGGLE;
+		-- Do not change reason if pre-expiration
+		if reason ~= SIPPYCUP.Popups.Reason.PRE_EXPIRATION then
+			reason = SIPPYCUP.Popups.Reason.TOGGLE;
+		end
 		active = true;
 	end
 

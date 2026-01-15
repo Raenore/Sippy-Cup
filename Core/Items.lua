@@ -227,8 +227,7 @@ function SIPPYCUP.Items.CheckNoAuraSingleOption(profileOptionData, spellID, minS
 		return preExpireFired;
 	end
 
-	-- default warning offset to 60s
-	local preOffset = 60.0;
+	local preOffset = SIPPYCUP.global.ReminderLeadTimer * 60;
 	-- Calculate how many seconds are left on cooldown right now.
 	local expirationTime = (startTime or 0) + (duration or 0);
 	local remaining = math.max(0, expirationTime - now);
@@ -236,9 +235,14 @@ function SIPPYCUP.Items.CheckNoAuraSingleOption(profileOptionData, spellID, minS
 	if remaining == 0 then
 		-- Pre‑expiration disabled means no offset at all
 		preOffset = 0;
-	elseif duration <= 60 then
-		-- Pre‑checks enabled, short buff means 15s before expiry
-		preOffset = 15;
+	-- If the option only lasts for less than user set, we need to change it.
+	elseif duration <= preOffset then
+		-- Pre‑checks enabled, put at 60 seconds, if still lower then we warn at 15 seconds.
+		if duration <= 60 then
+			preOffset = 15;
+		else
+			preOffset = 60;
+		end
 	end
 
 	-- How far out we’ll scan: look‑ahead + warning offset

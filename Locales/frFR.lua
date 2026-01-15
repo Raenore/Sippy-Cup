@@ -1,6 +1,6 @@
 -- Copyright The Sippy Cup Authors
 -- SPDX-License-Identifier: Apache-2.0
--- Traduction Solanya
+-- Traduction Solanya, Daen
 
 local title = C_AddOns.GetAddOnMetadata("SippyCup", "Title");
 local L;
@@ -46,6 +46,8 @@ L = {
 	OPTIONS_GENERAL_POPUPS_TRACK_TOY_ITEM_CD_ENABLE_DESC = "Active le suivi du temps de recharge du jouet directement au lieu de la durée de son effet, s'assurant que la fenêtre de rappel ne s'affiche que lorsque l'objet peut être utilisé.|n|n|cnWARNING_FONT_COLOR:Ceci n'affecte que les jouets avec 'Recharge décalée'.|r",
 	OPTIONS_GENERAL_POPUPS_IGNORES = "Réinitialiser fenêtres ignorées",
 	OPTIONS_GENERAL_POPUPS_IGNORES_TEXT = "Réinitialise toutes les fenêtres de rappel ignorées durant cette session, les rendant à nouveau visibles.",
+	OPTIONS_GENERAL_REMINDER_LEAD_TIMER = "Anticipation du Rappel",
+	OPTIONS_GENERAL_REMINDER_LEAD_TIMER_TEXT = "Définit le délai, en minutes, avant Expiration pour l'affichage d'une Notification de Rappel (par défaut: 1 minute).|n|n|cnWARNING_FONT_COLOR:Si une option ne prend pas en charge le délai choisi, la valeur sera par défaut de 1 minute, ou 15 secondes si 1 minute n'est pas disponible.|r",
 	OPTIONS_GENERAL_POPUPS_ALERT_SOUND_DESC = "Choisit quel son est joué lorsque la fenêtre de rappel est affichée.",
 	OPTIONS_GENERAL_POPUPS_SOUND_ENABLE_DESC = "Active ou désactive si un son est joué lorsque la fenêtre de rappel est affichée.",
 	OPTIONS_GENERAL_POPUPS_FLASHTASKBAR_ENABLE = "Flash barre des tâches",
