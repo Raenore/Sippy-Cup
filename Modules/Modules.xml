@@ -11,4 +11,5 @@
 	<Include file="Minimap\Minimap.lua"/>
 	<Include file="MSP\MSP.lua"/>
 	<Include file="Popups\Popups.xml"/>
+	<Include file="TRP\TRP.lua"/>
 </Ui>
