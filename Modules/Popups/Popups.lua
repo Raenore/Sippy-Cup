@@ -420,7 +420,12 @@ end
 ---@param data ReminderPopupData Table containing all necessary information about the option and profile.
 ---@param templateTypeID? number What kind of template to create (0 = reminder, 1 = missing); defaults to 0.
 function SIPPYCUP.Popups.HandleReminderPopup(data, templateTypeID)
-	if not SIPPYCUP or not SIPPYCUP.db or not SIPPYCUP.db.global then
+	if not SIPPYCUP.States.addonReady then
+		return;
+	end
+
+	-- Safety check in case of missing data, specifically loc-based data.
+	if not data or not data.profileOptionData or not data.optionData or not data.optionData.loc then
 		return;
 	end
 
