@@ -11,10 +11,16 @@ Given that Sippy Cup never officially supported combat situations, these restric
 - Initial Toys support! A large number of RP toys have been added to Sippy Cup. ([#72](https://github.com/Raenore/Sippy-Cup/pull/72))  
   - Toys tracking is more complex than consumables. If you encounter issues, please create an issue report on [the addon's GitHub page](https://github.com/Raenore/Sippy-Cup/issues).  
   - New "Use Toy Cooldown" option: Addresses the new "Cooldown Mismatch" situation introduced by toys. Some toys/consumables have a longer cooldown than their effect duration, which may trigger reminder popups prematurely. Enabling this option will have Sippy Cup check the item/toy itself and only trigger a reminder popup when it is available again (enabled by default).  
+- Added a TRP toolbar button to quickly open the Sippy Cup options window. This button can be enabled or disabled through TRP’s Toolbar settings page. ([#75](https://github.com/Raenore/Sippy-Cup/pull/75))  
+- Added a customizable **Pre-Expiration Lead Time** option, allowing users to define how long before the pre-expiration reminder popup should appear (default: 1 minute). ([#76](https://github.com/Raenore/Sippy-Cup/pull/76))  
+  - If a consumable does not support the selected lead time, it will fall back to 1 minute, or 15 seconds if 1 minute is not supported.  
 
 ### Changed  
 - If you add, update, or remove a consumable's count during combat, Sippy Cup will attempt to reconcile these changes after combat. There is a chance some changes may be missed due to combat restrictions, so keep this in mind when managing consumables during combat. ([#72](https://github.com/Raenore/Sippy-Cup/pull/72))  
 - Settings page scrollbars (both Blizzard and ElvUI variants) have been updated to more modern and proper ones. ([#72](https://github.com/Raenore/Sippy-Cup/pull/72))  
+
+### Fixed  
+- Fixed a rare error related to missing reminder popup data. ([#78](https://github.com/Raenore/Sippy-Cup/pull/78))  
 
 ## [0.5.0] - 2025-08-25  
 Major patch following the 0.4.0 internal optimizations, targeting further internal reworks and streamlining for performance.  
