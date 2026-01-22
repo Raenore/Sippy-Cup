@@ -22,6 +22,8 @@ L = {
 	POPUP_IGNORE_TT = "Blocks reminders for this consumable/toy until your next session.",
 	POPUP_LINK = "|n|nPress |cnGREEN_FONT_COLOR:CTRL-C|r to copy the highlighted, then paste it in your web browser with |cnGREEN_FONT_COLOR:CTRL-V|r.",
 	COPY_SYSTEM_MESSAGE = "Copied to clipboard.",
+	POPUP_RELOAD_TITLE = "Reload Interface",
+	POPUP_RELOAD_WARNING = "Reload the interface now to apply changes?",
 
 	--/ Options /--
 
@@ -33,6 +35,9 @@ L = {
 	OPTIONS_GENERAL_MINIMAPBUTTON_DESC = "Toggles the display of the minimap button.",
 	OPTIONS_GENERAL_ADDONCOMPARTMENT_NAME = "Addon compartment",
 	OPTIONS_GENERAL_ADDONCOMPARTMENT_DESC = "Toggles the display of the addon compartment button.",
+	OPTIONS_GENERAL_NEW_FEATURE_NOTIFICATION_NAME = "New Indicator",
+	OPTIONS_GENERAL_NEW_FEATURE_NOTIFICATION_DESC = "Toggles whether new features are indicated by an icon.|n|nThe icon will remain until the next minor version; for example, a feature added in 0.6.1 will retain its indicator until 0.7.0.|n|n|cnWARNING_FONT_COLOR:This option requires a UI reload to take effect.|r",
+
 	OPTIONS_GENERAL_POPUPS_HEADER = "Reminder popups",
 	OPTIONS_GENERAL_POPUPS_POSITION_NAME = "Position",
 	OPTIONS_GENERAL_POPUPS_POSITION_DESC = "Select where reminder popups appear on your screen.",

@@ -301,6 +301,45 @@ local function CreatePopup(templateType)
 	return popup;
 end
 
+---CreateReloadPopup shows a confirmation popup asking the user to reload the UI.
+---Optional callbacks allow callers to handle accept and cancel actions.
+---@param onAccept fun()? Called when the Accept button is clicked.
+---@param onCancel fun()? Called when the Cancel button is clicked.
+---@return nil
+function SIPPYCUP.Popups.CreateReloadPopup(onAccept, onCancel)
+	if SIPPYCUP.Popups.ReloadPopup then
+		SIPPYCUP.Popups.ReloadPopup:Show();
+		return;
+	end
+
+	local popup = CreateFrame("Frame", nil, UIParent, "SIPPYCUP_ConfirmPopupTemplate");
+	SIPPYCUP.Popups.ReloadPopup = popup;
+
+	popup.Title:SetText(SIPPYCUP.AddonMetadata.title);
+	popup.Text:SetText(L.POPUP_RELOAD_WARNING);
+
+	popup.AcceptButton:SetText(ACCEPT);
+	popup.CancelButton:SetText(CANCEL);
+
+	popup.AcceptButton:SetScript("OnClick", function()
+		popup:Hide();
+		if onAccept then
+			onAccept();
+		end
+	end);
+
+	popup.CancelButton:SetScript("OnClick", function()
+		popup:Hide();
+		if onCancel then
+			onCancel();
+		end
+	end);
+
+	popup:ClearAllPoints();
+	popup:SetPoint("CENTER", UIParent, "CENTER");
+	popup:Show();
+end
+
 ---GetPopup returns an available popup frame of the specified template type.
 ---It reuses inactive popups from the pool or creates a new one if under the max limit.
 ---@param templateType string? The optional popup template type, defaults to "SIPPYCUP_RefreshPopupTemplate".

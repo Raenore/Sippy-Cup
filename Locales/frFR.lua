@@ -23,6 +23,8 @@ L = {
 	POPUP_IGNORE_TT = "Bloque les rappels pour ce consommable/jouet jusqu'à la prochaine session.",
 	POPUP_LINK = "|n|nAppuyez sur |cnGREEN_FONT_COLOR:CTRL-C|r pour copier le texte surligné, puis copiez dans votre navigateur avec |cnGREEN_FONT_COLOR:CTRL-V|r.",
 	COPY_SYSTEM_MESSAGE = "Copié dans le presse-papiers.",
+	POPUP_RELOAD_TITLE = "Recharger l'interface",
+	POPUP_RELOAD_WARNING = "Recharger l'interface maintenant pour appliquer les changements ?",
 
 	--/ Options /--
 
@@ -34,6 +36,8 @@ L = {
 	OPTIONS_GENERAL_MINIMAPBUTTON_DESC = "Affiche ou cache le bouton de la minicarte.",
 	OPTIONS_GENERAL_ADDONCOMPARTMENT_NAME = "Compartiment d'addon",
 	OPTIONS_GENERAL_ADDONCOMPARTMENT_DESC = "Affiche ou cache le bouton dans le compartiment d'addon.",
+	OPTIONS_GENERAL_NEW_FEATURE_NOTIFICATION_NAME = "Icône Nouveauté",
+	OPTIONS_GENERAL_NEW_FEATURE_NOTIFICATION_DESC = "Active l'affichage d'une icône pour signaler les nouvelles fonctionnalités.|n|nL'icône restera visible jusqu'à la prochaine version mineure ; par exemple, une fonctionnalité ajoutée à la v.0.6.1 conservera son indicateur jusqu'à la 0.7.0.|n|n|cnWARNING_FONT_COLOR:Cette option nécessite un rechargement de l'interface pour prendre effet.|r",
 
 	OPTIONS_GENERAL_POPUPS_HEADER = "Fenêtre de rappel",
 	OPTIONS_GENERAL_POPUPS_POSITION_NAME = "Position",
