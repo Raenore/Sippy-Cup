@@ -23,6 +23,8 @@ L = {
 	POPUP_IGNORE_TT = "блокирует напоминания до следующей сессии.", -- (TEXT CHANGE IN ENGLISH)
 	POPUP_LINK = "|n|nНажмите |cnGREEN_FONT_COLOR:CTRL-C|r, чтобы скопировать выделенное, затем вставьте в браузер с помощью |cnGREEN_FONT_COLOR:CTRL-V|r.",
 	COPY_SYSTEM_MESSAGE = "Скопировано в буфер обмена.",
+	POPUP_RELOAD_TITLE = "Reload Interface", -- (NEW)
+	POPUP_RELOAD_WARNING = "Reload the interface now to apply changes?", -- (NEW)
 
 	--/ Options /--
 
@@ -34,6 +36,8 @@ L = {
 	OPTIONS_GENERAL_MINIMAPBUTTON_DESC = "Включает/выключает отображение кнопки на миникарте.",
 	OPTIONS_GENERAL_ADDONCOMPARTMENT_NAME = "Отсек аддонов",
 	OPTIONS_GENERAL_ADDONCOMPARTMENT_DESC = "Включает/выключает отображение кнопки в отсеке аддонов.",
+	OPTIONS_GENERAL_NEW_FEATURE_NOTIFICATION_NAME = "New Indicator", -- (NEW)
+	OPTIONS_GENERAL_NEW_FEATURE_NOTIFICATION_DESC = "Toggles whether new features are indicated by an icon.|n|nThe icon will remain until the next minor version; for example, a feature added in 0.6.1 will retain its indicator until 0.7.0.|n|n|cnWARNING_FONT_COLOR:This option requires a UI reload to take effect.|r", -- (NEW)
 
 	OPTIONS_GENERAL_POPUPS_HEADER = "Всплывающие напоминания",
 	OPTIONS_GENERAL_POPUPS_POSITION_NAME = "Положение",

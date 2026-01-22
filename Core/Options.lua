@@ -52,6 +52,7 @@ local function NewOption(params)
 		spellTrackable = params.spellTrackable or false,
 		delayedAura = params.delayedAura or false,
 		cooldownMismatch = params.cooldownMismatch or false,
+		buildAdded = params.buildAdded or nil,
 	};
 end
 
@@ -197,7 +198,10 @@ SIPPYCUP.Options.Data = {
 	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 47770, itemID = 36863, category = "EFFECT", itemTrackable = true }, -- Decahedral Dwarven Dice
 
 	-- Midnight
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1250761, itemID = 250325, category = "EFFECT", preExpiration = true }, -- Night's Embrace
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1250761, itemID = 250325, category = "EFFECT", preExpiration = true, buildAdded = "0.6.0|120000" }, -- Night's Embrace
+
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1281702, itemID = 268115, category = "HANDHELD", preExpiration = true, buildAdded = "0.6.1|120000" }, -- Overbaked Donut
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1280627, itemID = 267486, category = "HANDHELD", preExpiration = true, buildAdded = "0.6.1|120000" }, -- Simple Cup
 
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 987654321, itemID = 987654321, category = "EFFECT", preExpiration = true }, -- Does not exist, test
 };

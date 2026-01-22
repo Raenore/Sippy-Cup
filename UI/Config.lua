@@ -538,6 +538,13 @@ local function CreateConfigButton(elementContainer, data)
 	widget:SetAllPoints(elementContainer);
 	widget.data = data;
 
+	if data.buildAdded and SIPPYCUP_BUILDINFO.CheckNewlyAdded(data.buildAdded) then
+		local newPip = widget:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
+		widget.newPip = newPip;
+		newPip:SetPoint("CENTER", widget, "TOPLEFT");
+		newPip:SetText("|A:UI-HUD-MicroMenu-Communities-Icon-Notification:21:21|a");
+	end
+
 	widget:SetMotionScriptsWhileDisabled(true);
 
 	ApplyDisabledState(widget, data.disabled);
@@ -568,7 +575,9 @@ local function CreateConfigCheckBox(elementContainer, data)
 
 	-- Icon and label setup
 	local labelText = data.label or "";
-	if #labelText > 30 then
+	if data.notificationToggle then
+		labelText = labelText .. " |A:UI-HUD-MicroMenu-Communities-Icon-Notification:21:21|a";
+	elseif #labelText > 30 then
 		labelText = string.sub(labelText, 1, 27) .. "...";
 	end
 	local icon;
@@ -601,6 +610,13 @@ local function CreateConfigCheckBox(elementContainer, data)
 		label:SetPoint("LEFT", widget, "RIGHT", 5, 0);
 	end
 	label:SetText(labelText);
+
+	if data.buildAdded and SIPPYCUP_BUILDINFO.CheckNewlyAdded(data.buildAdded) then
+		local newPip = widget:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
+		widget.newPip = newPip;
+		newPip:SetPoint("CENTER", widget, "TOPLEFT");
+		newPip:SetText("|A:UI-HUD-MicroMenu-Communities-Icon-Notification:21:21|a");
+	end
 
 	widget:SetMotionScriptsWhileDisabled(true);
 	widget:EnableMouse(true);
@@ -685,6 +701,13 @@ local function CreateConfigDropdown(elementContainer, data)
 	widget:SetPoint("TOPLEFT", elementContainer, "TOPLEFT", 0, 2); -- 2 more height to fit whole container
 	widget:SetPoint("BOTTOMRIGHT", elementContainer, "BOTTOMRIGHT", 0, -2); -- 2 more height to fit whole container
 	widget.data = data;
+
+	if data.buildAdded and SIPPYCUP_BUILDINFO.CheckNewlyAdded(data.buildAdded) then
+		local newPip = widget:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
+		widget.newPip = newPip;
+		newPip:SetPoint("CENTER", widget, "TOPLEFT");
+		newPip:SetText("|A:UI-HUD-MicroMenu-Communities-Icon-Notification:21:21|a");
+	end
 
 	widget:SetMotionScriptsWhileDisabled(true);
 
@@ -789,6 +812,13 @@ local function CreateConfigEditBox(elementContainer, data)
 	widget:SetPoint("BOTTOMRIGHT", elementContainer, "BOTTOMRIGHT", 0, 0);
 	widget.data = data;
 
+	if data.buildAdded and SIPPYCUP_BUILDINFO.CheckNewlyAdded(data.buildAdded) then
+		local newPip = widget:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
+		widget.newPip = newPip;
+		newPip:SetPoint("CENTER", widget, "TOPLEFT");
+		newPip:SetText("|A:UI-HUD-MicroMenu-Communities-Icon-Notification:21:21|a");
+	end
+
 	if type(data.get) == "function" and type(data.set) == "function" then
 		widget:SetScript("OnEnterPressed", function(self)
 			data.set(self:GetText());
@@ -846,6 +876,13 @@ local function CreateConfigSlider(elementContainer, data)
 	widget:SetPoint("LEFT", 0, 0);
 	widget:SetWidth(elementContainer:GetWidth() * 0.8);
 	widget:SetHeight(41);
+
+	if data.buildAdded and SIPPYCUP_BUILDINFO.CheckNewlyAdded(data.buildAdded) then
+		local newPip = widget:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
+		widget.newPip = newPip;
+		newPip:SetPoint("CENTER", widget.Back, "TOPLEFT");
+		newPip:SetText("|A:UI-HUD-MicroMenu-Communities-Icon-Notification:21:21|a");
+	end
 
 	ApplyDisabledState(widget, data.disabled, true);
 
@@ -907,6 +944,10 @@ local function CreateWidgetRowContainer(parent, widgetData, widgetsPerRow, rowSp
 
 	local widgetSpacing = 20; -- horizontal spacing between widgets
 	local leftPadding, rightPadding = 35, 35;
+	if widgetsPerRow > 3 then
+		leftPadding, rightPadding = 20, 20;
+		widgetSpacing = 10;
+	end
 	local containerWidth = parent:GetWidth() - leftPadding - rightPadding;
 	local widgetWidth = (containerWidth - widgetSpacing * (widgetsPerRow - 1)) / widgetsPerRow;
 	local rowHeight = 24;
@@ -1241,13 +1282,30 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 				SIPPYCUP.Minimap:UpdateMinimapButtons();
 			end,
 		},
+		{
+			type = "checkbox",
+			label = L.OPTIONS_GENERAL_NEW_FEATURE_NOTIFICATION_NAME,
+			tooltip = L.OPTIONS_GENERAL_NEW_FEATURE_NOTIFICATION_DESC,
+			notificationToggle = true,
+			get = function()
+				return SIPPYCUP.Database.GetSetting("global", "NewFeatureNotification", nil);
+			end,
+			set = function(val)
+				SIPPYCUP.Popups.CreateReloadPopup(
+					function() -- ACCEPT
+						SIPPYCUP.Database.UpdateSetting("global", "NewFeatureNotification", nil, val);
+						ReloadUI();
+					end
+				);
+			end,
+		},
 	};
 
 	-- Initialize an empty table to hold all checkbox lists
 	self.allWidgets = self.allWidgets or {};
 	self.profileWidgets = self.profileWidgets or {};
 
-	self.allWidgets[#self.allWidgets + 1] = CreateWidgetRowContainer(generalPanel, generalCheckboxData);
+	self.allWidgets[#self.allWidgets + 1] = CreateWidgetRowContainer(generalPanel, generalCheckboxData, 4);
 
 	CreateCategoryHeader(generalPanel, L.OPTIONS_GENERAL_POPUPS_HEADER);
 
@@ -1275,6 +1333,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			type = "slider",
 			label = L.OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_LEAD_TIMER,
 			tooltip = L.OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_LEAD_TIMER_TEXT,
+			buildAdded = "0.6.0|120000",
 			min = 1,
 			max = 5,
 			step = 1,
@@ -1308,6 +1367,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			type = "checkbox",
 			label = L.OPTIONS_GENERAL_POPUPS_TRACK_TOY_ITEM_CD_ENABLE,
 			tooltip = L.OPTIONS_GENERAL_POPUPS_TRACK_TOY_ITEM_CD_ENABLE_DESC,
+			buildAdded = "0.6.0|120000",
 			get = function()
 				return SIPPYCUP.Database.GetSetting("global", "UseToyCooldown", nil);
 			end,
@@ -1498,6 +1558,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 					nonAura = optionData.itemTrackable or optionData.spellTrackable,
 					cooldownMismatch = optionData.cooldownMismatch,
 					stacks = optionData.stacks,
+					buildAdded = optionData.buildAdded,
 					get = function()
 						return SIPPYCUP.Database.GetSetting("profile", checkboxProfileKey, "enable");
 					end,
@@ -1569,6 +1630,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 					nonAura = optionData.itemTrackable or optionData.spellTrackable,
 					cooldownMismatch = optionData.cooldownMismatch,
 					stacks = optionData.stacks,
+					buildAdded = optionData.buildAdded,
 					disabled = function()
 						return not PlayerHasToy(toyID);
 					end,
