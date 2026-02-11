@@ -163,6 +163,13 @@ end
 
 ---PLAYER_REGEN_ENABLED Restarts continuous checks and handles deferred combat actions after leaving combat.
 function SIPPYCUP_Addon:PLAYER_REGEN_ENABLED()
+	-- PvP Matches don't support most of Sippy Cup's options (aura checking etc.).
+	--[[ For now, not going this hard on the check as StartContinuousCheck() etc. are guarded for PvPMatch.
+	if SIPPYCUP.States.pvpMatch then
+		return;
+	end
+	]]
+
 	-- Combat is left when regen is enabled.
 	self:StartContinuousCheck();
 	-- Show 'combat' popups deferred by DeferAllRefreshPopups (reason 1).
@@ -175,7 +182,7 @@ end
 ---@param unitTarget string Unit affected, automatically "player" through RegisterUnitEvent.
 ---@param updateInfo any Update data passed to aura conversion
 function SIPPYCUP_Addon:UNIT_AURA(_, unitTarget, updateInfo) -- luacheck: no unused (unitTarget)
-	if InCombatLockdown() or C_Secrets and C_Secrets.ShouldAurasBeSecret() then
+	if InCombatLockdown() or C_Secrets and C_Secrets.ShouldAurasBeSecret() or SIPPYCUP.States.pvpMatch then
 		return;
 	end
 	-- Bag data is not synched immediately when UNIT_AURA fires, signal desync to the addon.
@@ -221,8 +228,20 @@ SIPPYCUP.Callbacks:RegisterCallback(SIPPYCUP.Events.LOADING_SCREEN_ENDED, functi
 		SIPPYCUP_Addon:OnInitialPlayerInWorld();
 	end
 
+	-- Do nothing when you are on a PvP-enabled map (Arenas, BGs, etc.)
+	if C_RestrictedActions.IsAddOnRestrictionActive(Enum.AddOnRestrictionType.PvPMatch) then
+		SIPPYCUP.States.pvpMatch = true;
+		return;
+	end
+
 	SIPPYCUP_Addon:StartContinuousCheck()
 	SIPPYCUP.Popups.HandleDeferredActions("loading");
+
+	-- If we just came out of a PvP-enabled map, show 'combat' popups deferred by DeferAllRefreshPopups (reason 1).
+	if SIPPYCUP.States.pvpMatch and not C_RestrictedActions.IsAddOnRestrictionActive(Enum.AddOnRestrictionType.PvPMatch) then
+		SIPPYCUP.States.pvpMatch = false;
+		SIPPYCUP.Popups.HandleDeferredActions("combat");
+	end
 
 	-- isFullUpdate can pass through loading screens (but our code can't), so handle it now.
 	if SIPPYCUP.States.hasSeenFullUpdate then
