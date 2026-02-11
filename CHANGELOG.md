@@ -2,7 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.6.0] - 2026-01-xx  
+## [0.6.1] - 2026-02-11  
+Second pre-patch for Midnight, fixing some UI issues and introducing a Spanish translation!  
+
+### Added  
+- Added a "new feature indicator", a small blue pip/diamond to notify users of new features ([#79](https://github.com/Raenore/Sippy-Cup/pull/79)).  
+- Added Spanish translation thanks to [Romanv](https://bsky.app/profile/romanv88.bsky.social) ([#80](https://github.com/Raenore/Sippy-Cup/pull/80)).  
+- Added two new handheld consumables: [Overbaked Donut](https://www.wowhead.com/item=268115) and [Simple Cup](https://www.wowhead.com/item=267486).  
+
+### Changed  
+- Updated the TOC for Patch 12.0.1.  
+
+## [0.6.0] - 2026-01-20  
 Major patch following the release of Midnight, which introduces addon restrictions and tighter limitations that mostly affect combat-related situations.   
 Given that Sippy Cup never officially supported combat situations, these restrictions pose almost no true problems for the addon. However, there are some notable changes and additions in this release.  
 
