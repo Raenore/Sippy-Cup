@@ -5,6 +5,7 @@ local locale = GetLocale() or "enUS";
 
 local locales = {
   enUS = SIPPYCUP.L_ENUS,
+  esES = SIPPYCUP.L_ESES,
   frFR = SIPPYCUP.L_FRFR,
   ruRU = SIPPYCUP.L_RURU,
 };
