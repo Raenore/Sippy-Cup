@@ -1396,9 +1396,9 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			label = L.OPTIONS_GENERAL_POPUPS_POSITION_NAME,
 			tooltip = L.OPTIONS_GENERAL_POPUPS_POSITION_DESC,
 			values = {
-				["TOP"] = "Top (Default)",
-				["CENTER"] = "Center",
-				["BOTTOM"] = "Bottom",
+				["TOP"] = L.OPTIONS_GENERAL_POPUPS_POSITION_TOP,
+				["CENTER"] = L.OPTIONS_GENERAL_POPUPS_POSITION_CENTER,
+				["BOTTOM"] = L.OPTIONS_GENERAL_POPUPS_POSITION_BOTTOM,
 			},
 			sorting = {
 				"TOP",
