@@ -8,7 +8,7 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 	<Include file="Config.lua"/>
 
 	<Frame name="SIPPYCUP_ConfigMenuTemplate" mixin="SIPPYCUP_ConfigMixin" virtual="true" enableMouse="true" hidden="true" movable="true" clampedToScreen="true" topLevel="true" inherits="ButtonFrameTemplate">
-		<Size x="693" y="575"/>
+		<Size x="693" y="595"/>
 		<Anchors>
 			<Anchor point="CENTER"/>
 		</Anchors>
