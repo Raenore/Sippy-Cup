@@ -384,9 +384,14 @@ local function CreateTitleWithDescription(parent, titleText, descText, optionsPa
 		descText = (descText or "") .. L.OPTIONS_TITLE_EXTRA;
 	end
 
+	local realParent = parent;
+	if parent.scrollFrame then
+		realParent = parent.scrollFrame;
+	end
+
 	local description = parent:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
 	description:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8);
-	description:SetWidth(parent:GetWidth() - 32);
+	description:SetWidth(realParent:GetWidth() - 32);
 	description:SetJustifyH("LEFT");
 	description:SetText(descText or "");
 
@@ -427,29 +432,19 @@ end
 ---Creates various UI elements (logo, title, version, build, author, bsky) based on insetData entries and attaches tooltips.
 ---@param parent table The parent frame to attach the inset frame to.
 ---@param insetData table List of widget data entries describing the inset contents.
----@param topOffset number? Optional vertical offset from the parent's top (negative or positive).
 ---@return Frame infoInset The created inset frame containing the widgets.
-local function CreateInset(parent, insetData, topOffset)
+local function CreateInset(parent, insetData)
 	local ElvUI = SIPPYCUP.ElvUI;
-
-	local parentTop = parent:GetTop();
-	local parentBottom = GetLowestChildBottomIncludingFontStrings(parent);
-	local relativeBottom = parentTop - parentBottom;
-
-	-- Normalize topOffset to negative offset (20px default)
-	if not topOffset then
-		topOffset = -20;
-	elseif topOffset > 0 then
-		topOffset = -topOffset;
-	end
-
-	local startY = -relativeBottom + topOffset; -- relative Y from parent's TOP for the new widgets
 
 	local infoInset = CreateFrame("Frame", nil, parent, "InsetFrameTemplate");
 	ElvUI.RegisterSkinnableElement(infoInset, "inset");
 
-	infoInset:SetPoint("TOPLEFT", parent, "TOPLEFT", 20, startY);
-	infoInset:SetPoint("TOPRIGHT", parent, "TOPRIGHT", -20, startY);
+	-- Distance from bottom
+	local bottomOffset = 20
+
+	infoInset:SetPoint("BOTTOMLEFT", parent, "BOTTOMLEFT", 20, bottomOffset);
+	infoInset:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", -20, bottomOffset);
+
 	infoInset:SetHeight(75);
 
 	local logo, title, author, version, build, bsky;
@@ -534,6 +529,10 @@ local function CreateConfigButton(elementContainer, data)
 	local widget = CreateFrame("Button", nil, elementContainer, "UIPanelButtonTemplate");
 	local label = data.label or "Button";
 
+	if #label > 30 then
+		label = string.sub(label, 1, 27) .. "...";
+	end
+
 	widget:SetText(label);
 	widget:SetAllPoints(elementContainer);
 	widget.data = data;
@@ -554,7 +553,7 @@ local function CreateConfigButton(elementContainer, data)
 	end
 
 	if data.tooltip then
-		ApplyTooltip(widget, label, data.tooltip);
+		ApplyTooltip(widget, data.label, data.tooltip);
 	end
 
 	SIPPYCUP.ElvUI.RegisterSkinnableElement(widget, "button");
@@ -995,7 +994,7 @@ local function CreateCategoryHeader(parent, titleText, topOffset)
 	local parentBottom = GetLowestChildBottomIncludingFontStrings(parent);
 	local relativeBottom = parentTop - parentBottom;
 
-	topOffset = -(math.abs(topOffset or 20)); -- 20px below last child
+	topOffset = -(math.abs(topOffset or 10)); -- 10px below last child
 	local startY = -relativeBottom + topOffset; -- relative Y from parent's TOP for the new widgets
 
 	local container = CreateFrame("Frame", nil, parent);
@@ -1219,9 +1218,12 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 	local generalPanel = GetWrapperFrame(self);
 
 	for _, category in ipairs(categories) do
+		local localized = L["OPTIONS_TAB_" .. string.upper(category) .. "_TITLE"] or category;
+
 		local categoryTab = AddTab(self);
-		categoryTab:SetText(category);
+		categoryTab:SetText(localized);
 		self.TabsByName[string.upper(category)] = categoryTab;
+
 		local categoryPanel = GetScrollableWrapperFrame(self);
 		self.PanelsByName[string.upper(category)] = categoryPanel;
 	end
@@ -1305,7 +1307,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 	self.allWidgets = self.allWidgets or {};
 	self.profileWidgets = self.profileWidgets or {};
 
-	self.allWidgets[#self.allWidgets + 1] = CreateWidgetRowContainer(generalPanel, generalCheckboxData, 4);
+	self.allWidgets[#self.allWidgets + 1] = CreateWidgetRowContainer(generalPanel, generalCheckboxData);
 
 	CreateCategoryHeader(generalPanel, L.OPTIONS_GENERAL_POPUPS_HEADER);
 
