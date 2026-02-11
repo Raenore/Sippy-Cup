@@ -132,4 +132,47 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 
 	</Frame>
 
+	<Frame name="SIPPYCUP_ConfirmPopupTemplate" virtual="true" parent="UIParent" toplevel="true" enableMouse="true" frameStrata="DIALOG" hidden="true" inherits="DialogBorderTemplate">
+		<Size x="340" y="90"/>
+		<Anchors>
+			<Anchor point="TOP" relativeTo="UIParent" x="0" y="-100"/>
+		</Anchors>
+		<Layers>
+			<Layer>
+				<FontString parentKey="Title" inherits="GameFontHighlightLarge" wordwrap="false">
+					<Anchors>
+						<Anchor point="TOPLEFT" y="-10"/>
+						<Anchor point="TOPRIGHT" y="-10"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="Text" inherits="GameFontNormal" justifyH="CENTER" wordwrap="true">
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent.Title" relativePoint="BOTTOM" y="-10"/>
+						<Anchor point="LEFT" relativeTo="$parent" x="10"/>
+						<Anchor point="RIGHT" relativeTo="$parent" x="-10"/>
+					</Anchors>
+					<Color r="0.95" g="0.95" b="0.95"/>
+				</FontString>
+			</Layer>
+		</Layers>
+
+		<Frames>
+			<Button parentKey="AcceptButton" inherits="StaticPopupButtonTemplate">
+				<Size x="120" y="22"/>
+				<Anchors>
+					<Anchor point="BOTTOM" y="10"/>
+					<Anchor point="RIGHT" relativeTo="$parent" relativePoint="CENTER" x="-5"/>
+				</Anchors>
+			</Button>
+			<Button parentKey="CancelButton" inherits="StaticPopupButtonTemplate">
+				<Size x="120" y="22"/>
+				<Anchors>
+					<Anchor point="BOTTOM" y="10"/>
+					<Anchor point="LEFT" relativeTo="$parent" relativePoint="CENTER" x="5"/>
+				</Anchors>
+			</Button>
+		</Frames>
+
+	</Frame>
+
 </Ui>

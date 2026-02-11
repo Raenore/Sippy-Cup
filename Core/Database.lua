@@ -74,8 +74,10 @@ end
 ---@field InsufficientReminder boolean Whether to show a reminder if not enough consumables are found.
 ---@field MinimapButton SIPPYCUPMinimapSettings Configuration for the minimap button.
 ---@field MSPStatusCheck boolean Whether to check MSP OOC status before alerting.
+---@field NewFeatureNotification boolean Whether to show the new feature notification in the options.
 ---@field PopupPosition string Position of the popup ("TOP", "BOTTOM", etc.).
 ---@field PreExpirationChecks boolean Whether to perform checks shortly before aura expiration.
+---@field PreExpirationLeadTimer number Time (in minutes) before a pre-expiration reminder should fire.
 ---@field UseToyCooldown boolean Whether to use toy cooldowns for popups instead.
 ---@field WelcomeMessage boolean Whether to display a welcome message on login.
 
@@ -105,6 +107,7 @@ SIPPYCUP.Database.defaults = {
 			ShowAddonCompartmentButton = true,
 		},
 		MSPStatusCheck = true,
+		NewFeatureNotification = true,
 		PopupPosition = "TOP",
 		PreExpirationChecks = true,
 		PreExpirationLeadTimer = 1,

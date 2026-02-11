@@ -68,6 +68,39 @@ function SIPPYCUP_BUILDINFO.Output(colorized)
 	return output;
 end
 
+function SIPPYCUP_BUILDINFO.CheckNewlyAdded(buildAdded)
+	if not SIPPYCUP.global.NewFeatureNotification then
+		return;
+	end
+
+	local featureAddonVersion, featureBlizzardBuild = string.match(buildAdded, "([^|]+)|([^|]+)");
+
+	if not featureAddonVersion then
+		return false;
+	end
+
+	if SIPPYCUP.AddonMetadata.version == "@project-version@" then
+		return featureBlizzardBuild == tostring(select(4, GetBuildInfo()));
+	end
+
+	local featureMajor, featureMinor, featurePatch = featureAddonVersion:match("^(%d+)%.(%d+)%.(%d+)$");
+	local addonMajor, addonMinor, addonPatch = SIPPYCUP.AddonMetadata.version:match("^(%d+)%.(%d+)%.(%d+)$");
+
+	if not featureMajor or not addonMajor then
+		return false;
+	end
+
+	featureMajor, featureMinor, featurePatch = tonumber(featureMajor), tonumber(featureMinor), tonumber(featurePatch);
+	addonMajor, addonMinor, addonPatch = tonumber(addonMajor), tonumber(addonMinor), tonumber(addonPatch);
+
+	-- Same major & minor, and current patch >= added patch
+	if addonMajor == featureMajor and addonMinor == featureMinor and addonPatch >= featurePatch then
+		return true;
+	end
+
+	return false;
+end
+
 SIPPYCUP_OUTPUT = {};
 
 local function Print(msg)
