@@ -1219,9 +1219,12 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 	local generalPanel = GetWrapperFrame(self);
 
 	for _, category in ipairs(categories) do
+		local localized = L["OPTIONS_TAB_" .. string.upper(category) .. "_TITLE"] or category;
+
 		local categoryTab = AddTab(self);
-		categoryTab:SetText(category);
+		categoryTab:SetText(localized);
 		self.TabsByName[string.upper(category)] = categoryTab;
+
 		local categoryPanel = GetScrollableWrapperFrame(self);
 		self.PanelsByName[string.upper(category)] = categoryPanel;
 	end
