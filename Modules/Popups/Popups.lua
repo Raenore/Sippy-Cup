@@ -795,7 +795,7 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	-- Toys UNIT_AURA calls, mark bag as synchronized (as no items are actually used).
 	-- Reflecting Prism (spellID == 163267) uses charges, and does not require a bag sync update generally.
 	if reason == SIPPYCUP.Popups.Reason.REMOVAL or reason == SIPPYCUP.Popups.Reason.PRE_EXPIRATION
-	   or optionData.delayedAura or optionData.type == SIPPYCUP.Options.Type.TOY or auraID == 163267 or auraID == 374959 then
+		or optionData.delayedAura or optionData.type == SIPPYCUP.Options.Type.TOY or auraID == 163267 or auraID == 374959 then
 		SIPPYCUP.Items.HandleBagUpdate();
 	end
 
