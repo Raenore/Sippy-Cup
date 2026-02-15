@@ -37,6 +37,26 @@ function SIPPYCUP.Config.TryCreateConfigFrame()
 	end
 end
 
+-- Utility to get the first valid itemID from number or table
+local function GetFirstItemID(itemID)
+	if type(itemID) == "table" then
+		for _, id in ipairs(itemID) do
+			if id and id > 0 then
+				return id;
+			end
+		end
+		return nil;
+	else
+		return itemID;
+	end
+end
+
+-- Example: toy checkbox disabled function
+local function IsToyDisabled(toyID)
+	local firstID = GetFirstItemID(toyID);
+	return not firstID or not PlayerHasToy(firstID);
+end
+
 ---AddTab creates a new tab button under the given parent frame and adds it to the parent's Tabs list.
 ---It positions the new tab relative to existing tabs, sets up its scripts for show and click events, and registers it for ElvUI skinning.
 ---@param parent table Frame containing the Tabs table and the SetTab function.
@@ -207,17 +227,20 @@ end
 ---AttachItemTooltip adds mouseover tooltips showing item info by itemID to one or multiple frames.
 ---It sets up OnEnter and OnLeave scripts to show and hide the item tooltip anchored as specified.
 ---@param frames table|table[] The single frame or list of frames to attach the tooltip to.
----@param itemID number The item ID to create the tooltip for.
+---@param itemID number|number[] The item ID(s) to create the tooltip for.
 ---@param anchor string? Optional anchor point for tooltip, defaults to "ANCHOR_TOP".
 local function AttachItemTooltip(frames, itemID, anchor)
 	if not itemID then return; end
 	anchor = anchor or "ANCHOR_TOP";
 
+	local firstID = GetFirstItemID(itemID);
+	if not firstID then return; end
+
 	local isList = type(frames) == "table" and not frames.GetObjectType;
 	local firstFrame = isList and frames[1] or frames;
 	if not firstFrame then return; end
 
-	local item = Item:CreateFromItemID(itemID);
+	local item = Item:CreateFromItemID(firstID);
 
 	item:ContinueOnItemLoad(function()
 		local itemLink = item:GetItemLink();
@@ -1634,7 +1657,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 					stacks = optionData.stacks,
 					buildAdded = optionData.buildAdded,
 					disabled = function()
-						return not PlayerHasToy(toyID);
+						return IsToyDisabled(toyID);
 					end,
 					get = function()
 						return SIPPYCUP.Database.GetSetting("profile", checkboxProfileKey, "enable");

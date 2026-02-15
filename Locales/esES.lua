@@ -13,6 +13,7 @@ L = {
 	--/ Popup dialog /--
 	POPUP_ON_COOLDOWN_TEXT = "En tiempo de espera",
 	POPUP_IN_FLIGHT_TEXT = "Desactivado para evitar el desmontaje durante el vuelo.",
+	POPUP_NOT_IN_PARTY_TEXT = "Disabled as item requires a party.", -- (NEW)
 	POPUP_FOOD_BUFF_TEXT = "Desaparece una vez que se aplica el beneficio de comida. ¡No te muevas!",
 	POPUP_NOT_IN_INVENTORY_TEXT = "No hay en el inventario",
 	POPUP_NOT_ENOUGH_IN_INVENTORY_TEXT = "No es suficiente (%d Faltante)",

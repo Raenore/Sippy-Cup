@@ -13,6 +13,7 @@ L = {
 	--/ Popup dialog /--
 	POPUP_ON_COOLDOWN_TEXT = "currently on cooldown.", -- (NEW)
 	POPUP_IN_FLIGHT_TEXT = "Disabled to prevent dismount during flight.", -- (NEW)
+	POPUP_NOT_IN_PARTY_TEXT = "Disabled as item requires a party.", -- (NEW)
 	POPUP_FOOD_BUFF_TEXT = "Disappears once food buff is applied. Do not move!", -- (NEW)
 	POPUP_NOT_IN_INVENTORY_TEXT = "не найден в вашем инвентаре.", -- (TEXT CHANGE IN ENGLISH)
 	POPUP_NOT_ENOUGH_IN_INVENTORY_TEXT = "недостаточно в вашем инвентаре.|n(%d missing)", -- (NEW) (Ending)

@@ -177,6 +177,11 @@ local function CreatePopup(templateType)
 			local itemID = data and data.optionData and data.optionData.itemID;
 			if not itemID then return; end
 
+			-- Normalize to single ID if a table
+			if type(itemID) == "table" then
+				itemID = itemID[1]; -- use the first ID for tooltip
+			end
+
 			local item = Item:CreateFromItemID(itemID);
 
 			item:ContinueOnItemLoad(function()
@@ -197,35 +202,51 @@ local function CreatePopup(templateType)
 				local tooltipText;
 				local currentPopup = self:GetParent();
 				local popupData = currentPopup and currentPopup.popupData;
+				local optionData = popupData.optionData;
 
 				if isFlying then
 					popupData.isFlying = true;
 					self:Disable();
 				end
 
+				if optionData.requiresGroup then
+					if popupData.isNotinGroupButRequired and UnitInParty("player") then
+						popupData.isNotinGroupButRequired = false;
+						self:Enable();
+					elseif not UnitInParty("player") then
+						popupData.isNotinGroupButRequired = true;
+						self:Disable()
+					end
+				end
+
 				if not self:IsEnabled() then
 					if isFlying then
 						tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_IN_FLIGHT_TEXT .. "|r";
+					elseif popupData.isNotinGroupButRequired then
+						tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_NOT_IN_PARTY_TEXT .. "|r";
 					elseif popupData and popupData.optionData and popupData.optionData.delayedAura then
 						tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_FOOD_BUFF_TEXT .. "|r";
 					else
 						tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_ON_COOLDOWN_TEXT .. "|r";
 					end
 				else
-					if popupData then
-						local optionData = popupData.optionData;
-						if optionData.type == SIPPYCUP.Options.Type.CONSUMABLE then
-							local profileOptionData = popupData.profileOptionData;
+					if optionData.type == SIPPYCUP.Options.Type.CONSUMABLE then
+						local profileOptionData = popupData.profileOptionData;
 
-							local itemID = optionData.itemID;
-							local itemCount = C_Item.GetItemCount(itemID);
-							local maxCount = itemCount + profileOptionData.currentStacks;
-
-							if itemCount == 0 then
-								tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_NOT_IN_INVENTORY_TEXT .. "|r";
-							elseif maxCount < profileOptionData.desiredStacks then
-								tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_NOT_ENOUGH_IN_INVENTORY_TEXT:format(profileOptionData.desiredStacks - maxCount);
+						local itemCount = 0
+						if type(optionData.itemID) == "table" then
+							for _, id in ipairs(optionData.itemID) do
+								itemCount = itemCount + C_Item.GetItemCount(id)
 							end
+						else
+							itemCount = C_Item.GetItemCount(optionData.itemID)
+						end
+						local maxCount = itemCount + profileOptionData.currentStacks;
+
+						if itemCount == 0 then
+							tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_NOT_IN_INVENTORY_TEXT .. "|r";
+						elseif maxCount < profileOptionData.desiredStacks then
+							tooltipText = "|cnWARNING_FONT_COLOR:" .. L.POPUP_NOT_ENOUGH_IN_INVENTORY_TEXT:format(profileOptionData.desiredStacks - maxCount);
 						end
 					end
 				end
@@ -245,6 +266,11 @@ local function CreatePopup(templateType)
 					popupData.isFlying = false;
 					self:Enable();
 				end
+
+				local optionData = popupData.optionData;
+				if optionData.requiresGroup and popupData.isNotinGroupButRequired and UnitInParty("player") then
+					self:Enable()
+				end
 				GameTooltip:Hide();
 			end);
 
@@ -253,8 +279,16 @@ local function CreatePopup(templateType)
 				local currentPopup = self:GetParent();
 				local popupData = currentPopup and currentPopup.popupData;
 				local optionData = popupData.optionData;
-				local itemID = optionData.itemID;
-				local itemCount = C_Item.GetItemCount(itemID);
+
+				-- Sum counts if multiple item IDs
+				local itemCount = 0
+				if type(optionData.itemID) == "table" then
+					for _, id in ipairs(optionData.itemID) do
+						itemCount = itemCount + C_Item.GetItemCount(id);
+					end
+				else
+					itemCount = C_Item.GetItemCount(optionData.itemID);
+				end
 
 				-- If no more charges, don't disable as next charge doesn't exist to re-enable.
 				if itemCount > 0 then
@@ -368,7 +402,23 @@ local function UpdatePopupVisuals(popup, data)
 	local optionData = data.optionData;
 	local profileOptionData = data.profileOptionData;
 
-	local itemID = optionData.itemID;
+	-- Determine which itemID to use for tooltip/icon/cooldown
+	local itemID;
+	if type(optionData.itemID) == "table" then
+		itemID = nil;
+		for _, id in ipairs(optionData.itemID) do
+			if C_Item.GetItemCount(id) > 0 then
+				itemID = id;
+				break;
+			end
+		end
+		-- fallback to first ID if none have count > 0
+		if not itemID then
+			itemID = optionData.itemID[1];
+		end
+	else
+		itemID = optionData.itemID;
+	end
 
 	local itemName, itemLink = C_Item.GetItemInfo(itemID);
 	itemName = itemName or optionData.name;
@@ -435,7 +485,16 @@ local function UpdatePopupVisuals(popup, data)
 				popup.RefreshButton:Enable();
 			end
 		elseif popup.templateType == "SIPPYCUP_MissingPopupTemplate" then
-			local itemCount = C_Item.GetItemCount(itemID) or 0;
+			-- Sum item counts if multiple IDs
+			local itemCount = 0;
+			if type(optionData.itemID) == "table" then
+				for _, id in ipairs(optionData.itemID) do
+					itemCount = itemCount + C_Item.GetItemCount(id);
+				end
+			else
+				itemCount = C_Item.GetItemCount(optionData.itemID);
+			end
+
 			local text = L.POPUP_INSUFFICIENT_NEXT_REFRESH_TEXT:format(itemCount, profileOptionData.desiredStacks);
 			popup.Text:SetText(text or "");
 			popup.OkayButton:SetText(OKAY);
@@ -735,7 +794,8 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	-- Delayed (e.g. eating x seconds) UNIT_AURA calls, mark bag as synchronized (as it was removed earlier).
 	-- Toys UNIT_AURA calls, mark bag as synchronized (as no items are actually used).
 	-- Reflecting Prism (spellID == 163267) uses charges, and does not require a bag sync update generally.
-	if reason == SIPPYCUP.Popups.Reason.REMOVAL or reason == SIPPYCUP.Popups.Reason.PRE_EXPIRATION or optionData.delayedAura or optionData.type == SIPPYCUP.Options.Type.TOY or auraID == 163267 then
+	if reason == SIPPYCUP.Popups.Reason.REMOVAL or reason == SIPPYCUP.Popups.Reason.PRE_EXPIRATION
+	   or optionData.delayedAura or optionData.type == SIPPYCUP.Options.Type.TOY or auraID == 163267 or auraID == 374959 then
 		SIPPYCUP.Items.HandleBagUpdate();
 	end
 
@@ -787,7 +847,6 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 			auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(auraID);
 
 			if auraInfo then
-				print("auraInfo found!");
 				local auraInstanceID = auraInfo.auraInstanceID;
 				SIPPYCUP.Database.instanceToProfile[auraInstanceID] = profileOptionData;
 				profileOptionData.currentInstanceID = auraInstanceID;
@@ -803,8 +862,6 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 		active = true;
 	end
 
-	local auraInstanceID = auraInfo and auraInfo.auraInstanceID;
-
 	local trackBySpell = false;
 	local trackByItem = false;
 
@@ -812,11 +869,9 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 		trackBySpell = optionData.spellTrackable;
 		trackByItem = optionData.itemTrackable;
 	elseif optionData.type == SIPPYCUP.Options.Type.TOY then
-		-- Always track by item if itemTrackable
 		if optionData.itemTrackable then
 			trackByItem = true;
 		end
-
 		if optionData.spellTrackable then
 			if SIPPYCUP.global.UseToyCooldown then
 				trackByItem = true;
@@ -829,17 +884,16 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	-- Extra check because toys have longer cooldowns than option tend to, so don't fire if cd is still up.
 	if optionData.type == SIPPYCUP.Options.Type.TOY and reason == SIPPYCUP.Popups.Reason.REMOVAL then
 		local cooldownActive = false;
-
-		-- If item can only be tracked by the item cooldown (worst)
 		if trackByItem then
-			SIPPYCUP_OUTPUT.Debug("Tracking through Item");
-			local startTime = C_Item.GetItemCooldown(optionData.itemID);
-			if startTime and startTime > 0 then
-				cooldownActive = true;
+			local itemIDs = type(optionData.itemID) == "table" and optionData.itemID or { optionData.itemID };
+			for _, id in ipairs(itemIDs) do
+				local startTime, duration = C_Container.GetItemCooldown(id);
+				if startTime and duration and duration > 0 and (startTime + duration - GetTime() > 0) then
+					cooldownActive = true;
+					break;
+				end
 			end
-		-- If item can be tracked through the spell cooldown (fine).
 		elseif trackBySpell then
-			SIPPYCUP_OUTPUT.Debug("Tracking through Spell");
 			local spellCooldownInfo = C_Spell.GetSpellCooldown(optionData.auraID);
 			local startTime;
 			if canaccessvalue == nil or canaccessvalue(spellCooldownInfo) then
@@ -849,8 +903,6 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 				cooldownActive = true;
 			end
 		end
-
-		-- Cooldown is active when removal happened? We don't show anything.
 		if cooldownActive then
 			return;
 		end
@@ -858,34 +910,66 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 
 	SIPPYCUP_OUTPUT.Debug({ caller = caller, auraID = optionData.auraID, itemID = optionData.itemID, name = optionData.name });
 
-	-- First, let's grab the latest currentInstanceID (or have it be nil if none which is fine).
-	profileOptionData.currentInstanceID = (auraInfo and auraInfo.auraInstanceID) or auraInstanceID;
+	-- Original preference
+	local itemIDs = type(optionData.itemID) == "table" and optionData.itemID or { optionData.itemID };
+	local usableItemID;
+	local itemCount = 0;
 
-	-- If the option does not support stacks, we always desire just 1.
-	profileOptionData.desiredStacks = optionData.stacks and profileOptionData.desiredStacks or 1;
+	-- Track which itemIDs are depleted
+	local depleted = {};
 
-	local itemCount;
-	if optionData.type == SIPPYCUP.Options.Type.CONSUMABLE then
-		profileOptionData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, reason, active);
-		itemCount = C_Item.GetItemCount(optionData.itemID);
-	elseif optionData.type == SIPPYCUP.Options.Type.TOY then
-		if auraInfo then
-			profileOptionData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, reason, active);
+	for _, id in ipairs(itemIDs) do
+		local count = C_Item.GetItemCount(id);
+		SIPPYCUP_OUTPUT.Debug("Checking itemID:", id, "count:", count);
+
+		if count > 0 then
+			local startTime, duration = C_Container.GetItemCooldown(id);
+			if not startTime or startTime + duration <= GetTime() then
+				usableItemID = id;
+				itemCount = count;
+				SIPPYCUP_OUTPUT.Debug("Usable found:", id, "x"..count);
+			end
 		else
-			profileOptionData.currentStacks = active and 1 or 0;
+			SIPPYCUP_OUTPUT.Debug("No items for:", id);
+			depleted[id] = true;
 		end
-		itemCount = PlayerHasToy(optionData.itemID) and 1 or 0;
 	end
 
-	local requiredStacks = profileOptionData.desiredStacks - profileOptionData.currentStacks;
+	-- Remove depleted items from optionData.itemID, but always keep at least the last one
+	local newItemIDs = {};
+	for i, id in ipairs(itemIDs) do
+		if not depleted[id] or i == #itemIDs then
+			newItemIDs[#newItemIDs + 1] = id;
+		end
+	end
+	optionData.itemID = newItemIDs;
+
+	-- Only update the *current usable item*
+	if usableItemID then
+		profileOptionData.currentItemID = usableItemID;
+	else
+		-- No usable item available, popup can report zero count
+		profileOptionData.currentItemID = itemIDs[#itemIDs];
+		SIPPYCUP_OUTPUT.Debug("No usable item, reporting last itemID:", profileOptionData.currentItemID);
+		--[[ TO-DO: Consider if we require this here
+		RemoveDeferredActionsByLoc(optionData.loc);
+		local existingPopup = SIPPYCUP.Popups.activeByLoc[optionData.loc];
+		if existingPopup and existingPopup:IsShown() then
+			existingPopup:Hide();
+		end
+		return;
+		]]
+	end
 
 	SIPPYCUP.Popups.HandleReminderPopup({
+		active = auraInfo and true or active,
+		auraID = auraID,
+		auraInfo = auraInfo,
 		optionData = optionData,
 		profileOptionData = profileOptionData,
-		requiredStacks = requiredStacks,
 		reason = reason,
+		requiredStacks = profileOptionData.desiredStacks - profileOptionData.currentStacks,
 		itemCount = itemCount,
-		active = active,
 	});
 end
 
