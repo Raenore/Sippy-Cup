@@ -734,7 +734,8 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	-- Pre-expiration also does not do any bag changes, so mark as synchronised in case.
 	-- Delayed (e.g. eating x seconds) UNIT_AURA calls, mark bag as synchronized (as it was removed earlier).
 	-- Toys UNIT_AURA calls, mark bag as synchronized (as no items are actually used).
-	if reason == SIPPYCUP.Popups.Reason.REMOVAL or reason == SIPPYCUP.Popups.Reason.PRE_EXPIRATION or optionData.delayedAura or optionData.type == SIPPYCUP.Options.Type.TOY then
+	-- Reflecting Prism (spellID == 163267) uses charges, and does not require a bag sync update generally.
+	if reason == SIPPYCUP.Popups.Reason.REMOVAL or reason == SIPPYCUP.Popups.Reason.PRE_EXPIRATION or optionData.delayedAura or optionData.type == SIPPYCUP.Options.Type.TOY or auraID == 163267 then
 		SIPPYCUP.Items.HandleBagUpdate();
 	end
 
