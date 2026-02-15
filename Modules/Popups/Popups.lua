@@ -789,13 +789,20 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	local auraInfo = data.auraInfo;
 	local currentInstanceID = profileOptionData.currentInstanceID;
 
+	local optionType = optionData.type;
+	local isToy = optionType == SIPPYCUP.Options.Type.TOY;
+	local isConsumable = optionType == SIPPYCUP.Options.Type.CONSUMABLE;
+
 	-- Removal of a spell/aura count generally is not due to an item's action, mark bag as synchronized.
 	-- Pre-expiration also does not do any bag changes, so mark as synchronised in case.
 	-- Delayed (e.g. eating x seconds) UNIT_AURA calls, mark bag as synchronized (as it was removed earlier).
 	-- Toys UNIT_AURA calls, mark bag as synchronized (as no items are actually used).
 	-- Reflecting Prism (spellID == 163267) uses charges, and does not require a bag sync update generally.
+	-- Projecting Prism (spellID == 374959) is special, and does not require a bag sync update generally.
 	if reason == SIPPYCUP.Popups.Reason.REMOVAL or reason == SIPPYCUP.Popups.Reason.PRE_EXPIRATION
-		or optionData.delayedAura or optionData.type == SIPPYCUP.Options.Type.TOY or auraID == 163267 or auraID == 374959 then
+		or optionData.delayedAura or isToy
+		or auraID == 163267 or auraID == 374959
+		then
 		SIPPYCUP.Items.HandleBagUpdate();
 	end
 
@@ -865,10 +872,10 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	local trackBySpell = false;
 	local trackByItem = false;
 
-	if optionData.type == SIPPYCUP.Options.Type.CONSUMABLE then
+	if isConsumable then
 		trackBySpell = optionData.spellTrackable;
 		trackByItem = optionData.itemTrackable;
-	elseif optionData.type == SIPPYCUP.Options.Type.TOY then
+	elseif isToy then
 		if optionData.itemTrackable then
 			trackByItem = true;
 		end
@@ -881,14 +888,18 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 		end
 	end
 
+	local itemIDs = type(optionData.itemID) == "table" and optionData.itemID or { optionData.itemID };
+	local usableItemID;
+	local itemCount = 0;
+	local now = GetTime();
+
 	-- Extra check because toys have longer cooldowns than option tend to, so don't fire if cd is still up.
-	if optionData.type == SIPPYCUP.Options.Type.TOY and reason == SIPPYCUP.Popups.Reason.REMOVAL then
+	if isToy and reason == SIPPYCUP.Popups.Reason.REMOVAL then
 		local cooldownActive = false;
 		if trackByItem then
-			local itemIDs = type(optionData.itemID) == "table" and optionData.itemID or { optionData.itemID };
 			for _, id in ipairs(itemIDs) do
 				local startTime, duration = C_Container.GetItemCooldown(id);
-				if startTime and duration and duration > 0 and (startTime + duration - GetTime() > 0) then
+				if startTime and duration and duration > 0 and (startTime + duration - now > 0) then
 					cooldownActive = true;
 					break;
 				end
@@ -910,21 +921,23 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 
 	SIPPYCUP_OUTPUT.Debug({ caller = caller, auraID = optionData.auraID, itemID = optionData.itemID, name = optionData.name });
 
-	-- Original preference
-	local itemIDs = type(optionData.itemID) == "table" and optionData.itemID or { optionData.itemID };
-	local usableItemID;
-	local itemCount = 0;
-
 	-- Track which itemIDs are depleted
 	local depleted = {};
 
 	for _, id in ipairs(itemIDs) do
-		local count = C_Item.GetItemCount(id);
+		local count;
+
+		if isToy then
+			count = PlayerHasToy(id) and 1 or 0;
+		else
+			count = C_Item.GetItemCount(id);
+		end
+
 		SIPPYCUP_OUTPUT.Debug("Checking itemID:", id, "count:", count);
 
 		if count > 0 then
 			local startTime, duration = C_Container.GetItemCooldown(id);
-			if not startTime or startTime + duration <= GetTime() then
+			if not startTime or startTime + duration <= now then
 				usableItemID = id;
 				itemCount = count;
 				SIPPYCUP_OUTPUT.Debug("Usable found:", id, "x"..count);
@@ -937,8 +950,9 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 
 	-- Remove depleted items from optionData.itemID, but always keep at least the last one
 	local newItemIDs = {};
+	local lastIndex = #itemIDs;
 	for i, id in ipairs(itemIDs) do
-		if not depleted[id] or i == #itemIDs then
+		if not depleted[id] or i == lastIndex then
 			newItemIDs[#newItemIDs + 1] = id;
 		end
 	end
@@ -961,14 +975,30 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 		]]
 	end
 
+	local auraInstanceID = auraInfo and auraInfo.auraInstanceID;
+	-- First, let's grab the latest currentInstanceID (or have it be nil if none which is fine).
+	profileOptionData.currentInstanceID = (auraInfo and auraInfo.auraInstanceID) or auraInstanceID;
+
+	if isConsumable then
+		profileOptionData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, reason, active);
+	elseif isToy then
+		if auraInfo then
+			profileOptionData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, reason, active);
+		else
+			profileOptionData.currentStacks = active and 1 or 0;
+		end
+	end
+
+	local requiredStacks = profileOptionData.desiredStacks - profileOptionData.currentStacks;
+
 	SIPPYCUP.Popups.HandleReminderPopup({
-		active = auraInfo and true or active,
+		active = active,
 		auraID = auraID,
 		auraInfo = auraInfo,
 		optionData = optionData,
 		profileOptionData = profileOptionData,
 		reason = reason,
-		requiredStacks = profileOptionData.desiredStacks - profileOptionData.currentStacks,
+		requiredStacks = requiredStacks,
 		itemCount = itemCount,
 	});
 end
