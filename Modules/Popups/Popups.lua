@@ -459,7 +459,7 @@ end
 ---@param data ReminderPopupData Table containing all necessary information about the option and profile.
 ---@param templateTypeID? number What kind of template to create (0 = reminder, 1 = missing); defaults to 0.
 function SIPPYCUP.Popups.HandleReminderPopup(data, templateTypeID)
-	if not SIPPYCUP.States.addonReady or SIPPYCUP.States.restricted then
+	if not SIPPYCUP.States.addonReady or SIPPYCUP.States.pvpMatch then
 		return;
 	end
 
@@ -555,7 +555,7 @@ end
 ---@return nil
 function SIPPYCUP.Popups.Toggle(itemName, auraID, enabled)
 	-- Bail out entirely when in PvP Matches, we do not show popups.
-	if SIPPYCUP.States.restricted then
+	if SIPPYCUP.States.pvpMatch then
 		return;
 	end
 
@@ -684,7 +684,7 @@ function SIPPYCUP.Popups.QueuePopupAction(data,  caller)
 	SIPPYCUP_OUTPUT.Debug("QueuePopupAction");
 
 	-- Bail out entirely when in PvP Matches, we do not show popups.
-	if SIPPYCUP.States.restricted then
+	if SIPPYCUP.States.pvpMatch then
 		return;
 	end
 
@@ -728,7 +728,7 @@ end
 function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	SIPPYCUP_OUTPUT.Debug("HandlePopupAction");
 	-- Bail out entirely when in PvP Matches, we do not show popups.
-	if SIPPYCUP.States.restricted then
+	if SIPPYCUP.States.pvpMatch then
 		return;
 	end
 
@@ -759,11 +759,11 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	-- > We're in combat (experimental).
 	-- > We're in a loading screen.
 	-- This should be handled before any other logic, as there's no point to calculate deferred logic.
-	if SIPPYCUP.Items.bagUpdateUnhandled or InCombatLockdown() or SIPPYCUP.InLoadingScreen or SIPPYCUP.States.restricted then
+	if SIPPYCUP.Items.bagUpdateUnhandled or InCombatLockdown() or SIPPYCUP.InLoadingScreen or SIPPYCUP.States.pvpMatch then
 		local blockedBy;
 		if SIPPYCUP.Items.bagUpdateUnhandled then
 			blockedBy = "bag";
-		elseif InCombatLockdown() or SIPPYCUP.States.restricted then
+		elseif InCombatLockdown() or SIPPYCUP.States.pvpMatch then
 			blockedBy = "combat"; -- Won't ever happen anymore as UNIT_AURA does not run in combat, legacy code.
 		elseif SIPPYCUP.States.loadingScreen then
 			blockedBy = "loading";
@@ -938,7 +938,7 @@ function SIPPYCUP.Popups.DeferAllRefreshPopups(reasonKey)
 	local blockedBy;
 	if reasonKey == 0 or SIPPYCUP.Items.bagUpdateUnhandled then
 		blockedBy = "bag";
-	elseif reasonKey == 1 or InCombatLockdown() or SIPPYCUP.States.restricted then
+	elseif reasonKey == 1 or InCombatLockdown() or SIPPYCUP.States.pvpMatch then
 		blockedBy = "combat"; -- Only way combat is ever used, by deferring before combat or PvP matches.
 	elseif reasonKey == 2 or SIPPYCUP.States.loadingScreen then
 		blockedBy = "loading";
