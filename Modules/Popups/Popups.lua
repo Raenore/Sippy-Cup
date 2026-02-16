@@ -210,10 +210,10 @@ local function CreatePopup(templateType)
 				end
 
 				if optionData.requiresGroup then
-					if popupData.isNotinGroupButRequired and UnitInParty("player") then
+					if popupData.isNotinGroupButRequired and UnitInParty("player") and GetNumSubgroupMembers() > 0 then
 						popupData.isNotinGroupButRequired = false;
 						self:Enable();
-					elseif not UnitInParty("player") then
+					elseif not UnitInParty("player") or GetNumSubgroupMembers() == 0 then
 						popupData.isNotinGroupButRequired = true;
 						self:Disable()
 					end
@@ -268,7 +268,7 @@ local function CreatePopup(templateType)
 				end
 
 				local optionData = popupData.optionData;
-				if optionData.requiresGroup and popupData.isNotinGroupButRequired and UnitInParty("player") then
+				if optionData.requiresGroup and popupData.isNotinGroupButRequired and UnitInParty("player") and GetNumSubgroupMembers() > 0 then
 					self:Enable()
 				end
 				GameTooltip:Hide();
