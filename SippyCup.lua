@@ -156,7 +156,7 @@ function SIPPYCUP_Addon:ADDON_RESTRICTION_STATE_CHANGED(_, type, state) -- luach
 
 		self:StartContinuousCheck("addons")
 		SIPPYCUP.Popups.HandleDeferredActions("combat");
-		SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);		
+		SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
 	end
 end
 
