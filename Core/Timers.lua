@@ -11,7 +11,7 @@ local CONTINUOUS_CHECK_INTERVAL = 180.0;
 ---StartContinuousCheck begins repeating timers (3 minutes interval) for pre-expiration aura checks and no-aura item usage, if not in combat.
 function SIPPYCUP_Addon:StartContinuousCheck()
 	-- don’t run if we’re in combat or addon is not loaded fully.
-	if InCombatLockdown() or not SIPPYCUP.States.addonReady then
+	if InCombatLockdown() or not SIPPYCUP.States.addonReady or SIPPYCUP.States.pvpMatch then
 		return;
 	end
 

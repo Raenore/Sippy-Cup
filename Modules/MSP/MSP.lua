@@ -51,7 +51,7 @@ function SIPPYCUP.MSP.EnableIfAvailable()
 			end
 
 			-- If in combat, set SIPPYCUP.MSP.IC but don't handle anything else.
-			if InCombatLockdown() then
+			if InCombatLockdown() or SIPPYCUP.States.pvpMatch then
 				SIPPYCUP.MSP.CheckRPStatus();
 				return;
 			end

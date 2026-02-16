@@ -677,6 +677,12 @@ local pendingCalls = {};
 ---@return nil
 function SIPPYCUP.Popups.QueuePopupAction(data,  caller)
 	SIPPYCUP_OUTPUT.Debug("QueuePopupAction");
+
+	-- Bail out entirely when in PvP Matches, we do not show popups.
+	if SIPPYCUP.States.pvpMatch then
+		return;
+	end
+
 	-- If MSP status checks are on and the character is currently OOC, we skip everything.
 	if SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck then
 		local _, _, isIC = SIPPYCUP.MSP.CheckRPStatus();
@@ -743,11 +749,11 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	-- > We're in combat (experimental).
 	-- > We're in a loading screen.
 	-- This should be handled before any other logic, as there's no point to calculate deferred logic.
-	if SIPPYCUP.Items.bagUpdateUnhandled or InCombatLockdown() or SIPPYCUP.InLoadingScreen then
+	if SIPPYCUP.Items.bagUpdateUnhandled or InCombatLockdown() or SIPPYCUP.InLoadingScreen or SIPPYCUP.States.pvpMatch then
 		local blockedBy;
 		if SIPPYCUP.Items.bagUpdateUnhandled then
 			blockedBy = "bag";
-		elseif InCombatLockdown() then
+		elseif InCombatLockdown() or SIPPYCUP.States.pvpMatch then
 			blockedBy = "combat"; -- Won't ever happen anymore as UNIT_AURA does not run in combat, legacy code.
 		elseif SIPPYCUP.States.loadingScreen then
 			blockedBy = "loading";
@@ -922,8 +928,8 @@ function SIPPYCUP.Popups.DeferAllRefreshPopups(reasonKey)
 	local blockedBy;
 	if reasonKey == 0 or SIPPYCUP.Items.bagUpdateUnhandled then
 		blockedBy = "bag";
-	elseif reasonKey == 1 or InCombatLockdown() then
-		blockedBy = "combat"; -- Only way combat is ever used, by deferring before combat.
+	elseif reasonKey == 1 or InCombatLockdown() or SIPPYCUP.States.pvpMatch then
+		blockedBy = "combat"; -- Only way combat is ever used, by deferring before combat or PvP matches.
 	elseif reasonKey == 2 or SIPPYCUP.States.loadingScreen then
 		blockedBy = "loading";
 	end

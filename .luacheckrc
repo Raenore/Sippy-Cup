@@ -268,6 +268,12 @@ stds.wow = {
 			},
 		},
 
+		C_RestrictedActions = {
+			fields = {
+				"IsAddOnRestrictionActive",
+			},
+		},
+
 		C_Secrets = {
 			fields = {
 				"ShouldAurasBeSecret",
@@ -332,6 +338,12 @@ stds.wow = {
 
 		Enum = {
 			fields = {
+				AddOnRestrictionType = {
+					fields = {
+						"PvPMatch",
+					},
+				},
+
 				TooltipDataLineType = {
 					fields = {
 						"UnitOwner",
