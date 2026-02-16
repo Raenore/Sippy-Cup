@@ -264,6 +264,7 @@ stds.wow = {
 		C_PvP = {
 			fields = {
 				"GetZonePVPInfo",
+				"IsActiveBattlefield",
 				"IsWarModeActive",
 			},
 		},

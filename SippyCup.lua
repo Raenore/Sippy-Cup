@@ -99,6 +99,11 @@ end
 ---OnInitialPlayerInWorld Runs initial setup after the player enters the world for the first time.
 ---Handles MSP checks, DB profile migration, saved variable patches, and minimap setup.
 function SIPPYCUP_Addon:OnInitialPlayerInWorld()
+	-- Do nothing when you are on a PvP-enabled map (Arenas, BGs, etc.)
+	if C_RestrictedActions.IsAddOnRestrictionActive(Enum.AddOnRestrictionType.PvPMatch) or C_PvP.IsActiveBattlefield() then
+		SIPPYCUP.States.pvpMatch = true;
+	end
+
 	-- Prepare our MSP checks.
 	SIPPYCUP.MSP.EnableIfAvailable(); -- True/False if enable successfully, we don't need that info right now.
 	-- Depending on if MSP status checks are on or off, we check differently.
@@ -229,7 +234,7 @@ SIPPYCUP.Callbacks:RegisterCallback(SIPPYCUP.Events.LOADING_SCREEN_ENDED, functi
 	end
 
 	-- Do nothing when you are on a PvP-enabled map (Arenas, BGs, etc.)
-	if C_RestrictedActions.IsAddOnRestrictionActive(Enum.AddOnRestrictionType.PvPMatch) then
+	if C_RestrictedActions.IsAddOnRestrictionActive(Enum.AddOnRestrictionType.PvPMatch) or C_PvP.IsActiveBattlefield() then
 		SIPPYCUP.States.pvpMatch = true;
 		return;
 	end
@@ -238,7 +243,7 @@ SIPPYCUP.Callbacks:RegisterCallback(SIPPYCUP.Events.LOADING_SCREEN_ENDED, functi
 	SIPPYCUP.Popups.HandleDeferredActions("loading");
 
 	-- If we just came out of a PvP-enabled map, show 'combat' popups deferred by DeferAllRefreshPopups (reason 1).
-	if SIPPYCUP.States.pvpMatch and not C_RestrictedActions.IsAddOnRestrictionActive(Enum.AddOnRestrictionType.PvPMatch) then
+	if SIPPYCUP.States.pvpMatch and (not C_RestrictedActions.IsAddOnRestrictionActive(Enum.AddOnRestrictionType.PvPMatch) or not C_PvP.IsActiveBattlefield()) then
 		SIPPYCUP.States.pvpMatch = false;
 		SIPPYCUP.Popups.HandleDeferredActions("combat");
 	end
