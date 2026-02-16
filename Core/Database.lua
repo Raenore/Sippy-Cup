@@ -128,6 +128,7 @@ local defaults = SIPPYCUP.Database.defaults;
 ---@field currentInstanceID number? Aura instance ID currently being tracked (if any).
 ---@field currentStacks number Current number of detected stacks.
 ---@field aura number The associated aura ID for this option.
+---@field castAura number The associated cast aura ID, if none is set then use aura ID.
 ---@field untrackableByAura boolean Whether this option can be tracked via its aura or not.
 
 ---Populate the default option's table keyed by aura ID, with all known entries from SIPPYCUP.Options.Data.
@@ -138,6 +139,7 @@ local function PopulateDefaultOptions()
 	for i = 1, #optionsData do
 		local option = optionsData[i];
 		local spellID = option.auraID;
+		local castSpellID = option.castAuraID;
 		local untrackableByAura = option.itemTrackable or option.spellTrackable;
 
 		if spellID then
@@ -148,6 +150,7 @@ local function PopulateDefaultOptions()
 				currentInstanceID = nil,
 				currentStacks = 0,
 				aura = spellID,
+				castAura = castSpellID,
 				untrackableByAura = untrackableByAura,
 			};
 		end
@@ -162,6 +165,9 @@ SIPPYCUP.Database.auraToProfile = {}; -- auraID --> profile data
 SIPPYCUP.Database.instanceToProfile = {}; -- instanceID --> profile data
 ---@type table<number, SIPPYCUPProfileOption>
 SIPPYCUP.Database.untrackableByAuraProfile = {}; -- itemID --> profile data (only if no aura)
+---@type table<number, SIPPYCUPProfileOption>
+SIPPYCUP.Database.castAuraToProfile = {}; -- castAuraID (if different) / auraID --> profile data
+
 
 ---RebuildAuraMap rebuilds internal lookup tables for aura and instance-based option tracking.
 ---@return nil
@@ -171,11 +177,14 @@ function SIPPYCUP.Database.RebuildAuraMap()
 	wipe(db.auraToProfile);
 	wipe(db.instanceToProfile);
 	wipe(db.untrackableByAuraProfile);
+	wipe(db.castAuraToProfile);
 
 	for _, profileOptionData in pairs(SIPPYCUP.Profile) do
 		if profileOptionData.enable and profileOptionData.aura then
 			local auraID = profileOptionData.aura;
 			db.auraToProfile[auraID] = profileOptionData;
+			local castAuraID = profileOptionData.castAura;
+			db.castAuraToProfile[castAuraID] = profileOptionData;
 
 			-- Update instance ID if aura is currently active
 			local auraInfo;

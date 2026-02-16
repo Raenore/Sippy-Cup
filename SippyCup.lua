@@ -92,6 +92,8 @@ function SIPPYCUP_Addon:OnPlayerLogin()
 	-- Register game events related to aura and spell tracking for Sippy Cup.
 	SIPPYCUP_Addon:RegisterUnitEvent("UNIT_AURA", "player");
 	SIPPYCUP_Addon:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player");
+	SIPPYCUP_Addon:RegisterUnitEvent("UNIT_SPELLCAST_RETICLE_CLEAR", "player");
+	SIPPYCUP_Addon:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", "player");
 
 	SIPPYCUP.Config.TryCreateConfigFrame();
 end
@@ -191,6 +193,34 @@ end
 function SIPPYCUP_Addon:UNIT_SPELLCAST_SUCCEEDED(_, unitTarget, _, spellID) -- luacheck: no unused (unitTarget)
 	-- Necessary to handle items that don't fire UNIT_AURA.
 	SIPPYCUP.Items.CheckNoAuraSingleOption(nil, spellID);
+end
+
+function SIPPYCUP_Addon:UNIT_SPELLCAST_RETICLE_CLEAR(_, unitTarget, _, spellID) -- luacheck: no unused (unitTarget)
+	if InCombatLockdown() or not canaccessvalue(spellID) then
+		return;
+	end
+
+	if SIPPYCUP.Database.castAuraToProfile[spellID] then
+		SIPPYCUP.Popups.ForEachActivePopup(function(popup)
+			if popup.templateType == "SIPPYCUP_RefreshPopupTemplate" and popup.RefreshButton and not popup.RefreshButton:IsEnabled() then
+				popup.RefreshButton:Enable();
+			end
+		end);
+	end
+end
+
+function SIPPYCUP_Addon:UNIT_SPELLCAST_INTERRUPTED(_, unitTarget, _, spellID) -- luacheck: no unused (unitTarget)
+	if InCombatLockdown() or not canaccessvalue(spellID) then
+		return;
+	end
+
+	if SIPPYCUP.Database.castAuraToProfile[spellID] then
+		SIPPYCUP.Popups.ForEachActivePopup(function(popup)
+			if popup.templateType == "SIPPYCUP_RefreshPopupTemplate" and popup.RefreshButton and not popup.RefreshButton:IsEnabled() then
+				popup.RefreshButton:Enable();
+			end
+		end);
+	end
 end
 
 ---ZONE_CHANGED_NEW_AREA Handles zone changes and triggers loading screen end logic if needed.

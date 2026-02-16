@@ -17,6 +17,7 @@ SIPPYCUP.Options.Type = {
 ---@class SIPPYCUPOption: table
 ---@field type string Whether this option is a consumable (0) or toy (1).
 ---@field auraID number The option's aura ID.
+---@field castAuraID number The option's cast aura ID, if none is set then use auraID.
 ---@field itemID number|table The option's item ID(s)
 ---@field loc string The option's localization key (auto-gen).
 ---@field category string The option's category (e.g., potion, food).
@@ -30,7 +31,7 @@ SIPPYCUP.Options.Type = {
 ---@field spellTrackable boolean Whether the option can only be tracked through the spell itself (cooldowns, etc.).
 ---@field delayedAura boolean Whether the option is applied after a delay (e.g. food buff), on false a buff is applied instantly.
 ---@field cooldownMismatch boolean Whether the option has a mismatch in cooldowns (cd longer than buff lasts), on false there is no mismatch.
-
+---@field charges boolean Whether the option uses charges.
 
 ---NewOption creates a new object with the specified parameters.
 ---@param params SIPPYCUPOption A table containing parameters for the new option.
@@ -44,6 +45,7 @@ local function NewOption(params)
 	return {
 		type  = params.type or SIPPYCUP.Options.Type.CONSUMABLE,
 		auraID = params.auraID,
+		castAuraID = params.castAuraID or params.auraID,
 		itemID = itemIDs; -- always store as a table internally
 		loc = params.loc,
 		category = params.category,
@@ -59,6 +61,7 @@ local function NewOption(params)
 		cooldownMismatch = params.cooldownMismatch or false,
 		buildAdded = params.buildAdded or nil,
 		requiresGroup = params.requiresGroup or false,
+		charges = params.charges or false,
 	};
 end
 
@@ -98,7 +101,7 @@ SIPPYCUP.Options.Data = {
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 393979, itemID = 201428, category = "EFFECT" }, -- QUICKSILVER_SANDS
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1213974, itemID = 234287, category = "EFFECT", preExpiration = true }, -- RADIANT_FOCUS
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1214287, itemID = 234527, category = "HANDHELD", preExpiration = true }, -- SACREDITES_LEDGER
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 163267, itemID = 112384, category = "PRISM", preExpiration = true, requiresGroup = true }, -- REFLECTING_PRISM
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 163267, castAuraID = 163219, itemID = 112384, category = "PRISM", preExpiration = true, requiresGroup = true, charges = true }, -- REFLECTING_PRISM
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 279742, itemID = 163695, category = "EFFECT" }, -- SCROLL_OF_INNER_TRUTH
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1222834, itemID = 237332, category = "PLACEMENT", spellTrackable = true }, -- SINGLE_USE_GRILL
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 58479, itemID = 43480, category = "SIZE", preExpiration = true, delayedAura = true }, -- SMALL_FEAST
