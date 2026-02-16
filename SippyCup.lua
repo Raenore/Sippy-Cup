@@ -103,6 +103,7 @@ function SIPPYCUP_Addon:OnInitialPlayerInWorld()
 	local inPvp = C_RestrictedActions.IsAddOnRestrictionActive(Enum.AddOnRestrictionType.PvPMatch) or C_PvP.IsActiveBattlefield();
 	if inPvp then
 		SIPPYCUP.States.pvpMatch = true;
+		SIPPYCUP.Popups.DeferAllRefreshPopups(1);
 	end
 
 	-- Prepare our MSP checks.
@@ -239,6 +240,7 @@ SIPPYCUP.Callbacks:RegisterCallback(SIPPYCUP.Events.LOADING_SCREEN_ENDED, functi
 	-- Do nothing when you are on a PvP-enabled map (Arenas, BGs, etc.)
 	if inPvp then
 		SIPPYCUP.States.pvpMatch = true;
+		SIPPYCUP.Popups.DeferAllRefreshPopups(1);
 	else
 		-- If we just came out of a PvP-enabled map, show 'combat' popups deferred by DeferAllRefreshPopups (reason 1).
 		if SIPPYCUP.States.pvpMatch then
