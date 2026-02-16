@@ -794,7 +794,7 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 		return;
 	end
 
-  -- If user has disabled an option before it's shown (due to deferring or something else), remove it.
+	-- If user has disabled an option before it's shown (due to deferring or something else), remove it.
 	if not profileOptionData.enable then
 		RemoveDeferredActionsByLoc(optionData.loc);
 		local existingPopup = SIPPYCUP.Popups.activeByLoc[optionData.loc];
