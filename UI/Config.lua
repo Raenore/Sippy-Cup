@@ -883,6 +883,8 @@ local function CreateConfigSlider(elementContainer, data)
 
 	local r, g, b = WHITE_FONT_COLOR:GetRGB();
 
+	widget.TopText:SetText(data.label);
+
 	widget.MinText:SetText(minVal);
 	widget.MinText:SetVertexColor(r, g, b);
 
@@ -891,13 +893,14 @@ local function CreateConfigSlider(elementContainer, data)
 
 	widget.RightText:SetVertexColor(r, g, b);
 
+	widget.TopText:Show();
 	widget.MinText:Show();
 	widget.MaxText:Show();
 	widget.RightText:Show();
 
 	widget:SetPoint("LEFT", 0, 0);
 	widget:SetWidth(elementContainer:GetWidth() * 0.8);
-	widget:SetHeight(41);
+	widget:SetHeight(data.height or 41);
 
 	if data.buildAdded and SIPPYCUP_BUILDINFO.CheckNewlyAdded(data.buildAdded) then
 		local newPip = widget:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
@@ -1620,6 +1623,66 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 					};
 				end
 			end
+		end
+
+		if categoryName == "PRISM" then
+			CreateCategoryHeader(categoryPanel, SETTINGS);
+
+			local prismWidgetData = {
+				{
+					type = "slider",
+					label = L.OPTIONS_TAB_PRISM_TIMER:format(SIPPYCUP.Options.ByItemID[193031].name),
+					tooltip = L.OPTIONS_TAB_PRISM_TIMER_TEXT:format(5, 5),
+					buildAdded = "0.7.0|120001",
+					min = 1,
+					max = 7,
+					step = 1,
+					height = 35,
+					disabled = function()
+						return not SIPPYCUP.Database.GetSetting("global", "ProjectionPrismPreExpirationLeadTimer", nil);
+					end,
+					get = function()
+						return SIPPYCUP.Database.GetSetting("global", "ProjectionPrismPreExpirationLeadTimer", nil);
+					end,
+					set = function(val)
+						SIPPYCUP.Database.UpdateSetting("global", "ProjectionPrismPreExpirationLeadTimer", nil, val);
+						local reason = SIPPYCUP.Popups.Reason.PRE_EXPIRATION;
+						SIPPYCUP.Auras.CancelAllPreExpirationTimers();
+						SIPPYCUP.Items.CancelAllItemTimers(reason);
+						SIPPYCUP.Popups.HideAllRefreshPopups(reason);
+						SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck, false, true);
+					end,
+				},
+				{
+					type = "slider",
+					label = L.OPTIONS_TAB_PRISM_TIMER:format(SIPPYCUP.Options.ByItemID[112384].name),
+					tooltip = L.OPTIONS_TAB_PRISM_TIMER_TEXT:format(3, 3),
+					buildAdded = "0.7.0|120001",
+					min = 1,
+					max = 5,
+					step = 1,
+					height = 35,
+					disabled = function()
+						return not SIPPYCUP.Database.GetSetting("global", "ReflectingPrismPreExpirationLeadTimer", nil);
+					end,
+					get = function()
+						return SIPPYCUP.Database.GetSetting("global", "ReflectingPrismPreExpirationLeadTimer", nil);
+					end,
+					set = function(val)
+						SIPPYCUP.Database.UpdateSetting("global", "ReflectingPrismPreExpirationLeadTimer", nil, val);
+						local reason = SIPPYCUP.Popups.Reason.PRE_EXPIRATION;
+						SIPPYCUP.Auras.CancelAllPreExpirationTimers();
+						SIPPYCUP.Items.CancelAllItemTimers(reason);
+						SIPPYCUP.Popups.HideAllRefreshPopups(reason);
+						SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck, false, true);
+					end,
+				},
+			}
+
+			local widgets = CreateWidgetRowContainer(categoryPanel, prismWidgetData, 2, 40, 20, true);
+
+			self.profileWidgets[#self.profileWidgets + 1] = widgets;
+			self.allWidgets[#self.allWidgets + 1] = widgets;
 		end
 
 		if #categoryConsumablesData > 0 then

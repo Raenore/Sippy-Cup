@@ -26,7 +26,7 @@ function SIPPYCUP.Auras.DebugEnabledAuras()
 end
 
 ---SkipDuplicatePrismUnitAura determines if a prism-type aura update should be ignored
----@param profileOptionData table The option profile data.
+---@param profileOptionData SIPPYCUPProfileOption The option profile data.
 ---@return boolean skip True if this aura update should be skipped due to duplicate UNIT_AURA events.
 local function SkipDuplicatePrismUnitAura(profileOptionData)
 	local skip = false;
@@ -540,7 +540,7 @@ function SIPPYCUP.Auras.CheckPreExpirationForAllActiveOptions(minSeconds)
 end
 
 ---CheckPreExpirationForSingleOption sets up pre-expiration warnings for aura-based options.
----@param profileOptionData table Profile data for the option.
+---@param profileOptionData SIPPYCUPProfileOption Profile data for the option.
 ---@param minSeconds number? Time window to check ahead, defaults to 180.
 ---@return boolean preExpireFired True if a pre-expiration popup was fired.
 function SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData, minSeconds)
@@ -552,7 +552,6 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData, min
 	end
 
 	minSeconds = minSeconds or 180.0;
-	local preOffset = SIPPYCUP.global.PreExpirationLeadTimer * 60;
 	local auraID = profileOptionData.aura;
 	local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(auraID);
 
@@ -579,6 +578,17 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData, min
 	local now = GetTime();
 	local remaining = auraInfo.expirationTime - now;
 	local duration = auraInfo.duration;
+	local preOffset;
+
+	if profileOptionData.isPrism then
+		if profileOptionData.usesCharges then -- reflecting prism
+			preOffset = SIPPYCUP.global.ReflectingPrismPreExpirationLeadTimer * 60;
+		else -- projection prism
+			preOffset = SIPPYCUP.global.ProjectionPrismPreExpirationLeadTimer * 60;
+		end
+	else -- Global
+		preOffset = SIPPYCUP.global.PreExpirationLeadTimer * 60;
+	end
 
 	-- If the option only lasts for less than user set, we need to change it.
 	if duration <= preOffset then

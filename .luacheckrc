@@ -817,6 +817,7 @@ stds.wow = {
 		"RUNES",
 		"RUNIC_POWER",
 		"SAVE",
+		"SETTINGS",
 		"SOUL_SHARDS",
 		"SOUND",
 		"SOUNDKIT",

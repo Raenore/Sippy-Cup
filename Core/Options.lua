@@ -96,14 +96,14 @@ SIPPYCUP.Options.Data = {
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 185394, itemID = 124640, category = "EFFECT", preExpiration = true }, -- INKY_BLACK_POTION
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1218300, itemID = 235703, category = "SIZE", stacks = true, maxStacks = 10, preExpiration = true }, -- NOGGENFOGGER_SELECT_DOWN
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1218297, itemID = 235704, category = "SIZE", stacks = true, maxStacks = 10, preExpiration = true }, -- NOGGENFOGGER_SELECT_UP
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 374959, itemID = {193031, 193030, 193029}, category = "PRISM", preExpiration = true, requiresGroup = true }, -- PROJECTION_PRISM TO-DO: Implement selector, currently Gold > Silver > Bronze
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 374959, itemID = {193031, 193030, 193029}, category = "PRISM", preExpiration = true, requiresGroup = true, buildAdded = "0.7.0|120001" }, -- PROJECTION_PRISM
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 368038, itemID = 190739, category = "EFFECT", preExpiration = true }, -- PROVIS_WAX
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 244015, itemID = 151256, category = "HANDHELD", preExpiration = true }, -- PURPLE_DANCE_STICK
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 53805, itemID = 40195, category = "SIZE", stacks = true, maxStacks = 10 }, -- PYGMY_OIL
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 393979, itemID = 201428, category = "EFFECT" }, -- QUICKSILVER_SANDS
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1213974, itemID = 234287, category = "EFFECT", preExpiration = true }, -- RADIANT_FOCUS
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1214287, itemID = 234527, category = "HANDHELD", preExpiration = true }, -- SACREDITES_LEDGER
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 163267, castAuraID = 163219, itemID = 112384, category = "PRISM", preExpiration = true, requiresGroup = true, charges = true }, -- REFLECTING_PRISM
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 163267, castAuraID = 163219, itemID = 112384, category = "PRISM", preExpiration = true, requiresGroup = true, charges = true, buildAdded = "0.7.0|120001" }, -- REFLECTING_PRISM
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 279742, itemID = 163695, category = "EFFECT" }, -- SCROLL_OF_INNER_TRUTH
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1222834, itemID = 237332, category = "PLACEMENT", spellTrackable = true }, -- SINGLE_USE_GRILL
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 58479, itemID = 43480, category = "SIZE", preExpiration = true, delayedAura = true }, -- SMALL_FEAST

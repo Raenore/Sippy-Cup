@@ -108,6 +108,8 @@ L = {
 	-- Prism
 	OPTIONS_TAB_PRISM_TITLE = "Prism", -- (NEW)
 	OPTIONS_TAB_PRISM_INSTRUCTION = "These options control all reminders for prism consumables/toys to alter your appearance.", -- (NEW)
+	OPTIONS_TAB_PRISM_TIMER = "%s - Timer", -- (NEW)
+	OPTIONS_TAB_PRISM_TIMER_TEXT = "Set the desired time, in minutes, before the prism pre-expiration reminder popup should be shown (default: %d minutes).|n|n|cnWARNING_FONT_COLOR:If an option does not support the chosen time, it will default to %d minutes.|r", -- (NEW)
 
 	-- Size
 	OPTIONS_TAB_SIZE_TITLE = "Размер",
