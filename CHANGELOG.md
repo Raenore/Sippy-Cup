@@ -52,19 +52,5 @@ Given that Sippy Cup never officially supported combat situations, these restric
 ### Fixed  
 - Fixed a rare error related to missing reminder popup data. ([#78](https://github.com/Raenore/Sippy-Cup/pull/78))  
 
-## [0.5.0] - 2025-08-25  
-Major patch following the 0.4.0 internal optimizations, targeting further internal reworks and streamlining for performance.  
-
-### Added  
-- Added additional internal states to ensure Sippy Cup correctly tracks when certain data is available and ready to be used. No user-facing changes. ([#62](https://github.com/Raenore/Sippy-Cup/pull/62))  
-
-### Changed  
-- Improved MSP-related code (addons like TRP, MRP, XRP, etc.) to handle edge cases where, on login, Sippy Cup incorrectly thought the player was IC. ([#63](https://github.com/Raenore/Sippy-Cup/pull/63))  
-- Optimized the code that checks for auras and spell cast tracking to improve performance ([#66](https://github.com/Raenore/Sippy-Cup/pull/66)).  
-- Rewrote Sippy Cup's events and state system to be more robust, which should improve long-term performance ([#67](https://github.com/Raenore/Sippy-Cup/pull/67)).  
-
-### Fixed  
-- Fixed an issue where the refresh button remained disabled after being clicked with zero items left in the bag ([#65](https://github.com/Raenore/Sippy-Cup/pull/65)).  
-
 ## Full Changelog  
 The complete changelog, including older versions, can always be found on [Sippy Cup's GitHub Wiki](https://github.com/Raenore/Sippy-Cup/wiki/Full-Changelog).  
