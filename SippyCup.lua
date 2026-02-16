@@ -100,7 +100,8 @@ end
 ---Handles MSP checks, DB profile migration, saved variable patches, and minimap setup.
 function SIPPYCUP_Addon:OnInitialPlayerInWorld()
 	-- Do nothing when you are on a PvP-enabled map (Arenas, BGs, etc.)
-	if C_RestrictedActions.IsAddOnRestrictionActive(Enum.AddOnRestrictionType.PvPMatch) or C_PvP.IsActiveBattlefield() then
+	local inPvp = C_RestrictedActions.IsAddOnRestrictionActive(Enum.AddOnRestrictionType.PvPMatch) or C_PvP.IsActiveBattlefield();
+	if inPvp then
 		SIPPYCUP.States.pvpMatch = true;
 	end
 
@@ -233,24 +234,27 @@ SIPPYCUP.Callbacks:RegisterCallback(SIPPYCUP.Events.LOADING_SCREEN_ENDED, functi
 		SIPPYCUP_Addon:OnInitialPlayerInWorld();
 	end
 
+	local inPvp = C_RestrictedActions.IsAddOnRestrictionActive(Enum.AddOnRestrictionType.PvPMatch) or C_PvP.IsActiveBattlefield();
+
 	-- Do nothing when you are on a PvP-enabled map (Arenas, BGs, etc.)
-	if C_RestrictedActions.IsAddOnRestrictionActive(Enum.AddOnRestrictionType.PvPMatch) or C_PvP.IsActiveBattlefield() then
+	if inPvp then
 		SIPPYCUP.States.pvpMatch = true;
-		return;
+	else
+		-- If we just came out of a PvP-enabled map, show 'combat' popups deferred by DeferAllRefreshPopups (reason 1).
+		if SIPPYCUP.States.pvpMatch then
+			SIPPYCUP.States.pvpMatch = false;
+			SIPPYCUP.Popups.HandleDeferredActions("combat");
+		end
 	end
 
-	SIPPYCUP_Addon:StartContinuousCheck()
-	SIPPYCUP.Popups.HandleDeferredActions("loading");
+	if not SIPPYCUP.States.pvpMatch then
+		SIPPYCUP_Addon:StartContinuousCheck()
+		SIPPYCUP.Popups.HandleDeferredActions("loading");
 
-	-- If we just came out of a PvP-enabled map, show 'combat' popups deferred by DeferAllRefreshPopups (reason 1).
-	if SIPPYCUP.States.pvpMatch and (not C_RestrictedActions.IsAddOnRestrictionActive(Enum.AddOnRestrictionType.PvPMatch) or not C_PvP.IsActiveBattlefield()) then
-		SIPPYCUP.States.pvpMatch = false;
-		SIPPYCUP.Popups.HandleDeferredActions("combat");
-	end
-
-	-- isFullUpdate can pass through loading screens (but our code can't), so handle it now.
-	if SIPPYCUP.States.hasSeenFullUpdate then
-		SIPPYCUP.States.hasSeenFullUpdate = false;
-		SIPPYCUP.Auras.CheckAllActiveOptions();
+		-- isFullUpdate can pass through loading screens (but our code can't), so handle it now.
+		if SIPPYCUP.States.hasSeenFullUpdate then
+			SIPPYCUP.States.hasSeenFullUpdate = false;
+			SIPPYCUP.Auras.CheckAllActiveOptions();
+		end
 	end
 end);

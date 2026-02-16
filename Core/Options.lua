@@ -286,11 +286,6 @@ end
 ---@param preExpireOnly boolean? If true, only handles pre-expirations. Defaults to false
 ---@return nil
 function SIPPYCUP.Options.RefreshStackSizes(checkAll, reset, preExpireOnly)
-	-- Bail out entirely when in PvP Matches, we do not support those.
-	if SIPPYCUP.States.pvpMatch then
-		return;
-	end
-
 	reset = (reset ~= false);
 	preExpireOnly = preExpireOnly or false;
 

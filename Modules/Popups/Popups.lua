@@ -459,7 +459,7 @@ end
 ---@param data ReminderPopupData Table containing all necessary information about the option and profile.
 ---@param templateTypeID? number What kind of template to create (0 = reminder, 1 = missing); defaults to 0.
 function SIPPYCUP.Popups.HandleReminderPopup(data, templateTypeID)
-	if not SIPPYCUP.States.addonReady then
+	if not SIPPYCUP.States.addonReady or SIPPYCUP.States.pvpMatch then
 		return;
 	end
 
@@ -554,6 +554,11 @@ end
 ---@param enabled boolean Whether the option tracking is enabled or disabled.
 ---@return nil
 function SIPPYCUP.Popups.Toggle(itemName, auraID, enabled)
+	-- Bail out entirely when in PvP Matches, we do not show popups.
+	if SIPPYCUP.States.pvpMatch then
+		return;
+	end
+
 	-- Grab the right option by name, and check if aura exists.
 	local optionData;
 
@@ -722,6 +727,11 @@ end
 ---@return nil
 function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	SIPPYCUP_OUTPUT.Debug("HandlePopupAction");
+	-- Bail out entirely when in PvP Matches, we do not show popups.
+	if SIPPYCUP.States.pvpMatch then
+		return;
+	end
+
 	local optionData = data.optionData or SIPPYCUP.Options.ByAuraID[data.auraID];
 	local profileOptionData = data.profileOptionData or SIPPYCUP.Profile[data.auraID];
 
