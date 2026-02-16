@@ -554,6 +554,11 @@ end
 ---@param enabled boolean Whether the option tracking is enabled or disabled.
 ---@return nil
 function SIPPYCUP.Popups.Toggle(itemName, auraID, enabled)
+	-- Bail out entirely when in PvP Matches, we do not show popups.
+	if SIPPYCUP.States.pvpMatch then
+		return;
+	end
+
 	-- Grab the right option by name, and check if aura exists.
 	local optionData;
 
@@ -677,6 +682,12 @@ local pendingCalls = {};
 ---@return nil
 function SIPPYCUP.Popups.QueuePopupAction(data,  caller)
 	SIPPYCUP_OUTPUT.Debug("QueuePopupAction");
+
+	-- Bail out entirely when in PvP Matches, we do not show popups.
+	if SIPPYCUP.States.pvpMatch then
+		return;
+	end
+
 	-- If MSP status checks are on and the character is currently OOC, we skip everything.
 	if SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck then
 		local _, _, isIC = SIPPYCUP.MSP.CheckRPStatus();
@@ -716,10 +727,29 @@ end
 ---@return nil
 function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	SIPPYCUP_OUTPUT.Debug("HandlePopupAction");
+
 	local optionData = data.optionData or SIPPYCUP.Options.ByAuraID[data.auraID];
 	local profileOptionData = data.profileOptionData or SIPPYCUP.Profile[data.auraID];
 
 	if not optionData or not profileOptionData or SIPPYCUP.Popups.IsIgnored(optionData.auraID) then
+		return;
+	end
+
+	-- If user has disabled an option before it's shown (due to deferring or something else), remove it.
+	if not profileOptionData.enable then
+		RemoveDeferredActionsByLoc(optionData.loc);
+		local existingPopup = SIPPYCUP.Popups.activeByLoc[optionData.loc];
+
+		if existingPopup and existingPopup:IsShown() then
+			existingPopup:Hide();
+		end
+
+		if profileOptionData.untrackableByAura then
+			SIPPYCUP.Items.CancelItemTimer(nil, optionData.auraID);
+		else
+			SIPPYCUP.Auras.CancelPreExpirationTimer(nil, optionData.auraID);
+		end
+
 		return;
 	end
 
@@ -743,11 +773,11 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	-- > We're in combat (experimental).
 	-- > We're in a loading screen.
 	-- This should be handled before any other logic, as there's no point to calculate deferred logic.
-	if SIPPYCUP.Items.bagUpdateUnhandled or InCombatLockdown() or SIPPYCUP.InLoadingScreen then
+	if SIPPYCUP.Items.bagUpdateUnhandled or InCombatLockdown() or SIPPYCUP.InLoadingScreen or SIPPYCUP.States.pvpMatch then
 		local blockedBy;
 		if SIPPYCUP.Items.bagUpdateUnhandled then
 			blockedBy = "bag";
-		elseif InCombatLockdown() then
+		elseif InCombatLockdown() or SIPPYCUP.States.pvpMatch then
 			blockedBy = "combat"; -- Won't ever happen anymore as UNIT_AURA does not run in combat, legacy code.
 		elseif SIPPYCUP.States.loadingScreen then
 			blockedBy = "loading";
@@ -786,7 +816,6 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 			auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(auraID);
 
 			if auraInfo then
-				print("auraInfo found!");
 				local auraInstanceID = auraInfo.auraInstanceID;
 				SIPPYCUP.Database.instanceToProfile[auraInstanceID] = profileOptionData;
 				profileOptionData.currentInstanceID = auraInstanceID;
@@ -922,8 +951,8 @@ function SIPPYCUP.Popups.DeferAllRefreshPopups(reasonKey)
 	local blockedBy;
 	if reasonKey == 0 or SIPPYCUP.Items.bagUpdateUnhandled then
 		blockedBy = "bag";
-	elseif reasonKey == 1 or InCombatLockdown() then
-		blockedBy = "combat"; -- Only way combat is ever used, by deferring before combat.
+	elseif reasonKey == 1 or InCombatLockdown() or SIPPYCUP.States.pvpMatch then
+		blockedBy = "combat"; -- Only way combat is ever used, by deferring before combat or PvP matches.
 	elseif reasonKey == 2 or SIPPYCUP.States.loadingScreen then
 		blockedBy = "loading";
 	end
