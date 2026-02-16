@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0] - 2026-02-xx  
+Major patch as we move further into the Midnight pre-patch, with improved Prism (Projecting & Reflecting) support and additional secret-related fixes.  
+
+### Added
+- Proper Prism support! ([#86](https://github.com/Raenore/Sippy-Cup/pull/86))  
+  - Both prism types now track properly, unlike the previous implementation.  
+  - Both Projecting and Reflecting Prism have separate pre-expiration timers that you can adjust.  
+  - Projection Prism works with all quality variants. It will prioritize Gold, then Silver, and finally Bronze quality.   
+- If an option requires a party, this will now be mentioned on the refresh button while it is disabled (until a party is formed).  
+- If an option is channeled and gets interrupted, the button will properly re-enable so you can refresh it again.  
+
+### Changed  
+- Updated Spanish translation thanks to [Romanv](https://bsky.app/profile/romanv88.bsky.social) ([#85](https://github.com/Raenore/Sippy-Cup/pull/85)).  
+- Sippy Cup will now fully bail out in Battlegrounds. Supporting auras/buffs there is too complex (due to Midnight's secrets) and has no real RP value ([#83](https://github.com/Raenore/Sippy-Cup/pull/83)).  
+- The system that tracks dirty bag states (for proper item counts) and buff events has been rewritten to be more efficient. No user-facing changes. ([#86](https://github.com/Raenore/Sippy-Cup/pull/86))  
+
+### Fixed  
+- Fixed additional spellID secrets ([#84](https://github.com/Raenore/Sippy-Cup/pull/84)).  
+
 ## [0.6.1] - 2026-02-11  
 Second pre-patch for Midnight, fixing some UI issues and introducing a Spanish translation!  
 
