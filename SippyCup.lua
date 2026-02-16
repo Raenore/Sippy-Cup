@@ -158,6 +158,7 @@ function SIPPYCUP_Addon:ADDON_RESTRICTION_STATE_CHANGED(_, type, state) -- luach
 
 		self:StartContinuousCheck();
 		SIPPYCUP.Popups.HandleDeferredActions("combat");
+		-- We also fire a refresh, because in BGs/combat options might have changed.
 		SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
 	end
 end
@@ -263,14 +264,16 @@ SIPPYCUP.Callbacks:RegisterCallback(SIPPYCUP.Events.LOADING_SCREEN_ENDED, functi
 		SIPPYCUP.States.pvpMatch = true;
 		SIPPYCUP.Popups.DeferAllRefreshPopups(1);
 	else
+		SIPPYCUP_Addon:StartContinuousCheck()
+		SIPPYCUP.Popups.HandleDeferredActions("loading");
+
 		-- If we just came out of a PvP-enabled map, show 'combat' popups deferred by DeferAllRefreshPopups (reason 1).
 		if SIPPYCUP.States.pvpMatch then
 			SIPPYCUP.States.pvpMatch = false;
+			SIPPYCUP.Popups.HandleDeferredActions("combat");
+			-- We also fire a refresh, because during loading screens options can't be changed, but in BGs/combat they might.
+			SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
 		end
-
-		SIPPYCUP_Addon:StartContinuousCheck()
-		SIPPYCUP.Popups.HandleDeferredActions("loading");
-		SIPPYCUP.Popups.HandleDeferredActions("combat");
 
 		-- isFullUpdate can pass through loading screens (but our code can't), so handle it now.
 		if SIPPYCUP.States.hasSeenFullUpdate then

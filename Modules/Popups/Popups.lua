@@ -459,7 +459,7 @@ end
 ---@param data ReminderPopupData Table containing all necessary information about the option and profile.
 ---@param templateTypeID? number What kind of template to create (0 = reminder, 1 = missing); defaults to 0.
 function SIPPYCUP.Popups.HandleReminderPopup(data, templateTypeID)
-	if not SIPPYCUP.States.addonReady or SIPPYCUP.States.pvpMatch then
+	if not SIPPYCUP.States.addonReady then
 		return;
 	end
 
@@ -727,15 +727,29 @@ end
 ---@return nil
 function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	SIPPYCUP_OUTPUT.Debug("HandlePopupAction");
-	-- Bail out entirely when in PvP Matches, we do not show popups.
-	if SIPPYCUP.States.pvpMatch then
-		return;
-	end
 
 	local optionData = data.optionData or SIPPYCUP.Options.ByAuraID[data.auraID];
 	local profileOptionData = data.profileOptionData or SIPPYCUP.Profile[data.auraID];
 
 	if not optionData or not profileOptionData or SIPPYCUP.Popups.IsIgnored(optionData.auraID) then
+		return;
+	end
+
+	-- If user has disabled an option before it's shown (due to deferring or something else), remove it.
+	if not profileOptionData.enable then
+		RemoveDeferredActionsByLoc(optionData.loc);
+		local existingPopup = SIPPYCUP.Popups.activeByLoc[optionData.loc];
+
+		if existingPopup and existingPopup:IsShown() then
+			existingPopup:Hide();
+		end
+
+		if profileOptionData.untrackableByAura then
+			SIPPYCUP.Items.CancelItemTimer(nil, optionData.auraID);
+		else
+			SIPPYCUP.Auras.CancelPreExpirationTimer(nil, optionData.auraID);
+		end
+
 		return;
 	end
 
@@ -802,7 +816,6 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 			auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(auraID);
 
 			if auraInfo then
-				print("auraInfo found!");
 				local auraInstanceID = auraInfo.auraInstanceID;
 				SIPPYCUP.Database.instanceToProfile[auraInstanceID] = profileOptionData;
 				profileOptionData.currentInstanceID = auraInstanceID;
