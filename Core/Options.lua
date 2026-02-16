@@ -31,6 +31,8 @@ SIPPYCUP.Options.Type = {
 ---@field spellTrackable boolean Whether the option can only be tracked through the spell itself (cooldowns, etc.).
 ---@field delayedAura boolean Whether the option is applied after a delay (e.g. food buff), on false a buff is applied instantly.
 ---@field cooldownMismatch boolean Whether the option has a mismatch in cooldowns (cd longer than buff lasts), on false there is no mismatch.
+---@field buildAdded string The Sippy Cup and WoW build this option was added (for the new feature indicator).
+---@field requiresGroup boolean Whether the option requires a group to be sued (e.g. prisms).
 ---@field charges boolean Whether the option uses charges.
 
 ---NewOption creates a new object with the specified parameters.

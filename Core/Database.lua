@@ -117,7 +117,7 @@ SIPPYCUP.Database.defaults = {
 	profiles = {
 		Default = {},  -- will hold all options per profile
 	},
-}
+};
 
 local defaults = SIPPYCUP.Database.defaults;
 
@@ -130,6 +130,8 @@ local defaults = SIPPYCUP.Database.defaults;
 ---@field aura number The associated aura ID for this option.
 ---@field castAura number The associated cast aura ID, if none is set then use aura ID.
 ---@field untrackableByAura boolean Whether this option can be tracked via its aura or not.
+---@field type string Whether this option is a consumable (0) or toy (1).
+---@field instantUpdate boolean Whether the instant UNIT_AURA update has already happened right after the addition (prisms).
 
 ---Populate the default option's table keyed by aura ID, with all known entries from SIPPYCUP.Options.Data.
 ---This defines initial tracking settings for each option by its aura ID key.
@@ -141,6 +143,10 @@ local function PopulateDefaultOptions()
 		local spellID = option.auraID;
 		local castSpellID = option.castAuraID;
 		local untrackableByAura = option.itemTrackable or option.spellTrackable;
+		local type = option.type;
+		local isPrism = (option.category == "PRISM") or false;
+		local instantUpdate = not isPrism;
+		local usesCharges = option.charges;
 
 		if spellID then
 			-- Use auraID as the key, not profileKey
@@ -152,6 +158,10 @@ local function PopulateDefaultOptions()
 				aura = spellID,
 				castAura = castSpellID,
 				untrackableByAura = untrackableByAura,
+				type = type,
+				isPrism = isPrism,
+				instantUpdate = instantUpdate,
+				usesCharges = usesCharges,
 			};
 		end
 	end

@@ -136,7 +136,7 @@ end
 
 ---BAG_UPDATE_DELAYED Handles delayed bag updates and triggers item update processing.
 function SIPPYCUP_Addon:BAG_UPDATE_DELAYED()
-	SIPPYCUP.Items.HandleBagUpdate();
+	SIPPYCUP.Bags.BagUpdateDelayed();
 end
 
 ---PLAYER_ENTERING_WORLD Handles player entering world or UI reload; triggers loading screen end logic if reloading.
@@ -160,7 +160,7 @@ end
 function SIPPYCUP_Addon:PLAYER_REGEN_DISABLED()
 	-- Combat is entered when regen is disabled.
 	self:StopContinuousCheck();
-	SIPPYCUP.Popups.DeferAllRefreshPopups(1);
+	SIPPYCUP.Popups.DeferAllRefreshPopups("combat");
 end
 
 ---PLAYER_REGEN_ENABLED Restarts continuous checks and handles deferred combat actions after leaving combat.
@@ -180,8 +180,7 @@ function SIPPYCUP_Addon:UNIT_AURA(_, unitTarget, updateInfo) -- luacheck: no unu
 	if InCombatLockdown() or C_Secrets and C_Secrets.ShouldAurasBeSecret() then
 		return;
 	end
-	-- Bag data is not synched immediately when UNIT_AURA fires, signal desync to the addon.
-	SIPPYCUP.Items.bagUpdateUnhandled = true;
+
 	SIPPYCUP.Auras.Convert(SIPPYCUP.Auras.Sources.UNIT_AURA, updateInfo);
 end
 

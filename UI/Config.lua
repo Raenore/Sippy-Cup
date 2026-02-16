@@ -18,7 +18,7 @@ local defaultSounds = {
 	{ key = "fx_ship_bell_chime_02", fid = 1129274 },
 	{ key = "fx_ship_bell_chime_03", fid = 1129275 },
 	{ key = "raidwarning", fid = 567397 },
-}
+};
 
 -- Register default sounds
 for _, sound in ipairs(defaultSounds) do
@@ -26,9 +26,9 @@ for _, sound in ipairs(defaultSounds) do
 end
 
 -- Build soundList with keys = values for quick lookup/use
-local soundList = {}
+local soundList = {};
 for _, soundName in ipairs(SharedMedia:List("sound")) do
-	soundList[soundName] = soundName
+	soundList[soundName] = soundName;
 end
 
 function SIPPYCUP.Config.TryCreateConfigFrame()
@@ -463,7 +463,7 @@ local function CreateInset(parent, insetData)
 	ElvUI.RegisterSkinnableElement(infoInset, "inset");
 
 	-- Distance from bottom
-	local bottomOffset = 20
+	local bottomOffset = 20;
 
 	infoInset:SetPoint("BOTTOMLEFT", parent, "BOTTOMLEFT", 20, bottomOffset);
 	infoInset:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", -20, bottomOffset);
@@ -1410,7 +1410,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			func = function()
 				SIPPYCUP.Popups.ResetIgnored();
 			end,
-		}
+		},
 	};
 
 	self.allWidgets[#self.allWidgets + 1] = CreateWidgetRowContainer(generalPanel, reminderCheckboxData);
@@ -1437,7 +1437,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 				SIPPYCUP.Database.UpdateSetting("global", "PopupPosition", nil, val);
 			end,
 		},
-	}
+	};
 
 	self.allWidgets[#self.allWidgets + 1] = CreateWidgetRowContainer(generalPanel, positionWidgetData);
 
@@ -1484,7 +1484,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 				SIPPYCUP.Database.UpdateSetting("global", "FlashTaskbar", nil, val);
 			end,
 		},
-	}
+	};
 
 	self.allWidgets[#self.allWidgets + 1] = CreateWidgetRowContainer(generalPanel, alertWidgetData);
 
@@ -1511,7 +1511,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 				end
 			end,
 		},
-	}
+	};
 
 	self.allWidgets[#self.allWidgets + 1] = CreateWidgetRowContainer(generalPanel, integrationsWidgetData);
 
@@ -1547,7 +1547,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			text = "Bluesky",
 			tooltip = L.OPTIONS_GENERAL_BLUESKY_SHILL_DESC,
 		},
-	}
+	};
 
 	self.allWidgets[#self.allWidgets + 1] = CreateInset(generalPanel, insetData);
 

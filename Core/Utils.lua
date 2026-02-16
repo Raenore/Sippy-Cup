@@ -135,7 +135,7 @@ local function formatValue(val, isTop)
 			end
 			return "{" .. table.concat(items, ",") .. "}";
 		else
-			local items = {}
+			local items = {};
 			for k, v in pairs(val) do
 				table.insert(items, tostring(k) .. ": " .. formatValue(v));
 			end

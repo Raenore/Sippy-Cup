@@ -233,7 +233,7 @@ local function CreatePopup(templateType)
 					if optionData.type == SIPPYCUP.Options.Type.CONSUMABLE then
 						local profileOptionData = popupData.profileOptionData;
 
-						local itemCount = 0
+						local itemCount = 0;
 						if type(optionData.itemID) == "table" then
 							for _, id in ipairs(optionData.itemID) do
 								itemCount = itemCount + C_Item.GetItemCount(id)
@@ -281,7 +281,7 @@ local function CreatePopup(templateType)
 				local optionData = popupData.optionData;
 
 				-- Sum counts if multiple item IDs
-				local itemCount = 0
+				local itemCount = 0;
 				if type(optionData.itemID) == "table" then
 					for _, id in ipairs(optionData.itemID) do
 						itemCount = itemCount + C_Item.GetItemCount(id);
@@ -735,7 +735,7 @@ local pendingCalls = {};
 ---@param caller string What function called the popup action.
 ---@return nil
 function SIPPYCUP.Popups.QueuePopupAction(data,  caller)
-	SIPPYCUP_OUTPUT.Debug("QueuePopupAction");
+	SIPPYCUP_OUTPUT.Debug("QueuePopupAction -", caller);
 	-- If MSP status checks are on and the character is currently OOC, we skip everything.
 	if SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck then
 		local _, _, isIC = SIPPYCUP.MSP.CheckRPStatus();
@@ -751,11 +751,11 @@ function SIPPYCUP.Popups.QueuePopupAction(data,  caller)
 	if pendingCalls[key] then
 		-- Update the existing entry with the latest arguments for this auraID+reason
 		pendingCalls[key].args = args;
-		return
+		return;
 	end
 
 	-- first call for this auraID+reason: store args and schedule
-	pendingCalls[key] = { args = args }
+	pendingCalls[key] = { args = args };
 	C_Timer.After(DEBOUNCE_DELAY, function()
 		local entry = pendingCalls[key];
 		pendingCalls[key] = nil;
@@ -774,13 +774,80 @@ end
 ---@param caller string What function called the popup action.
 ---@return nil
 function SIPPYCUP.Popups.HandlePopupAction(data, caller)
-	SIPPYCUP_OUTPUT.Debug("HandlePopupAction");
+	SIPPYCUP_OUTPUT.Debug("HandlePopupAction -", caller);
+
 	local optionData = data.optionData or SIPPYCUP.Options.ByAuraID[data.auraID];
 	local profileOptionData = data.profileOptionData or SIPPYCUP.Profile[data.auraID];
 
 	if not optionData or not profileOptionData or SIPPYCUP.Popups.IsIgnored(optionData.auraID) then
 		return;
 	end
+
+	local optionType = optionData.type;
+	local isToy = optionType == SIPPYCUP.Options.Type.TOY;
+	local isConsumable = optionType == SIPPYCUP.Options.Type.CONSUMABLE;
+
+	SIPPYCUP_OUTPUT.Debug("SIPPYCUP.Bags.updateUnhandled:", SIPPYCUP.Bags.updateUnhandled);
+	SIPPYCUP_OUTPUT.Debug("name:", optionData.name);
+	if isToy then
+		SIPPYCUP_OUTPUT.Debug("Toy");
+	else
+		SIPPYCUP_OUTPUT.Debug("Consumable");
+	end
+
+	-- Check for a dirty bag state, if so then defer until it is no longer.
+	if isConsumable and data.needsBagCheck then
+		if SIPPYCUP.Bags.bagGeneration < data.auraGeneration then
+		SIPPYCUP_OUTPUT.Debug("We reached item count in HandlePopupAction but bag state is dirty");
+
+		deferredActions[#deferredActions + 1] = {
+			data = data,
+			caller = caller,
+			blockedBy = {
+				bag = true,
+			},
+		};
+		return;
+	end
+		SIPPYCUP_OUTPUT.Debug("Bag state is not dirty, we can continue this time!");
+	end
+
+	local itemIDs = type(optionData.itemID) == "table" and optionData.itemID or { optionData.itemID };
+	local usableItemID;
+	local itemCount = 0;
+	local now = GetTime();
+
+	-- Track which itemIDs are depleted
+	local depleted = {};
+
+	for _, id in ipairs(itemIDs) do
+		local count = isToy and (PlayerHasToy(id) and 1 or 0) or C_Item.GetItemCount(id);
+		if count > 0 then
+			local startTime, duration = C_Container.GetItemCooldown(id);
+			if not startTime or startTime + duration <= now then
+				usableItemID = usableItemID or id; -- pick the first usable
+				itemCount = itemCount + count; -- sum counts across all items
+			end
+		else
+			depleted[id] = true;
+		end
+	end
+
+	-- Only update the *current usable item*
+	if usableItemID then
+		profileOptionData.currentItemID = usableItemID;
+	else
+		-- No usable item available, popup can report zero count
+		profileOptionData.currentItemID = itemIDs[#itemIDs];
+		SIPPYCUP_OUTPUT.Debug("No usable item, reporting last itemID:", profileOptionData.currentItemID);
+	end
+
+	-- Always update last known count
+	profileOptionData.lastItemCount = itemCount;
+
+	-- Unnecessary for now, keep it here in case it might become so.
+	-- local currentItemID = profileOptionData.currentItemID or optionData.itemID;
+	-- local lastCount = profileOptionData.lastItemCount or itemCount;
 
 	local reason = data.reason;
 	local active = data.active;
@@ -789,54 +856,31 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	local auraInfo = data.auraInfo;
 	local currentInstanceID = profileOptionData.currentInstanceID;
 
-	local optionType = optionData.type;
-	local isToy = optionType == SIPPYCUP.Options.Type.TOY;
-	local isConsumable = optionType == SIPPYCUP.Options.Type.CONSUMABLE;
-
-	-- Removal of a spell/aura count generally is not due to an item's action, mark bag as synchronized.
-	-- Pre-expiration also does not do any bag changes, so mark as synchronised in case.
-	-- Delayed (e.g. eating x seconds) UNIT_AURA calls, mark bag as synchronized (as it was removed earlier).
-	-- Toys UNIT_AURA calls, mark bag as synchronized (as no items are actually used).
-	-- Reflecting Prism (spellID == 163267) uses charges, and does not require a bag sync update generally.
-	-- Projecting Prism (spellID == 374959) is special, and does not require a bag sync update generally.
-	if reason == SIPPYCUP.Popups.Reason.REMOVAL or reason == SIPPYCUP.Popups.Reason.PRE_EXPIRATION
-		or optionData.delayedAura or isToy
-		or auraID == 163267 or auraID == 374959
-		then
-		SIPPYCUP.Items.HandleBagUpdate();
-	end
-
 	-- We defer popups in three situations:
-	-- > Bag data is desynch'd from UNIT_AURA.
-	-- > We're in combat (experimental).
+	-- > Bag data is desynch'd from UNIT_AURA. (Already done).
+	-- > We're in combat.
 	-- > We're in a loading screen.
 	-- This should be handled before any other logic, as there's no point to calculate deferred logic.
-	if SIPPYCUP.Items.bagUpdateUnhandled or InCombatLockdown() or SIPPYCUP.InLoadingScreen then
-		local blockedBy;
-		if SIPPYCUP.Items.bagUpdateUnhandled then
-			blockedBy = "bag";
-		elseif InCombatLockdown() then
-			blockedBy = "combat"; -- Won't ever happen anymore as UNIT_AURA does not run in combat, legacy code.
-		elseif SIPPYCUP.States.loadingScreen then
-			blockedBy = "loading";
-		end
-
-		local deferredData = {
-			active = active,
-			auraID = auraID,
-			auraInfo = auraInfo,
-			optionData = optionData,
-			profileOptionData = profileOptionData,
-			reason = reason,
-		};
-
+	if InCombatLockdown() then
 		deferredActions[#deferredActions + 1] = {
-			data = deferredData,
+			data = data,
 			caller = caller,
-			blockedBy = blockedBy,
+			blockedBy = {
+				combat = true,
+			},
+		};
+		return;
+	elseif SIPPYCUP.InLoadingScreen then
+		deferredActions[#deferredActions + 1] = {
+			data = data,
+			caller = caller,
+			blockedBy = {
+				loading = true,
+			},
 		};
 		return;
 	end
+
 	-- At this point, we're certain that we're safe to execute further!
 
 	-- Recover auraInfo if possible (perhaps triggered through combat or other means)
@@ -888,11 +932,6 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 		end
 	end
 
-	local itemIDs = type(optionData.itemID) == "table" and optionData.itemID or { optionData.itemID };
-	local usableItemID;
-	local itemCount = 0;
-	local now = GetTime();
-
 	-- Extra check because toys have longer cooldowns than option tend to, so don't fire if cd is still up.
 	if isToy and reason == SIPPYCUP.Popups.Reason.REMOVAL then
 		local cooldownActive = false;
@@ -921,33 +960,6 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 
 	SIPPYCUP_OUTPUT.Debug({ caller = caller, auraID = optionData.auraID, itemID = optionData.itemID, name = optionData.name });
 
-	-- Track which itemIDs are depleted
-	local depleted = {};
-
-	for _, id in ipairs(itemIDs) do
-		local count;
-
-		if isToy then
-			count = PlayerHasToy(id) and 1 or 0;
-		else
-			count = C_Item.GetItemCount(id);
-		end
-
-		SIPPYCUP_OUTPUT.Debug("Checking itemID:", id, "count:", count);
-
-		if count > 0 then
-			local startTime, duration = C_Container.GetItemCooldown(id);
-			if not startTime or startTime + duration <= now then
-				usableItemID = id;
-				itemCount = count;
-				SIPPYCUP_OUTPUT.Debug("Usable found:", id, "x"..count);
-			end
-		else
-			SIPPYCUP_OUTPUT.Debug("No items for:", id);
-			depleted[id] = true;
-		end
-	end
-
 	-- Remove depleted items from optionData.itemID, but always keep at least the last one
 	local newItemIDs = {};
 	local lastIndex = #itemIDs;
@@ -957,23 +969,6 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 		end
 	end
 	optionData.itemID = newItemIDs;
-
-	-- Only update the *current usable item*
-	if usableItemID then
-		profileOptionData.currentItemID = usableItemID;
-	else
-		-- No usable item available, popup can report zero count
-		profileOptionData.currentItemID = itemIDs[#itemIDs];
-		SIPPYCUP_OUTPUT.Debug("No usable item, reporting last itemID:", profileOptionData.currentItemID);
-		--[[ TO-DO: Consider if we require this here
-		RemoveDeferredActionsByLoc(optionData.loc);
-		local existingPopup = SIPPYCUP.Popups.activeByLoc[optionData.loc];
-		if existingPopup and existingPopup:IsShown() then
-			existingPopup:Hide();
-		end
-		return;
-		]]
-	end
 
 	local auraInstanceID = auraInfo and auraInfo.auraInstanceID;
 	-- First, let's grab the latest currentInstanceID (or have it be nil if none which is fine).
@@ -1031,17 +1026,15 @@ end
 
 ---DeferAllRefreshPopups defers all active and queued popups to be processed later.
 -- Typically called when popups cannot be shown due to bags, combat, or loading screen.
----@param reason number Why a deferred action is being handled (0 - bag, 1 - combat, 2 - loading)
+---@param reasonKey "bag"|"combat"|"loading" The gate reason being deferred.
 ---@return nil
 function SIPPYCUP.Popups.DeferAllRefreshPopups(reasonKey)
-	local blockedBy;
-	if reasonKey == 0 or SIPPYCUP.Items.bagUpdateUnhandled then
-		blockedBy = "bag";
-	elseif reasonKey == 1 or InCombatLockdown() then
-		blockedBy = "combat"; -- Only way combat is ever used, by deferring before combat.
-	elseif reasonKey == 2 or SIPPYCUP.States.loadingScreen then
-		blockedBy = "loading";
+	if not reasonKey then
+		return;
 	end
+
+	local blockedBy = {};
+	blockedBy[reasonKey] = true;
 
 	local function MakeDeferredData(popup)
 		local d = popup.popupData;
@@ -1079,9 +1072,24 @@ function SIPPYCUP.Popups.DeferAllRefreshPopups(reasonKey)
 	end
 end
 
----HandleDeferredActions Processes and flushes all queued popup actions.
--- Called after bag data is synced (BAG_UPDATE_DELAYED) to ensure accurate context.
----@param reason number Why a deferred action is being handled (0 - bag, 1 - combat, 2 - loading)
+---ForEachActivePopup iterates over all currently shown popups and calls a handler function.
+---@param handler fun(popup: Frame) Callback to execute on each active popup.
+---@return nil
+function SIPPYCUP.Popups.ForEachActivePopup(handler)
+	if not handler then return; end
+
+	for _, popup in ipairs(activePopups) do
+		if popup and popup:IsShown() then
+			handler(popup);
+		end
+	end
+end
+
+---HandleDeferredActions Resolves and processes deferred popup actions for a specific gate.
+---Removes the given reasonKey blocker from deferred entries and executes those
+---that are no longer blocked and whose bag generation requirement is satisfied.
+---@param reasonKey "bag"|"combat"|"loading" The gate reason being cleared.
+---@return nil
 function SIPPYCUP.Popups.HandleDeferredActions(reasonKey)
 	if not deferredActions or #deferredActions == 0 then
 		return;
@@ -1090,14 +1098,30 @@ function SIPPYCUP.Popups.HandleDeferredActions(reasonKey)
 	local i = 1;
 	while i <= #deferredActions do
 		local action = deferredActions[i];
-		if action.blockedBy == reasonKey then
-			SIPPYCUP.Popups.QueuePopupAction(
-				action.data,
-				action.caller
-			);
-			tremove(deferredActions, i); -- remove handled item, don't increment
+
+		-- Remove the specified blocker from this action
+		if action.blockedBy and action.blockedBy[reasonKey] then
+			action.blockedBy[reasonKey] = nil;
+		end
+
+		-- Check if any blockers remain
+		local stillBlocked = action.blockedBy and next(action.blockedBy) ~= nil;
+
+		if not stillBlocked then
+			-- Final bag ordering safety check
+			local gen = action.data.auraGeneration or 0;
+
+			if SIPPYCUP.Bags.bagGeneration >= gen then
+				SIPPYCUP.Popups.QueuePopupAction(
+					action.data,
+					action.caller
+				);
+				tremove(deferredActions, i);
+			else
+				i = i + 1;
+			end
 		else
-			i = i + 1; -- skip non-matching item
+			i = i + 1;
 		end
 	end
 end

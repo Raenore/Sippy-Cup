@@ -7,6 +7,7 @@
 	<Include file="Utils.lua"/>
 
 	<Include file="Auras.lua"/>
+	<Include file="Bags.lua"/>
 	<Include file="Items.lua"/>
 
 	<Include file="Timers.lua"/>
