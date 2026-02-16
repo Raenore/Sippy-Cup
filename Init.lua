@@ -46,7 +46,7 @@ SIPPYCUP.States = {
 	hasSeenFullUpdate = false,
 	loadingScreen = true,
 	playerLoggedIn = false,
-	pvpMatch = false,
+	restricted = false,
 };
 
 SIPPYCUP.AddonMetadata = {

@@ -69,12 +69,11 @@ end
 function SIPPYCUP_Addon:PLAYER_LOGIN()
 	SIPPYCUP_Addon:UnregisterEvent("PLAYER_LOGIN");
 	-- Initial game event registration, necessary to correctly track all states on login.
-	SIPPYCUP_Addon:RegisterEvent("PLAYER_REGEN_DISABLED");
-	SIPPYCUP_Addon:RegisterEvent("PLAYER_REGEN_ENABLED");
 	SIPPYCUP_Addon:RegisterEvent("PLAYER_ENTERING_WORLD");
 	SIPPYCUP_Addon:RegisterEvent("PLAYER_LEAVING_WORLD");
 	SIPPYCUP_Addon:RegisterEvent("ZONE_CHANGED_NEW_AREA");
 	SIPPYCUP_Addon:RegisterEvent("BAG_UPDATE_DELAYED");
+	SIPPYCUP_Addon:RegisterEvent("ADDON_RESTRICTION_STATE_CHANGED");
 
 	SIPPYCUP.States.playerLoggedIn = true;
 	CheckPlayerLogin();
@@ -102,7 +101,7 @@ function SIPPYCUP_Addon:OnInitialPlayerInWorld()
 	-- Do nothing when you are on a PvP-enabled map (Arenas, BGs, etc.)
 	local inPvp = C_RestrictedActions.IsAddOnRestrictionActive(Enum.AddOnRestrictionType.PvPMatch) or C_PvP.IsActiveBattlefield();
 	if inPvp then
-		SIPPYCUP.States.pvpMatch = true;
+		SIPPYCUP.States.restricted = true;
 		SIPPYCUP.Popups.DeferAllRefreshPopups(1);
 	end
 
@@ -144,6 +143,23 @@ function SIPPYCUP_Addon:BAG_UPDATE_DELAYED()
 	SIPPYCUP.Items.HandleBagUpdate();
 end
 
+function SIPPYCUP_Addon:ADDON_RESTRICTION_STATE_CHANGED(_, type, state) -- luacheck: no unused (type)
+	if state == 1 then -- restrictions on
+		SIPPYCUP.States.restricted = true;
+
+		self:StopContinuousCheck();
+		SIPPYCUP.Popups.DeferAllRefreshPopups(1);
+	else -- restrictions off
+		if SIPPYCUP.States.restricted then
+			SIPPYCUP.States.restricted = false;
+		end
+
+		self:StartContinuousCheck("addons")
+		SIPPYCUP.Popups.HandleDeferredActions("combat");
+		SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);		
+	end
+end
+
 ---PLAYER_ENTERING_WORLD Handles player entering world or UI reload; triggers loading screen end logic if reloading.
 ---@param event string Event name (ignored)
 ---@param isInitialLogin boolean Unused
@@ -161,35 +177,12 @@ function SIPPYCUP_Addon:PLAYER_LEAVING_WORLD()
 	SIPPYCUP.Callbacks:TriggerEvent(SIPPYCUP.Events.LOADING_SCREEN_STARTED);
 end
 
----PLAYER_REGEN_DISABLED Stops continuous checks when entering combat and defers all active popups.
-function SIPPYCUP_Addon:PLAYER_REGEN_DISABLED()
-	-- Combat is entered when regen is disabled.
-	self:StopContinuousCheck();
-	SIPPYCUP.Popups.DeferAllRefreshPopups(1);
-end
-
----PLAYER_REGEN_ENABLED Restarts continuous checks and handles deferred combat actions after leaving combat.
-function SIPPYCUP_Addon:PLAYER_REGEN_ENABLED()
-	-- PvP Matches don't support most of Sippy Cup's options (aura checking etc.).
-	--[[ For now, not going this hard on the check as StartContinuousCheck() etc. are guarded for PvPMatch.
-	if SIPPYCUP.States.pvpMatch then
-		return;
-	end
-	]]
-
-	-- Combat is left when regen is enabled.
-	self:StartContinuousCheck();
-	-- Show 'combat' popups deferred by DeferAllRefreshPopups (reason 1).
-	SIPPYCUP.Popups.HandleDeferredActions("combat");
-	SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
-end
-
 ---UNIT_AURA Handles player aura updates, flags bag desync, and triggers aura conversion.
 ---@param event string Event name (ignored)
 ---@param unitTarget string Unit affected, automatically "player" through RegisterUnitEvent.
 ---@param updateInfo any Update data passed to aura conversion
 function SIPPYCUP_Addon:UNIT_AURA(_, unitTarget, updateInfo) -- luacheck: no unused (unitTarget)
-	if InCombatLockdown() or C_Secrets and C_Secrets.ShouldAurasBeSecret() or SIPPYCUP.States.pvpMatch then
+	if InCombatLockdown() or C_Secrets and C_Secrets.ShouldAurasBeSecret() or SIPPYCUP.States.restricted then
 		return;
 	end
 	-- Bag data is not synched immediately when UNIT_AURA fires, signal desync to the addon.
@@ -239,19 +232,17 @@ SIPPYCUP.Callbacks:RegisterCallback(SIPPYCUP.Events.LOADING_SCREEN_ENDED, functi
 
 	-- Do nothing when you are on a PvP-enabled map (Arenas, BGs, etc.)
 	if inPvp then
-		SIPPYCUP.States.pvpMatch = true;
+		SIPPYCUP.States.restricted = true;
 		SIPPYCUP.Popups.DeferAllRefreshPopups(1);
 	else
 		-- If we just came out of a PvP-enabled map, show 'combat' popups deferred by DeferAllRefreshPopups (reason 1).
-		if SIPPYCUP.States.pvpMatch then
-			SIPPYCUP.States.pvpMatch = false;
-			SIPPYCUP.Popups.HandleDeferredActions("combat");
+		if SIPPYCUP.States.restricted then
+			SIPPYCUP.States.restricted = false;
 		end
-	end
 
-	if not SIPPYCUP.States.pvpMatch then
 		SIPPYCUP_Addon:StartContinuousCheck()
 		SIPPYCUP.Popups.HandleDeferredActions("loading");
+		SIPPYCUP.Popups.HandleDeferredActions("combat");
 
 		-- isFullUpdate can pass through loading screens (but our code can't), so handle it now.
 		if SIPPYCUP.States.hasSeenFullUpdate then
