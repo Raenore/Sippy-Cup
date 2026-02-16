@@ -181,6 +181,7 @@ end
 
 ---PLAYER_REGEN_DISABLED Stops continuous checks when entering combat and defers all active popups.
 function SIPPYCUP_Addon:PLAYER_REGEN_DISABLED()
+	-- PvP Matches don't support most of Sippy Cup's options (aura checking etc.).
 	if SIPPYCUP.States.pvpMatch then
 		return;
 	end
@@ -193,11 +194,6 @@ end
 ---PLAYER_REGEN_ENABLED Restarts continuous checks and handles deferred combat actions after leaving combat.
 function SIPPYCUP_Addon:PLAYER_REGEN_ENABLED()
 	-- PvP Matches don't support most of Sippy Cup's options (aura checking etc.).
-	--[[ For now, not going this hard on the check as StartContinuousCheck() etc. are guarded for PvPMatch.
-	if SIPPYCUP.States.restricted then
-		return;
-	end
-	]]
 	if SIPPYCUP.States.pvpMatch then
 		return;
 	end
