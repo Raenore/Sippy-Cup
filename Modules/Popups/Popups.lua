@@ -793,7 +793,7 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	if not optionData or not profileOptionData or SIPPYCUP.Popups.IsIgnored(optionData.auraID) then
 		return;
 	end
-  
+
   -- If user has disabled an option before it's shown (due to deferring or something else), remove it.
 	if not profileOptionData.enable then
 		RemoveDeferredActionsByLoc(optionData.loc);
