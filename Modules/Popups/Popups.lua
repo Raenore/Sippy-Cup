@@ -677,6 +677,12 @@ local pendingCalls = {};
 ---@return nil
 function SIPPYCUP.Popups.QueuePopupAction(data,  caller)
 	SIPPYCUP_OUTPUT.Debug("QueuePopupAction");
+
+	-- Bail out entirely when in PvP Matches, we do not show popups.
+	if SIPPYCUP.States.pvpMatch then
+		return;
+	end
+
 	-- If MSP status checks are on and the character is currently OOC, we skip everything.
 	if SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck then
 		local _, _, isIC = SIPPYCUP.MSP.CheckRPStatus();
