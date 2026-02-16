@@ -187,7 +187,7 @@ local function flushAuraQueue()
 		if profileOptionData then
 			local auraID = profileOptionData.aura;
 			for addID, auraInfo in pairs(seenAdd) do
-				if auraInfo.spellId == auraID then
+				if canaccessvalue(auraInfo.spellId) and auraInfo.spellId == auraID then
 					-- cancel any pre-expiration timer keyed by this spell+instance
 					local key = tostring(auraID) .. "-" .. tostring(removedID);
 					SIPPYCUP.Auras.CancelPreExpirationTimer(key);
@@ -208,10 +208,12 @@ local function flushAuraQueue()
 	-- 3) convert any update+add-of-same-spell into an update
 	for updatedAuraInstanceIDs in pairs(seenUpdate) do
 		if seenAdd[updatedAuraInstanceIDs] then
-			-- cancel any pre-expiration timer keyed by this spell+instance
-			local key = tostring(seenAdd[updatedAuraInstanceIDs].spellId) .. "-" .. tostring(updatedAuraInstanceIDs);
-			SIPPYCUP.Auras.CancelPreExpirationTimer(key);
-			seenAdd[updatedAuraInstanceIDs] = nil;
+			if canaccessvalue(seenAdd[updatedAuraInstanceIDs].spellId) then
+				-- cancel any pre-expiration timer keyed by this spell+instance
+				local key = tostring(seenAdd[updatedAuraInstanceIDs].spellId) .. "-" .. tostring(updatedAuraInstanceIDs);
+				SIPPYCUP.Auras.CancelPreExpirationTimer(key);
+				seenAdd[updatedAuraInstanceIDs] = nil;
+			end
 		end
 	end
 
