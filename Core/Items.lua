@@ -279,14 +279,3 @@ function SIPPYCUP.Items.CheckNoAuraSingleOption(profileOptionData, spellID, minS
 
 	return preExpireFired;
 end
-
-SIPPYCUP.Items.bagUpdateUnhandled = false;
-
----HandleBagUpdate Marks bag data as synced and processes deferred popups.
--- Fires on BAG_UPDATE_DELAYED, which batches all bag changes after UNIT_AURA.
-function SIPPYCUP.Items.HandleBagUpdate()
-	SIPPYCUP.Items.bagUpdateUnhandled = false;
-
-	-- Now that bag data is synced, process deferred actions using accurate data.
-	SIPPYCUP.Popups.HandleDeferredActions("bag");
-end

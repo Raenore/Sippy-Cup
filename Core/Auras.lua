@@ -25,6 +25,27 @@ function SIPPYCUP.Auras.DebugEnabledAuras()
 	end
 end
 
+---SkipDuplicatePrismUnitAura determines if a prism-type aura update should be ignored
+---@param profileOptionData SIPPYCUPProfileOption The option profile data.
+---@return boolean skip True if this aura update should be skipped due to duplicate UNIT_AURA events.
+local function SkipDuplicatePrismUnitAura(profileOptionData)
+	local skip = false;
+
+	-- Prism duplicate handling
+	if profileOptionData.isPrism then
+		if profileOptionData.instantUpdate then
+			-- Second UNIT_AURA in pair: skip
+			skip = true;
+			profileOptionData.instantUpdate = false; -- reset for next usage
+		else
+			-- First UNIT_AURA: allow and mark
+			profileOptionData.instantUpdate = true;
+		end
+	end
+
+	return skip;
+end
+
 ---QueueAuraAction enqueues a popup action for aura changes.
 ---@param profileOptionData table The option profile data.
 ---@param auraInfo table? The aura information, or nil if removed.
@@ -32,14 +53,26 @@ end
 ---@param source string The source description of the action.
 ---@return nil
 local function QueueAuraAction(profileOptionData, auraInfo, reason, source)
+	local optionData = SIPPYCUP.Options.ByAuraID[profileOptionData.aura];
+	-- Consumables that actually consume bag space/items need a bag check
+	local needsBagCheck = (profileOptionData.type == 0 and not profileOptionData.usesCharges);
+	local shouldIncrement = needsBagCheck and reason == SIPPYCUP.Popups.Reason.ADDITION;
+
 	local data = {
 		active = auraInfo ~= nil,
 		auraID = profileOptionData.aura,
 		auraInfo = auraInfo,
-		optionData = SIPPYCUP.Options.ByAuraID[profileOptionData.aura],
+		optionData = optionData,
 		profileOptionData = profileOptionData,
 		reason = reason,
-	}
+		needsBagCheck = needsBagCheck,
+		auraGeneration = shouldIncrement and (SIPPYCUP.Bags.auraGeneration + 1) or 0,
+	};
+
+	if shouldIncrement then
+		SIPPYCUP.Bags.auraGeneration = SIPPYCUP.Bags.auraGeneration + 1;
+	end
+
 	SIPPYCUP.Popups.QueuePopupAction(data, source);
 end
 
@@ -54,7 +87,6 @@ end
 ---@return nil
 local function ParseAura(updateInfo)
 	local GetAuraDataByAuraInstanceID = C_UnitAuras.GetAuraDataByAuraInstanceID;
-	local auraAdded = false;
 
 	-- isFullUpdate true means nil values, invalidate the state.
 	if updateInfo.isFullUpdate then
@@ -72,13 +104,16 @@ local function ParseAura(updateInfo)
 		for _, auraInfo in ipairs(updateInfo.addedAuras) do
 			local profileOptionData = SIPPYCUP.Database.FindMatchingProfile(auraInfo.spellId);
 			if profileOptionData and profileOptionData.enable then
-				auraAdded = true;
-				profileOptionData.currentInstanceID = auraInfo.auraInstanceID;
-				SIPPYCUP.Database.instanceToProfile[auraInfo.auraInstanceID] = profileOptionData;
+				local skip = SkipDuplicatePrismUnitAura(profileOptionData);
 
-				SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData);
+				if not skip then
+					profileOptionData.currentInstanceID = auraInfo.auraInstanceID;
+					SIPPYCUP.Database.instanceToProfile[auraInfo.auraInstanceID] = profileOptionData;
 
-				QueueAuraAction(profileOptionData, auraInfo, SIPPYCUP.Popups.Reason.ADDITION, "ParseAura - addition");
+					SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData);
+
+					QueueAuraAction(profileOptionData, auraInfo, SIPPYCUP.Popups.Reason.ADDITION, "ParseAura - addition");
+				end
 			end
 		end
 	end
@@ -91,16 +126,17 @@ local function ParseAura(updateInfo)
 			if profileOptionData and profileOptionData.enable then
 				local auraInfo = GetAuraDataByAuraInstanceID("player", auraInstanceID);
 				if auraInfo then
-					auraAdded = true;
-					-- This is not necessary, but a safety update just in case.
-					profileOptionData.currentInstanceID = auraInfo.auraInstanceID;
-					SIPPYCUP.Database.instanceToProfile[auraInfo.auraInstanceID] = profileOptionData;
+					local skip = SkipDuplicatePrismUnitAura(profileOptionData);
 
-					-- On aura update, we remove all pre-expiration timers as that's obvious no longer relevant.
-					SIPPYCUP.Auras.CancelPreExpirationTimer(nil, profileOptionData.aura, auraInstanceID);
-					SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData);
+					if not skip then
+						profileOptionData.currentInstanceID = auraInfo.auraInstanceID;
+						SIPPYCUP.Database.instanceToProfile[auraInfo.auraInstanceID] = profileOptionData;
 
-					QueueAuraAction(profileOptionData, auraInfo, SIPPYCUP.Popups.Reason.ADDITION, "ParseAura - updated");
+						SIPPYCUP.Auras.CancelPreExpirationTimer(nil, profileOptionData.aura, auraInstanceID);
+						SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData);
+
+						QueueAuraAction(profileOptionData, auraInfo, SIPPYCUP.Popups.Reason.ADDITION, "ParseAura - updated");
+					end
 				end
 			end
 		end
@@ -121,11 +157,6 @@ local function ParseAura(updateInfo)
 				QueueAuraAction(profileOptionData, nil, SIPPYCUP.Popups.Reason.REMOVAL, "ParseAura - removed");
 			end
 		end
-	end
-
-	-- If no auras were added, there was no bag update so we mark bag as synchronized.
-	if not auraAdded then
-		SIPPYCUP.Items.HandleBagUpdate();
 	end
 end
 
@@ -148,7 +179,7 @@ local function flushAuraQueue()
 
 	-- Deduplication arrays
 	local seenAdd, seenUpdate, seenRemoval = {}, {}, {};
-	local isFullUpdate = false
+	local isFullUpdate = false;
 
 	-- 1) harvest everything into seenAdd / seenUpdate / seenRemoval
 	for _, updateInfo in ipairs(queue) do
@@ -296,7 +327,7 @@ function SIPPYCUP.Auras.Convert(source, data)
 	end
 
 	-- buffer it instead of parsing immediately
-	SIPPYCUP.Auras.auraQueue[#SIPPYCUP.Auras.auraQueue + 1] = updateInfo
+	SIPPYCUP.Auras.auraQueue[#SIPPYCUP.Auras.auraQueue + 1] = updateInfo;
 
 	-- flush on the next frame (which will run the batched UNIT_AURAs)
 	if not SIPPYCUP.Auras.auraQueueScheduled then
@@ -321,7 +352,7 @@ function SIPPYCUP.Auras.CheckAllActiveOptions()
 
 	-- auraToProfile holds only enabled options (whether they are active or not).
 	for _, profileOptionData in pairs(auraToProfile) do
-		local currentInstanceID = profileOptionData.currentInstanceID
+		local currentInstanceID = profileOptionData.currentInstanceID;
 		-- True if it's active (or was), false if it's not been active.
 		local canBeActive = (currentInstanceID or 0) ~= 0;
 		local auraInfo = GetPlayerAuraBySpellID(profileOptionData.aura);
@@ -511,7 +542,7 @@ function SIPPYCUP.Auras.CheckPreExpirationForAllActiveOptions(minSeconds)
 end
 
 ---CheckPreExpirationForSingleOption sets up pre-expiration warnings for aura-based options.
----@param profileOptionData table Profile data for the option.
+---@param profileOptionData SIPPYCUPProfileOption Profile data for the option.
 ---@param minSeconds number? Time window to check ahead, defaults to 180.
 ---@return boolean preExpireFired True if a pre-expiration popup was fired.
 function SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData, minSeconds)
@@ -523,7 +554,6 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData, min
 	end
 
 	minSeconds = minSeconds or 180.0;
-	local preOffset = SIPPYCUP.global.PreExpirationLeadTimer * 60;
 	local auraID = profileOptionData.aura;
 	local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(auraID);
 
@@ -550,6 +580,17 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData, min
 	local now = GetTime();
 	local remaining = auraInfo.expirationTime - now;
 	local duration = auraInfo.duration;
+	local preOffset;
+
+	if profileOptionData.isPrism then
+		if profileOptionData.usesCharges then -- reflecting prism
+			preOffset = SIPPYCUP.global.ReflectingPrismPreExpirationLeadTimer * 60;
+		else -- projection prism
+			preOffset = SIPPYCUP.global.ProjectionPrismPreExpirationLeadTimer * 60;
+		end
+	else -- Global
+		preOffset = SIPPYCUP.global.PreExpirationLeadTimer * 60;
+	end
 
 	-- If the option only lasts for less than user set, we need to change it.
 	if duration <= preOffset then

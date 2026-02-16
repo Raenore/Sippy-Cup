@@ -26,7 +26,7 @@ local function onStart()
 					SIPPYCUP_Addon:OpenSettings(8);
 				end
 			end,
-		}
+		};
 	end)
 end
 
