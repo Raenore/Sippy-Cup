@@ -13,7 +13,7 @@ L = {
 	--/ Popup dialog /--
 	POPUP_ON_COOLDOWN_TEXT = "En recharge",
 	POPUP_IN_FLIGHT_TEXT = "Désactivé pour ne pas tomber de la monture durant le vol.",
-	POPUP_NOT_IN_PARTY_TEXT = "Disabled as item requires a party.", -- (NEW)
+	POPUP_NOT_IN_PARTY_TEXT = "Désactivé : l'objet nécessite d'être en groupe.",
 	POPUP_FOOD_BUFF_TEXT = "Disparaît une fois que le buff de nourriture est appliqué. Ne bougez pas !",
 	POPUP_NOT_IN_INVENTORY_TEXT = "Pas dans l'inventaire",
 	POPUP_NOT_ENOUGH_IN_INVENTORY_TEXT = "Insuffisant (%d manquant)",
@@ -42,14 +42,14 @@ L = {
 
 	OPTIONS_GENERAL_POPUPS_HEADER = "Fenêtre de rappel",
 	OPTIONS_GENERAL_POPUPS_POSITION_NAME = "Position",
-	OPTIONS_GENERAL_POPUPS_POSITION_DESC = "Sélectionne où vous souhaitez que les fenêtres de rappel s'affichent sur votre écran.",
-	OPTIONS_GENERAL_POPUPS_POSITION_TOP = "Top (Default)", -- (NEW)
-	OPTIONS_GENERAL_POPUPS_POSITION_CENTER = "Center", -- (NEW)
-	OPTIONS_GENERAL_POPUPS_POSITION_BOTTOM = "Bottom", -- (NEW)
+	OPTIONS_GENERAL_POPUPS_POSITION_DESC = "Sélectionne où vous souhaitez que les notifications de rappel s'affichent sur votre écran.",
+	OPTIONS_GENERAL_POPUPS_POSITION_TOP = "Haut(Default)",
+	OPTIONS_GENERAL_POPUPS_POSITION_CENTER = "Centre",
+	OPTIONS_GENERAL_POPUPS_POSITION_BOTTOM = "Bas",
 	OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE = "Rappel pré-expiration",
 	OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE_DESC = "Active l'affichage des rappels pré-expiration juste avant que le consommable/jouet expire.|n|n|cnWARNING_FONT_COLOR:Tous les objets ne supportent pas cette option; voir l'infobulle quand activé.|r",
 	OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_LEAD_TIMER = "Minuteur du Rappel pré-expiration",
-	OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_LEAD_TIMER_TEXT = "Définit, en minutes, le délai souhaité avant l'affichage d'une notification de Rappel pré-expiration (par défaut: 1 minute).|n|n|cnWARNING_FONT_COLOR:Si une option ne prend pas en charge le délai choisi, la valeur sera par défaut de 1 minute, ou 15 secondes si 1 minute n'est pas disponible.|r",
+	OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_LEAD_TIMER_TEXT = "Définit, en minutes, le délai souhaité avant l'affichage d'une notification de Rappel pré-expiration (par défaut: 1 minute).|n|n|cnWARNING_FONT_COLOR:Si une option ne prend pas en charge le délai choisi, la valeur par défaut sera de 1 minute, ou 15 secondes si 1 minute n'est pas disponible.|r",
 	OPTIONS_GENERAL_POPUPS_INSUFFICIENT_REMINDER_ENABLE = "Rappel insuffisant",
 	OPTIONS_GENERAL_POPUPS_INSUFFICIENT_REMINDER_ENABLE_DESC = "Active l'affichage d'un rappel lorsque la quantité de consommables est insuffisante pour le prochain rafraîchissement.",
 	OPTIONS_GENERAL_POPUPS_TRACK_TOY_ITEM_CD_ENABLE = "Utiliser la recharge du jouet",
@@ -107,8 +107,8 @@ L = {
 	-- Prism
 	OPTIONS_TAB_PRISM_TITLE = "Prisme",
 	OPTIONS_TAB_PRISM_INSTRUCTION = "Ces options contrôlent tous les rappels pour les prismes consommables/jouets qui altèrent votre apparence.",
-	OPTIONS_TAB_PRISM_TIMER = "%s - Timer", -- (NEW)
-	OPTIONS_TAB_PRISM_TIMER_TEXT = "Set the desired time, in minutes, before the prism pre-expiration reminder popup should be shown (default: %d minutes).|n|n|cnWARNING_FONT_COLOR:If an option does not support the chosen time, it will default to %d minutes.|r", -- (NEW)
+	OPTIONS_TAB_PRISM_TIMER = "%s - Minuteur",
+	OPTIONS_TAB_PRISM_TIMER_TEXT = "Définit, en minutes, le délai souhaité avant l'affichage d'une notification de Rappel de pré-expiration du prisme (défaut : %d minutes).|n|n|cnWARNING_FONT_COLOR:Si une option ne prend pas en charge le délai choisi, la valeur par défaut sera de %d minutes.|r",
 
 	-- Size
 	OPTIONS_TAB_SIZE_TITLE = "Taille",
