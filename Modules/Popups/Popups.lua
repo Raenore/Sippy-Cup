@@ -613,6 +613,11 @@ end
 ---@param enabled boolean Whether the option tracking is enabled or disabled.
 ---@return nil
 function SIPPYCUP.Popups.Toggle(itemName, auraID, enabled)
+	-- Bail out entirely when in PvP Matches, we do not show popups.
+	if SIPPYCUP.States.pvpMatch then
+		return;
+	end
+
 	-- Grab the right option by name, and check if aura exists.
 	local optionData;
 
@@ -736,6 +741,12 @@ local pendingCalls = {};
 ---@return nil
 function SIPPYCUP.Popups.QueuePopupAction(data,  caller)
 	SIPPYCUP_OUTPUT.Debug("QueuePopupAction -", caller);
+
+	-- Bail out entirely when in PvP Matches, we do not show popups.
+	if SIPPYCUP.States.pvpMatch then
+		return;
+	end
+
 	-- If MSP status checks are on and the character is currently OOC, we skip everything.
 	if SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck then
 		local _, _, isIC = SIPPYCUP.MSP.CheckRPStatus();
@@ -780,6 +791,24 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	local profileOptionData = data.profileOptionData or SIPPYCUP.Profile[data.auraID];
 
 	if not optionData or not profileOptionData or SIPPYCUP.Popups.IsIgnored(optionData.auraID) then
+		return;
+	end
+  
+  -- If user has disabled an option before it's shown (due to deferring or something else), remove it.
+	if not profileOptionData.enable then
+		RemoveDeferredActionsByLoc(optionData.loc);
+		local existingPopup = SIPPYCUP.Popups.activeByLoc[optionData.loc];
+
+		if existingPopup and existingPopup:IsShown() then
+			existingPopup:Hide();
+		end
+
+		if profileOptionData.untrackableByAura then
+			SIPPYCUP.Items.CancelItemTimer(nil, optionData.auraID);
+		else
+			SIPPYCUP.Auras.CancelPreExpirationTimer(nil, optionData.auraID);
+		end
+
 		return;
 	end
 

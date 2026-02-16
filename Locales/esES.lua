@@ -24,6 +24,8 @@ L = {
 	POPUP_IGNORE_TT = "Bloquea los recordatorios para este consumible/juguete hasta tu próxima sesión.",
 	POPUP_LINK = "|n|nPresiona |cnGREEN_FONT_COLOR:CTRL-C|r para copiar lo resaltado, luego pégalo en tu navegador web con |cnGREEN_FONT_COLOR:CTRL-V|r.",
 	COPY_SYSTEM_MESSAGE = "Copiado al portapapeles.",
+	POPUP_RELOAD_TITLE = "Reiniciar interfaz",
+	POPUP_RELOAD_WARNING = "¿Reiniciar la interfaz ahora para aplicar los cambios?",
 
 	--/ Options /--
 
@@ -35,12 +37,15 @@ L = {
 	OPTIONS_GENERAL_MINIMAPBUTTON_DESC = "Activa o desactiva la visualización del botón del minimapa.",
 	OPTIONS_GENERAL_ADDONCOMPARTMENT_NAME = "Compartimento adicional",
 	OPTIONS_GENERAL_ADDONCOMPARTMENT_DESC = "Activa o desactiva la visualización del botón del compartimento adicional.",
+	OPTIONS_GENERAL_NEW_FEATURE_NOTIFICATION_NAME = "Nuevo indicador",
+	OPTIONS_GENERAL_NEW_FEATURE_NOTIFICATION_DESC = "Activa o desactiva la indicación de nuevas funciones mediante un icono.|n|nEl icono permanecerá hasta la próxima versión menor; por ejemplo, una característica añadida en la versión 0.6.1 mantendrá su indicador hasta la versión 0.7.0.|n|n|cnWARNING_FONT_COLOR:Esta opción requiere que se reinicie la interfaz de usuario para que surta efecto.|r",
+
 	OPTIONS_GENERAL_POPUPS_HEADER = "Ventanas emergentes de recordatorio",
 	OPTIONS_GENERAL_POPUPS_POSITION_NAME = "Posición",
 	OPTIONS_GENERAL_POPUPS_POSITION_DESC = "Selecciona dónde aparecerán las ventanas emergentes de recordatorio en tu pantalla.",
-	OPTIONS_GENERAL_POPUPS_POSITION_TOP = "Top (Default)", -- (NEW)
-	OPTIONS_GENERAL_POPUPS_POSITION_CENTER = "Center", -- (NEW)
-	OPTIONS_GENERAL_POPUPS_POSITION_BOTTOM = "Bottom", -- (NEW)
+	OPTIONS_GENERAL_POPUPS_POSITION_TOP = "Arriba (Default)",
+	OPTIONS_GENERAL_POPUPS_POSITION_CENTER = "Medio",
+	OPTIONS_GENERAL_POPUPS_POSITION_BOTTOM = "Abajo",
 	OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE = "Recordatorio pre-expiración",
 	OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE_DESC = "Activa o desactiva la visualización de recordatorios poco antes de que el consumible/juguete expire.|n|n|cnWARNING_FONT_COLOR:No todas las opciones admiten esta función; consulta la información sobre herramientas cuando esté habilitada.|r",
 	OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_LEAD_TIMER = "Tiempo previo a la expiración",

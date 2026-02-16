@@ -264,7 +264,14 @@ stds.wow = {
 		C_PvP = {
 			fields = {
 				"GetZonePVPInfo",
+				"IsActiveBattlefield",
 				"IsWarModeActive",
+			},
+		},
+
+		C_RestrictedActions = {
+			fields = {
+				"IsAddOnRestrictionActive",
 			},
 		},
 
@@ -332,6 +339,12 @@ stds.wow = {
 
 		Enum = {
 			fields = {
+				AddOnRestrictionType = {
+					fields = {
+						"PvPMatch",
+					},
+				},
+
 				TooltipDataLineType = {
 					fields = {
 						"UnitOwner",
