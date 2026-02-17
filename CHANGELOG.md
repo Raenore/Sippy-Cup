@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0] - 2026-02-xx  
+Major patch as we move further into the Midnight pre-patch, with improved Prism (Projecting & Reflecting) support and additional secret-related fixes.  
+
+### Added
+- Proper Prism support! ([#86](https://github.com/Raenore/Sippy-Cup/pull/86))  
+  - Both prism types now track properly, unlike the previous implementation.  
+  - Both Projecting and Reflecting Prism have separate pre-expiration timers that you can adjust.  
+  - Projection Prism works with all quality variants. It will prioritize Gold, then Silver, and finally Bronze quality.   
+- If an option requires a party, this will now be mentioned on the refresh button while it is disabled (until a party is formed).  
+- If an option is channeled and gets interrupted, the button will properly re-enable so you can refresh it again.  
+
+### Changed  
+- Updated Spanish translation thanks to [Romanv](https://bsky.app/profile/romanv88.bsky.social) ([#85](https://github.com/Raenore/Sippy-Cup/pull/85)).  
+- Sippy Cup will now fully bail out in Battlegrounds. Supporting auras/buffs there is too complex (due to Midnight's secrets) and has no real RP value ([#83](https://github.com/Raenore/Sippy-Cup/pull/83)).  
+- The system that tracks dirty bag states (for proper item counts) and buff events has been rewritten to be more efficient. No user-facing changes. ([#86](https://github.com/Raenore/Sippy-Cup/pull/86))  
+
+### Fixed  
+- Fixed additional spellID secrets ([#84](https://github.com/Raenore/Sippy-Cup/pull/84)).  
+
 ## [0.6.1] - 2026-02-11  
 Second pre-patch for Midnight, fixing some UI issues and introducing a Spanish translation!  
 
@@ -32,20 +51,6 @@ Given that Sippy Cup never officially supported combat situations, these restric
 
 ### Fixed  
 - Fixed a rare error related to missing reminder popup data. ([#78](https://github.com/Raenore/Sippy-Cup/pull/78))  
-
-## [0.5.0] - 2025-08-25  
-Major patch following the 0.4.0 internal optimizations, targeting further internal reworks and streamlining for performance.  
-
-### Added  
-- Added additional internal states to ensure Sippy Cup correctly tracks when certain data is available and ready to be used. No user-facing changes. ([#62](https://github.com/Raenore/Sippy-Cup/pull/62))  
-
-### Changed  
-- Improved MSP-related code (addons like TRP, MRP, XRP, etc.) to handle edge cases where, on login, Sippy Cup incorrectly thought the player was IC. ([#63](https://github.com/Raenore/Sippy-Cup/pull/63))  
-- Optimized the code that checks for auras and spell cast tracking to improve performance ([#66](https://github.com/Raenore/Sippy-Cup/pull/66)).  
-- Rewrote Sippy Cup's events and state system to be more robust, which should improve long-term performance ([#67](https://github.com/Raenore/Sippy-Cup/pull/67)).  
-
-### Fixed  
-- Fixed an issue where the refresh button remained disabled after being clicked with zero items left in the bag ([#65](https://github.com/Raenore/Sippy-Cup/pull/65)).  
 
 ## Full Changelog  
 The complete changelog, including older versions, can always be found on [Sippy Cup's GitHub Wiki](https://github.com/Raenore/Sippy-Cup/wiki/Full-Changelog).  
