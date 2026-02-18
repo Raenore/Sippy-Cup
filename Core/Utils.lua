@@ -154,7 +154,7 @@ end
 ---Accepts any number of arguments and joins them with space.
 ---@param ... any Values to print (strings, numbers, tables, etc.)
 function SIPPYCUP_OUTPUT.Debug(...)
-	if not SIPPYCUP.IS_DEV_BUILD then return; end
+	if not SIPPYCUP.IS_DEV_BUILD or not SIPPYCUP.Database.GetSetting("global", "DebugOutput", nil) then return; end
 
 	local args = {...};
 	local outputLines = {};

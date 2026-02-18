@@ -519,6 +519,21 @@ local function CreateInset(parent, insetData)
 			bsky:SetScript("OnClick", function()
 				SIPPYCUP.LinkDialog.CreateExternalLinkDialog("https://bsky.app/profile/dawnsong.me");
 			end);
+
+			if SIPPYCUP.IS_DEV_BUILD then
+				local printCheckbox = CreateFrame("CheckButton", nil, infoInset, "SettingsCheckBoxTemplate");
+				printCheckbox:SetPoint("TOPRIGHT", bsky, "TOPLEFT", -8, 0);
+				printCheckbox:SetSize(22, 22);
+				ElvUI.RegisterSkinnableElement(printCheckbox, "checkbox");
+
+				printCheckbox:SetChecked(SIPPYCUP.Database.GetSetting("global", "DebugOutput", nil));
+
+				AttachTooltip(printCheckbox, "Enable Debug Output", "Click this to enable the debug prints.|n|nIf you see this without knowing what debug is, you might've done something wrong!");
+
+				printCheckbox:SetScript("OnClick", function(self)
+					SIPPYCUP.Database.UpdateSetting("global", "DebugOutput", nil, self:GetChecked())
+				end);
+			end
 		end
 	end
 

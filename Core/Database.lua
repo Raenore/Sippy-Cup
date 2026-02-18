@@ -98,6 +98,7 @@ SIPPYCUP.Database.defaults = {
 	global = {
 		AlertSound = true,
 		AlertSoundID = "fx_ship_bell_chime_02",
+		DebugOutput = false,
 		FlashTaskbar = true,
 		Flyway = {
 			CurrentBuild = 0,

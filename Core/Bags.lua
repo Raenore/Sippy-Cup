@@ -7,8 +7,6 @@ SIPPYCUP.Bags.auraGeneration = 0;
 SIPPYCUP.Bags.bagGeneration = 0;
 
 function SIPPYCUP.Bags.BagUpdateDelayed()
-	SIPPYCUP_OUTPUT.Debug("BAG_UPDATE_DELAYED");
-
 	SIPPYCUP.Bags.lastBagUpdate = GetTime();
 	SIPPYCUP.Bags.bagGeneration = SIPPYCUP.Bags.bagGeneration + 1;
 

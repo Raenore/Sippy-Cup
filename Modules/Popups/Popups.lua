@@ -684,14 +684,12 @@ function SIPPYCUP.Popups.Toggle(itemName, auraID, enabled)
 
 	-- If item can only be tracked by the item cooldown (worst)
 	if trackByItem then
-		SIPPYCUP_OUTPUT.Debug("Tracking through Item");
 		startTime = C_Item.GetItemCooldown(optionData.itemID);
 		if startTime and startTime > 0 then
 			active = true;
 		end
 	-- If item can be tracked through the spell cooldown (fine).
 	elseif trackBySpell then
-		SIPPYCUP_OUTPUT.Debug("Tracking through Spell");
 		local spellCooldownInfo = C_Spell.GetSpellCooldown(optionData.auraID);
 		if canaccessvalue == nil or canaccessvalue(spellCooldownInfo) then
 			startTime = spellCooldownInfo and spellCooldownInfo.startTime;
@@ -816,18 +814,11 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	local isToy = optionType == SIPPYCUP.Options.Type.TOY;
 	local isConsumable = optionType == SIPPYCUP.Options.Type.CONSUMABLE;
 
-	SIPPYCUP_OUTPUT.Debug("SIPPYCUP.Bags.updateUnhandled:", SIPPYCUP.Bags.updateUnhandled);
 	SIPPYCUP_OUTPUT.Debug("name:", optionData.name);
-	if isToy then
-		SIPPYCUP_OUTPUT.Debug("Toy");
-	else
-		SIPPYCUP_OUTPUT.Debug("Consumable");
-	end
-
 	-- Check for a dirty bag state, if so then defer until it is no longer.
 	if isConsumable and data.needsBagCheck then
 		if SIPPYCUP.Bags.bagGeneration < data.auraGeneration then
-		SIPPYCUP_OUTPUT.Debug("We reached item count in HandlePopupAction but bag state is dirty");
+		SIPPYCUP_OUTPUT.Debug("Reached HandlePopupAction, but bag state is dirty");
 
 		deferredActions[#deferredActions + 1] = {
 			data = data,
@@ -838,7 +829,7 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 		};
 		return;
 	end
-		SIPPYCUP_OUTPUT.Debug("Bag state is not dirty, we can continue this time!");
+		SIPPYCUP_OUTPUT.Debug("Reached HandlePopupAction, bag state is fine so continue.");
 	end
 
 	local itemIDs = type(optionData.itemID) == "table" and optionData.itemID or { optionData.itemID };
