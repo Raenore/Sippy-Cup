@@ -54,7 +54,7 @@ StaticPopupDialogs["SIPPYCUP_LINK_DIALOG"] = {
 	whileDead = true,
 	hideOnEscape = true,
 	preferredIndex = 3,
-}
+};
 
 ---CreateExternalLinkDialog displays a dialog with an external link.
 ---@param url string The URL to be displayed in the dialog.

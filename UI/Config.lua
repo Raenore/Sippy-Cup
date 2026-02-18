@@ -18,7 +18,7 @@ local defaultSounds = {
 	{ key = "fx_ship_bell_chime_02", fid = 1129274 },
 	{ key = "fx_ship_bell_chime_03", fid = 1129275 },
 	{ key = "raidwarning", fid = 567397 },
-}
+};
 
 -- Register default sounds
 for _, sound in ipairs(defaultSounds) do
@@ -26,15 +26,35 @@ for _, sound in ipairs(defaultSounds) do
 end
 
 -- Build soundList with keys = values for quick lookup/use
-local soundList = {}
+local soundList = {};
 for _, soundName in ipairs(SharedMedia:List("sound")) do
-	soundList[soundName] = soundName
+	soundList[soundName] = soundName;
 end
 
 function SIPPYCUP.Config.TryCreateConfigFrame()
 	if not SIPPYCUP.configFrame then
 		SIPPYCUP.configFrame = CreateFrame("Frame", "SIPPYCUP_ConfigMenuFrame", UIParent, "SIPPYCUP_ConfigMenuTemplate");
 	end
+end
+
+-- Utility to get the first valid itemID from number or table
+local function GetFirstItemID(itemID)
+	if type(itemID) == "table" then
+		for _, id in ipairs(itemID) do
+			if id and id > 0 then
+				return id;
+			end
+		end
+		return nil;
+	else
+		return itemID;
+	end
+end
+
+-- Example: toy checkbox disabled function
+local function IsToyDisabled(toyID)
+	local firstID = GetFirstItemID(toyID);
+	return not firstID or not PlayerHasToy(firstID);
 end
 
 ---AddTab creates a new tab button under the given parent frame and adds it to the parent's Tabs list.
@@ -207,17 +227,20 @@ end
 ---AttachItemTooltip adds mouseover tooltips showing item info by itemID to one or multiple frames.
 ---It sets up OnEnter and OnLeave scripts to show and hide the item tooltip anchored as specified.
 ---@param frames table|table[] The single frame or list of frames to attach the tooltip to.
----@param itemID number The item ID to create the tooltip for.
+---@param itemID number|number[] The item ID(s) to create the tooltip for.
 ---@param anchor string? Optional anchor point for tooltip, defaults to "ANCHOR_TOP".
 local function AttachItemTooltip(frames, itemID, anchor)
 	if not itemID then return; end
 	anchor = anchor or "ANCHOR_TOP";
 
+	local firstID = GetFirstItemID(itemID);
+	if not firstID then return; end
+
 	local isList = type(frames) == "table" and not frames.GetObjectType;
 	local firstFrame = isList and frames[1] or frames;
 	if not firstFrame then return; end
 
-	local item = Item:CreateFromItemID(itemID);
+	local item = Item:CreateFromItemID(firstID);
 
 	item:ContinueOnItemLoad(function()
 		local itemLink = item:GetItemLink();
@@ -440,7 +463,7 @@ local function CreateInset(parent, insetData)
 	ElvUI.RegisterSkinnableElement(infoInset, "inset");
 
 	-- Distance from bottom
-	local bottomOffset = 20
+	local bottomOffset = 20;
 
 	infoInset:SetPoint("BOTTOMLEFT", parent, "BOTTOMLEFT", 20, bottomOffset);
 	infoInset:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", -20, bottomOffset);
@@ -496,6 +519,21 @@ local function CreateInset(parent, insetData)
 			bsky:SetScript("OnClick", function()
 				SIPPYCUP.LinkDialog.CreateExternalLinkDialog("https://bsky.app/profile/dawnsong.me");
 			end);
+
+			if SIPPYCUP.IS_DEV_BUILD then
+				local printCheckbox = CreateFrame("CheckButton", nil, infoInset, "SettingsCheckBoxTemplate");
+				printCheckbox:SetPoint("TOPRIGHT", bsky, "TOPLEFT", -8, 0);
+				printCheckbox:SetSize(22, 22);
+				ElvUI.RegisterSkinnableElement(printCheckbox, "checkbox");
+
+				printCheckbox:SetChecked(SIPPYCUP.Database.GetSetting("global", "DebugOutput", nil));
+
+				AttachTooltip(printCheckbox, "Enable Debug Output", "Click this to enable the debug prints.|n|nIf you see this without knowing what debug is, you might've done something wrong!");
+
+				printCheckbox:SetScript("OnClick", function(self)
+					SIPPYCUP.Database.UpdateSetting("global", "DebugOutput", nil, self:GetChecked())
+				end);
+			end
 		end
 	end
 
@@ -860,6 +898,8 @@ local function CreateConfigSlider(elementContainer, data)
 
 	local r, g, b = WHITE_FONT_COLOR:GetRGB();
 
+	widget.TopText:SetText(data.label);
+
 	widget.MinText:SetText(minVal);
 	widget.MinText:SetVertexColor(r, g, b);
 
@@ -868,13 +908,14 @@ local function CreateConfigSlider(elementContainer, data)
 
 	widget.RightText:SetVertexColor(r, g, b);
 
+	widget.TopText:Show();
 	widget.MinText:Show();
 	widget.MaxText:Show();
 	widget.RightText:Show();
 
 	widget:SetPoint("LEFT", 0, 0);
 	widget:SetWidth(elementContainer:GetWidth() * 0.8);
-	widget:SetHeight(41);
+	widget:SetHeight(data.height or 41);
 
 	if data.buildAdded and SIPPYCUP_BUILDINFO.CheckNewlyAdded(data.buildAdded) then
 		local newPip = widget:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
@@ -1387,7 +1428,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			func = function()
 				SIPPYCUP.Popups.ResetIgnored();
 			end,
-		}
+		},
 	};
 
 	self.allWidgets[#self.allWidgets + 1] = CreateWidgetRowContainer(generalPanel, reminderCheckboxData);
@@ -1414,7 +1455,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 				SIPPYCUP.Database.UpdateSetting("global", "PopupPosition", nil, val);
 			end,
 		},
-	}
+	};
 
 	self.allWidgets[#self.allWidgets + 1] = CreateWidgetRowContainer(generalPanel, positionWidgetData);
 
@@ -1461,7 +1502,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 				SIPPYCUP.Database.UpdateSetting("global", "FlashTaskbar", nil, val);
 			end,
 		},
-	}
+	};
 
 	self.allWidgets[#self.allWidgets + 1] = CreateWidgetRowContainer(generalPanel, alertWidgetData);
 
@@ -1488,7 +1529,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 				end
 			end,
 		},
-	}
+	};
 
 	self.allWidgets[#self.allWidgets + 1] = CreateWidgetRowContainer(generalPanel, integrationsWidgetData);
 
@@ -1524,7 +1565,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			text = "Bluesky",
 			tooltip = L.OPTIONS_GENERAL_BLUESKY_SHILL_DESC,
 		},
-	}
+	};
 
 	self.allWidgets[#self.allWidgets + 1] = CreateInset(generalPanel, insetData);
 
@@ -1599,6 +1640,66 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			end
 		end
 
+		if categoryName == "PRISM" then
+			CreateCategoryHeader(categoryPanel, SETTINGS);
+
+			local prismWidgetData = {
+				{
+					type = "slider",
+					label = L.OPTIONS_TAB_PRISM_TIMER:format(SIPPYCUP.Options.ByItemID[193031].name),
+					tooltip = L.OPTIONS_TAB_PRISM_TIMER_TEXT:format(5, 5),
+					buildAdded = "0.7.0|120001",
+					min = 1,
+					max = 7,
+					step = 1,
+					height = 35,
+					disabled = function()
+						return not SIPPYCUP.Database.GetSetting("global", "ProjectionPrismPreExpirationLeadTimer", nil);
+					end,
+					get = function()
+						return SIPPYCUP.Database.GetSetting("global", "ProjectionPrismPreExpirationLeadTimer", nil);
+					end,
+					set = function(val)
+						SIPPYCUP.Database.UpdateSetting("global", "ProjectionPrismPreExpirationLeadTimer", nil, val);
+						local reason = SIPPYCUP.Popups.Reason.PRE_EXPIRATION;
+						SIPPYCUP.Auras.CancelAllPreExpirationTimers();
+						SIPPYCUP.Items.CancelAllItemTimers(reason);
+						SIPPYCUP.Popups.HideAllRefreshPopups(reason);
+						SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck, false, true);
+					end,
+				},
+				{
+					type = "slider",
+					label = L.OPTIONS_TAB_PRISM_TIMER:format(SIPPYCUP.Options.ByItemID[112384].name),
+					tooltip = L.OPTIONS_TAB_PRISM_TIMER_TEXT:format(3, 3),
+					buildAdded = "0.7.0|120001",
+					min = 1,
+					max = 5,
+					step = 1,
+					height = 35,
+					disabled = function()
+						return not SIPPYCUP.Database.GetSetting("global", "ReflectingPrismPreExpirationLeadTimer", nil);
+					end,
+					get = function()
+						return SIPPYCUP.Database.GetSetting("global", "ReflectingPrismPreExpirationLeadTimer", nil);
+					end,
+					set = function(val)
+						SIPPYCUP.Database.UpdateSetting("global", "ReflectingPrismPreExpirationLeadTimer", nil, val);
+						local reason = SIPPYCUP.Popups.Reason.PRE_EXPIRATION;
+						SIPPYCUP.Auras.CancelAllPreExpirationTimers();
+						SIPPYCUP.Items.CancelAllItemTimers(reason);
+						SIPPYCUP.Popups.HideAllRefreshPopups(reason);
+						SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck, false, true);
+					end,
+				},
+			}
+
+			local widgets = CreateWidgetRowContainer(categoryPanel, prismWidgetData, 2, 40, 20, true);
+
+			self.profileWidgets[#self.profileWidgets + 1] = widgets;
+			self.allWidgets[#self.allWidgets + 1] = widgets;
+		end
+
 		if #categoryConsumablesData > 0 then
 			CreateCategoryHeader(categoryPanel, BAG_FILTER_CONSUMABLES);
 
@@ -1634,7 +1735,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 					stacks = optionData.stacks,
 					buildAdded = optionData.buildAdded,
 					disabled = function()
-						return not PlayerHasToy(toyID);
+						return IsToyDisabled(toyID);
 					end,
 					get = function()
 						return SIPPYCUP.Database.GetSetting("profile", checkboxProfileKey, "enable");

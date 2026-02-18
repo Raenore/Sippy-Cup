@@ -78,6 +78,8 @@ end
 ---@field PopupPosition string Position of the popup ("TOP", "BOTTOM", etc.).
 ---@field PreExpirationChecks boolean Whether to perform checks shortly before aura expiration.
 ---@field PreExpirationLeadTimer number Time (in minutes) before a pre-expiration reminder should fire.
+---@field ProjectionPrismPreExpirationLeadTimer number Time (in minutes) before a projection prism pre-expiration reminder should fire.
+---@field ReflectingPrismPreExpirationLeadTimer number Time (in minutes) before a reflecting prism pre-expiration reminder should fire.
 ---@field UseToyCooldown boolean Whether to use toy cooldowns for popups instead.
 ---@field WelcomeMessage boolean Whether to display a welcome message on login.
 
@@ -96,6 +98,7 @@ SIPPYCUP.Database.defaults = {
 	global = {
 		AlertSound = true,
 		AlertSoundID = "fx_ship_bell_chime_02",
+		DebugOutput = false,
 		FlashTaskbar = true,
 		Flyway = {
 			CurrentBuild = 0,
@@ -111,13 +114,15 @@ SIPPYCUP.Database.defaults = {
 		PopupPosition = "TOP",
 		PreExpirationChecks = true,
 		PreExpirationLeadTimer = 1,
+		ProjectionPrismPreExpirationLeadTimer = 5,
+		ReflectingPrismPreExpirationLeadTimer = 3,
 		UseToyCooldown = true,
 		WelcomeMessage = true,
 	},
 	profiles = {
 		Default = {},  -- will hold all options per profile
 	},
-}
+};
 
 local defaults = SIPPYCUP.Database.defaults;
 
@@ -128,7 +133,12 @@ local defaults = SIPPYCUP.Database.defaults;
 ---@field currentInstanceID number? Aura instance ID currently being tracked (if any).
 ---@field currentStacks number Current number of detected stacks.
 ---@field aura number The associated aura ID for this option.
+---@field castAura number The associated cast aura ID, if none is set then use aura ID.
 ---@field untrackableByAura boolean Whether this option can be tracked via its aura or not.
+---@field type string Whether this option is a consumable (0) or toy (1).
+---@field isPrism boolean Whether this option is considered a prism.
+---@field instantUpdate boolean Whether the instant UNIT_AURA update has already happened right after the addition (prisms).
+---@field usesCharges boolean Whether this option uses charges (generally reflecting prism).
 
 ---Populate the default option's table keyed by aura ID, with all known entries from SIPPYCUP.Options.Data.
 ---This defines initial tracking settings for each option by its aura ID key.
@@ -138,7 +148,12 @@ local function PopulateDefaultOptions()
 	for i = 1, #optionsData do
 		local option = optionsData[i];
 		local spellID = option.auraID;
+		local castSpellID = option.castAuraID;
 		local untrackableByAura = option.itemTrackable or option.spellTrackable;
+		local type = option.type;
+		local isPrism = (option.category == "PRISM") or false;
+		local instantUpdate = not isPrism;
+		local usesCharges = option.charges;
 
 		if spellID then
 			-- Use auraID as the key, not profileKey
@@ -148,7 +163,12 @@ local function PopulateDefaultOptions()
 				currentInstanceID = nil,
 				currentStacks = 0,
 				aura = spellID,
+				castAura = castSpellID,
 				untrackableByAura = untrackableByAura,
+				type = type,
+				isPrism = isPrism,
+				instantUpdate = instantUpdate,
+				usesCharges = usesCharges,
 			};
 		end
 	end
@@ -162,6 +182,9 @@ SIPPYCUP.Database.auraToProfile = {}; -- auraID --> profile data
 SIPPYCUP.Database.instanceToProfile = {}; -- instanceID --> profile data
 ---@type table<number, SIPPYCUPProfileOption>
 SIPPYCUP.Database.untrackableByAuraProfile = {}; -- itemID --> profile data (only if no aura)
+---@type table<number, SIPPYCUPProfileOption>
+SIPPYCUP.Database.castAuraToProfile = {}; -- castAuraID (if different) / auraID --> profile data
+
 
 ---RebuildAuraMap rebuilds internal lookup tables for aura and instance-based option tracking.
 ---@return nil
@@ -171,11 +194,14 @@ function SIPPYCUP.Database.RebuildAuraMap()
 	wipe(db.auraToProfile);
 	wipe(db.instanceToProfile);
 	wipe(db.untrackableByAuraProfile);
+	wipe(db.castAuraToProfile);
 
 	for _, profileOptionData in pairs(SIPPYCUP.Profile) do
 		if profileOptionData.enable and profileOptionData.aura then
 			local auraID = profileOptionData.aura;
 			db.auraToProfile[auraID] = profileOptionData;
+			local castAuraID = profileOptionData.castAura;
+			db.castAuraToProfile[castAuraID] = profileOptionData;
 
 			-- Update instance ID if aura is currently active
 			local auraInfo;

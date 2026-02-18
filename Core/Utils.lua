@@ -125,32 +125,41 @@ function SIPPYCUP_OUTPUT.Write(output, command)
 	Print(formattedOutput);
 end
 
+local function formatValue(val, isTop)
+	if type(val) == "table" then
+		local isArray = (#val > 0);
+		if isArray then
+			local items = {};
+			for _, v in ipairs(val) do
+				table.insert(items, formatValue(v));
+			end
+			return "{" .. table.concat(items, ",") .. "}";
+		else
+			local items = {};
+			for k, v in pairs(val) do
+				table.insert(items, tostring(k) .. ": " .. formatValue(v));
+			end
+			if isTop then
+				return table.concat(items, ", ");
+			else
+				return "{" .. table.concat(items, ", ") .. "}";
+			end
+		end
+	else
+		return tostring(val);
+	end
+end
+
 ---Debug prints formatted output, only works when IS_DEV_BUILD is true.
 ---Accepts any number of arguments and joins them with space.
 ---@param ... any Values to print (strings, numbers, tables, etc.)
 function SIPPYCUP_OUTPUT.Debug(...)
-	if not SIPPYCUP.IS_DEV_BUILD then
-		return;
-	end
+	if not SIPPYCUP.IS_DEV_BUILD or not SIPPYCUP.Database.GetSetting("global", "DebugOutput", nil) then return; end
 
-	local args = { ... };
+	local args = {...};
 	local outputLines = {};
-
 	for _, arg in ipairs(args) do
-		if type(arg) == "table" then
-			local isArray = (#arg > 0);
-			if isArray then
-				for _, v in ipairs(arg) do
-					table.insert(outputLines, tostring(v));
-				end
-			else
-				for k, v in pairs(arg) do
-					table.insert(outputLines, tostring(k) .. ": " .. tostring(v));
-				end
-			end
-		else
-			table.insert(outputLines, tostring(arg));
-		end
+		table.insert(outputLines, formatValue(arg, true));
 	end
 
 	local finalOutput = table.concat(outputLines, " ");

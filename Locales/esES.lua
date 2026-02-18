@@ -13,6 +13,7 @@ L = {
 	--/ Popup dialog /--
 	POPUP_ON_COOLDOWN_TEXT = "En tiempo de espera",
 	POPUP_IN_FLIGHT_TEXT = "Desactivado para evitar el desmontaje durante el vuelo.",
+	POPUP_NOT_IN_PARTY_TEXT = "Disabled as item requires a party.", -- (NEW)
 	POPUP_FOOD_BUFF_TEXT = "Desaparece una vez que se aplica el beneficio de comida. ¡No te muevas!",
 	POPUP_NOT_IN_INVENTORY_TEXT = "No hay en el inventario",
 	POPUP_NOT_ENOUGH_IN_INVENTORY_TEXT = "No es suficiente (%d Faltante)",
@@ -104,6 +105,8 @@ L = {
 	-- Prism
 	OPTIONS_TAB_PRISM_TITLE = "Prismas",
 	OPTIONS_TAB_PRISM_INSTRUCTION = "Estas opciones controlan todos los recordatorios para los consumibles/juguetes prismáticos que cambian tu apariencia.",
+	OPTIONS_TAB_PRISM_TIMER = "%s - Timer", -- (NEW)
+	OPTIONS_TAB_PRISM_TIMER_TEXT = "Set the desired time, in minutes, before the prism pre-expiration reminder popup should be shown (default: %d minutes).|n|n|cnWARNING_FONT_COLOR:If an option does not support the chosen time, it will default to %d minutes.|r", -- (NEW)
 
 	-- Size
 	OPTIONS_TAB_SIZE_TITLE = "Tamaño",

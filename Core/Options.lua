@@ -17,7 +17,8 @@ SIPPYCUP.Options.Type = {
 ---@class SIPPYCUPOption: table
 ---@field type string Whether this option is a consumable (0) or toy (1).
 ---@field auraID number The option's aura ID.
----@field itemID number The option's item ID.
+---@field castAuraID number The option's cast aura ID, if none is set then use auraID.
+---@field itemID number|table The option's item ID(s)
 ---@field loc string The option's localization key (auto-gen).
 ---@field category string The option's category (e.g., potion, food).
 ---@field profile table The option's associated DB profile (auto-gen).
@@ -30,16 +31,24 @@ SIPPYCUP.Options.Type = {
 ---@field spellTrackable boolean Whether the option can only be tracked through the spell itself (cooldowns, etc.).
 ---@field delayedAura boolean Whether the option is applied after a delay (e.g. food buff), on false a buff is applied instantly.
 ---@field cooldownMismatch boolean Whether the option has a mismatch in cooldowns (cd longer than buff lasts), on false there is no mismatch.
-
+---@field buildAdded string The Sippy Cup and WoW build this option was added (for the new feature indicator).
+---@field requiresGroup boolean Whether the option requires a group to be sued (e.g. prisms).
+---@field charges boolean Whether the option uses charges.
 
 ---NewOption creates a new object with the specified parameters.
 ---@param params SIPPYCUPOption A table containing parameters for the new option.
 ---@return SIPPYCUPOption
 local function NewOption(params)
+	local itemIDs = params.itemID;
+	if type(itemIDs) == "number" then
+		itemIDs = { itemIDs };
+	end
+
 	return {
 		type  = params.type or SIPPYCUP.Options.Type.CONSUMABLE,
 		auraID = params.auraID,
-		itemID = params.itemID,
+		castAuraID = params.castAuraID or params.auraID,
+		itemID = itemIDs; -- always store as a table internally
 		loc = params.loc,
 		category = params.category,
 		profile = params.profile,
@@ -53,6 +62,8 @@ local function NewOption(params)
 		delayedAura = params.delayedAura or false,
 		cooldownMismatch = params.cooldownMismatch or false,
 		buildAdded = params.buildAdded or nil,
+		requiresGroup = params.requiresGroup or false,
+		charges = params.charges or false,
 	};
 end
 
@@ -85,14 +96,14 @@ SIPPYCUP.Options.Data = {
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 185394, itemID = 124640, category = "EFFECT", preExpiration = true }, -- INKY_BLACK_POTION
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1218300, itemID = 235703, category = "SIZE", stacks = true, maxStacks = 10, preExpiration = true }, -- NOGGENFOGGER_SELECT_DOWN
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1218297, itemID = 235704, category = "SIZE", stacks = true, maxStacks = 10, preExpiration = true }, -- NOGGENFOGGER_SELECT_UP
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 374957, itemID = 193029, category = "PRISM", preExpiration = true }, -- PROJECTION_PRISM
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 374959, itemID = {193031, 193030, 193029}, category = "PRISM", preExpiration = true, requiresGroup = true, buildAdded = "0.7.0|120001" }, -- PROJECTION_PRISM
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 368038, itemID = 190739, category = "EFFECT", preExpiration = true }, -- PROVIS_WAX
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 244015, itemID = 151256, category = "HANDHELD", preExpiration = true }, -- PURPLE_DANCE_STICK
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 53805, itemID = 40195, category = "SIZE", stacks = true, maxStacks = 10 }, -- PYGMY_OIL
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 393979, itemID = 201428, category = "EFFECT" }, -- QUICKSILVER_SANDS
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1213974, itemID = 234287, category = "EFFECT", preExpiration = true }, -- RADIANT_FOCUS
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1214287, itemID = 234527, category = "HANDHELD", preExpiration = true }, -- SACREDITES_LEDGER
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 163219, itemID = 112384, category = "PRISM", preExpiration = true }, -- REFLECTING_PRISM
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 163267, castAuraID = 163219, itemID = 112384, category = "PRISM", preExpiration = true, requiresGroup = true, charges = true, buildAdded = "0.7.0|120001" }, -- REFLECTING_PRISM
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 279742, itemID = 163695, category = "EFFECT" }, -- SCROLL_OF_INNER_TRUTH
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1222834, itemID = 237332, category = "PLACEMENT", spellTrackable = true }, -- SINGLE_USE_GRILL
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 58479, itemID = 43480, category = "SIZE", preExpiration = true, delayedAura = true }, -- SMALL_FEAST
@@ -216,21 +227,33 @@ function SIPPYCUP.Options.Setup()
 
 	-- Build lookups
 	for _, option in ipairs(data) do
-		remaining[option.itemID] = true;
+		for _, id in ipairs(option.itemID) do
+			SIPPYCUP.Options.ByItemID[id] = option;
+			remaining[id] = true;
+		end
 		SIPPYCUP.Options.ByAuraID[option.auraID] = option;
-		SIPPYCUP.Options.ByItemID[option.itemID] = option;
 	end
 
 	-- Fast prune: remove invalid items before async loads
 	for i = #data, 1, -1 do
 		local option = data[i];
+		local valid = false;
 
-		if C_Item.GetItemInfoInstant(option.itemID) == nil then
+		for _, id in ipairs(option.itemID) do
+			if C_Item.GetItemInfoInstant(id) ~= nil then
+				valid = true;
+				break;
+			end
+		end
+
+		if not valid then
+			-- Remove all itemIDs from lookups
+			for _, id in ipairs(option.itemID) do
+				SIPPYCUP.Options.ByItemID[id] = nil;
+				remaining[id] = nil;
+			end
 			SIPPYCUP.Options.ByAuraID[option.auraID] = nil;
-			SIPPYCUP.Options.ByItemID[option.itemID] = nil;
-
 			table.remove(data, i);
-			remaining[option.itemID] = nil;
 		end
 	end
 
@@ -256,27 +279,40 @@ function SIPPYCUP.Options.Setup()
 
 	-- Async load for all valid items
 	for _, option in ipairs(data) do
-		local item = Item:CreateFromItemID(option.itemID);
+		-- pick first valid itemID number to feed into Item:CreateFromItemID
+		local firstID;
+		for _, id in ipairs(option.itemID) do
+			if type(id) == "number" then
+				firstID = id;
+				break;
+			end
+		end
 
-		item:ContinueOnItemLoad(function()
-			-- Skip if removed by earlier pruning
-			if not remaining[option.itemID] then return end;
+		if firstID then
+			local item = Item:CreateFromItemID(firstID);
 
-			local name = item:GetItemName();
+			item:ContinueOnItemLoad(function()
+				if not remaining[firstID] then return; end;
 
-			option.name = name;
-			option.loc = NormalizeLocName(name);
+				local name = item:GetItemName();
+				option.name = name;
+				option.loc = NormalizeLocName(name);
 
-			option.profile = string.gsub(string.lower(option.loc), "_(%a)", function(c)
-				return c:upper();
+				option.profile = string.gsub(string.lower(option.loc), "_(%a)", function(c)
+					return c:upper();
+				end);
+
+				option.icon = item:GetItemIcon();
+				SIPPYCUP.Options.ByName[name] = option;
+
+				-- mark all itemIDs as loaded
+				for _, id in ipairs(option.itemID) do
+					remaining[id] = nil;
+				end
+
+				Finalize();
 			end);
-
-			option.icon = item:GetItemIcon();
-			SIPPYCUP.Options.ByName[name] = option;
-
-			remaining[option.itemID] = nil;
-			Finalize();
-		end);
+		end
 	end
 end
 
@@ -291,39 +327,26 @@ function SIPPYCUP.Options.RefreshStackSizes(checkAll, reset, preExpireOnly)
 
 	-- Helper to check cooldown startTime for item or spell trackable
 	local function GetCooldownStartTime(option)
-		local trackBySpell = false;
-		local trackByItem = false;
+		local trackBySpell = option.spellTrackable or false;
+		local trackByItem = option.itemTrackable or false;
 
-		if option.type == SIPPYCUP.Options.Type.CONSUMABLE then
-			trackBySpell = option.spellTrackable;
-			trackByItem = option.itemTrackable;
-		elseif option.type == SIPPYCUP.Options.Type.TOY then
-			-- Always track by item if itemTrackable
-			if option.itemTrackable then
-				trackByItem = true;
-			end
-
-			if option.spellTrackable then
-				if SIPPYCUP.global.UseToyCooldown then
-					trackByItem = true;
-				else
-					trackBySpell = true;
+		if trackByItem then
+			for _, id in ipairs(option.itemID) do
+				local startTime = C_Item.GetItemCooldown(id);
+				if startTime and startTime > 0 then
+					return startTime;
 				end
 			end
 		end
 
-		if trackByItem then
-			local startTime = C_Item.GetItemCooldown(option.itemID);
-			if startTime and startTime > 0 then
-				return startTime;
-			end
-		elseif trackBySpell then
+		if trackBySpell then
 			local spellCooldown = C_Spell.GetSpellCooldown(option.auraID);
 			local startTime = spellCooldown and spellCooldown.startTime;
 			if startTime and startTime > 0 then
 				return startTime;
 			end
 		end
+
 		return nil;
 	end
 

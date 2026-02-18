@@ -93,6 +93,8 @@ function SIPPYCUP_Addon:OnPlayerLogin()
 	-- Register game events related to aura and spell tracking for Sippy Cup.
 	SIPPYCUP_Addon:RegisterUnitEvent("UNIT_AURA", "player");
 	SIPPYCUP_Addon:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player");
+	SIPPYCUP_Addon:RegisterUnitEvent("UNIT_SPELLCAST_RETICLE_CLEAR", "player");
+	SIPPYCUP_Addon:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", "player");
 
 	SIPPYCUP.Config.TryCreateConfigFrame();
 end
@@ -142,7 +144,7 @@ end
 
 ---BAG_UPDATE_DELAYED Handles delayed bag updates and triggers item update processing.
 function SIPPYCUP_Addon:BAG_UPDATE_DELAYED()
-	SIPPYCUP.Items.HandleBagUpdate();
+	SIPPYCUP.Bags.BagUpdateDelayed();
 end
 
 function SIPPYCUP_Addon:ADDON_RESTRICTION_STATE_CHANGED(_, type, state) -- luacheck: no unused (type)
@@ -189,7 +191,7 @@ function SIPPYCUP_Addon:PLAYER_REGEN_DISABLED()
 
 	-- Combat is entered when regen is disabled.
 	self:StopContinuousCheck();
-	SIPPYCUP.Popups.DeferAllRefreshPopups(1);
+	SIPPYCUP.Popups.DeferAllRefreshPopups("combat");
 end
 
 ---PLAYER_REGEN_ENABLED Restarts continuous checks and handles deferred combat actions after leaving combat.
@@ -214,8 +216,7 @@ function SIPPYCUP_Addon:UNIT_AURA(_, unitTarget, updateInfo) -- luacheck: no unu
 	if InCombatLockdown() or C_Secrets and C_Secrets.ShouldAurasBeSecret() or SIPPYCUP.States.pvpMatch then
 		return;
 	end
-	-- Bag data is not synched immediately when UNIT_AURA fires, signal desync to the addon.
-	SIPPYCUP.Items.bagUpdateUnhandled = true;
+
 	SIPPYCUP.Auras.Convert(SIPPYCUP.Auras.Sources.UNIT_AURA, updateInfo);
 end
 
@@ -227,6 +228,34 @@ end
 function SIPPYCUP_Addon:UNIT_SPELLCAST_SUCCEEDED(_, unitTarget, _, spellID) -- luacheck: no unused (unitTarget)
 	-- Necessary to handle items that don't fire UNIT_AURA.
 	SIPPYCUP.Items.CheckNoAuraSingleOption(nil, spellID);
+end
+
+function SIPPYCUP_Addon:UNIT_SPELLCAST_RETICLE_CLEAR(_, unitTarget, _, spellID) -- luacheck: no unused (unitTarget)
+	if InCombatLockdown() or not canaccessvalue(spellID) then
+		return;
+	end
+
+	if SIPPYCUP.Database.castAuraToProfile[spellID] then
+		SIPPYCUP.Popups.ForEachActivePopup(function(popup)
+			if popup.templateType == "SIPPYCUP_RefreshPopupTemplate" and popup.RefreshButton and not popup.RefreshButton:IsEnabled() then
+				popup.RefreshButton:Enable();
+			end
+		end);
+	end
+end
+
+function SIPPYCUP_Addon:UNIT_SPELLCAST_INTERRUPTED(_, unitTarget, _, spellID) -- luacheck: no unused (unitTarget)
+	if InCombatLockdown() or not canaccessvalue(spellID) then
+		return;
+	end
+
+	if SIPPYCUP.Database.castAuraToProfile[spellID] then
+		SIPPYCUP.Popups.ForEachActivePopup(function(popup)
+			if popup.templateType == "SIPPYCUP_RefreshPopupTemplate" and popup.RefreshButton and not popup.RefreshButton:IsEnabled() then
+				popup.RefreshButton:Enable();
+			end
+		end);
+	end
 end
 
 ---ZONE_CHANGED_NEW_AREA Handles zone changes and triggers loading screen end logic if needed.

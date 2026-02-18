@@ -13,6 +13,7 @@ L = {
 	--/ Popup dialog /--
 	POPUP_ON_COOLDOWN_TEXT = "currently on cooldown.", -- (NEW)
 	POPUP_IN_FLIGHT_TEXT = "Disabled to prevent dismount during flight.", -- (NEW)
+	POPUP_NOT_IN_PARTY_TEXT = "Disabled as item requires a party.", -- (NEW)
 	POPUP_FOOD_BUFF_TEXT = "Disappears once food buff is applied. Do not move!", -- (NEW)
 	POPUP_NOT_IN_INVENTORY_TEXT = "не найден в вашем инвентаре.", -- (TEXT CHANGE IN ENGLISH)
 	POPUP_NOT_ENOUGH_IN_INVENTORY_TEXT = "недостаточно в вашем инвентаре.|n(%d missing)", -- (NEW) (Ending)
@@ -107,6 +108,8 @@ L = {
 	-- Prism
 	OPTIONS_TAB_PRISM_TITLE = "Prism", -- (NEW)
 	OPTIONS_TAB_PRISM_INSTRUCTION = "These options control all reminders for prism consumables/toys to alter your appearance.", -- (NEW)
+	OPTIONS_TAB_PRISM_TIMER = "%s - Timer", -- (NEW)
+	OPTIONS_TAB_PRISM_TIMER_TEXT = "Set the desired time, in minutes, before the prism pre-expiration reminder popup should be shown (default: %d minutes).|n|n|cnWARNING_FONT_COLOR:If an option does not support the chosen time, it will default to %d minutes.|r", -- (NEW)
 
 	-- Size
 	OPTIONS_TAB_SIZE_TITLE = "Размер",
