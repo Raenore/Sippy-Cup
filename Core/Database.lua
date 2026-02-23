@@ -12,10 +12,14 @@ SIPPYCUP.Profile = {};
 ---@return nil
 local function DeepCopyDefaults(source, target)
 	for k, v in pairs(source) do
+		local tgt = target[k];
 		if type(v) == "table" then
-			target[k] = target[k] or {};
-			DeepCopyDefaults(v, target[k]);
-		elseif target[k] == nil then
+			if not tgt then
+				tgt = {};
+				target[k] = tgt;
+			end
+			DeepCopyDefaults(v, tgt);
+		elseif tgt == nil then
 			target[k] = v;
 		end
 	end
@@ -27,9 +31,13 @@ end
 ---@return nil
 local function DeepMerge(source, target)
 	for k, v in pairs(source) do
+		local tgt = target[k];
 		if type(v) == "table" then
-			target[k] = target[k] or {};
-			DeepMerge(v, target[k]);
+			if not tgt then
+				tgt = {};
+				target[k] = tgt;
+			end
+			DeepMerge(v, tgt);
 		else
 			target[k] = v;
 		end
@@ -41,22 +49,22 @@ end
 ---@param default table? Optional default table to compare against.
 ---@return table minimal The minimal table with only differing values.
 local function GetMinimalTable(current, default)
-	local minimal = {};
+	local minimal;
 	for k, v in pairs(current) do
 		local defVal = default and default[k];
 		if type(v) == "table" and type(defVal) == "table" then
 			local nested = GetMinimalTable(v, defVal);
 			-- Only include nested tables if they have keys (non-empty)
 			if next(nested) then
+				minimal = minimal or {};
 				minimal[k] = nested;
 			end
-		else
-			if v ~= defVal then
-				minimal[k] = v;
-			end
+		elseif v ~= defVal then
+			minimal = minimal or {};
+			minimal[k] = v;
 		end
 	end
-	return minimal;
+	return minimal or {};
 end
 
 ---Default saved variable structure for the SippyCup addon.
@@ -145,6 +153,7 @@ local defaults = SIPPYCUP.Database.defaults;
 ---@return nil
 local function PopulateDefaultOptions()
 	local optionsData = SIPPYCUP.Options.Data;
+	local defaultsProfile = defaults.profiles.Default;
 	for i = 1, #optionsData do
 		local option = optionsData[i];
 		local spellID = option.auraID;
@@ -157,7 +166,7 @@ local function PopulateDefaultOptions()
 
 		if spellID then
 			-- Use auraID as the key, not profileKey
-			defaults.profiles.Default[spellID] = {
+			defaultsProfile[spellID] = {
 				enable = false,
 				desiredStacks = 1,
 				currentInstanceID = nil,
@@ -304,120 +313,106 @@ table.sort(categories, function(a, b)
 	return SIPPYCUP_TEXT.Normalize(locA:lower()) < SIPPYCUP_TEXT.Normalize(locB:lower());
 end);
 
----UpdateSetting updates a value in the saved minimal table and runtime resolved table.
----If the value matches default, it removes the saved override to keep minimal data clean.
----@param scope string Either "profile" or "global"
----@param key string The setting key to update, e.g. "noggenfoggerSelectDown" or "FlashTaskbar"
----@param subKey string? Optional subkey inside that key, e.g. "enable"
----@param value any The new value to set
----@return boolean success True if update was successful, false if scope invalid or profile missing.
-function SIPPYCUP.Database.UpdateSetting(scope, key, subKey, value)
-	local db = SIPPYCUP.db;
-	local defaultTable, targetMinimal, targetRuntime;
+---Gets a value from the current profile, falling back to defaults.
+---@param key string
+---@return any
+function SIPPYCUP.Database.GetSetting(key)
+	local profile = SIPPYCUP.Profile;
+	local defaultsProfile = SIPPYCUP.Database.defaults.profiles.Default;
 
-	if scope == "profile" then
-		local profileName = SIPPYCUP.Database.GetCurrentProfileName();
-		if not profileName then return false; end
+	if not defaultsProfile then return nil; end
+	if not profile then return defaultsProfile[key]; end
 
-		db.profiles = db.profiles or {};
-		db.profiles[profileName] = db.profiles[profileName] or {};
-		targetMinimal = db.profiles[profileName];
-
-		SIPPYCUP.Profile = SIPPYCUP.Profile or {};
-		targetRuntime = SIPPYCUP.Profile;
-
-		defaultTable = defaults.profiles.Default;
-
-	elseif scope == "global" then
-		db.global = db.global or {};
-		targetMinimal = db.global;
-
-		SIPPYCUP.global = SIPPYCUP.global or {};
-		targetRuntime = SIPPYCUP.global;
-
-		defaultTable = defaults.global;
-
-	else
-		return false;
-	end
-
-	local defaultValue = defaultTable and defaultTable[key];
-	if subKey then
-		local defaultSubValue = (type(defaultValue) == "table") and defaultValue[subKey];
-
-		-- Save minimal
-		if defaultSubValue == value then
-			if targetMinimal[key] then
-				targetMinimal[key][subKey] = nil;
-				if next(targetMinimal[key]) == nil then
-					targetMinimal[key] = nil;
-				end
+	local value = profile[key];
+	if value == nil then
+		local def = defaultsProfile[key];
+		if type(def) == "table" then
+			profile[key] = {};
+			for k, v in pairs(def) do
+				profile[key][k] = v;
 			end
+			value = profile[key];
 		else
-			targetMinimal[key] = targetMinimal[key] or {};
-			targetMinimal[key][subKey] = value;
+			value = def;
 		end
-
-		-- Update runtime
-		targetRuntime[key] = targetRuntime[key] or {};
-		targetRuntime[key][subKey] = value;
-
-	else
-		if defaultValue == value then
-			targetMinimal[key] = nil;
-		else
-			targetMinimal[key] = value;
-		end
-
-		targetRuntime[key] = value;
 	end
 
-	return true;
+	return value;
 end
 
----GetSetting retrieves a value from the runtime profile or global table.
----Falls back to default value if no override is present.
----@param scope "profile" | "global" Scope to fetch the setting from
----@param key string The setting key, e.g. "noggenfoggerSelectDown" or "FlashTaskbar"
----@param subKey string? Optional subkey inside the key
----@return any value The resolved value from runtime or default, or nil if not found
-function SIPPYCUP.Database.GetSetting(scope, key, subKey)
-	if scope == "profile" then
-		local profile = SIPPYCUP.Profile or {};
-		if subKey then
-			if profile[key] and profile[key][subKey] ~= nil then
-				return profile[key][subKey];
-			end
-			if defaults.profiles.Default and defaults.profiles.Default[key] then
-				return defaults.profiles.Default[key][subKey];
-			end
-			return nil;
-		else
-			if profile[key] ~= nil then
-				return profile[key];
-			end
-			return defaults.profiles.Default and defaults.profiles.Default[key];
-		end
+---Sets a value in the current profile.
+---@param key string
+---@param value any
+function SIPPYCUP.Database.SetSetting(key, value)
+	local profile = SIPPYCUP.Profile;
+	if not profile then return; end
 
-	elseif scope == "global" then
-		local global = SIPPYCUP.global or {};
-		if subKey then
-			if global[key] and global[key][subKey] ~= nil then
-				return global[key][subKey];
+	local defaultsProfile = SIPPYCUP.Database.defaults.profiles.Default;
+	local def = defaultsProfile and defaultsProfile[key];
+
+	if type(value) == "table" then
+		profile[key] = profile[key] or {};
+		for k, v in pairs(value) do
+			profile[key][k] = v;
+		end
+	elseif value == def then
+		profile[key] = nil;
+	else
+		profile[key] = value;
+	end
+
+	-- Persist to saved variables
+	local profileName = SIPPYCUP.Database.GetCurrentProfileName();
+	if profileName then
+		local defaultProfile = SIPPYCUP.Database.defaults.profiles.Default or {};
+		local minimal = GetMinimalTable(profile, defaultProfile);
+		SIPPYCUP.db.profiles[profileName] = minimal;
+	end
+end
+
+---Gets a value from the global database, falling back to defaults.
+---@param key string
+---@return any
+function SIPPYCUP.Database.GetGlobalSetting(key)
+	local global = SIPPYCUP.global;
+	local def = SIPPYCUP.Database.defaults.global[key];
+
+	if not global[key] then
+		if type(def) == "table" then
+			global[key] = global[key] or {};
+			local t = global[key];
+			for k, v in pairs(def) do
+				t[k] = t[k] or v;
 			end
-			if defaults.global and defaults.global[key] then
-				return defaults.global[key][subKey];
-			end
-			return nil;
 		else
-			if global[key] ~= nil then
-				return global[key];
-			end
-			return defaults.global and defaults.global[key];
+			global[key] = def;
 		end
 	end
 
-	return nil;
+	return global[key];
+end
+
+---Sets a value in the global database.
+---@param key string
+---@param value any
+function SIPPYCUP.Database.SetGlobalSetting(key, value)
+	local global = SIPPYCUP.global;
+	-- local def = SIPPYCUP.Database.defaults.global[key];
+
+	if type(value) == "table" then
+		global[key] = global[key] or {};
+		for k, v in pairs(value) do
+			global[key][k] = v;
+		end
+	else
+		global[key] = value;
+	end
+
+	-- Persist to saved variables
+	if SIPPYCUP.db then
+		SIPPYCUP.db.global = SIPPYCUP.db.global or {};
+		SIPPYCUP.db.global[key] = value;
+	end
 end
 
 ---RefreshUI refreshes the configuration menu by updating widgets and syncing profile values.
@@ -464,22 +459,15 @@ function SIPPYCUP.Database.Setup()
 	-- Fill in missing global keys from defaults (preserves saved overrides)
 	DeepCopyDefaults(defaults.global, db.global);
 
-	-- Create a resolved working copy of global settings for runtime use
-	local workingGlobal = {};
-	DeepCopyDefaults(defaults.global, workingGlobal);
-	DeepMerge(db.global, workingGlobal);  -- saved overrides overwrite defaults
-
-	-- Save runtime global for quick access
-	SIPPYCUP.global = workingGlobal;
+	-- Use the saved table directly for runtime global
+	SIPPYCUP.global = db.global;
 
 	-- Get current character identifier
 	local charKey = SIPPYCUP.Database.GetUnitName() or "Unknown";
-
-	-- Assign profile key for this character
 	local profileName = db.profileKeys[charKey] or "Default";
 	db.profileKeys[charKey] = profileName;
 
-	-- Ensure the named profile exists in saved variables
+	-- Ensure the named profile exists
 	db.profiles[profileName] = db.profiles[profileName] or {};
 
 	-- Start from a clean copy of the default profile
@@ -487,14 +475,13 @@ function SIPPYCUP.Database.Setup()
 	local workingProfile = {};
 	DeepCopyDefaults(defaultProfile, workingProfile);
 
-	-- Merge user's minimal saved data into working profile
+	-- Merge minimal saved data into working profile
 	DeepMerge(db.profiles[profileName], workingProfile);
 
-	-- Compute minimal diffs and save back into saved variables
-	local minimalProfile = GetMinimalTable(workingProfile, defaultProfile);
-	db.profiles[profileName] = minimalProfile;
+	-- Save minimal differences back to saved variables
+	db.profiles[profileName] = GetMinimalTable(workingProfile, defaultProfile);
 
-	-- Set resolved working profile for runtime use
+	-- Set runtime profile
 	SIPPYCUP.Profile = workingProfile;
 
 	SIPPYCUP.States.databaseLoaded = true;
@@ -559,24 +546,36 @@ function SIPPYCUP.Database.SetProfile(profileName)
 		return false, "Database not initialized or invalid profile name";
 	end
 
-	-- Create profile if it doesn't exist
-	if not SIPPYCUP.db.profiles[profileName] then
-		SIPPYCUP.db.profiles[profileName] = {};
+	local db = SIPPYCUP.db;
+	local defaultProfile = defaults.profiles.Default or {};
+
+	-- Persist current runtime profile before switching
+	local currentProfileName = SIPPYCUP.Database.GetCurrentProfileName();
+	if currentProfileName and SIPPYCUP.Profile then
+		local minimal = GetMinimalTable(SIPPYCUP.Profile, defaultProfile);
+		db.profiles[currentProfileName] = minimal;
 	end
 
-	local defaultProfile = defaults.profiles.Default or {};
-	local minimalProfile = SIPPYCUP.db.profiles[profileName];
+	-- Create target profile if it does not exist
+	if not db.profiles[profileName] then
+		db.profiles[profileName] = {};
+	end
 
-	-- Resolve full profile with defaults merged
+	-- Resolve full profile (defaults + minimal overrides)
+	local minimalProfile = db.profiles[profileName];
 	local resolvedProfile = {};
 	DeepCopyDefaults(defaultProfile, resolvedProfile);
 	DeepMerge(minimalProfile, resolvedProfile);
 
 	-- Update keys and runtime profile
-	local key = SIPPYCUP.Database.GetUnitName();
-	SIPPYCUP.db.profileKeys[key] = profileName;
+	local charKey = SIPPYCUP.Database.GetUnitName();
+	db.profileKeys = db.profileKeys or {};
+	db.profileKeys[charKey] = profileName;
 
+	-- Set runtime profile
 	SIPPYCUP.Profile = resolvedProfile;
+
+	-- Refresh UI
 	SIPPYCUP.Database.RefreshUI();
 
 	return true;
@@ -596,16 +595,25 @@ function SIPPYCUP.Database.CreateProfile(profileName)
 		return false, "Profile already exists";
 	end
 
+	local db = SIPPYCUP.db;
+	local defaultProfile = defaults.profiles.Default or {};
+
+	-- Persist current runtime profile before switching
+	local currentProfileName = SIPPYCUP.Database.GetCurrentProfileName();
+	if currentProfileName and SIPPYCUP.Profile then
+		local minimal = GetMinimalTable(SIPPYCUP.Profile, defaultProfile);
+		db.profiles[currentProfileName] = minimal;
+	end
+
 	-- Create an empty minimal profile (no overrides)
-	SIPPYCUP.db.profiles[profileName] = {};
+	db.profiles[profileName] = {};
 
 	-- Assign new profile to current character
 	local key = SIPPYCUP.Database.GetUnitName();
-	SIPPYCUP.db.profileKeys = SIPPYCUP.db.profileKeys or {};
-	SIPPYCUP.db.profileKeys[key] = profileName;
+	db.profileKeys = db.profileKeys or {};
+	db.profileKeys[key] = profileName;
 
-	-- Set runtime profile as default profile since minimal is empty
-	local defaultProfile = defaults.profiles.Default or {};
+	-- Set runtime profile to defaults (since minimal is empty)
 	SIPPYCUP.Profile = {};
 	DeepCopyDefaults(defaultProfile, SIPPYCUP.Profile);
 
