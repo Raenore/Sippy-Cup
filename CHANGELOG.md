@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.7.0] - 2026-02-xx  
+## [0.7.0] - 2026-02-23  
 Major patch as we move further into the Midnight pre-patch, with improved Prism (Projecting & Reflecting) support and additional secret-related fixes.  
 
 ### Added
