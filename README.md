@@ -10,24 +10,14 @@ Once enabled, Sippy Cup will display a reminder popup when:
 - Your current stack count falls below your desired amount.  
 - You lack the necessary item(s) for your next refresh.
 
-<table>
-  <tr>
-    <td><img src="https://i.imgur.com/SrsHalZ.png" alt="Popup Example - Classic"></td>
-    <td><img src="https://i.imgur.com/Oouko1z.png" alt="Popup Example - ElvUI"></td>
-  </tr>
-</table>
+![Popups](Previews/Popups/Popups.png)
 
 **Note:** On login, a popup will appear for tracked consumables/toys with active stacks. If the **Only when "In Character"** option is enabled, it will also remind you about inactive stacks.
 
 If multiple consumables/toys expire simultaneously, Sippy Cup will display multiple popups.  
 Once you have 5 popups active, additional ones will be queued and shown as you dismiss or resolve existing ones.
 
-<table>
-  <tr>
-    <td><img src="https://i.imgur.com/W0oAOpo.png" alt="Multi popup - Classic"></td>
-    <td><img src="https://i.imgur.com/dXrcD6e.png" alt="Multi popup - ElvUI"></td>
-  </tr>
-</table>
+![Multi-Popups](Previews/Multi-Popups/Multi-Popups.png)
 
 If an item cannot be refreshed because it’s either missing from your inventory or you don’t have enough units or stacks to reach your desired amount, the refresh button will display a warning-colored tooltip.
 
@@ -72,21 +62,11 @@ Sippy Cup also offers special integration:
 
 At the bottom of this page, you’ll find information about your current version of Sippy Cup.
 
-<table>
-  <tr>
-    <td><img src="https://i.imgur.com/YNGnyoz.png" alt="General - Classic"></td>
-    <td><img src="https://i.imgur.com/YoMo30L.png" alt="General - ElvUI"></td>
-  </tr>
-</table>
+![Main - General](Previews/Main/MainGeneral.png)
 
 ## 📦 Reminder Categories
 
-<table>
-  <tr>
-    <td><img src="https://i.imgur.com/kGBvsBE.png" alt="Categories - Classic"></td>
-    <td><img src="https://i.imgur.com/o9qzm1v.png" alt="Categories - ElvUI"></td>
-  </tr>
-</table>
+![Categories](Previews/Categories/Categories.png)
 
 Sippy Cup supports a variety of consumable categories:
 - **Appearance:** Alters your character’s visual appearance.  
@@ -100,9 +80,4 @@ Sippy Cup supports a variety of consumable categories:
 
 Below you can find a screenshot of the **Size** category for reference.
 
-<table>
-  <tr>
-    <td><img src="https://i.imgur.com/fmrgpMy.png" alt="Size Category - Classic"></td>
-    <td><img src="https://i.imgur.com/PTGM0TL.png" alt="Size Category - ElvUI"></td>
-  </tr>
-</table>
+![Main - Size](Previews/Main/MainSize.png)
