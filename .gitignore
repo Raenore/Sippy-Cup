@@ -14,6 +14,9 @@ release/
 dist/
 pkg/
 
+# Ignore Assets (WIPs, PSDs)
+Assets/**
+
 # Ignore everything under Libs/
 Libs/**
 
