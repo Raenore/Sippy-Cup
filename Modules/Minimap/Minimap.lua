@@ -32,7 +32,8 @@ function SIPPYCUP.Minimap:SetupMinimapButtons()
 		OnTooltipShow = OnTooltipShow,
 	});
 
-	LibDBIcon:Register(SIPPYCUP.AddonMetadata.title, ldb, SIPPYCUP.global.MinimapButton);
+	local minimapSettings = SIPPYCUP.Database.GetGlobalSetting("MinimapButton");
+	LibDBIcon:Register(SIPPYCUP.AddonMetadata.title, ldb, minimapSettings);
 	LibDBCompartment:Register(SIPPYCUP.AddonMetadata.title, ldb);
 
 	self:UpdateMinimapButtons();
@@ -41,9 +42,9 @@ end
 ---UpdateMinimapButtons toggles visibility of minimap-related buttons based on addon settings.
 ---@return nil
 function SIPPYCUP.Minimap:UpdateMinimapButtons()
-	local btn = SIPPYCUP.global.MinimapButton;
-	if btn and not btn.Hide then
-		LibDBCompartment:SetShown(SIPPYCUP.AddonMetadata.title, SIPPYCUP.global.MinimapButton.ShowAddonCompartmentButton);
+	local minimapSettings = SIPPYCUP.Database.GetGlobalSetting("MinimapButton");
+	if minimapSettings and not minimapSettings.Hide then
+		LibDBCompartment:SetShown(SIPPYCUP.AddonMetadata.title, minimapSettings.ShowAddonCompartmentButton);
 		LibDBIcon:Refresh(SIPPYCUP.AddonMetadata.title);
 	else
 		LibDBCompartment:Hide(SIPPYCUP.AddonMetadata.title);
