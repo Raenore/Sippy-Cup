@@ -12,10 +12,14 @@ SIPPYCUP.Profile = {};
 ---@return nil
 local function DeepCopyDefaults(source, target)
 	for k, v in pairs(source) do
+		local tgt = target[k];
 		if type(v) == "table" then
-			target[k] = target[k] or {};
-			DeepCopyDefaults(v, target[k]);
-		elseif target[k] == nil then
+			if not tgt then
+				tgt = {};
+				target[k] = tgt;
+			end
+			DeepCopyDefaults(v, tgt);
+		elseif tgt == nil then
 			target[k] = v;
 		end
 	end
@@ -27,9 +31,13 @@ end
 ---@return nil
 local function DeepMerge(source, target)
 	for k, v in pairs(source) do
+		local tgt = target[k];
 		if type(v) == "table" then
-			target[k] = target[k] or {};
-			DeepMerge(v, target[k]);
+			if not tgt then
+				tgt = {};
+				target[k] = tgt;
+			end
+			DeepMerge(v, tgt);
 		else
 			target[k] = v;
 		end
@@ -41,22 +49,22 @@ end
 ---@param default table? Optional default table to compare against.
 ---@return table minimal The minimal table with only differing values.
 local function GetMinimalTable(current, default)
-	local minimal = {};
+	local minimal;
 	for k, v in pairs(current) do
 		local defVal = default and default[k];
 		if type(v) == "table" and type(defVal) == "table" then
 			local nested = GetMinimalTable(v, defVal);
 			-- Only include nested tables if they have keys (non-empty)
 			if next(nested) then
+				minimal = minimal or {};
 				minimal[k] = nested;
 			end
-		else
-			if v ~= defVal then
-				minimal[k] = v;
-			end
+		elseif v ~= defVal then
+			minimal = minimal or {};
+			minimal[k] = v;
 		end
 	end
-	return minimal;
+	return minimal or {};
 end
 
 ---Default saved variable structure for the SippyCup addon.
@@ -145,6 +153,7 @@ local defaults = SIPPYCUP.Database.defaults;
 ---@return nil
 local function PopulateDefaultOptions()
 	local optionsData = SIPPYCUP.Options.Data;
+	local defaultsProfile = defaults.profiles.Default;
 	for i = 1, #optionsData do
 		local option = optionsData[i];
 		local spellID = option.auraID;
@@ -157,7 +166,7 @@ local function PopulateDefaultOptions()
 
 		if spellID then
 			-- Use auraID as the key, not profileKey
-			defaults.profiles.Default[spellID] = {
+			defaultsProfile[spellID] = {
 				enable = false,
 				desiredStacks = 1,
 				currentInstanceID = nil,
@@ -318,11 +327,11 @@ function SIPPYCUP.Database.GetSetting(key)
 	if value == nil then
 		local def = defaultsProfile[key];
 		if type(def) == "table" then
-			value = {};
+			profile[key] = {};
 			for k, v in pairs(def) do
-				value[k] = v;
+				profile[key][k] = v;
 			end
-			profile[key] = value;
+			value = profile[key];
 		else
 			value = def;
 		end
@@ -366,23 +375,21 @@ end
 ---@return any
 function SIPPYCUP.Database.GetGlobalSetting(key)
 	local global = SIPPYCUP.global;
+	local def = SIPPYCUP.Database.defaults.global[key];
 
-	local value = global[key];
-	if value == nil then
-		local def = SIPPYCUP.Database.defaults.global[key];
+	if not global[key] then
 		if type(def) == "table" then
-			value = {};
+			global[key] = global[key] or {};
+			local t = global[key];
 			for k, v in pairs(def) do
-				value[k] = v;
+				t[k] = t[k] or v;
 			end
-			global[key] = value;
 		else
-			value = def;
-			global[key] = value;
+			global[key] = def;
 		end
 	end
 
-	return value;
+	return global[key];
 end
 
 ---Sets a value in the global database.
