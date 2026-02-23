@@ -17,9 +17,11 @@ Major patch as we move further into the Midnight pre-patch, with improved Prism 
 - Updated Spanish translation thanks to [Romanv](https://bsky.app/profile/romanv88.bsky.social) ([#85](https://github.com/Raenore/Sippy-Cup/pull/85)).  
 - Sippy Cup will now fully bail out in Battlegrounds. Supporting auras/buffs there is too complex (due to Midnight's secrets) and has no real RP value ([#83](https://github.com/Raenore/Sippy-Cup/pull/83)).  
 - The system that tracks dirty bag states (for proper item counts) and buff events has been rewritten to be more efficient. No user-facing changes. ([#86](https://github.com/Raenore/Sippy-Cup/pull/86))  
+- Updated Russian translation thanks to [Hubbotu](https://github.com/Hubbotu).  
 
 ### Fixed  
 - Fixed additional spellID secrets ([#84](https://github.com/Raenore/Sippy-Cup/pull/84)).  
+- Fixed a rare issue where certain settings would not save globally or per profile ([#89](https://github.com/Raenore/Sippy-Cup/pull/89)).  
 
 ## [0.6.1] - 2026-02-11  
 Second pre-patch for Midnight, fixing some UI issues and introducing a Spanish translation!  
@@ -54,3 +56,8 @@ Given that Sippy Cup never officially supported combat situations, these restric
 
 ## Full Changelog  
 The complete changelog, including older versions, can always be found on [Sippy Cup's GitHub Wiki](https://github.com/Raenore/Sippy-Cup/wiki/Full-Changelog).  
+
+[unreleased]: https://github.com/Raenore/Sippy-Cup/compare/0.7.0...HEAD
+[0.7.0]: https://github.com/Raenore/Sippy-Cup/compare/0.6.1...0.7.0
+[0.6.1]: https://github.com/Raenore/Sippy-Cup/compare/0.6.0...0.6.1
+[0.6.0]: https://github.com/Raenore/Sippy-Cup/compare/0.5.3...0.6.0
