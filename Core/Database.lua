@@ -377,7 +377,7 @@ function SIPPYCUP.Database.GetGlobalSetting(key)
 	local global = SIPPYCUP.global;
 	local def = SIPPYCUP.Database.defaults.global[key];
 
-	if not global[key] then
+	if global[key] == nil then
 		if type(def) == "table" then
 			global[key] = global[key] or {};
 			local t = global[key];

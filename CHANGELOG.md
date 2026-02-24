@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.1] - 2026-02-24  
+Minor patch to fix checking and unchecking global settings.  
+
+### Fixed  
+- Fixed global settings not checking or unchecking due to previous DB updates ([#90](https://github.com/Raenore/Sippy-Cup/pull/90)).  
+
 ## [0.7.0] - 2026-02-23  
 Major patch as we move further into the Midnight pre-patch, with improved Prism (Projecting & Reflecting) support and additional secret-related fixes.  
 
@@ -57,7 +63,8 @@ Given that Sippy Cup never officially supported combat situations, these restric
 ## Full Changelog  
 The complete changelog, including older versions, can always be found on [Sippy Cup's GitHub Wiki](https://github.com/Raenore/Sippy-Cup/wiki/Full-Changelog).  
 
-[unreleased]: https://github.com/Raenore/Sippy-Cup/compare/0.7.0...HEAD
+[unreleased]: https://github.com/Raenore/Sippy-Cup/compare/0.7.1...HEAD
+[0.7.1]: https://github.com/Raenore/Sippy-Cup/compare/0.7.0...0.7.1
 [0.7.0]: https://github.com/Raenore/Sippy-Cup/compare/0.6.1...0.7.0
 [0.6.1]: https://github.com/Raenore/Sippy-Cup/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/Raenore/Sippy-Cup/compare/0.5.3...0.6.0
