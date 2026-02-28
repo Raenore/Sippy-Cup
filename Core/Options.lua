@@ -214,6 +214,34 @@ SIPPYCUP.Options.Data = {
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1281702, itemID = 268115, category = "HANDHELD", preExpiration = true, buildAdded = "0.6.1|120000" }, -- Overbaked Donut
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1280627, itemID = 267486, category = "HANDHELD", preExpiration = true, buildAdded = "0.6.1|120000" }, -- Simple Cup
 
+	--- Arcantina
+	---- Bartender Bob
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1280595, itemID = 267379, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Tavern Mug
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1280950, itemID = 267615, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Imperial Mug
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1280849, itemID = 267617, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Sophisticated Goblet
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1281328, itemID = 267618, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Rusty Receptacle
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1281452, itemID = 267619, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Sipping Glass
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1280851, itemID = 267624, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Bamboo Tray
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1280855, itemID = 267626, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Stale Tavern Bread
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1280849, itemID = 267627, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Decorative Tavern Cheese
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1280850, itemID = 268025, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Heavy Stein
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1281013, itemID = 268053, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Rugged Cup
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1281667, itemID = 268110, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Cheese Tray
+
+	---- Ari
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1280930, itemID = 267652, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Silver Hand Squire's Libram
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1280929, itemID = 267650, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Blood Knight Training Manual
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1280865, itemID = 267628, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Historian's Tome
+
+	---- Janky
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1280853, itemID = 267625, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Lit Candle
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1281709, itemID = 268116, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Twin-Flame Holder
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1281488, itemID = 267623, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Simple Torch
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1281518, itemID = 268085, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Hand Torch
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1281490, itemID = 268068, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Sturdy Torch
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1281673, itemID = 268111, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Arkonite Beacon
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1281674, itemID = 268112, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Argunite Beacon
+
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 987654321, itemID = 987654321, category = "EFFECT", preExpiration = true }, -- Does not exist, test
 };
 
