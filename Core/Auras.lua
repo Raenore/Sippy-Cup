@@ -25,25 +25,31 @@ function SIPPYCUP.Auras.DebugEnabledAuras()
 	end
 end
 
----SkipDuplicatePrismUnitAura determines if a prism-type aura update should be ignored
+---SkipDuplicatePrismUnitAura determines if a prism-type aura update should be ignored.
+---Duplicates are ignored only if they fire within a very short timeframe.
 ---@param profileOptionData SIPPYCUPProfileOption The option profile data.
----@return boolean skip True if this aura update should be skipped due to duplicate UNIT_AURA events.
-local function SkipDuplicatePrismUnitAura(profileOptionData)
-	local skip = false;
-
-	-- Prism duplicate handling
-	if profileOptionData.isPrism then
-		if profileOptionData.instantUpdate then
-			-- Second UNIT_AURA in pair: skip
-			skip = true;
-			profileOptionData.instantUpdate = false; -- reset for next usage
-		else
-			-- First UNIT_AURA: allow and mark
-			profileOptionData.instantUpdate = true;
-		end
+---@param auraInstanceID number The aura instance ID being processed.
+---@return boolean skip True if this aura update should be skipped as a duplicate.
+local function SkipDuplicatePrismUnitAura(profileOptionData, auraInstanceID)
+	if not profileOptionData or not profileOptionData.isPrism then
+		return false;
 	end
 
-	return skip;
+	local now = GetTime();
+	local lastInstance = profileOptionData.lastPrismInstanceID;
+	local lastTime = profileOptionData.lastPrismTime;
+
+	-- Skip UNIT_AURA changes within 1s window for prisms, they are most likely duplicates
+	if lastInstance == auraInstanceID and lastTime and (now - lastTime) < 1 then
+		SIPPYCUP_OUTPUT.Debug("SkipDuplicatePrismUnitAura - Duplicate - Skip", auraInstanceID);
+		return true;
+	end
+
+	-- Keep current instance and time for next duplicate check
+	profileOptionData.lastPrismInstanceID = auraInstanceID;
+	profileOptionData.lastPrismTime = now;
+
+	return false;
 end
 
 ---QueueAuraAction enqueues a popup action for aura changes.
@@ -104,7 +110,7 @@ local function ParseAura(updateInfo)
 		for _, auraInfo in ipairs(updateInfo.addedAuras) do
 			local profileOptionData = SIPPYCUP.Database.FindMatchingProfile(auraInfo.spellId);
 			if profileOptionData and profileOptionData.enable then
-				local skip = SkipDuplicatePrismUnitAura(profileOptionData);
+				local skip = SkipDuplicatePrismUnitAura(profileOptionData, auraInfo.auraInstanceID);
 
 				if not skip then
 					profileOptionData.currentInstanceID = auraInfo.auraInstanceID;
@@ -126,7 +132,7 @@ local function ParseAura(updateInfo)
 			if profileOptionData and profileOptionData.enable then
 				local auraInfo = GetAuraDataByAuraInstanceID("player", auraInstanceID);
 				if auraInfo then
-					local skip = SkipDuplicatePrismUnitAura(profileOptionData);
+					local skip = SkipDuplicatePrismUnitAura(profileOptionData, auraInstanceID);
 
 					if not skip then
 						profileOptionData.currentInstanceID = auraInfo.auraInstanceID;
