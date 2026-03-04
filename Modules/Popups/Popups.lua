@@ -843,11 +843,8 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	for _, id in ipairs(itemIDs) do
 		local count = isToy and (PlayerHasToy(id) and 1 or 0) or C_Item.GetItemCount(id);
 		if count > 0 then
-			local startTime, duration = C_Container.GetItemCooldown(id);
-			if not startTime or startTime + duration <= now then
-				usableItemID = usableItemID or id; -- pick the first usable
-				itemCount = itemCount + count; -- sum counts across all items
-			end
+			usableItemID = usableItemID or id; -- pick the first usable
+			itemCount = itemCount + count; -- sum counts across all items
 		else
 			depleted[id] = true;
 		end
