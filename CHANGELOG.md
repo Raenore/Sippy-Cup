@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.  
 
+## [0.7.3] - 2026-03-05  
+Minor patch adding select Ruby Feast (Dragonflight) consumables and resolving user-submitted bugs.  
+
+### Added
+- Added 3 new effect consumables from Dragonflight's Ruby Feast, with more to be added as testing continues ([#95](https://github.com/Raenore/Sippy-Cup/pull/95)).  
+
+### Fixed  
+- Fixed an issue where "insufficient reminders" would pop up randomly despite having sufficient consumables ([#93](https://github.com/Raenore/Sippy-Cup/pull/93)).  
+- Fixed a rare occurrence where rapidly adding and removing prisms could cause the refresh popup to remain stuck ([#92](https://github.com/Raenore/Sippy-Cup/pull/92)).  
+
 ## [0.7.2] - 2026-02-28  
 Minor patch that adds newly-added handheld items from Midnight.  
 
@@ -69,7 +79,8 @@ Given that Sippy Cup never officially supported combat situations, these restric
 ## Full Changelog  
 The complete changelog, including older versions, can always be found on [Sippy Cup's GitHub Wiki](https://github.com/Raenore/Sippy-Cup/wiki/Full-Changelog).  
 
-[unreleased]: https://github.com/Raenore/Sippy-Cup/compare/0.7.2...HEAD
+[unreleased]: https://github.com/Raenore/Sippy-Cup/compare/0.7.3...HEAD
+[0.7.2]: https://github.com/Raenore/Sippy-Cup/compare/0.7.2...0.7.3
 [0.7.2]: https://github.com/Raenore/Sippy-Cup/compare/0.7.1...0.7.2
 [0.7.1]: https://github.com/Raenore/Sippy-Cup/compare/0.7.0...0.7.1
 [0.7.0]: https://github.com/Raenore/Sippy-Cup/compare/0.6.1...0.7.0
