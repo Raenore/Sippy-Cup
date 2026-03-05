@@ -3,7 +3,10 @@
 All notable changes to this project will be documented in this file.  
 
 ## [0.7.3] - 2026-03-05  
-Minor patch resolving user-submitted bugs.  
+Minor patch adding select Ruby Feast (Dragonflight) consumables and resolving user-submitted bugs.  
+
+### Added
+- Added 3 new effect consumables from Dragonflight's Ruby Feast, with more to be added as testing continues ([#95](https://github.com/Raenore/Sippy-Cup/pull/95)).  
 
 ### Fixed  
 - Fixed an issue where "insufficient reminders" would pop up randomly despite having sufficient consumables ([#93](https://github.com/Raenore/Sippy-Cup/pull/93)).  
