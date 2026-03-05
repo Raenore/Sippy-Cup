@@ -208,6 +208,12 @@ SIPPYCUP.Options.Data = {
 
 	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 47770, itemID = 36863, category = "EFFECT", itemTrackable = true }, -- Decahedral Dwarven Dice
 
+	-- Dragonflight
+	--- Ruby Feast
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 391618, itemID = 200891, category = "EFFECT", preExpiration = true, buildAdded = "0.7.3|120001" }, -- Druidic Dreamsalad
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 391594, itemID = 200886, category = "EFFECT", preExpiration = true, buildAdded = "0.7.3|120001" }, -- Lemon Silverleaf Tea
+	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 392123, itemID = 200889, category = "EFFECT", preExpiration = true, buildAdded = "0.7.3|120001" }, -- Highly Spiced Haunch
+
 	-- Midnight
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1250761, itemID = 250325, category = "EFFECT", preExpiration = true, buildAdded = "0.6.0|120000" }, -- Night's Embrace
 
