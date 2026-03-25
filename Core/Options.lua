@@ -45,10 +45,10 @@ local function NewOption(params)
 	end
 
 	return {
-		type  = params.type or SIPPYCUP.Options.Type.CONSUMABLE,
+		type = params.type or SIPPYCUP.Options.Type.CONSUMABLE,
 		auraID = params.auraID,
 		castAuraID = params.castAuraID or params.auraID,
-		itemID = itemIDs; -- always store as a table internally
+		itemID = itemIDs, -- always store as a table internally
 		loc = params.loc,
 		category = params.category,
 		profile = params.profile,
