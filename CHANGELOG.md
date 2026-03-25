@@ -7,7 +7,7 @@ Minor patch adding select Midnight consumables.
 
 ### Added
 - Added [Pango Plating](https://www.wowhead.com/item=268717) (Appearance) ([#96](https://github.com/Raenore/Sippy-Cup/pull/96)).  
-- Added [Hexed Potatoad](https://www.wowhead.com/item=252265) Mucus (Appearance) and [Researcher's Shadowgraft](https://www.wowhead.com/item=250319) (Effect) ([#97](https://github.com/Raenore/Sippy-Cup/pull/97)).  
+- Added [Hexed Potatoad Mucus](https://www.wowhead.com/item=252265) (Appearance) and [Researcher's Shadowgraft](https://www.wowhead.com/item=250319) (Effect) ([#97](https://github.com/Raenore/Sippy-Cup/pull/97)).  
 
 ## [0.7.3] - 2026-03-05  
 Minor patch adding select Ruby Feast (Dragonflight) consumables and resolving user-submitted bugs.  
