@@ -249,6 +249,9 @@ SIPPYCUP.Options.Data = {
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1281674, itemID = 268112, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Argunite Beacon
 
 	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 987654321, itemID = 987654321, category = "EFFECT", preExpiration = true }, -- Does not exist, test
+
+	--- Treasures of Zul'aman Achievement
+	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 1283490, itemID = 268717, category = "APPEARANCE", preExpiration = true, buildAdded = "0.7.4|120001" }, -- Pango Plating
 };
 
 local function NormalizeLocName(name)
