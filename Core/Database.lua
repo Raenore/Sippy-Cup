@@ -159,7 +159,7 @@ local function PopulateDefaultOptions()
 		local spellID = option.auraID;
 		local castSpellID = option.castAuraID;
 		local untrackableByAura = option.itemTrackable or option.spellTrackable;
-		local type = option.type;
+		local optionType = option.type;
 		local isPrism = (option.category == "PRISM") or false;
 		local instantUpdate = not isPrism;
 		local usesCharges = option.charges;
@@ -174,7 +174,7 @@ local function PopulateDefaultOptions()
 				aura = spellID,
 				castAura = castSpellID,
 				untrackableByAura = untrackableByAura,
-				type = type,
+				type = optionType,
 				isPrism = isPrism,
 				instantUpdate = instantUpdate,
 				usesCharges = usesCharges,
@@ -379,7 +379,7 @@ function SIPPYCUP.Database.GetGlobalSetting(key)
 
 	if global[key] == nil then
 		if type(def) == "table" then
-			global[key] = global[key] or {};
+			global[key] = {};
 			local t = global[key];
 			for k, v in pairs(def) do
 				t[k] = t[k] or v;
@@ -397,7 +397,6 @@ end
 ---@param value any
 function SIPPYCUP.Database.SetGlobalSetting(key, value)
 	local global = SIPPYCUP.global;
-	-- local def = SIPPYCUP.Database.defaults.global[key];
 
 	if type(value) == "table" then
 		global[key] = global[key] or {};
@@ -679,9 +678,6 @@ function SIPPYCUP.Database.CopyProfile(sourceProfileName)
 	DeepCopyDefaults(defaultProfile, sourceFull);
 	DeepMerge(SIPPYCUP.db.profiles[sourceProfileName], sourceFull);
 
-	-- Clear current profile minimal data table
-	SIPPYCUP.db.profiles[currentProfileName] = {};
-
 	-- Save only minimal differences from defaults into current profile
 	local minimalCopy = GetMinimalTable(sourceFull, defaultProfile);
 	SIPPYCUP.db.profiles[currentProfileName] = minimalCopy;
@@ -714,20 +710,18 @@ function SIPPYCUP.Database.DeleteProfile(profileName)
 	-- Delete the profile minimal data
 	SIPPYCUP.db.profiles[profileName] = nil;
 
-	-- Remove any profileKeys that point to this profile
-	if SIPPYCUP.db.profileKeys then
-		for charKey, profName in pairs(SIPPYCUP.db.profileKeys) do
-			if profName == profileName then
-				SIPPYCUP.db.profileKeys[charKey] = "Default";
-			end
-		end
-	else
-		SIPPYCUP.db.profileKeys = {};
-	end
-
 	-- Check current profile via profileKeys mapping for current character
 	local charKey = SIPPYCUP.Database.GetUnitName();
 	local currentProfile = SIPPYCUP.db.profileKeys[charKey] or "Default";
+
+	-- Remove any profileKeys that point to this profile
+	if SIPPYCUP.db.profileKeys then
+		for key, profName in pairs(SIPPYCUP.db.profileKeys) do
+			if profName == profileName then
+				SIPPYCUP.db.profileKeys[key] = "Default";
+			end
+		end
+	end
 
 	if profileName == currentProfile then
 		-- Switch character's profile to Default
