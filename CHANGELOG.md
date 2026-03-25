@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.  
 
+## [0.7.4] - 2026-03-25  
+Minor patch adding select Midnight consumables.  
+
+### Added
+- Added [Pango Plating](https://www.wowhead.com/item=268717) (Appearance) ([#96](https://github.com/Raenore/Sippy-Cup/pull/96)).  
+- Added [Hexed Potatoad](https://www.wowhead.com/item=252265) Mucus (Appearance) and [Researcher's Shadowgraft](https://www.wowhead.com/item=250319) (Effect) ([#97](https://github.com/Raenore/Sippy-Cup/pull/97)).  
+
 ## [0.7.3] - 2026-03-05  
 Minor patch adding select Ruby Feast (Dragonflight) consumables and resolving user-submitted bugs.  
 
@@ -79,7 +86,8 @@ Given that Sippy Cup never officially supported combat situations, these restric
 ## Full Changelog  
 The complete changelog, including older versions, can always be found on [Sippy Cup's GitHub Wiki](https://github.com/Raenore/Sippy-Cup/wiki/Full-Changelog).  
 
-[unreleased]: https://github.com/Raenore/Sippy-Cup/compare/0.7.3...HEAD
+[unreleased]: https://github.com/Raenore/Sippy-Cup/compare/0.7.4...HEAD
+[0.7.4]: https://github.com/Raenore/Sippy-Cup/compare/0.7.3...0.7.4
 [0.7.3]: https://github.com/Raenore/Sippy-Cup/compare/0.7.2...0.7.3
 [0.7.2]: https://github.com/Raenore/Sippy-Cup/compare/0.7.1...0.7.2
 [0.7.1]: https://github.com/Raenore/Sippy-Cup/compare/0.7.0...0.7.1

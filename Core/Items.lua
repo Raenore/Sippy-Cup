@@ -176,8 +176,7 @@ function SIPPYCUP.Items.CheckNoAuraSingleOption(profileOptionData, spellID, minS
 	-- Unfortunately duration can be 5 seconds (GCD), so we pull from the spell's base cooldown associated with the item.
 	local duration;
 
-	local trackBySpell = false;
-	local trackByItem = false;
+	local trackBySpell, trackByItem = SIPPYCUP.Options.ResolveTrackingMethod(optionData);
 
 	-- Determine tracking method
 	if optionData.type == SIPPYCUP.Options.Type.CONSUMABLE then

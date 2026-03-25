@@ -15,7 +15,7 @@ SIPPYCUP.Options.Type = {
 };
 
 ---@class SIPPYCUPOption: table
----@field type string Whether this option is a consumable (0) or toy (1).
+---@field type number Whether this option is a consumable (0) or toy (1).
 ---@field auraID number The option's aura ID.
 ---@field castAuraID number The option's cast aura ID, if none is set then use auraID.
 ---@field itemID number|table The option's item ID(s)
@@ -45,10 +45,10 @@ local function NewOption(params)
 	end
 
 	return {
-		type  = params.type or SIPPYCUP.Options.Type.CONSUMABLE,
+		type = params.type or SIPPYCUP.Options.Type.CONSUMABLE,
 		auraID = params.auraID,
 		castAuraID = params.castAuraID or params.auraID,
-		itemID = itemIDs; -- always store as a table internally
+		itemID = itemIDs, -- always store as a table internally
 		loc = params.loc,
 		category = params.category,
 		profile = params.profile,
@@ -61,7 +61,7 @@ local function NewOption(params)
 		spellTrackable = params.spellTrackable or false,
 		delayedAura = params.delayedAura or false,
 		cooldownMismatch = params.cooldownMismatch or false,
-		buildAdded = params.buildAdded or nil,
+		buildAdded = params.buildAdded,
 		requiresGroup = params.requiresGroup or false,
 		charges = params.charges or false,
 	};
@@ -260,6 +260,28 @@ SIPPYCUP.Options.Data = {
 	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 1254376, itemID = 252265, category = "APPEARANCE", cooldownMismatch = true, buildAdded = "0.7.4|120001" }, -- Hexed Potatoad Mucus
 };
 
+---ResolveTrackingMethod returns whether to track a given option by spell or item cooldown.
+---@param optionData SIPPYCUPOption
+---@return boolean trackBySpell
+---@return boolean trackByItem
+function SIPPYCUP.Options.ResolveTrackingMethod(optionData)
+	if optionData.type == SIPPYCUP.Options.Type.CONSUMABLE then
+		return optionData.spellTrackable, optionData.itemTrackable;
+	elseif optionData.type == SIPPYCUP.Options.Type.TOY then
+		if optionData.itemTrackable then
+			return false, true;
+		end
+		if optionData.spellTrackable then
+			if SIPPYCUP.global.UseToyCooldown then
+				return false, true;
+			else
+				return true, false;
+			end
+		end
+	end
+	return false, false;
+end
+
 local function NormalizeLocName(name)
 	return name:upper():gsub("[^%w]+", "_");
 end
@@ -370,8 +392,7 @@ function SIPPYCUP.Options.RefreshStackSizes(checkAll, reset, preExpireOnly)
 
 	-- Helper to check cooldown startTime for item or spell trackable
 	local function GetCooldownStartTime(option)
-		local trackBySpell = option.spellTrackable or false;
-		local trackByItem = option.itemTrackable or false;
+		local trackBySpell, trackByItem = SIPPYCUP.Options.ResolveTrackingMethod(option);
 
 		if trackByItem then
 			for _, id in ipairs(option.itemID) do
