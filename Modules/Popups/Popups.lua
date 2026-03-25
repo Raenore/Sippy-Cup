@@ -90,8 +90,6 @@ local deferredActions = SIPPYCUP.Popups.deferredActions;
 ---@param loc string The loc key identifier to remove.
 ---@return nil
 local function RemoveDeferredActionsByLoc(loc)
-	if not deferredActions then return; end
-
 	for i = #deferredActions, 1, -1 do
 		if deferredActions[i].loc == loc then
 			tremove(deferredActions, i);
@@ -661,8 +659,7 @@ function SIPPYCUP.Popups.Toggle(itemName, auraID, enabled)
 	local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(optionData.auraID);
 	local active = false;
 	local startTime = 0;
-	local trackBySpell = false;
-	local trackByItem = false;
+	local trackBySpell, trackByItem = SIPPYCUP.Options.ResolveTrackingMethod(optionData);
 
 	if optionData.type == SIPPYCUP.Options.Type.CONSUMABLE then
 		trackBySpell = optionData.spellTrackable;
@@ -989,7 +986,7 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 
 	local auraInstanceID = auraInfo and auraInfo.auraInstanceID;
 	-- First, let's grab the latest currentInstanceID (or have it be nil if none which is fine).
-	profileOptionData.currentInstanceID = (auraInfo and auraInfo.auraInstanceID) or auraInstanceID;
+	profileOptionData.currentInstanceID = auraInstanceID;
 
 	if isConsumable then
 		profileOptionData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, reason, active);
