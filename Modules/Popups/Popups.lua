@@ -213,7 +213,7 @@ local function CreatePopup(templateType)
 						self:Enable();
 					elseif not UnitInParty("player") or GetNumSubgroupMembers() == 0 then
 						popupData.isNotinGroupButRequired = true;
-						self:Disable()
+						self:Disable();
 					end
 				end
 
@@ -234,10 +234,10 @@ local function CreatePopup(templateType)
 						local itemCount = 0;
 						if type(optionData.itemID) == "table" then
 							for _, id in ipairs(optionData.itemID) do
-								itemCount = itemCount + C_Item.GetItemCount(id)
+								itemCount = itemCount + C_Item.GetItemCount(id);
 							end
 						else
-							itemCount = C_Item.GetItemCount(optionData.itemID)
+							itemCount = C_Item.GetItemCount(optionData.itemID);
 						end
 						local maxCount = itemCount + profileOptionData.currentStacks;
 
@@ -267,7 +267,7 @@ local function CreatePopup(templateType)
 
 				local optionData = popupData.optionData;
 				if optionData.requiresGroup and popupData.isNotinGroupButRequired and UnitInParty("player") and GetNumSubgroupMembers() > 0 then
-					self:Enable()
+					self:Enable();
 				end
 				GameTooltip:Hide();
 			end);
@@ -424,7 +424,7 @@ local function UpdatePopupVisuals(popup, data)
 	local item = Item:CreateFromItemID(itemID);
 
 	item:ContinueOnItemLoad(function()
-		local icon = item:GetItemIcon()
+		local icon = item:GetItemIcon();
 		-- If for some reason itemName or itemLink is still not valid by now, pull it again.
 		if not itemName or not itemLink then
 			itemName = item:GetItemName();
@@ -661,24 +661,6 @@ function SIPPYCUP.Popups.Toggle(itemName, auraID, enabled)
 	local startTime = 0;
 	local trackBySpell, trackByItem = SIPPYCUP.Options.ResolveTrackingMethod(optionData);
 
-	if optionData.type == SIPPYCUP.Options.Type.CONSUMABLE then
-		trackBySpell = optionData.spellTrackable;
-		trackByItem = optionData.itemTrackable;
-	elseif optionData.type == SIPPYCUP.Options.Type.TOY then
-		-- Always track by item if itemTrackable
-		if optionData.itemTrackable then
-			trackByItem = true;
-		end
-
-		if optionData.spellTrackable then
-			if SIPPYCUP.global.UseToyCooldown then
-				trackByItem = true;
-			else
-				trackBySpell = true;
-			end
-		end
-	end
-
 	-- If item can only be tracked by the item cooldown (worst)
 	if trackByItem then
 		startTime = C_Item.GetItemCooldown(optionData.itemID);
@@ -772,7 +754,7 @@ function SIPPYCUP.Popups.QueuePopupAction(data,  caller)
 
 		local d, c = unpack(entry.args);
 		SIPPYCUP.Popups.HandlePopupAction(d, c);
-	end)
+	end);
 end
 
 ---HandlePopupAction executes the popup action for a option aura.
@@ -815,17 +797,17 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	-- Check for a dirty bag state, if so then defer until it is no longer.
 	if isConsumable and data.needsBagCheck then
 		if SIPPYCUP.Bags.bagGeneration < data.auraGeneration then
-		SIPPYCUP_OUTPUT.Debug("Reached HandlePopupAction, but bag state is dirty");
+			SIPPYCUP_OUTPUT.Debug("Reached HandlePopupAction, but bag state is dirty");
 
-		deferredActions[#deferredActions + 1] = {
-			data = data,
-			caller = caller,
-			blockedBy = {
-				bag = true,
-			},
-		};
-		return;
-	end
+			deferredActions[#deferredActions + 1] = {
+				data = data,
+				caller = caller,
+				blockedBy = {
+					bag = true,
+				},
+			};
+			return;
+		end
 		SIPPYCUP_OUTPUT.Debug("Reached HandlePopupAction, bag state is fine so continue.");
 	end
 
@@ -927,24 +909,7 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 		active = true;
 	end
 
-	local trackBySpell = false;
-	local trackByItem = false;
-
-	if isConsumable then
-		trackBySpell = optionData.spellTrackable;
-		trackByItem = optionData.itemTrackable;
-	elseif isToy then
-		if optionData.itemTrackable then
-			trackByItem = true;
-		end
-		if optionData.spellTrackable then
-			if SIPPYCUP.global.UseToyCooldown then
-				trackByItem = true;
-			else
-				trackBySpell = true;
-			end
-		end
-	end
+	local trackBySpell, trackByItem = SIPPYCUP.Options.ResolveTrackingMethod(optionData);
 
 	-- Extra check because toys have longer cooldowns than option tend to, so don't fire if cd is still up.
 	if isToy and reason == SIPPYCUP.Popups.Reason.REMOVAL then
