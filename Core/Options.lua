@@ -252,6 +252,12 @@ SIPPYCUP.Options.Data = {
 
 	--- Treasures of Zul'aman Achievement
 	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 1283490, itemID = 268717, category = "APPEARANCE", preExpiration = true, buildAdded = "0.7.4|120001" }, -- Pango Plating
+
+	--- Voidstorm Treasure
+	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 1250729, itemID = 250319, category = "EFFECT", buildAdded = "0.7.4|120001" }, -- Researcher's Shadowgraft
+
+
+	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 1254376, itemID = 252265, category = "APPEARANCE", cooldownMismatch = true, buildAdded = "0.7.4|120001" }, -- Hexed Potatoad Mucus
 };
 
 local function NormalizeLocName(name)
