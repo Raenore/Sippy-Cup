@@ -3,7 +3,7 @@
 
 SIPPYCUP.Auras = {};
 
----CheckEnabledAuras displays data on the currently tracking enabled options (even if they are zero).
+---DebugEnabledAuras displays data on the currently tracking enabled options (even if they are zero).
 ---@return nil
 function SIPPYCUP.Auras.DebugEnabledAuras()
 	for _, profileOptionData in pairs(SIPPYCUP.Database.auraToProfile) do
@@ -107,7 +107,7 @@ local function ParseAura(updateInfo)
 	-- On aura application (spellId secret in combat).
 	local added = updateInfo.addedAuras;
 	if added then
-		for _, auraInfo in ipairs(updateInfo.addedAuras) do
+		for _, auraInfo in ipairs(added) do
 			local profileOptionData = SIPPYCUP.Database.FindMatchingProfile(auraInfo.spellId);
 			if profileOptionData and profileOptionData.enable then
 				local skip = SkipDuplicatePrismUnitAura(profileOptionData, auraInfo.auraInstanceID);
@@ -127,7 +127,7 @@ local function ParseAura(updateInfo)
 	-- On aura update (auraInstanceID is not secret).
 	local updated = updateInfo.updatedAuraInstanceIDs;
 	if updated then
-		for _, auraInstanceID in ipairs(updateInfo.updatedAuraInstanceIDs) do
+		for _, auraInstanceID in ipairs(updated) do
 			local profileOptionData = SIPPYCUP.Database.FindMatchingProfile(nil, auraInstanceID);
 			if profileOptionData and profileOptionData.enable then
 				local auraInfo = GetAuraDataByAuraInstanceID("player", auraInstanceID);
@@ -151,7 +151,7 @@ local function ParseAura(updateInfo)
 	-- On aura removal (auraInstanceID is not secret).
 	local removed = updateInfo.removedAuraInstanceIDs;
 	if removed then
-		for _, auraInstanceID in ipairs(updateInfo.removedAuraInstanceIDs) do
+		for _, auraInstanceID in ipairs(removed) do
 			local profileOptionData = SIPPYCUP.Database.FindMatchingProfile(nil, auraInstanceID);
 			if profileOptionData and profileOptionData.enable and profileOptionData.currentInstanceID then
 				SIPPYCUP.Database.instanceToProfile[auraInstanceID] = nil;
@@ -166,12 +166,20 @@ local function ParseAura(updateInfo)
 	end
 end
 
+---BuildAuraKey creates a key from an auraID and instanceID.
+---@param auraID number The aura ID.
+---@param instanceID number The aura instance ID.
+---@return string key The key.
+local function BuildAuraKey(auraID, instanceID)
+	return tostring(auraID) .. "-" .. tostring(instanceID);
+end
+
 SIPPYCUP.Auras.auraQueue = {};
 SIPPYCUP.Auras.auraQueueScheduled = false;
 
----flushAuraQueue combines all the UNIT_AURA events in the same frame together, filtering them for weird exceptions.
+---FlushAuraQueue combines all the UNIT_AURA events in the same frame together, filtering them for weird exceptions.
 ---@return nil
-local function flushAuraQueue()
+local function FlushAuraQueue()
 	local queue = SIPPYCUP.Auras.auraQueue;
 	SIPPYCUP.Auras.auraQueue = {};
 	SIPPYCUP.Auras.auraQueueScheduled = false;
@@ -226,7 +234,7 @@ local function flushAuraQueue()
 			for addID, auraInfo in pairs(seenAdd) do
 				if canaccessvalue(auraInfo.spellId) and auraInfo.spellId == auraID then
 					-- cancel any pre-expiration timer keyed by this spell+instance
-					local key = tostring(auraID) .. "-" .. tostring(removedID);
+					local key = BuildAuraKey(auraID, removedID);
 					SIPPYCUP.Auras.CancelPreExpirationTimer(key);
 
 					seenRemoval[removedID] = nil;
@@ -247,7 +255,7 @@ local function flushAuraQueue()
 		if seenAdd[updatedAuraInstanceIDs] then
 			if canaccessvalue(seenAdd[updatedAuraInstanceIDs].spellId) then
 				-- cancel any pre-expiration timer keyed by this spell+instance
-				local key = tostring(seenAdd[updatedAuraInstanceIDs].spellId) .. "-" .. tostring(updatedAuraInstanceIDs);
+				local key = BuildAuraKey(seenAdd[updatedAuraInstanceIDs].spellId, updatedAuraInstanceIDs);
 				SIPPYCUP.Auras.CancelPreExpirationTimer(key);
 				seenAdd[updatedAuraInstanceIDs] = nil;
 			end
@@ -338,7 +346,7 @@ function SIPPYCUP.Auras.Convert(source, data)
 	-- flush on the next frame (which will run the batched UNIT_AURAs)
 	if not SIPPYCUP.Auras.auraQueueScheduled then
 		SIPPYCUP.Auras.auraQueueScheduled = true;
-		RunNextFrame(flushAuraQueue);
+		RunNextFrame(FlushAuraQueue);
 	end
 end
 
@@ -360,7 +368,7 @@ function SIPPYCUP.Auras.CheckAllActiveOptions()
 	for _, profileOptionData in pairs(auraToProfile) do
 		local currentInstanceID = profileOptionData.currentInstanceID;
 		-- True if it's active (or was), false if it's not been active.
-		local canBeActive = (currentInstanceID or 0) ~= 0;
+		local canBeActive = currentInstanceID ~= nil;
 		local auraInfo = GetPlayerAuraBySpellID(profileOptionData.aura);
 
 		if not auraInfo then
@@ -386,7 +394,7 @@ function SIPPYCUP.Auras.CheckAllActiveOptions()
 				end
 			else
 				-- There is auraInfo data but the spell was not marked as active, this means it was added but we did not catch it.
-				Convert(SIPPYCUP.Auras.Sources.ADD_AURA, auraInfo);
+				Convert(SIPPYCUP.Auras.Sources.ADD_AURA, { auraInfo });
 			end
 		end
 	end
@@ -432,10 +440,6 @@ function SIPPYCUP.Auras.CheckInstanceIDForAllActiveOptions()
 end
 
 local scheduledPreExpirationAuraTimers = {};
-
-local function BuildAuraKey(auraID, instanceID)
-	return tostring(auraID) .. "-" .. tostring(instanceID)
-end
 
 ---CreatePreExpirationTimer schedules a pre-expiration popup for a specific aura.
 ---Either pass in `key` directly, or provide `auraID` and `auraInstanceID` to build it.
@@ -616,8 +620,8 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData, min
 		-- Schedule for "preOffset" seconds before expiration
 		local fireIn = remaining - preOffset;
 
-		if fireIn <= 0 and SIPPYCUP.global.PreExpirationChecks then
-			-- Less than 60s left and we want pre-expiration popup: fire immediately
+		if fireIn <= 0 then
+			-- Less than preOffset left: fire immediately
 			preExpireFired = true;
 
 			local data = {
@@ -629,8 +633,8 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData, min
 				reason = SIPPYCUP.Popups.Reason.PRE_EXPIRATION,
 			};
 			SIPPYCUP.Popups.QueuePopupAction(data, "CheckPreExpirationForSingleOption - pre-expiration");
-		elseif SIPPYCUP.global.PreExpirationChecks then
-			-- Schedule our 1m before expiration reminder.
+		else
+			-- Schedule our pre-expiration reminder.
 			SIPPYCUP.Auras.CreatePreExpirationTimer(fireIn, auraInfo, key, auraID);
 		end
 	end
