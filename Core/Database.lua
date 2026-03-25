@@ -134,6 +134,17 @@ SIPPYCUP.Database.defaults = {
 
 local defaults = SIPPYCUP.Database.defaults;
 
+---PersistCurrentProfile saves the current runtime profile as minimal differences to saved variables.
+---@return nil
+local function PersistCurrentProfile()
+	local currentProfileName = SIPPYCUP.Database.GetCurrentProfileName();
+	if not currentProfileName or not SIPPYCUP.Profile then return; end
+
+	local defaultProfile = defaults.profiles.Default or {};
+	local minimal = GetMinimalTable(SIPPYCUP.Profile, defaultProfile);
+	SIPPYCUP.db.profiles[currentProfileName] = minimal;
+end
+
 ---Represents a single option's tracking settings within a user profile.
 ---@class SIPPYCUPProfileOption: table
 ---@field enable boolean Whether the option is enabled for tracking.
@@ -549,11 +560,7 @@ function SIPPYCUP.Database.SetProfile(profileName)
 	local defaultProfile = defaults.profiles.Default or {};
 
 	-- Persist current runtime profile before switching
-	local currentProfileName = SIPPYCUP.Database.GetCurrentProfileName();
-	if currentProfileName and SIPPYCUP.Profile then
-		local minimal = GetMinimalTable(SIPPYCUP.Profile, defaultProfile);
-		db.profiles[currentProfileName] = minimal;
-	end
+	PersistCurrentProfile();
 
 	-- Create target profile if it does not exist
 	if not db.profiles[profileName] then
@@ -598,11 +605,7 @@ function SIPPYCUP.Database.CreateProfile(profileName)
 	local defaultProfile = defaults.profiles.Default or {};
 
 	-- Persist current runtime profile before switching
-	local currentProfileName = SIPPYCUP.Database.GetCurrentProfileName();
-	if currentProfileName and SIPPYCUP.Profile then
-		local minimal = GetMinimalTable(SIPPYCUP.Profile, defaultProfile);
-		db.profiles[currentProfileName] = minimal;
-	end
+	PersistCurrentProfile();
 
 	-- Create an empty minimal profile (no overrides)
 	db.profiles[profileName] = {};
