@@ -730,10 +730,9 @@ function SIPPYCUP.Database.DeleteProfile(profileName)
 		-- Switch character's profile to Default
 		SIPPYCUP.db.profileKeys[charKey] = "Default";
 
-		-- Ensure Default profile exists minimally
+		-- Ensure Default profile exists minimally (no overrides = empty table)
 		if not SIPPYCUP.db.profiles["Default"] then
 			SIPPYCUP.db.profiles["Default"] = {};
-			DeepCopyDefaults(defaults.profiles.Default, SIPPYCUP.db.profiles["Default"]);
 		end
 
 		-- Update runtime shortcut with full Default profile data
