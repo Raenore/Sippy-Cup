@@ -1823,7 +1823,11 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			label = L.OPTIONS_PROFILES_NEWPROFILE_NAME,
 			tooltip = L.OPTIONS_PROFILES_NEWPROFILE_DESC,
 			get = function() end,
-			set = function(val) SIPPYCUP.Database.CreateProfile(val) end,
+			set = function(val)
+				SIPPYCUP.ConfirmDialog:Show(L.OPTIONS_PROFILES_NEWPROFILE_CONFIRM:format(val), function()
+					SIPPYCUP.Database.CreateProfile(val);
+				end);
+			end,
 		},
 		{
 			type = "dropdown",
@@ -1835,7 +1839,9 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			end,
 			get = function() end,
 			set = function(val)
-				SIPPYCUP.Database.CopyProfile(val);
+				SIPPYCUP.ConfirmDialog:Show(L.OPTIONS_PROFILES_COPYFROM_CONFIRM:format(val), function()
+					SIPPYCUP.Database.CopyProfile(val);
+				end);
 			end,
 		},
 		{
@@ -1846,7 +1852,9 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			label = L.OPTIONS_PROFILES_RESETBUTTON_NAME,
 			tooltip = L.OPTIONS_PROFILES_RESETBUTTON_DESC,
 			func = function()
-				SIPPYCUP.Database.ResetProfile();
+				SIPPYCUP.ConfirmDialog:Show(L.OPTIONS_PROFILES_RESETBUTTON_CONFIRM, function()
+					SIPPYCUP.Database.ResetProfile();
+				end);
 			end,
 		},
 		{
@@ -1859,7 +1867,9 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			end,
 			get = function() end,
 			set = function(val)
-				SIPPYCUP.Database.DeleteProfile(val);
+				SIPPYCUP.ConfirmDialog:Show(L.OPTIONS_PROFILES_DELETEPROFILE_CONFIRM:format(val), function()
+					SIPPYCUP.Database.DeleteProfile(val);
+				end);
 			end,
 		},
 	};

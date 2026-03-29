@@ -45,10 +45,10 @@ StaticPopupDialogs["SIPPYCUP_LINK_DIALOG"] = {
 	button1 = CANCEL,
 	hasEditBox = true,
 	editBoxWidth = 320,
-	OnShow = function(self, data)
+	OnShow = function(self)
 		local editBox = GetDialogEditBox(self);
 		SkinEditBox(editBox);
-		SetupEditBox(editBox, data);
+		SetupEditBox(editBox, StaticPopupDialogs["SIPPYCUP_LINK_DIALOG"].url or "");
 	end,
 	timeout = false,
 	whileDead = true,
@@ -56,10 +56,11 @@ StaticPopupDialogs["SIPPYCUP_LINK_DIALOG"] = {
 	preferredIndex = 3,
 };
 
----CreateExternalLinkDialog displays a dialog with an external link.
----@param url string The URL to be displayed in the dialog.
+---Displays a static popup dialog containing the given URL in a copyable editBox.
+---@param url string
 function SIPPYCUP.LinkDialog.CreateExternalLinkDialog(url)
-	local dialog = StaticPopup_Show("SIPPYCUP_LINK_DIALOG", nil, nil, url);
+	StaticPopupDialogs["SIPPYCUP_LINK_DIALOG"].url = url;
+	local dialog = StaticPopup_Show("SIPPYCUP_LINK_DIALOG");
 	if dialog then
 		dialog:ClearAllPoints();
 		dialog:SetPoint("CENTER", UIParent, "CENTER");
