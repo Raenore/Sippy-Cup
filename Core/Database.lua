@@ -548,6 +548,14 @@ function SIPPYCUP.Database.GetCurrentProfile()
 	return profileName, resolvedProfile;
 end
 
+---ProfileExists checks whether a profile with the given name exists.
+---@param profileName string The profile name to check.
+---@return boolean exists True if the profile exists, false otherwise.
+function SIPPYCUP.Database.ProfileExists(profileName)
+	if not SIPPYCUP.db or not SIPPYCUP.db.profiles or not profileName then return false; end
+	return SIPPYCUP.db.profiles[profileName] ~= nil;
+end
+
 ---SetProfile sets the active profile for the current character (creates it if missing).
 ---@param profileName string The name of the profile to activate.
 ---@return boolean success, string? errorMessage
@@ -597,8 +605,8 @@ function SIPPYCUP.Database.CreateProfile(profileName)
 	if not profileName or profileName:trim() == "" then
 		return false, "Invalid profile name";
 	end
-	if SIPPYCUP.db.profiles[profileName] then
-		return false, "Profile already exists";
+	if SIPPYCUP.Database.ProfileExists(profileName) then
+		return false, "A profile with that name already exists";
 	end
 
 	local db = SIPPYCUP.db;
@@ -618,6 +626,50 @@ function SIPPYCUP.Database.CreateProfile(profileName)
 	-- Set runtime profile to defaults (since minimal is empty)
 	SIPPYCUP.Profile = {};
 	DeepCopyDefaults(defaultProfile, SIPPYCUP.Profile);
+
+	SIPPYCUP.Database.RefreshUI();
+
+	return true;
+end
+
+---RenameProfile renames an existing profile and updates all character bindings.
+---@param oldName string The current name of the profile to rename.
+---@param newName string The new name for the profile.
+---@return boolean success, string? errorMessage
+function SIPPYCUP.Database.RenameProfile(oldName, newName)
+	if not SIPPYCUP.db or not SIPPYCUP.db.profiles then
+		return false, "Database not initialized";
+	end
+	if not oldName or not SIPPYCUP.db.profiles[oldName] then
+		return false, "Profile does not exist";
+	end
+	if oldName == "Default" then
+		return false, "Default profile cannot be renamed";
+	end
+	if not newName or newName:trim() == "" then
+		return false, "Invalid profile name";
+	end
+	if SIPPYCUP.Database.ProfileExists(newName) then
+		return false, "A profile with that name already exists";
+	end
+
+	local db = SIPPYCUP.db;
+
+	-- Persist current runtime profile before modifying saved data
+	PersistCurrentProfile();
+
+	-- Move minimal profile data from old key to new key
+	db.profiles[newName] = db.profiles[oldName];
+	db.profiles[oldName] = nil;
+
+	-- Reassign all character bindings that reference the old name
+	if db.profileKeys then
+		for charKey, profName in pairs(db.profileKeys) do
+			if profName == oldName then
+				db.profileKeys[charKey] = newName;
+			end
+		end
+	end
 
 	SIPPYCUP.Database.RefreshUI();
 

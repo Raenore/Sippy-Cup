@@ -25,6 +25,7 @@ L = {
 	COPY_SYSTEM_MESSAGE = "Copied to clipboard.",
 	POPUP_RELOAD_TITLE = "Reload Interface",
 	POPUP_RELOAD_WARNING = "Reload the interface now to apply changes?",
+	POPUP_RENAME_PROFILE = "Rename profile '%s'.|nEnter to confirm.",
 
 	--/ Options /--
 
@@ -122,7 +123,7 @@ L = {
 	OPTIONS_PROFILES_RESETBUTTON_CONFIRM = "Are you sure you want to reset the current profile to its original defaults?",
 	OPTIONS_PROFILES_CURRENTPROFILE = "Current Profile: %s",
 	OPTIONS_PROFILES_EXISTINGPROFILES_NAME = "Existing Profiles",
-	OPTIONS_PROFILES_EXISTINGPROFILES_DESC = "Select one of your available profiles.",
+	OPTIONS_PROFILES_EXISTINGPROFILES_DESC = "Select or rename one of your available profiles.",
 	OPTIONS_PROFILES_NEWPROFILE_NAME = "New Profile",
 	OPTIONS_PROFILES_NEWPROFILE_DESC = "Enter a name for the new profile and press Enter.",
 	OPTIONS_PROFILES_NEWPROFILE_CONFIRM = "Are you sure you want to create the profile '%s'?",
@@ -132,6 +133,8 @@ L = {
 	OPTIONS_PROFILES_DELETEPROFILE_NAME = "Delete Profile",
 	OPTIONS_PROFILES_DELETEPROFILE_DESC = "Delete the selected profile from the database.",
 	OPTIONS_PROFILES_DELETEPROFILE_CONFIRM = "Are you sure you want to permanently delete the profile '%s'?",
+	OPTIONS_PROFILES_RENAMEPROFILE_NAME = "Rename Profile",
+	OPTIONS_PROFILES_RENAMEPROFILE_DESC = "Choose a new name for the current profile.",
 };
 
 SIPPYCUP.L_ENUS = L;
