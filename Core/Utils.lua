@@ -69,7 +69,7 @@ function SIPPYCUP_BUILDINFO.Output(colorized)
 end
 
 function SIPPYCUP_BUILDINFO.CheckNewlyAdded(buildAdded)
-	if not SIPPYCUP.global.NewFeatureNotification then
+	if not SIPPYCUP.Database:GetGlobalSetting("NewFeatureNotification") then
 		return;
 	end
 
@@ -154,7 +154,7 @@ end
 ---Accepts any number of arguments and joins them with space.
 ---@param ... any Values to print (strings, numbers, tables, etc.)
 function SIPPYCUP_OUTPUT.Debug(...)
-	if not SIPPYCUP.IS_DEV_BUILD or not SIPPYCUP.Database.GetGlobalSetting("DebugOutput") then return; end
+	if not SIPPYCUP.IS_DEV_BUILD or not SIPPYCUP.Database:GetGlobalSetting("DebugOutput") then return; end
 
 	local args = {...};
 	local outputLines = {};
@@ -182,4 +182,51 @@ function SIPPYCUP_TEXT.Normalize(str)
 		:gsub("Ó", "O"):gsub("Ò", "O"):gsub("Õ", "O"):gsub("Ö", "O"):gsub("Ô", "O")
 		:gsub("Ú", "U"):gsub("Ù", "U"):gsub("Û", "U"):gsub("Ü", "U")
 		:gsub("Ç", "C"):gsub("Ñ", "N");
+end
+
+SIPPYCUP_UTILS = {};
+
+---Returns a new table with all top-level key-value pairs copied from tbl.
+---@param tbl table
+---@return table
+function SIPPYCUP_UTILS.ShallowCopy(tbl)
+	local copy = {};
+	for k, v in pairs(tbl) do
+		copy[k] = v;
+	end
+	return copy;
+end
+
+---Returns a fully independent recursive copy of tbl, or the value itself if not a table.
+---@param tbl any
+---@return any
+function SIPPYCUP_UTILS.DeepCopy(tbl)
+	if type(tbl) ~= "table" then return tbl; end
+	local copy = {};
+	for k, v in pairs(tbl) do
+		copy[k] = SIPPYCUP_UTILS.DeepCopy(v);
+	end
+	return copy;
+end
+
+---GetUnitName Returns the player's full name with realm if available.
+---Retrieves the player's unmodified name and normalized realm.
+---Returns nil if player name is invalid or realm is missing.
+---@return string? fullName Full player name in "Name - Realm" format or nil if unavailable.
+function SIPPYCUP_UTILS.GetUnitName()
+	local playerName, realm = UnitNameUnmodified("player");
+
+	if not canaccessvalue(playerName) or not playerName or playerName == UNKNOWNOBJECT or playerName:len() == 0 then
+		return nil;
+	end
+
+	if not realm or realm:len() == 0 then
+		realm = GetNormalizedRealmName();
+	end
+
+	if realm and realm:len() > 0 then
+		return playerName .. "-" .. realm;
+	end
+
+	return nil;
 end

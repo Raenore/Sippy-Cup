@@ -13,7 +13,7 @@ local MaxProfileNameLength = 32;
 local function validateNewName(newName, oldName)
 	if newName == "" then return false; end
 	if newName == oldName then return false; end
-	if SIPPYCUP.Database.ProfileExists(newName) then return false; end
+	if SIPPYCUP.Database:ProfileExists(newName) then return false; end
 	return true;
 end
 
@@ -28,7 +28,7 @@ StaticPopupDialogs["SIPPYCUP_RENAME_PROFILE"] = {
 	OnAccept = function(self, data)
 		local newName = string.trim(self.EditBox:GetText());
 		if data and data.oldName and newName ~= data.oldName then
-			SIPPYCUP.Database.RenameProfile(data.oldName, newName);
+			SIPPYCUP.Database:RenameProfile(data.oldName, newName);
 		end
 	end,
 	OnShow = function(self, data)
@@ -60,7 +60,7 @@ StaticPopupDialogs["SIPPYCUP_RENAME_PROFILE"] = {
 
 		local newName = string.trim(self:GetText());
 		if validateNewName(newName, data.oldName) then
-			SIPPYCUP.Database.RenameProfile(data.oldName, newName);
+			SIPPYCUP.Database:RenameProfile(data.oldName, newName);
 			StaticPopup_Hide("SIPPYCUP_RENAME_PROFILE");
 		end
 	end,

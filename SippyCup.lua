@@ -14,18 +14,8 @@ end
 
 ---OnInitialize Loads saved variables, sets up database, options, and slash commands.
 function SIPPYCUP_Addon:OnInitialize()
-	if not SippyCupDB then
-		SippyCupDB = {
-			global = {},
-			profileKeys = {},
-			profiles = {},
-		};
-	end
-
-	SIPPYCUP.db = SippyCupDB;
-
 	-- Set up DB internals & Options
-	SIPPYCUP.Database.Setup();
+	SIPPYCUP.Database:Init();
 	SIPPYCUP.Options.Setup();
 
 	-- Register slash commands
@@ -112,21 +102,28 @@ function SIPPYCUP_Addon:OnInitialPlayerInWorld()
 	-- Prepare our MSP checks.
 	SIPPYCUP.MSP.EnableIfAvailable(); -- True/False if enable successfully, we don't need that info right now.
 	-- Depending on if MSP status checks are on or off, we check differently.
-	SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
+	SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.Database:GetGlobalSetting("MSPStatusCheck"));
 
-	local realCharKey = SIPPYCUP.Database.GetUnitName();
+	local realCharKey = SIPPYCUP_UTILS.GetUnitName();
 	if realCharKey then
-		local db = SIPPYCUP.db;
-		if db.profileKeys["Unknown"] and not db.profileKeys[realCharKey] then
-			db.profileKeys[realCharKey] = db.profileKeys["Unknown"];
-			db.profileKeys["Unknown"] = nil;
-			-- Optional: move profile data as well if you saved it under Unknown profile
-			-- local profileName = db.profileKeys[realCharKey];
-			-- if db.profiles and db.profiles[profileName] then
-			--     db.profiles[profileName] = db.profiles[profileName] or {};
-			-- end
+		local db = SippyCupDB;
+
+		-- Check if "Unknown" profile exists and realCharKey does not yet have a profile
+		if db.profiles["Unknown"] and not db.profileKeys[realCharKey] then
+			-- Move the profile data from "Unknown" to realCharKey
+			db.profiles[realCharKey] = db.profiles["Unknown"];
+			db.profiles["Unknown"] = nil;
+
+			-- Update profileKeys mapping
+			for key, profileName in pairs(db.profileKeys) do
+				if profileName == "Unknown" then
+					db.profileKeys[key] = realCharKey;
+				end
+			end
 		end
-		SIPPYCUP.Database.Setup();
+
+		-- Re-initialize database so currentProfile points to realCharKey
+		SIPPYCUP.Database:Init();
 	end
 
 	-- Adapt saved variables structures between versions
@@ -134,8 +131,8 @@ function SIPPYCUP_Addon:OnInitialPlayerInWorld()
 
 	SIPPYCUP.Minimap:SetupMinimapButtons();
 
-	if SIPPYCUP.global.WelcomeMessage then
-		SIPPYCUP_OUTPUT.Write(L.WELCOMEMSG_VERSION:format(SIPPYCUP.Database.GetCurrentProfileName(), SIPPYCUP.AddonMetadata.version));
+	if SIPPYCUP.Database:GetGlobalSetting("WelcomeMessage") then
+		SIPPYCUP_OUTPUT.Write(L.WELCOMEMSG_VERSION:format(SIPPYCUP.Database:GetProfileName(), SIPPYCUP.AddonMetadata.version));
 		SIPPYCUP_OUTPUT.Write(L.WELCOMEMSG_OPTIONS);
 	end
 
@@ -161,7 +158,7 @@ function SIPPYCUP_Addon:ADDON_RESTRICTION_STATE_CHANGED(_, type, state) -- luach
 		self:StartContinuousCheck();
 		SIPPYCUP.Popups.HandleDeferredActions("combat");
 		-- We also fire a refresh, because in BGs/combat options might have changed.
-		SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
+		SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.Database:GetGlobalSetting("MSPStatusCheck"));
 	end
 end
 
@@ -205,7 +202,7 @@ function SIPPYCUP_Addon:PLAYER_REGEN_ENABLED()
 	self:StartContinuousCheck();
 	-- Show 'combat' popups deferred by DeferAllRefreshPopups (reason 1).
 	SIPPYCUP.Popups.HandleDeferredActions("combat");
-	SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
+	SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.Database:GetGlobalSetting("MSPStatusCheck"));
 end
 
 ---UNIT_AURA Handles player aura updates, flags bag desync, and triggers aura conversion.
@@ -301,7 +298,7 @@ SIPPYCUP.Callbacks:RegisterCallback(SIPPYCUP.Events.LOADING_SCREEN_ENDED, functi
 			SIPPYCUP.States.pvpMatch = false;
 			SIPPYCUP.Popups.HandleDeferredActions("combat");
 			-- We also fire a refresh, because during loading screens options can't be changed, but in BGs/combat they might.
-			SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
+			SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.Database:GetGlobalSetting("MSPStatusCheck"));
 		end
 
 		-- isFullUpdate can pass through loading screens (but our code can't), so handle it now.

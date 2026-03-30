@@ -6,7 +6,7 @@ SIPPYCUP.Flyway.Patches = {};
 
 SIPPYCUP.Flyway.Patches["1"] = {
 	run = function()
-		if not SIPPYCUP.db then
+		if not SippyCupDB or not SippyCupDB.profiles then
 			return;
 		end
 
@@ -54,7 +54,7 @@ SIPPYCUP.Flyway.Patches["1"] = {
 			winterfallFirewater = 17038;
 		};
 
-		for profileName, profileData in pairs(SIPPYCUP.db.profiles) do
+		for profileName, profileData in pairs(SippyCupDB.profiles) do
 			local newProfile = {};
 
 			for key, value in pairs(profileData) do
@@ -87,17 +87,74 @@ SIPPYCUP.Flyway.Patches["1"] = {
 			end
 
 			-- Replace old profile data with updated key mappings
-			SIPPYCUP.db.profiles[profileName] = newProfile;
+			SippyCupDB.profiles[profileName] = newProfile;
 		end
 
-		-- Reload current profile with new data, for reminders to show up.
-		local profileName = SIPPYCUP.Database.GetCurrentProfileName();
-		SIPPYCUP.Database.SetProfile(profileName);
+		-- Reload current profile so runtime references update
+		local profileName = SIPPYCUP.Database:GetProfileName();
+		SIPPYCUP.Database:SetProfile(profileName);
 
-		if SIPPYCUP.db.global.PopupIcon ~= nil then
-			SIPPYCUP.db.global.PopupIcon = nil;
+		if SIPPYCUP.Database:GetGlobalSetting("PopupIcon") then
+			SIPPYCUP.Database:SetGlobalSetting("PopupIcon", nil);
 		end
 	end,
 
 	description = "Prepare 0.3.0, updated SV profiles to using AuraID/SpellID.",
+};
+
+SIPPYCUP.Flyway.Patches["2"] = {
+	run = function()
+		if not SippyCupDB then return; end
+
+		-- Strip character-specific keys from profiles (now tracked in SippyCupCharDB)
+		if SippyCupDB.profiles then
+			local charKeys = {
+				currentStacks = true,
+				currentInstanceID = true,
+				currentItemID = true,
+				lastItemCount = true,
+			};
+
+			for _, profileData in pairs(SippyCupDB.profiles) do
+				for _, optionData in pairs(profileData) do
+					if type(optionData) == "table" then
+						for key in pairs(charKeys) do
+							optionData[key] = nil;
+						end
+					end
+				end
+			end
+		end
+
+		-- Migrate profileKeys from "Name - Realm Name" to "Name-RealmName" format
+		if SippyCupDB.profileKeys then
+			local toAdd = {};
+			local toRemove = {};
+
+			for oldKey, profileName in 	pairs(SippyCupDB.profileKeys) do
+				local name, realm = oldKey:match("^(.+) %- (.+)$");
+				if name and realm then
+					local normalizedRealm = realm:gsub("[%s%-%.]+", "");
+					local newKey = name .. "-" .. normalizedRealm;
+
+					if newKey ~= oldKey then
+						toAdd[newKey] = profileName;
+					end
+
+					toRemove[#toRemove + 1] = oldKey;
+				end
+			end
+
+			-- Apply additions first, then removals
+			for newKey, profileName in pairs(toAdd) do
+				SippyCupDB.profileKeys[newKey] = profileName;
+			end
+
+			for _, oldKey in ipairs(toRemove) do
+				SippyCupDB.profileKeys[oldKey] = nil;
+			end
+		end
+	end,
+
+	description = "Strip character-specific keys from profiles, migrate profileKeys to normalized realm format.",
 };

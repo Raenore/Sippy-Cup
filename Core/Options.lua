@@ -272,7 +272,7 @@ function SIPPYCUP.Options.ResolveTrackingMethod(optionData)
 			return false, true;
 		end
 		if optionData.spellTrackable then
-			if SIPPYCUP.global.UseToyCooldown then
+			if SIPPYCUP.Database:GetGlobalSetting("UseToyCooldown") then
 				return false, true;
 			else
 				return true, false;
@@ -422,7 +422,7 @@ function SIPPYCUP.Options.RefreshStackSizes(checkAll, reset, preExpireOnly)
 	end
 
 	-- Rebuild the aura map from the latest database data that we have.
-	SIPPYCUP.Database.RebuildAuraMap();
+	SIPPYCUP.Database:RebuildAuraMap();
 
 	local GetPlayerAuraBySpellID = C_UnitAuras.GetPlayerAuraBySpellID;
 	local auraToProfile = SIPPYCUP.Database.auraToProfile;

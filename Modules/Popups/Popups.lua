@@ -11,12 +11,13 @@ SIPPYCUP.Popups.Reason = {
 	REMOVAL = 1,
 	PRE_EXPIRATION = 2,
 	TOGGLE = 3,
+	STARTUP = 4,
 };
 
 ---PlayPopupSound plays the chosen alert sound during a popup.
 ---@return nil
 local function PlayPopupSound()
-	local soundPath = SharedMedia:Fetch("sound", SIPPYCUP.global.AlertSoundID);
+	local soundPath = SharedMedia:Fetch("sound", SIPPYCUP.Database:GetGlobalSetting("AlertSoundID"));
 	if soundPath then
 		PlaySoundFile(soundPath, "Master");
 	end
@@ -35,16 +36,16 @@ local function HandleAlerts()
 	end
 	alertThrottle = true;
 
-	if SIPPYCUP.global.AlertSound then
+	if SIPPYCUP.Database:GetGlobalSetting("AlertSound") then
 		PlayPopupSound();
 	end
-	if SIPPYCUP.global.FlashTaskbar then
+	if SIPPYCUP.Database:GetGlobalSetting("FlashTaskbar") then
 		FlashClientIcon();
 	end
 
 	-- We save the last profile an alert played for, so we can play a new
 	-- alert for cases where a popup exists on both profiles when it is switched.
-	lastProfileAlert = SIPPYCUP.Database.GetCurrentProfileName();
+	lastProfileAlert = SIPPYCUP.Database:GetProfileName();
 
 	RunNextFrame(function()
 		alertThrottle = false;
@@ -57,7 +58,7 @@ local sessionData = {};
 ---@return nil
 function SIPPYCUP.Popups.ResetIgnored()
 	for auraID in pairs(sessionData) do
-		local profileOptionData = SIPPYCUP.Profile[auraID];
+		local profileOptionData = SIPPYCUP.Database:GetProfileOption(auraID);
 		SIPPYCUP.Popups.Toggle(nil, auraID, profileOptionData.enable);
 	end
 
@@ -108,8 +109,8 @@ local activePopupByLoc = SIPPYCUP.Popups.activeByLoc;
 local function CalculatePopupOffset(index)
 	local position = "TOP"; -- default fallback
 
-	if SIPPYCUP and SIPPYCUP.db and SIPPYCUP.db.global and SIPPYCUP.global.PopupPosition then
-		position = SIPPYCUP.global.PopupPosition;
+	if SIPPYCUP and SIPPYCUP.Database then
+		position = SIPPYCUP.Database:GetGlobalSetting("PopupPosition");
 	end
 
 	if position == "BOTTOM" then
@@ -551,7 +552,7 @@ function SIPPYCUP.Popups.HandleReminderPopup(data, templateTypeID)
 			end
 
 			-- If user wants a missing reminder, we'll do that now (unless it's a toy as that has no item counts).
-			if data.itemCount < data.profileOptionData.desiredStacks and SIPPYCUP.global.InsufficientReminder and data.optionData.type ~= SIPPYCUP.Options.Type.TOY then
+			if data.itemCount < data.profileOptionData.desiredStacks and SIPPYCUP.Database:GetGlobalSetting("InsufficientReminder") and data.optionData.type ~= SIPPYCUP.Options.Type.TOY then
 				SIPPYCUP.Popups.HandleReminderPopup(data, 1);
 			end
 			return;
@@ -592,7 +593,7 @@ function SIPPYCUP.Popups.HandleReminderPopup(data, templateTypeID)
 		activePopups[#activePopups + 1] = popup; -- Add to active list only if it's a new instance
 		activePopupByLoc[loc] = popup; -- Store in lookup for loc-based replacement
 		shouldPlayAlert = true;
-	elseif lastProfileAlert ~= SIPPYCUP.Database.GetCurrentProfileName() then
+	elseif lastProfileAlert ~= SIPPYCUP.Database:GetProfileName() then
 		-- If profile change happens, fire an alert as-is for popups (throttle will still hold them)
 		shouldPlayAlert = true;
 	elseif data.reason == SIPPYCUP.Popups.Reason.REMOVAL then
@@ -629,13 +630,13 @@ function SIPPYCUP.Popups.Toggle(itemName, auraID, enabled)
 		return;
 	end
 
-	local profileOptionData = SIPPYCUP.Profile[optionData.auraID];
+	local profileOptionData = SIPPYCUP.Database:GetProfileOption(optionData.auraID);
 	if not profileOptionData then
 		return;
 	end
 
 	-- Update aura map incrementally for this option
-	SIPPYCUP.Database.UpdateAuraMapForOption(profileOptionData, enabled);
+	SIPPYCUP.Database:UpdateAuraMapForOption(profileOptionData, enabled);
 
 	-- If the option is not enabled, kill all its associated popups and timers!
 	if not enabled then
@@ -725,7 +726,7 @@ function SIPPYCUP.Popups.QueuePopupAction(data,  caller)
 	end
 
 	-- If MSP status checks are on and the character is currently OOC, we skip everything.
-	if SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck then
+	if SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.Database:GetGlobalSetting("MSPStatusCheck") then
 		local _, _, isIC = SIPPYCUP.MSP.CheckRPStatus();
 		if not isIC then
 			return;
@@ -765,7 +766,7 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	SIPPYCUP_OUTPUT.Debug("HandlePopupAction -", caller);
 
 	local optionData = data.optionData or SIPPYCUP.Options.ByAuraID[data.auraID];
-	local profileOptionData = data.profileOptionData or SIPPYCUP.Profile[data.auraID];
+	local profileOptionData = data.profileOptionData or SIPPYCUP.Database:GetProfileOption(data.auraID);
 
 	if not optionData or not profileOptionData or SIPPYCUP.Popups.IsIgnored(optionData.auraID) then
 		return;
@@ -964,6 +965,11 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	end
 
 	local requiredStacks = profileOptionData.desiredStacks - profileOptionData.currentStacks;
+
+	SIPPYCUP.Database:SetCharSetting(auraID, "currentStacks", profileOptionData.currentStacks);
+	SIPPYCUP.Database:SetCharSetting(auraID, "currentInstanceID", profileOptionData.currentInstanceID);
+	SIPPYCUP.Database:SetCharSetting(auraID, "currentItemID", profileOptionData.currentItemID);
+	SIPPYCUP.Database:SetCharSetting(auraID, "lastItemCount", profileOptionData.lastItemCount);
 
 	SIPPYCUP.Popups.HandleReminderPopup({
 		active = active,

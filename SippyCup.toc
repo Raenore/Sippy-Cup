@@ -22,6 +22,7 @@
 
 ## OptionalDeps: ElvUI, totalRP3, MyRolePlay, XRP
 ## SavedVariables: SippyCupDB
+## SavedVariablesPerCharacter: SippyCupCharDB
 
 ## X-Build: 120001, 120000, 110207
 ## X-Category: Roleplay
