@@ -808,10 +808,32 @@ local function CreateConfigDropdown(elementContainer, data)
 
 		for _, entry in ipairs(entries) do
 			local label, value = entry[1], entry[2];
+			local dropdownButton;
 			if data.style == "button" then
-				root:CreateButton(label, SetSelected, value);
+				dropdownButton = root:CreateButton(label, SetSelected, value);
 			else
-				root:CreateRadio(label, IsSelected, SetSelected, value);
+				dropdownButton = root:CreateRadio(label, IsSelected, SetSelected, value);
+			end
+
+			if data.gearButton and label ~= "Default" then
+				dropdownButton:AddInitializer(function(button, description, menu) -- luacheck: no unused (description)
+					local gearButton = MenuTemplates.AttachAutoHideGearButton(button);
+					gearButton:SetPoint("RIGHT");
+					gearButton:SetScript("OnClick", function()
+						menu:Close();
+						StaticPopupDialogs["SIPPYCUP_RENAME_PROFILE"].text = L.POPUP_RENAME_PROFILE:format(label);
+						StaticPopup_Show("SIPPYCUP_RENAME_PROFILE", nil, nil, { oldName = label });
+					end);
+
+					MenuUtil.HookTooltipScripts(gearButton, function(tooltip)
+						GameTooltip_SetTitle(tooltip, L.OPTIONS_PROFILES_RENAMEPROFILE_NAME);
+						GameTooltip_AddNormalLine(tooltip, L.OPTIONS_PROFILES_RENAMEPROFILE_DESC);
+					end);
+
+					-- Perhaps one day, this is the Block/Cancel button
+					-- local cancelButton = MenuTemplates.AttachAutoHideCancelButton(button);
+					-- cancelButton:SetPoint("RIGHT", gearButton, "LEFT", -3, 0);
+				end);
 			end
 		end
 
@@ -848,6 +870,10 @@ local function CreateConfigEditBox(elementContainer, data)
 	widget:SetPoint("TOPLEFT", elementContainer, "TOPLEFT", 0, 0);
 	widget:SetPoint("BOTTOMRIGHT", elementContainer, "BOTTOMRIGHT", 0, 0);
 	widget.data = data;
+
+	if type(data.maxChars) == "number" and data.maxChars > 0 then
+		widget:SetMaxLetters(data.maxChars);
+	end
 
 	if data.buildAdded and SIPPYCUP_BUILDINFO.CheckNewlyAdded(data.buildAdded) then
 		local newPip = widget:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
@@ -1805,6 +1831,8 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			label = L.OPTIONS_PROFILES_EXISTINGPROFILES_NAME,
 			tooltip = L.OPTIONS_PROFILES_EXISTINGPROFILES_DESC,
 			style = "radio",
+			gearButton = true,
+			buildAdded = "0.7.5|120001",
 			values = function()
 				return SIPPYCUP.Database.GetAllProfiles();
 			end,
@@ -1822,8 +1850,13 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			type = "editbox",
 			label = L.OPTIONS_PROFILES_NEWPROFILE_NAME,
 			tooltip = L.OPTIONS_PROFILES_NEWPROFILE_DESC,
+			maxChars = 32,
 			get = function() end,
-			set = function(val) SIPPYCUP.Database.CreateProfile(val) end,
+			set = function(val)
+				SIPPYCUP.ConfirmDialog:Show(L.OPTIONS_PROFILES_NEWPROFILE_CONFIRM:format(val), function()
+					SIPPYCUP.Database.CreateProfile(val);
+				end);
+			end,
 		},
 		{
 			type = "dropdown",
@@ -1835,7 +1868,9 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			end,
 			get = function() end,
 			set = function(val)
-				SIPPYCUP.Database.CopyProfile(val);
+				SIPPYCUP.ConfirmDialog:Show(L.OPTIONS_PROFILES_COPYFROM_CONFIRM:format(val), function()
+					SIPPYCUP.Database.CopyProfile(val);
+				end);
 			end,
 		},
 		{
@@ -1846,7 +1881,9 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			label = L.OPTIONS_PROFILES_RESETBUTTON_NAME,
 			tooltip = L.OPTIONS_PROFILES_RESETBUTTON_DESC,
 			func = function()
-				SIPPYCUP.Database.ResetProfile();
+				SIPPYCUP.ConfirmDialog:Show(L.OPTIONS_PROFILES_RESETBUTTON_CONFIRM, function()
+					SIPPYCUP.Database.ResetProfile();
+				end);
 			end,
 		},
 		{
@@ -1859,7 +1896,9 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			end,
 			get = function() end,
 			set = function(val)
-				SIPPYCUP.Database.DeleteProfile(val);
+				SIPPYCUP.ConfirmDialog:Show(L.OPTIONS_PROFILES_DELETEPROFILE_CONFIRM:format(val), function()
+					SIPPYCUP.Database.DeleteProfile(val);
+				end);
 			end,
 		},
 	};

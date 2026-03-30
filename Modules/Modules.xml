@@ -7,7 +7,9 @@
 	<Include file="ElvUI\ElvUI.lua"/>
 	<Include file="Flyway\Flyway.lua"/>
 	<Include file="Flyway\FlywayPatches.lua"/>
-	<Include file="LinkDialog\LinkDialog.lua"/>
+	<Include file="Dialogs\ConfirmDialog.lua"/>
+	<Include file="Dialogs\LinkDialog.lua"/>
+	<Include file="Dialogs\RenameDialog.lua"/>
 	<Include file="Minimap\Minimap.lua"/>
 	<Include file="MSP\MSP.lua"/>
 	<Include file="Popups\Popups.xml"/>
