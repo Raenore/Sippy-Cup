@@ -1622,10 +1622,10 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 					stacks = optionData.stacks,
 					buildAdded = optionData.buildAdded,
 					get = function()
-						return SIPPYCUP.Database:GetAuraSetting(checkboxProfileKey, "enable");
+						return SIPPYCUP.Database:GetProfileSetting(checkboxProfileKey, "enable");
 					end,
 					set = function(val)
-						SIPPYCUP.Database:SetAuraSetting(checkboxProfileKey, "enable", val);
+						SIPPYCUP.Database:SetProfileSetting(checkboxProfileKey, "enable", val);
 						SIPPYCUP.Popups.Toggle(consumableName, consumableAura, val);
 					end,
 				};
@@ -1643,13 +1643,13 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 						max = optionData.maxStacks,
 						step = 1,
 						disabled = function()
-							return not SIPPYCUP.Database:GetAuraSetting(sliderProfileKey, "enable");
+							return not SIPPYCUP.Database:GetProfileSetting(sliderProfileKey, "enable");
 						end,
 						get = function()
-							return SIPPYCUP.Database:GetAuraSetting(sliderProfileKey, "desiredStacks");
+							return SIPPYCUP.Database:GetProfileSetting(sliderProfileKey, "desiredStacks");
 						end,
 						set = function(val)
-							SIPPYCUP.Database:SetAuraSetting(sliderProfileKey, "desiredStacks", val);
+							SIPPYCUP.Database:SetProfileSetting(sliderProfileKey, "desiredStacks", val);
 							local profileOptionData = SIPPYCUP.Database:GetProfileOption(sliderProfileKey);
 							if profileOptionData.enable then
 								SIPPYCUP.Popups.Toggle(consumableName, consumableAura, true);
@@ -1758,10 +1758,10 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 						return IsToyDisabled(toyID);
 					end,
 					get = function()
-						return SIPPYCUP.Database:GetAuraSetting(checkboxProfileKey, "enable");
+						return SIPPYCUP.Database:GetProfileSetting(checkboxProfileKey, "enable");
 					end,
 					set = function(val)
-						SIPPYCUP.Database:SetAuraSetting(checkboxProfileKey, "enable", val);
+						SIPPYCUP.Database:SetProfileSetting(checkboxProfileKey, "enable", val);
 						SIPPYCUP.Popups.Toggle(toyName, toyAura, val);
 					end,
 				};
@@ -1778,13 +1778,13 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 						max = optionData.maxStacks,
 						step = 1,
 						disabled = function()
-							return not SIPPYCUP.Database:GetAuraSetting(sliderProfileKey, "enable");
+							return not SIPPYCUP.Database:GetProfileSetting(sliderProfileKey, "enable");
 						end,
 						get = function()
-							return SIPPYCUP.Database:GetAuraSetting(sliderProfileKey, "desiredStacks");
+							return SIPPYCUP.Database:GetProfileSetting(sliderProfileKey, "desiredStacks");
 						end,
 						set = function(val)
-							SIPPYCUP.Database:SetAuraSetting(sliderProfileKey, "desiredStacks", val);
+							SIPPYCUP.Database:SetProfileSetting(sliderProfileKey, "desiredStacks", val);
 							local profileOptionData = SIPPYCUP.Database:GetProfileOption(sliderProfileKey);
 							if profileOptionData.enable then
 								SIPPYCUP.Popups.Toggle(toyName, toyAura, true);

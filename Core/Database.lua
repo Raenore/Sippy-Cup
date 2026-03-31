@@ -615,8 +615,8 @@ end
 
 ---Returns the profile option for a given auraID, merging defaults with stored differences.
 ---@param auraID number The aura ID to lookup.
----@return SippyCupProfile option The profile option table for this aura.
-function Database:GetProfileOption(auraID)
+---@return SippyCupProfileSettings option The profile option table for this aura.
+function Database:GetProfileSettings(auraID)
 	local defaults = self.defaults[auraID];
 	if not defaults then return nil; end
 
@@ -632,7 +632,7 @@ end
 ---@param auraID number
 ---@param key SippyCupProfileSettingKey
 ---@return any
-function Database:GetAuraSetting(auraID, key)
+function Database:GetProfileSetting(auraID, key)
 	local defaults = self.defaults[auraID];
 	if not defaults then return nil; end
 
@@ -656,7 +656,7 @@ end
 ---@param auraID number
 ---@param key SippyCupProfileSettingKey
 ---@param value any
-function Database:SetAuraSetting(auraID, key, value)
+function Database:SetProfileSetting(auraID, key, value)
 	if not self.currentProfile then return; end
 	local defaults = self.defaults[auraID];
 	if not defaults then return; end
