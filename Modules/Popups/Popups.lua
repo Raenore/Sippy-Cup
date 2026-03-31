@@ -58,7 +58,7 @@ local sessionData = {};
 ---@return nil
 function SIPPYCUP.Popups.ResetIgnored()
 	for auraID in pairs(sessionData) do
-		local profileOptionData = SIPPYCUP.Database:GetProfileOption(auraID);
+		local profileOptionData = SIPPYCUP.Database:GetOption(auraID);
 		SIPPYCUP.Popups.Toggle(nil, auraID, profileOptionData.enable);
 	end
 
@@ -630,7 +630,7 @@ function SIPPYCUP.Popups.Toggle(itemName, auraID, enabled)
 		return;
 	end
 
-	local profileOptionData = SIPPYCUP.Database:GetProfileOption(optionData.auraID);
+	local profileOptionData = SIPPYCUP.Database:GetOption(optionData.auraID);
 	if not profileOptionData then
 		return;
 	end
@@ -766,7 +766,7 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	SIPPYCUP_OUTPUT.Debug("HandlePopupAction -", caller);
 
 	local optionData = data.optionData or SIPPYCUP.Options.ByAuraID[data.auraID];
-	local profileOptionData = data.profileOptionData or SIPPYCUP.Database:GetProfileOption(data.auraID);
+	local profileOptionData = data.profileOptionData or SIPPYCUP.Database:GetOption(data.auraID);
 
 	if not optionData or not profileOptionData or SIPPYCUP.Popups.IsIgnored(optionData.auraID) then
 		return;

@@ -741,6 +741,29 @@ function Database:SetCharSetting(auraID, key, value)
 	end
 end
 
+---Returns a merged copy of both profile and character settings for a given aura ID.
+---Combines defaults with stored overrides from the active profile and character database.
+---@param auraID number The aura ID to look up.
+---@return SippyCupProfile? option The fully merged option, or nil if no defaults exist.
+function Database:GetOption(auraID)
+	local profileDefaults = self.defaults[auraID];
+	if not profileDefaults then return nil; end
+
+	local profileOverride = self.currentProfile and self.currentProfile[auraID];
+	local result = mergeTables(profileDefaults, profileOverride or {});
+
+	local charDefaults = self.charDefaults[auraID];
+	if charDefaults then
+		local charOverride = self.currentChar and self.currentChar[auraID];
+		local charMerged = mergeTables(charDefaults, charOverride or {});
+		for k, v in pairs(charMerged) do
+			result[k] = v;
+		end
+	end
+
+	return result;
+end
+
 ---@alias SippyCupGlobalSettingKey
 ---| "AlertSound"
 ---| "AlertSoundID"
