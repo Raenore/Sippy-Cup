@@ -68,7 +68,7 @@ local GLOBAL_DEFAULTS = {
 };
 
 ---Represents a single option's tracking settings within a user profile.
----@class SippyCupProfile
+---@class SippyCupProfileSettings
 ---@field enable boolean Whether the option is enabled for tracking.
 ---@field desiredStacks integer Number of stacks the user wants to maintain.
 ---@field aura number The associated aura ID for this option.
@@ -80,7 +80,7 @@ local GLOBAL_DEFAULTS = {
 ---@field usesCharges boolean? Whether this option uses charges (generally reflecting prism).
 
 ---Default profile options keyed by aura ID
----@type table<number, SippyCupProfile>
+---@type table<number, SippyCupProfileSettings>
 local DEFAULT_PROFILE = {};
 
 ---Populate the default option's table keyed by aura ID, with all known entries from SIPPYCUP.Options.Data.
@@ -125,6 +125,8 @@ end
 ---@type table<number, SippyCupCharSettings>
 local DEFAULT_CHAR = {};
 
+---Initializes DEFAULT_CHAR entries for all aura-based options.
+---@return nil
 local function PopulateDefaultCharOptions()
 	local optionsData = SIPPYCUP.Options.Data;
 	for i = 1, #optionsData do
@@ -143,13 +145,15 @@ local function PopulateDefaultCharOptions()
 	end
 end
 
+---@class SippyCupProfile : SippyCupProfileSettings, SippyCupCharSettings
+
 Database.currentProfile = nil;
 Database.globalDefaults = SIPPYCUP_UTILS.DeepCopy(GLOBAL_DEFAULTS);
 
 ---Returns a new table containing all keys from `base`, with keys from `override` applied on top.
 ---@param base table
 ---@param override table
----@return table
+---@return SippyCupProfile
 local function mergeTables(base, override)
 	-- start with defaults
 	local result = SIPPYCUP_UTILS.ShallowCopy(base);
@@ -272,7 +276,7 @@ function Database:RebuildAuraMap()
 end
 
 ---UpdateAuraMapForOption updates or removes a profile option from aura/instance/item lookup tables.
----@param profileOptionData SippyCupCharSettings The profile data to update.
+---@param profileOptionData SippyCupProfile The profile data to update.
 ---@param enabled boolean Whether the option is enabled or disabled.
 function Database:UpdateAuraMapForOption(profileOptionData, enabled)
 	if not profileOptionData or not profileOptionData.aura then return; end
@@ -332,7 +336,7 @@ end
 ---@param spellId number? Spell ID to match `auraToProfile`.
 ---@param instanceID number? Aura instance ID to match `instanceToProfile`.
 ---@param itemID number? Item ID to match `untrackableByAuraProfile`.
----@return SippyCupCharSettings? profileOptionData
+---@return SippyCupProfile? profileOptionData
 function Database:FindMatchingProfile(spellId, instanceID, itemID)
 	if canaccessvalue == nil or canaccessvalue(spellId) then
 		if spellId ~= nil then
@@ -385,6 +389,7 @@ function Database:Init()
 end
 
 ---Initialises or migrates the character-specific chat database, clearing history on version change.
+---@return nil
 function Database:InitCharacterDatabase()
 	SippyCupCharDB = SippyCupCharDB or {};
 
@@ -408,13 +413,13 @@ function Database:ProfileExists(profileName)
 end
 
 ---Returns the current profile table.
----@return SippyCupProfile? currentProfile
+---@return SippyCupProfile currentProfile
 function Database:GetProfile()
 	return self.currentProfile;
 end
 
 ---Returns the name of the current profile for the current player.
----@return string? currentProfile
+---@return string currentProfile
 function Database:GetProfileName()
 	if not SippyCupDB then return nil; end
 	local playerKey = SIPPYCUP_UTILS.GetUnitName() or "Unknown";
@@ -495,11 +500,11 @@ function Database:RenameProfile(oldName, newName)
 
 	local db = SippyCupDB;
 
-	---Move profile data from the old key to the new key.
+	-- Move profile data from the old key to the new key.
 	db.profiles[newName] = db.profiles[oldName];
 	db.profiles[oldName] = nil;
 
-	---Reassign every character binding that pointed at the old name.
+	-- Reassign every character binding that pointed at the old name.
 	for charKey, profName in pairs(db.profileKeys) do
 		if profName == oldName then
 			db.profileKeys[charKey] = newName;

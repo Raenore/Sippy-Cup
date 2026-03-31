@@ -27,7 +27,7 @@ end
 
 ---SkipDuplicatePrismUnitAura determines if a prism-type aura update should be ignored.
 ---Duplicates are ignored only if they fire within a very short timeframe.
----@param profileOptionData SippyCupCharSettings The option profile data.
+---@param profileOptionData SippyCupProfile The option profile data.
 ---@param auraInstanceID number The aura instance ID being processed.
 ---@return boolean skip True if this aura update should be skipped as a duplicate.
 local function SkipDuplicatePrismUnitAura(profileOptionData, auraInstanceID)
@@ -53,7 +53,7 @@ local function SkipDuplicatePrismUnitAura(profileOptionData, auraInstanceID)
 end
 
 ---QueueAuraAction enqueues a popup action for aura changes.
----@param profileOptionData table The option profile data.
+---@param profileOptionData SippyCupProfile The option profile data.
 ---@param auraInfo table? The aura information, or nil if removed.
 ---@param reason number The reason for the popup (ADDITION, REMOVAL, etc).
 ---@param source string The source description of the action.
@@ -562,7 +562,7 @@ function SIPPYCUP.Auras.CheckPreExpirationForAllActiveOptions(minSeconds)
 end
 
 ---CheckPreExpirationForSingleOption sets up pre-expiration warnings for aura-based options.
----@param profileOptionData SippyCupCharSettings Profile data for the option.
+---@param profileOptionData SippyCupProfile Profile data for the option.
 ---@param minSeconds number? Time window to check ahead, defaults to 180.
 ---@return boolean preExpireFired True if a pre-expiration popup was fired.
 function SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData, minSeconds)

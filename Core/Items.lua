@@ -140,7 +140,7 @@ function SIPPYCUP.Items.CheckNoAuraItemUsage(minSeconds)
 end
 
 ---CheckNoAuraSingleOption evaluates cooldowns for non-aura items/toys to fire pre-expiration and removal popups.
----@param profileOptionData table? Optional profile data; will be resolved if nil.
+---@param profileOptionData SippyCupProfile? Optional profile data; will be resolved if nil.
 ---@param spellID number The spell ID to track.
 ---@param minSeconds number? Time window to check ahead, defaults to 180.
 ---@param startTime number? Optional cooldown start time.
