@@ -404,6 +404,24 @@ function Database:InitCharacterDatabase()
 	SIPPYCUP.States.databaseLoaded = true;
 end
 
+---Refreshes the config UI if the configuration frame is loaded.
+---@return nil
+function Database:refreshUI()
+	if SIPPYCUP.configFrame then
+		SIPPYCUP_ConfigMenuFrame:RefreshWidgets();
+		SIPPYCUP_ConfigMenuFrame:SwitchProfileValues();
+	end
+end
+
+---applyProfileSwitch resets runtime systems after a profile change.
+---@return nil
+function Database:applyProfileSwitch()
+	SIPPYCUP.Popups.HideAllRefreshPopups();
+	SIPPYCUP.Auras.CancelAllPreExpirationTimers();
+	SIPPYCUP.Items.CancelAllItemTimers();
+	self:RebuildAuraMap();
+end
+
 ---Checks whether a profile with the given name exists.
 ---@param profileName string
 ---@return boolean exists
@@ -462,15 +480,8 @@ function Database:SetProfile(profileName)
 	local playerKey = SIPPYCUP_UTILS.GetUnitName();
 	db.profileKeys[playerKey] = profileName;
 
-	SIPPYCUP.Popups.HideAllRefreshPopups();
-	SIPPYCUP.Auras.CancelAllPreExpirationTimers();
-	SIPPYCUP.Items.CancelAllItemTimers();
-	self:RebuildAuraMap();
-
-	if SIPPYCUP.configFrame then
-		SIPPYCUP_ConfigMenuFrame:RefreshWidgets();
-		SIPPYCUP_ConfigMenuFrame:SwitchProfileValues();
-	end
+	self:applyProfileSwitch();
+	self:refreshUI();
 
 	SIPPYCUP.Options.RefreshStackSizes(
 		SIPPYCUP.MSP.IsEnabled() and self:GetGlobalSetting("MSPStatusCheck"),
@@ -511,10 +522,7 @@ function Database:RenameProfile(oldName, newName)
 		end
 	end
 
-	if SIPPYCUP.configFrame then
-		SIPPYCUP_ConfigMenuFrame:RefreshWidgets();
-		SIPPYCUP_ConfigMenuFrame:SwitchProfileValues();
-	end
+	self:refreshUI();
 
 	return true;
 end
@@ -548,15 +556,8 @@ function Database:CopyProfile(sourceName)
 		current[k] = v;
 	end
 
-	SIPPYCUP.Popups.HideAllRefreshPopups();
-	SIPPYCUP.Auras.CancelAllPreExpirationTimers();
-	SIPPYCUP.Items.CancelAllItemTimers();
-	self:RebuildAuraMap();
-
-	if SIPPYCUP.configFrame then
-		SIPPYCUP_ConfigMenuFrame:RefreshWidgets();
-		SIPPYCUP_ConfigMenuFrame:SwitchProfileValues();
-	end
+	self:applyProfileSwitch();
+	self:refreshUI();
 
 	SIPPYCUP.Options.RefreshStackSizes(
 		SIPPYCUP.MSP.IsEnabled() and self:GetGlobalSetting("MSPStatusCheck"),
@@ -595,15 +596,8 @@ function Database:ResetProfile()
 		current[k] = nil;
 	end
 
-	SIPPYCUP.Popups.HideAllRefreshPopups();
-	SIPPYCUP.Auras.CancelAllPreExpirationTimers();
-	SIPPYCUP.Items.CancelAllItemTimers();
-	self:RebuildAuraMap();
-
-	if SIPPYCUP.configFrame then
-		SIPPYCUP_ConfigMenuFrame:RefreshWidgets();
-		SIPPYCUP_ConfigMenuFrame:SwitchProfileValues();
-	end
+	self:applyProfileSwitch();
+	self:refreshUI();
 
 	return true;
 end
@@ -685,10 +679,7 @@ function Database:SetAuraSetting(auraID, key, value)
 		self.currentProfile[auraID] = nil;
 	end
 
-	if SIPPYCUP.configFrame then
-		SIPPYCUP_ConfigMenuFrame:RefreshWidgets();
-		SIPPYCUP_ConfigMenuFrame:SwitchProfileValues();
-	end
+	self:refreshUI();
 end
 
 ---@alias SippyCupCharSettingKey
@@ -816,10 +807,7 @@ function Database:SetGlobalSetting(key, value)
 		SippyCupDB.global[key] = value;
 	end
 
-	if SIPPYCUP.configFrame then
-		SIPPYCUP_ConfigMenuFrame:RefreshWidgets();
-		SIPPYCUP_ConfigMenuFrame:SwitchProfileValues();
-	end
+	self:refreshUI();
 end
 
 SIPPYCUP.Database = Database;
