@@ -530,6 +530,7 @@ end
 ---@return nil
 function Database:SetProfile(profileName)
 	if not profileName or profileName == "" then return; end
+	if profileName == self:GetProfileName() then return; end
 
 	local db = SippyCupDB;
 	db.profiles[profileName] = db.profiles[profileName] or {};
@@ -544,7 +545,7 @@ function Database:SetProfile(profileName)
 
 	SIPPYCUP.Options.RefreshStackSizes(
 		SIPPYCUP.MSP.IsEnabled() and self:GetGlobalSetting("MSPStatusCheck"),
-		false, true
+		false
 	);
 end
 
@@ -620,7 +621,7 @@ function Database:CopyProfile(sourceName)
 
 	SIPPYCUP.Options.RefreshStackSizes(
 		SIPPYCUP.MSP.IsEnabled() and self:GetGlobalSetting("MSPStatusCheck"),
-		false, true
+		false
 	);
 
 	return true;
