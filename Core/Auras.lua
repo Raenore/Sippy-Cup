@@ -114,7 +114,7 @@ local function ParseAura(updateInfo)
 
 				if not skip then
 					profileOptionData.currentInstanceID = auraInfo.auraInstanceID;
-					SIPPYCUP.Database:SetCharSetting(profileOptionData.aura, "currentInstanceID", auraInfo.auraInstanceID);
+					SIPPYCUP.Database:CommitCharState(profileOptionData.aura, profileOptionData);
 					SIPPYCUP.Database.instanceToProfile[auraInfo.auraInstanceID] = profileOptionData;
 
 					SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData);
@@ -137,9 +137,8 @@ local function ParseAura(updateInfo)
 
 					if not skip then
 						profileOptionData.currentInstanceID = auraInfo.auraInstanceID;
-						SIPPYCUP.Database:SetCharSetting(profileOptionData.aura, "currentInstanceID", auraInfo.auraInstanceID);
 						profileOptionData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, profileOptionData.aura, SIPPYCUP.Popups.Reason.UPDATE, true);
-						SIPPYCUP.Database:SetCharSetting(profileOptionData.aura, "currentStacks", profileOptionData.currentStacks);
+						SIPPYCUP.Database:CommitCharState(profileOptionData.aura, profileOptionData);
 						SIPPYCUP.Database.instanceToProfile[auraInfo.auraInstanceID] = profileOptionData;
 
 						SIPPYCUP.Auras.CancelPreExpirationTimer(nil, profileOptionData.aura, auraInstanceID);
@@ -161,8 +160,7 @@ local function ParseAura(updateInfo)
 				SIPPYCUP.Database.instanceToProfile[auraInstanceID] = nil;
 				profileOptionData.currentInstanceID = nil;
 				profileOptionData.currentStacks = 0;
-				SIPPYCUP.Database:SetCharSetting(profileOptionData.aura, "currentInstanceID", nil);
-				SIPPYCUP.Database:SetCharSetting(profileOptionData.aura, "currentStacks", 0);
+				SIPPYCUP.Database:CommitCharState(profileOptionData.aura, profileOptionData);
 
 				-- On aura removal, we remove all pre-expiration timers as that's obvious no longer relevant.
 				SIPPYCUP.Auras.CancelPreExpirationTimer(nil, profileOptionData.aura, auraInstanceID);
@@ -250,7 +248,7 @@ local function FlushAuraQueue()
 					-- Update linkage
 					SIPPYCUP.Database.instanceToProfile[removedID] = nil;
 					profileOptionData.currentInstanceID = addID;
-					SIPPYCUP.Database:SetCharSetting(auraID, "currentInstanceID", addID);
+					SIPPYCUP.Database:CommitCharState(auraID, profileOptionData);
 					SIPPYCUP.Database.instanceToProfile[addID] = profileOptionData;
 					break;
 				end
@@ -395,7 +393,7 @@ function SIPPYCUP.Auras.CheckAllActiveOptions()
 				if currentInstanceID ~= newInstanceID then
 					instanceToProfile[currentInstanceID] = nil;
 					profileOptionData.currentInstanceID = newInstanceID;
-					SIPPYCUP.Database:SetCharSetting(profileOptionData.aura, "currentInstanceID", newInstanceID);
+					SIPPYCUP.Database:CommitCharState(profileOptionData.aura, profileOptionData);
 					instanceToProfile[newInstanceID] = profileOptionData;
 
 					SIPPYCUP_OUTPUT.Debug("InstanceID Changed!|nName:", auraInfo.name, "|nSpellID:", profileOptionData.aura, "|nOld:", currentInstanceID, "|nNew:", newInstanceID);
@@ -439,7 +437,7 @@ function SIPPYCUP.Auras.CheckInstanceIDForAllActiveOptions()
 			if oldInstanceID ~= newInstanceID then
 				instanceToProfile[oldInstanceID] = nil;
 				profileOptionData.currentInstanceID = newInstanceID;
-				SIPPYCUP.Database:SetCharSetting(profileOptionData.aura, "currentInstanceID", newInstanceID);
+				SIPPYCUP.Database:CommitCharState(profileOptionData.aura, profileOptionData);
 				instanceToProfile[newInstanceID] = profileOptionData;
 
 				SIPPYCUP_OUTPUT.Debug("InstanceID Changed!|nName:", auraInfo.name, "|nSpellID:", profileOptionData.aura, "|nOld:", oldInstanceID, "|nNew:", newInstanceID);
@@ -591,6 +589,7 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData, min
 	end
 
 	profileOptionData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, 0, active);
+	SIPPYCUP.Database:CommitCharState(auraID, profileOptionData);
 
 	-- Some stack items can be pre-expired for refresh but ONLY if the current stacks == maxStacks
 	if optionData.stacks and profileOptionData.currentStacks ~= optionData.maxStacks then

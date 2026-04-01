@@ -58,8 +58,8 @@ local sessionData = {};
 ---@return nil
 function SIPPYCUP.Popups.ResetIgnored()
 	for auraID in pairs(sessionData) do
-		local profileOptionData = SIPPYCUP.Database:GetOption(auraID);
-		SIPPYCUP.Popups.Toggle(nil, auraID, profileOptionData.enable);
+		local profileOptionData = SIPPYCUP.Database.auraToProfile[auraID];
+		SIPPYCUP.Popups.Toggle(nil, auraID, profileOptionData and profileOptionData.enable or false);
 	end
 
 	wipe(sessionData);
@@ -766,6 +766,7 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 	SIPPYCUP_OUTPUT.Debug("HandlePopupAction -", caller);
 
 	local optionData = data.optionData or SIPPYCUP.Options.ByAuraID[data.auraID];
+	local isFallback = data.profileOptionData == nil;
 	local profileOptionData = data.profileOptionData or SIPPYCUP.Database:GetOption(data.auraID);
 
 	if not optionData or not profileOptionData or SIPPYCUP.Popups.IsIgnored(optionData.auraID) then
@@ -966,10 +967,12 @@ function SIPPYCUP.Popups.HandlePopupAction(data, caller)
 
 	local requiredStacks = profileOptionData.desiredStacks - profileOptionData.currentStacks;
 
-	SIPPYCUP.Database:SetCharSetting(auraID, "currentStacks", profileOptionData.currentStacks);
-	SIPPYCUP.Database:SetCharSetting(auraID, "currentInstanceID", profileOptionData.currentInstanceID);
-	SIPPYCUP.Database:SetCharSetting(auraID, "currentItemID", profileOptionData.currentItemID);
-	SIPPYCUP.Database:SetCharSetting(auraID, "lastItemCount", profileOptionData.lastItemCount);
+	if isFallback then
+		-- Temporary GetOption copy; commit to both lookup tables and charDB.
+		SIPPYCUP.Database:CommitFullState(auraID, profileOptionData);
+	else
+		SIPPYCUP.Database:CommitCharState(auraID, profileOptionData);
+	end
 
 	SIPPYCUP.Popups.HandleReminderPopup({
 		active = active,

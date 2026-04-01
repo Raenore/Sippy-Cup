@@ -214,7 +214,7 @@ function SIPPYCUP.Items.CheckNoAuraSingleOption(profileOptionData, spellID, minS
 	-- This is a reliable check, but toys might not immediately report a cooldown. But their usage generally means we can close their popup.
 	if startTime and startTime > 0 or optionData.type == SIPPYCUP.Options.Type.TOY then
 		profileOptionData.currentStacks = 1;
-		SIPPYCUP.Database:SetCharSetting(profileOptionData.aura, "currentStacks", profileOptionData.currentStacks);
+		SIPPYCUP.Database:CommitCharState(profileOptionData.aura, profileOptionData);
 		SIPPYCUP.Database.untrackableByAuraProfile[optionData.itemID] = profileOptionData;
 
 		if existingPopup and existingPopup:IsShown() then

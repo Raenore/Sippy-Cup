@@ -234,6 +234,16 @@ function Database:RebuildAuraMap()
 			local castAuraID = profileOptionData.castAura or auraID;
 			self.castAuraToProfile[castAuraID] = profileOptionData;
 
+			-- Apply stored character data so fields like currentItemID and lastItemCount persist after reload.
+			-- currentInstanceID and currentStacks will be refreshed by the live checks below.
+			local charData = self.currentChar and self.currentChar[auraID];
+			if charData then
+				for k, v in pairs(charData) do
+					profileOptionData[k] = v;
+				end
+			end
+
+			-- Overwrite instance/stacks with fresh live aura data.
 			local auraInfo;
 			if profileOptionData.currentInstanceID then
 				auraInfo = GetAuraDataByAuraInstanceID("player", profileOptionData.currentInstanceID);
@@ -247,21 +257,38 @@ function Database:RebuildAuraMap()
 				auraInfo, auraID, SIPPYCUP.Popups.Reason.STARTUP, auraInfo ~= nil
 			);
 
-			-- persist to character DB
-			self:SetCharSetting(auraID, "currentInstanceID", profileOptionData.currentInstanceID);
-			self:SetCharSetting(auraID, "currentStacks", profileOptionData.currentStacks);
-
 			if profileOptionData.currentInstanceID then
 				self.instanceToProfile[profileOptionData.currentInstanceID] = profileOptionData;
 			end
 
 			-- Handle options that are trackable without auras (via itemID)
-			if profileOptionData.untrackableByAura then
-				local optionData = SIPPYCUP.Options.ByAuraID[auraID];
-				if optionData and optionData.itemID then
-					self.untrackableByAuraProfile[optionData.itemID] = profileOptionData;
+			local optionData = SIPPYCUP.Options.ByAuraID[auraID];
+
+			-- Resolve currentItemID and lastItemCount from live inventory/toy state.
+			if optionData and optionData.itemID then
+				local isToy = SIPPYCUP.Options.Type and (optionData.type == SIPPYCUP.Options.Type.TOY);
+				local itemIDs = type(optionData.itemID) == "table" and optionData.itemID or { optionData.itemID };
+				local usableItemID;
+				local itemCount = 0;
+
+				for _, id in ipairs(itemIDs) do
+					local count = isToy and (PlayerHasToy(id) and 1 or 0) or C_Item.GetItemCount(id);
+					if count > 0 then
+						usableItemID = usableItemID or id;
+						itemCount = itemCount + count;
+					end
 				end
+
+				profileOptionData.currentItemID = usableItemID or itemIDs[#itemIDs];
+				profileOptionData.lastItemCount = itemCount;
 			end
+
+			-- Track options that rely on items instead of auras.
+			if profileOptionData.untrackableByAura and optionData and optionData.itemID then
+				self.untrackableByAuraProfile[optionData.itemID] = profileOptionData;
+			end
+
+			self:CommitCharState(auraID, profileOptionData);
 		end
 	end
 
@@ -279,31 +306,45 @@ end
 ---@param profileOptionData SippyCupProfile The profile data to update.
 ---@param enabled boolean Whether the option is enabled or disabled.
 function Database:UpdateAuraMapForOption(profileOptionData, enabled)
-	if not profileOptionData or not profileOptionData.aura then return; end
+	if not profileOptionData or not profileOptionData.aura then return; end;
 
 	local auraID = profileOptionData.aura;
 	local castAuraID = profileOptionData.castAura or auraID;
 	local optionData = SIPPYCUP.Options.ByAuraID[auraID];
 
 	if enabled then
-		-- Add/update auraToProfile and castAuraToProfile
 		self.auraToProfile[auraID] = profileOptionData;
 		self.castAuraToProfile[castAuraID] = profileOptionData;
 
-		-- Update instanceToProfile if aura is currently active
 		local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(auraID);
 		local instanceID = auraInfo and auraInfo.auraInstanceID;
+
 		profileOptionData.currentInstanceID = instanceID;
 		profileOptionData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(
 			auraInfo, auraID, SIPPYCUP.Popups.Reason.STARTUP, auraInfo ~= nil
 		);
 
-		-- persist to character DB
-		self:SetCharSetting(auraID, "currentInstanceID", profileOptionData.currentInstanceID);
-		self:SetCharSetting(auraID, "currentStacks", profileOptionData.currentStacks);
-
 		if instanceID then
 			self.instanceToProfile[instanceID] = profileOptionData;
+		end
+
+		-- Resolve currentItemID and lastItemCount from the current inventory/toy state.
+		if optionData and optionData.itemID then
+			local isToy = SIPPYCUP.Options.Type and (optionData.type == SIPPYCUP.Options.Type.TOY);
+			local itemIDs = type(optionData.itemID) == "table" and optionData.itemID or { optionData.itemID };
+			local usableItemID;
+			local itemCount = 0;
+
+			for _, id in ipairs(itemIDs) do
+				local count = isToy and (PlayerHasToy(id) and 1 or 0) or C_Item.GetItemCount(id);
+				if count > 0 then
+					usableItemID = usableItemID or id;
+					itemCount = itemCount + count;
+				end
+			end
+
+			profileOptionData.currentItemID = usableItemID or itemIDs[#itemIDs];
+			profileOptionData.lastItemCount = itemCount;
 		end
 
 		-- Map itemID for options trackable without an aura
@@ -311,25 +352,26 @@ function Database:UpdateAuraMapForOption(profileOptionData, enabled)
 			self.untrackableByAuraProfile[optionData.itemID] = profileOptionData;
 		end
 	else
-		-- Remove from all lookup tables
 		self.auraToProfile[auraID] = nil;
 		self.castAuraToProfile[castAuraID] = nil;
 
 		local instanceID = profileOptionData.currentInstanceID;
 		if instanceID then
 			self.instanceToProfile[instanceID] = nil;
-			profileOptionData.currentInstanceID = nil;
 		end
 
+		-- Reset char state; CommitCharState will prune unused values from the char DB.
+		profileOptionData.currentInstanceID = nil;
 		profileOptionData.currentStacks = 0;
-		-- persist to character DB
-		self:SetCharSetting(auraID, "currentInstanceID", nil);
-		self:SetCharSetting(auraID, "currentStacks", 0);
+		profileOptionData.currentItemID = nil;
+		profileOptionData.lastItemCount = 0;
 
 		if profileOptionData.untrackableByAura and optionData and optionData.itemID then
 			self.untrackableByAuraProfile[optionData.itemID] = nil;
 		end
 	end
+
+	self:CommitCharState(auraID, profileOptionData);
 end
 
 ---Returns profile data matching spell ID, aura instance ID, or item ID.
@@ -386,6 +428,7 @@ function Database:Init()
 	end
 
 	self:InitCharacterDatabase();
+	SIPPYCUP.States.databaseLoaded = true;
 end
 
 ---Initialises or migrates the character-specific chat database, clearing history on version change.
@@ -393,15 +436,31 @@ end
 function Database:InitCharacterDatabase()
 	SippyCupCharDB = SippyCupCharDB or {};
 
-	for k in pairs(SippyCupCharDB) do
-		if type(k) ~= "number" then
-			SippyCupCharDB[k] = nil;
+	self.currentChar = SippyCupCharDB;
+	self:LoadFromSaved();
+end
+
+---Normalises SippyCupCharDB against charDefaults before the first RebuildAuraMap.
+---Removes orphaned aura entries and unknown keys within entries.
+---Missing keys are left untouched; GetCharSetting falls back to defaults.
+---@return nil
+function Database:LoadFromSaved()
+	if not self.currentChar then return; end;
+
+	for auraID, charData in pairs(self.currentChar) do
+		local defaults = self.charDefaults[auraID];
+		if type(auraID) ~= "number" or not defaults then
+			-- Orphaned or non-numeric entry; prune entirely.
+			self.currentChar[auraID] = nil;
+		else
+			-- Strip keys not present in charDefaults.
+			for k in pairs(charData) do
+				if defaults[k] == nil then
+					charData[k] = nil;
+				end
+			end
 		end
 	end
-
-	self.currentChar = SippyCupCharDB;
-
-	SIPPYCUP.States.databaseLoaded = true;
 end
 
 ---Refreshes the config UI if the configuration frame is loaded.
@@ -719,7 +778,7 @@ end
 ---@param key SippyCupCharSettingKey
 ---@param value any
 function Database:SetCharSetting(auraID, key, value)
-	if type(auraID) ~= "number" then return; end  -- ignore non-numeric keys
+	if type(auraID) ~= "number" then return; end -- ignore non-numeric keys
 
 	if not SippyCupCharDB then SippyCupCharDB = {}; end
 	self.currentChar = self.currentChar or SippyCupCharDB;
@@ -741,10 +800,62 @@ function Database:SetCharSetting(auraID, key, value)
 	end
 end
 
----Returns a merged copy of both profile and character settings for a given aura ID.
----Combines defaults with stored overrides from the active profile and character database.
+---Commits all four character-specific runtime fields from a profileOptionData working
+---copy into SippyCupCharDB via SetCharSetting in a single atomic call.
+---@param auraID number
+---@param profileOptionData SippyCupProfile
+function Database:CommitCharState(auraID, profileOptionData)
+	self:SetCharSetting(auraID, "currentInstanceID", profileOptionData.currentInstanceID);
+	self:SetCharSetting(auraID, "currentStacks", profileOptionData.currentStacks);
+	self:SetCharSetting(auraID, "currentItemID", profileOptionData.currentItemID);
+	self:SetCharSetting(auraID, "lastItemCount", profileOptionData.lastItemCount);
+end
+
+---Commits a profileOptionData working copy into both the live aura lookup tables and
+---SippyCupCharDB. Use only on the fallback path where profileOptionData is a temporary
+---GetOption copy and not the live auraToProfile reference.
+---Does not perform live aura queries; trusts the values already set on profileOptionData.
+---@param auraID number
+---@param profileOptionData SippyCupProfile
+function Database:CommitFullState(auraID, profileOptionData)
+	if not profileOptionData then return; end;
+
+	local castAuraID = profileOptionData.castAura or auraID;
+	local optionData = SIPPYCUP.Options.ByAuraID[auraID];
+
+	if profileOptionData.enable then
+		self.auraToProfile[auraID] = profileOptionData;
+		self.castAuraToProfile[castAuraID] = profileOptionData;
+
+		local instanceID = profileOptionData.currentInstanceID;
+		if instanceID then
+			self.instanceToProfile[instanceID] = profileOptionData;
+		end
+
+		if profileOptionData.untrackableByAura and optionData and optionData.itemID then
+			self.untrackableByAuraProfile[optionData.itemID] = profileOptionData;
+		end
+	else
+		self.auraToProfile[auraID] = nil;
+		self.castAuraToProfile[castAuraID] = nil;
+
+		local instanceID = profileOptionData.currentInstanceID;
+		if instanceID then
+			self.instanceToProfile[instanceID] = nil;
+		end
+
+		if profileOptionData.untrackableByAura and optionData and optionData.itemID then
+			self.untrackableByAuraProfile[optionData.itemID] = nil;
+		end
+	end
+
+	self:CommitCharState(auraID, profileOptionData);
+end
+
+---Defaults are layered with the active profile and char DB overrides.
+---The returned table is a copy; changes are not applied automatically.
 ---@param auraID number The aura ID to look up.
----@return SippyCupProfile? option The fully merged option, or nil if no defaults exist.
+---@return SippyCupProfile? option The merged option, or nil if no defaults exist.
 function Database:GetOption(auraID)
 	local profileDefaults = self.defaults[auraID];
 	if not profileDefaults then return nil; end
