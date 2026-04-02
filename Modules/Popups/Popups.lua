@@ -462,10 +462,10 @@ local function UpdatePopupVisuals(popup, data)
 			popup.IgnoreButton:SetText(IGNORE);
 
 			-- Handle cooldown for RefreshButton
-			local startTime, duration = C_Container.GetItemCooldown(itemID);
+			local startTimeSeconds, durationSeconds = C_Container.GetItemCooldown(itemID);
 			local remaining = 0;
-			if duration and duration > 0 then
-				remaining = (startTime + duration) - GetTime();
+			if durationSeconds and durationSeconds > 0 then
+				remaining = (startTimeSeconds + durationSeconds) - GetTime();
 			end
 
 			if remaining > 0 then
@@ -665,9 +665,13 @@ function Popups.Toggle(itemName, auraID, enabled)
 
 	-- If item can only be tracked by the item cooldown (worst)
 	if trackByItem then
-		startTime = C_Item.GetItemCooldown(optionData.itemID);
-		if startTime and startTime > 0 then
-			active = true;
+		local itemIDs = type(optionData.itemID) == "table" and optionData.itemID or { optionData.itemID };
+		for _, id in ipairs(itemIDs) do
+			local startTimeSeconds = C_Item.GetItemCooldown(id);
+			if startTimeSeconds and startTimeSeconds > 0 then
+				startTime = startTimeSeconds;
+				break;
+			end
 		end
 	-- If item can be tracked through the spell cooldown (fine).
 	elseif trackBySpell then
@@ -919,8 +923,8 @@ function Popups.HandlePopupAction(data, caller)
 		local cooldownActive = false;
 		if trackByItem then
 			for _, id in ipairs(itemIDs) do
-				local startTime, duration = C_Container.GetItemCooldown(id);
-				if startTime and duration and duration > 0 and (startTime + duration - now > 0) then
+				local startTimeSeconds, durationSeconds = C_Container.GetItemCooldown(id);
+				if startTimeSeconds and durationSeconds and durationSeconds > 0 and (startTimeSeconds + durationSeconds - now > 0) then
 					cooldownActive = true;
 					break;
 				end

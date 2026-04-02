@@ -204,7 +204,15 @@ function Items.CheckNoAuraSingleOption(profileOptionData, spellID, minSeconds, s
 		local durationMS = GetSpellBaseCooldown(auraID);
 		duration = durationMS / 1000;
 	elseif trackByItem then
-		startTime, duration = C_Item.GetItemCooldown(optionData.itemID);
+		local itemIDs = type(optionData.itemID) == "table" and optionData.itemID or { optionData.itemID };
+		for _, id in ipairs(itemIDs) do
+			local startTimeSeconds, durationSeconds = C_Item.GetItemCooldown(id);
+			if startTimeSeconds and startTimeSeconds > 0 then
+				startTime = startTimeSeconds;
+				duration = durationSeconds;
+				break;
+			end
+		end
 	end
 
 	-- SC.Utils.Debug({startTime = startTime, duration = duration, expirationTime = expirationTime, remaining = remaining});

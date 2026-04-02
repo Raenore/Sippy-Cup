@@ -402,16 +402,16 @@ function Options.RefreshStackSizes(checkAll, reset, preExpireOnly)
 
 		if trackByItem then
 			for _, id in ipairs(option.itemID) do
-				local startTime = C_Item.GetItemCooldown(id);
-				if startTime and startTime > 0 then
-					return startTime;
+				local startTimeSeconds = C_Item.GetItemCooldown(id);
+				if startTimeSeconds and startTimeSeconds > 0 then
+					return startTimeSeconds;
 				end
 			end
 		end
 
 		if trackBySpell then
-			local spellCooldown = C_Spell.GetSpellCooldown(option.auraID);
-			local startTime = spellCooldown and spellCooldown.startTime;
+			local spellCooldownInfo = C_Spell.GetSpellCooldown(option.auraID);
+			local startTime = spellCooldownInfo and spellCooldownInfo.startTime;
 			if startTime and startTime > 0 then
 				return startTime;
 			end
