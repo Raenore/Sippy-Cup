@@ -30,6 +30,49 @@
 ## X-Wago-ID: 96doOnNO
 ## X-WoWI-ID: 26933
 
-Libs\Libs.xml
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+Libs\TaintLess\TaintLess.xml
+Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+Libs\LibDBCompartment\lib.xml
+Libs\LibDBIcon-1.0\lib.xml
+Libs\LibSharedMedia-3.0\lib.xml
 
-SippyCup.xml
+Init.lua
+
+## Locales
+Locales\Localization.lua
+Locales\enUS.lua
+Locales\esES.lua
+Locales\frFR.lua
+Locales\ruRU.lua
+
+## Core
+Core\Globals.lua
+Core\Utils.lua
+
+Core\Database.lua
+Core\Options.lua
+Core\Timers.lua
+Core\Events.lua
+
+Core\Auras.lua
+Core\Bags.lua
+Core\Items.lua
+
+## Modules
+Modules\Dialogs\ConfirmDialog.lua
+Modules\Dialogs\LinkDialog.lua
+Modules\Dialogs\RenameDialog.lua
+Modules\ElvUI\ElvUI.lua
+Modules\Flyway\Flyway.lua
+Modules\Flyway\FlywayPatches.lua
+Modules\Minimap\Minimap.lua
+Modules\MSP\MSP.lua
+Modules\Popups\Popups.xml
+Modules\TRP\TRP.lua
+
+## UI
+UI\Config.xml
+
+SippyCup.lua

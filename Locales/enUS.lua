@@ -1,9 +1,11 @@
 -- Copyright The Sippy Cup Authors
+-- Inspired by Eavesdropper
 -- SPDX-License-Identifier: Apache-2.0
 
 local title = C_AddOns.GetAddOnMetadata("SippyCup", "Title");
 local L;
 
+---@class SC.Locale.enUS
 L = {
 	--/ Welcome message /--
 	WELCOMEMSG_VERSION = "Prepared with |cnGREEN_FONT_COLOR:%s|r flavor (|cnWHITE_FONT_COLOR:%s|r)!",
@@ -137,4 +139,6 @@ L = {
 	OPTIONS_PROFILES_RENAMEPROFILE_DESC = "Choose a new name for the current profile.",
 };
 
-SIPPYCUP.L_ENUS = L;
+---@class SC.L : SC.Locale.enUS, SC.Localization
+SC.Localization = SC.LocalizationClass:New(L);
+SC.Localization:RegisterNewLocale("enUS", "English", L);

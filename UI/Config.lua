@@ -1,9 +1,11 @@
 -- Copyright The Sippy Cup Authors
 -- SPDX-License-Identifier: Apache-2.0
 
-local L = SIPPYCUP.L;
+---@class SippyCupConfig
+local Config = {};
+
+local L = SC.Localization;
 local SharedMedia = LibStub("LibSharedMedia-3.0");
-SIPPYCUP.Config = {};
 
 local MISMATCH_ICON = "|TInterface\\AddOns\\SippyCup\\Resources\\UI\\ui-icon-mismatch:16:16|t";
 
@@ -31,9 +33,27 @@ for _, soundName in ipairs(SharedMedia:List("sound")) do
 	soundList[soundName] = soundName;
 end
 
-function SIPPYCUP.Config.TryCreateConfigFrame()
-	if not SIPPYCUP.configFrame then
-		SIPPYCUP.configFrame = CreateFrame("Frame", "SIPPYCUP_ConfigMenuFrame", UIParent, "SIPPYCUP_ConfigMenuTemplate");
+---TryCreateConfigFrame creates the config menu frame if it does not already exist.
+---@return nil
+function Config.TryCreateConfigFrame()
+	if not SC.configFrame then
+		SC.configFrame = CreateFrame("Frame", "SippyCup_ConfigMenuFrame", UIParent, "SippyCup_ConfigMenuTemplate");
+	end
+end
+
+---OpenSettings Toggles the main config frame and optionally switches to a specified tab.
+---@param view number? Optional tab index, defaults to 1.
+function Config:OpenSettings(view)
+	if not SC.configFrame then
+		SC.Config.TryCreateConfigFrame();
+	end
+
+	if SC.configFrame then
+		SC.configFrame:SetShown(not SC.configFrame:IsShown());
+		SC.configFrame:Raise();
+
+		local tabToOpen = view or 1;
+		SippyCup_ConfigMenuFrame:SetTab(tabToOpen);
 	end
 end
 
@@ -63,7 +83,7 @@ end
 ---@return table tab The created tab button frame.
 local function AddTab(parent)
 	local tabs = parent.Tabs;
-	local tab = CreateFrame("Button", nil, parent, "SIPPYCUP_ConfigMenuTabTopTemplate");
+	local tab = CreateFrame("Button", nil, parent, "SippyCup_ConfigMenuTabTopTemplate");
 
 	if tIndexOf(tabs, tab) == nil then
 		table.insert(tabs, tab);
@@ -89,7 +109,7 @@ local function AddTab(parent)
 	tab:SetScript("OnShow", OnShow);
 	tab:SetScript("OnClick", OnClick);
 
-	SIPPYCUP.ElvUI.RegisterSkinnableElement(tab, "toptapbutton");
+	SC.ElvUI.RegisterSkinnableElement(tab, "toptapbutton");
 
 	return tab;
 end
@@ -132,7 +152,7 @@ local function GetScrollableWrapperFrame(parent)
 	contentFrame.scrollFrame = scrollFrame;
 	contentFrame.isScrollable = true;
 
-	SIPPYCUP.ElvUI.RegisterSkinnableElement(scrollFrame.ScrollBar, "scrollbar");
+	SC.ElvUI.RegisterSkinnableElement(scrollFrame.ScrollBar, "scrollbar");
 	parent.Views[#parent.Views + 1] = contentFrame;
 
 	return contentFrame;
@@ -210,7 +230,7 @@ local function AttachTooltip(frames, title, description, style, anchor) -- luach
 		GameTooltip:SetOwner(firstFrame or frames, anchor);
 		GameTooltip:SetText(title, WHITE_FONT_COLOR:GetRGB());
 		GameTooltip:AddLine(description, nil, nil, nil, true);
-		SIPPYCUP.ElvUI.SkinTooltip(GameTooltip);
+		SC.ElvUI.SkinTooltip(GameTooltip);
 		GameTooltip:Show();
 	end
 
@@ -287,7 +307,7 @@ local function AttachEditBoxTooltip(frames, title, description, style, anchor) -
 		GameTooltip:SetOwner(firstFrame or frames, anchor);
 		GameTooltip:SetText(title, WHITE_FONT_COLOR:GetRGB());
 		GameTooltip:AddLine(description, nil, nil, nil, true);
-		SIPPYCUP.ElvUI.SkinTooltip(GameTooltip);
+		SC.ElvUI.SkinTooltip(GameTooltip);
 		GameTooltip:Show();
 	end
 
@@ -341,9 +361,9 @@ end
 local function WrapButtonClick(original)
 	return function(self, ...)
 		original(self, ...);
-		if SIPPYCUP.configFrame then
+		if SC.configFrame then
 			RunNextFrame(function()
-				SIPPYCUP_ConfigMenuFrame:RefreshWidgets();
+				SippyCup_ConfigMenuFrame:RefreshWidgets();
 			end);
 		end
 	end
@@ -429,7 +449,7 @@ local function CreateTitleWithDescription(parent, titleText, descText, optionsPa
 			end
 			btn:SetWidth(30);
 			btn:SetPoint("TOPLEFT", pointTo, "TOPRIGHT", 5, 0);
-			SIPPYCUP.ElvUI.RegisterSkinnableElement(btn, "button");
+			SC.ElvUI.RegisterSkinnableElement(btn, "button");
 			AttachTooltip(btn, tooltipName, tooltipDesc);
 			return btn;
 		end
@@ -438,7 +458,7 @@ local function CreateTitleWithDescription(parent, titleText, descText, optionsPa
 		preExpirationButton:SetText("|A:uitools-icon-refresh:16:16|a");
 		preExpirationButton:SetPoint("TOPLEFT", description, "BOTTOMLEFT", 0, -10);
 		preExpirationButton:SetWidth(30);
-		SIPPYCUP.ElvUI.RegisterSkinnableElement(preExpirationButton, "button");
+		SC.ElvUI.RegisterSkinnableElement(preExpirationButton, "button");
 		AttachTooltip(preExpirationButton, L.OPTIONS_LEGENDA_PRE_EXPIRATION_NAME, L.OPTIONS_LEGENDA_PRE_EXPIRATION_DESC);
 
 		local nonRefreshableButton = CreateLegendaButton("uitools-icon-close", preExpirationButton, L.OPTIONS_LEGENDA_NON_REFRESHABLE_NAME, L.OPTIONS_LEGENDA_NON_REFRESHABLE_DESC);
@@ -457,7 +477,7 @@ end
 ---@param insetData table List of widget data entries describing the inset contents.
 ---@return Frame infoInset The created inset frame containing the widgets.
 local function CreateInset(parent, insetData)
-	local ElvUI = SIPPYCUP.ElvUI;
+	local ElvUI = SC.ElvUI;
 
 	local infoInset = CreateFrame("Frame", nil, parent, "InsetFrameTemplate");
 	ElvUI.RegisterSkinnableElement(infoInset, "inset");
@@ -478,12 +498,12 @@ local function CreateInset(parent, insetData)
 
 		if entryType == "logo" then
 			logo = infoInset:CreateTexture(nil, "ARTWORK");
-			logo:SetTexture(SIPPYCUP.AddonMetadata.iconTexture);
+			logo:SetTexture(SC.Globals.addon_icon_texture);
 			logo:SetSize(52, 52);
 			logo:SetPoint("LEFT", 8, 0);
 			ElvUI.RegisterSkinnableElement(logo, "icon");
 
-			AttachTooltip(logo, SIPPYCUP.AddonMetadata.title, "Sluuuuuuuurp..");
+			AttachTooltip(logo, SC.Globals.addon_title, "Sluuuuuuuurp..");
 		elseif entryType == "title" then
 			title = infoInset:CreateFontString(nil, "ARTWORK", "GameFontHighlightHuge");
 			title:SetText(data.text or "");
@@ -517,21 +537,21 @@ local function CreateInset(parent, insetData)
 			AttachTooltip(bsky, data.text or "", data.tooltip or "");
 
 			bsky:SetScript("OnClick", function()
-				SIPPYCUP.LinkDialog.CreateExternalLinkDialog("https://bsky.app/profile/dawnsong.me");
+				SC.LinkDialog.CreateExternalLinkDialog("https://bsky.app/profile/dawnsong.me");
 			end);
 
-			if SIPPYCUP.IS_DEV_BUILD then
+			if SC.Globals.IS_DEV_BUILD then
 				local printCheckbox = CreateFrame("CheckButton", nil, infoInset, "SettingsCheckBoxTemplate");
 				printCheckbox:SetPoint("TOPRIGHT", bsky, "TOPLEFT", -8, 0);
 				printCheckbox:SetSize(22, 22);
 				ElvUI.RegisterSkinnableElement(printCheckbox, "checkbox");
 
-				printCheckbox:SetChecked(SIPPYCUP.Database:GetGlobalSetting("DebugOutput"));
+				printCheckbox:SetChecked(SC.Database:GetGlobalSetting("DebugOutput"));
 
 				AttachTooltip(printCheckbox, "Enable Debug Output", "Click this to enable the debug prints.|n|nIf you see this without knowing what debug is, you might've done something wrong!");
 
 				printCheckbox:SetScript("OnClick", function(self)
-					SIPPYCUP.Database:SetGlobalSetting("DebugOutput", self:GetChecked());
+					SC.Database:SetGlobalSetting("DebugOutput", self:GetChecked());
 				end);
 			end
 		end
@@ -575,7 +595,7 @@ local function CreateConfigButton(elementContainer, data)
 	widget:SetAllPoints(elementContainer);
 	widget.data = data;
 
-	if data.buildAdded and SIPPYCUP_BUILDINFO.CheckNewlyAdded(data.buildAdded) then
+	if data.buildAdded and SC.Utils.CheckNewlyAdded(data.buildAdded) then
 		local newPip = widget:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
 		widget.newPip = newPip;
 		newPip:SetPoint("CENTER", widget, "TOPLEFT");
@@ -594,7 +614,7 @@ local function CreateConfigButton(elementContainer, data)
 		ApplyTooltip(widget, data.label, data.tooltip);
 	end
 
-	SIPPYCUP.ElvUI.RegisterSkinnableElement(widget, "button");
+	SC.ElvUI.RegisterSkinnableElement(widget, "button");
 
 	return widget;
 end
@@ -624,7 +644,7 @@ local function CreateConfigCheckBox(elementContainer, data)
 		icon:SetTexture(data.icon);
 		icon:SetSize(size, size);
 		icon:SetPoint("LEFT", widget, "RIGHT", 5, 0);
-		SIPPYCUP.ElvUI.RegisterSkinnableElement(icon, "icon");
+		SC.ElvUI.RegisterSkinnableElement(icon, "icon");
 
 		local addition = "";
 		if data.preExpiration or data.unrefreshable or data.nonAura or data.stacks or data.cooldownMismatch then
@@ -648,7 +668,7 @@ local function CreateConfigCheckBox(elementContainer, data)
 	end
 	label:SetText(labelText);
 
-	if data.buildAdded and SIPPYCUP_BUILDINFO.CheckNewlyAdded(data.buildAdded) then
+	if data.buildAdded and SC.Utils.CheckNewlyAdded(data.buildAdded) then
 		local newPip = widget:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
 		widget.newPip = newPip;
 		newPip:SetPoint("CENTER", widget, "TOPLEFT");
@@ -673,8 +693,8 @@ local function CreateConfigCheckBox(elementContainer, data)
 			local checked = self:GetChecked();
 			if checked ~= data.get() then
 				data.set(checked);
-				if SIPPYCUP.configFrame then
-					SIPPYCUP_ConfigMenuFrame:RefreshWidgets();
+				if SC.configFrame then
+					SippyCup_ConfigMenuFrame:RefreshWidgets();
 				end
 			end
 		end
@@ -701,7 +721,7 @@ local function CreateConfigCheckBox(elementContainer, data)
 		end
 	end
 
-	SIPPYCUP.ElvUI.RegisterSkinnableElement(widget, "checkbox");
+	SC.ElvUI.RegisterSkinnableElement(widget, "checkbox");
 
 	return widget;
 end
@@ -724,7 +744,7 @@ local function CreateConfigDescription(elementContainer, data)
 	end
 	widget:SetText(text or "");
 
-	SIPPYCUP.ElvUI.RegisterSkinnableElement(widget, "description");
+	SC.ElvUI.RegisterSkinnableElement(widget, "description");
 
 	return widget;
 end
@@ -739,7 +759,7 @@ local function CreateConfigDropdown(elementContainer, data)
 	widget:SetPoint("BOTTOMRIGHT", elementContainer, "BOTTOMRIGHT", 0, -2); -- 2 more height to fit whole container
 	widget.data = data;
 
-	if data.buildAdded and SIPPYCUP_BUILDINFO.CheckNewlyAdded(data.buildAdded) then
+	if data.buildAdded and SC.Utils.CheckNewlyAdded(data.buildAdded) then
 		local newPip = widget:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
 		widget.newPip = newPip;
 		newPip:SetPoint("CENTER", widget, "TOPLEFT");
@@ -766,8 +786,8 @@ local function CreateConfigDropdown(elementContainer, data)
 	local function SetSelected(index)
 		if type(data.set) == "function" then
 			data.set(index);
-			if SIPPYCUP.configFrame then
-				SIPPYCUP_ConfigMenuFrame:RefreshWidgets();
+			if SC.configFrame then
+				SippyCup_ConfigMenuFrame:RefreshWidgets();
 			end
 		end
 	end
@@ -855,7 +875,7 @@ local function CreateConfigDropdown(elementContainer, data)
 		ApplyTooltip(widget, labelText, data.tooltip);
 	end
 
-	SIPPYCUP.ElvUI.RegisterSkinnableElement(widget, "dropdown");
+	SC.ElvUI.RegisterSkinnableElement(widget, "dropdown");
 
 	return widget;
 end
@@ -875,7 +895,7 @@ local function CreateConfigEditBox(elementContainer, data)
 		widget:SetMaxLetters(data.maxChars);
 	end
 
-	if data.buildAdded and SIPPYCUP_BUILDINFO.CheckNewlyAdded(data.buildAdded) then
+	if data.buildAdded and SC.Utils.CheckNewlyAdded(data.buildAdded) then
 		local newPip = widget:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
 		widget.newPip = newPip;
 		newPip:SetPoint("CENTER", widget, "TOPLEFT");
@@ -887,8 +907,8 @@ local function CreateConfigEditBox(elementContainer, data)
 			data.set(self:GetText());
 			self:SetText(""); -- Intentionally clear after submission
 			self:ClearFocus();
-			if SIPPYCUP.configFrame then
-				SIPPYCUP_ConfigMenuFrame:RefreshWidgets();
+			if SC.configFrame then
+				SippyCup_ConfigMenuFrame:RefreshWidgets();
 			end
 		end);
 	end
@@ -897,7 +917,7 @@ local function CreateConfigEditBox(elementContainer, data)
 		AttachEditBoxTooltip(widget, data.label, data.tooltip);
 	end
 
-	SIPPYCUP.ElvUI.RegisterSkinnableElement(widget, "editbox");
+	SC.ElvUI.RegisterSkinnableElement(widget, "editbox");
 
 	return widget;
 end
@@ -943,7 +963,7 @@ local function CreateConfigSlider(elementContainer, data)
 	widget:SetWidth(elementContainer:GetWidth() * 0.8);
 	widget:SetHeight(data.height or 41);
 
-	if data.buildAdded and SIPPYCUP_BUILDINFO.CheckNewlyAdded(data.buildAdded) then
+	if data.buildAdded and SC.Utils.CheckNewlyAdded(data.buildAdded) then
 		local newPip = widget:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
 		widget.newPip = newPip;
 		newPip:SetPoint("CENTER", widget.Back, "TOPLEFT");
@@ -974,8 +994,8 @@ local function CreateConfigSlider(elementContainer, data)
 				lastValue = rounded;
 				data.set(rounded);
 				UpdateTextDisplay(rounded);
-				if SIPPYCUP.configFrame then
-					SIPPYCUP_ConfigMenuFrame:RefreshWidgets();
+				if SC.configFrame then
+					SippyCup_ConfigMenuFrame:RefreshWidgets();
 				end
 			end
 		end);
@@ -985,7 +1005,7 @@ local function CreateConfigSlider(elementContainer, data)
 		ApplyTooltip({widget.Slider, widget.Back, widget.Forward, widget, elementContainer}, data.label, data.tooltip);
 	end
 
-	SIPPYCUP.ElvUI.RegisterSkinnableElement(widget, "slider");
+	SC.ElvUI.RegisterSkinnableElement(widget, "slider");
 
 	return widget;
 end
@@ -1092,11 +1112,11 @@ local function CreateCategoryHeader(parent, titleText, topOffset)
 	return container;
 end
 
-SIPPYCUP_ConfigMixin = {};
+SippyCup_ConfigMixin = {};
 
 ---SetTab shows the selected configuration tab and hides others.
 ---@param index number The index of the tab to activate.
-function SIPPYCUP_ConfigMixin:SetTab(index)
+function SippyCup_ConfigMixin:SetTab(index)
 	for i, panel in ipairs(self.Views) do
 		local isSelected = (i == index);
 		panel:SetShown(isSelected);
@@ -1116,7 +1136,7 @@ end
 
 ---SwitchProfileValues updates all profile-bound widgets with current values.
 ---Ensures each widget reflects its getter's value and applies corresponding set or disabled logic.
-function SIPPYCUP_ConfigMixin:SwitchProfileValues()
+function SippyCup_ConfigMixin:SwitchProfileValues()
 	if not self.profileWidgets then return; end
 
 	local grayR, grayG, grayB = GRAY_FONT_COLOR:GetRGB();
@@ -1163,7 +1183,7 @@ end
 
 ---RefreshWidgets re-evaluates and updates all widgets' values and states.
 ---Ensures dynamic content, enabled/disabled states, and labels are current across all widget types.
-function SIPPYCUP_ConfigMixin:RefreshWidgets()
+function SippyCup_ConfigMixin:RefreshWidgets()
 	if not self.allWidgets then return; end
 
 	local grayR, grayG, grayB = GRAY_FONT_COLOR:GetRGB();
@@ -1243,17 +1263,18 @@ table.sort(categories, function(a, b)
 	local locB = L["OPTIONS_TAB_" .. string.upper(b) .. "_TITLE"] or "";
 
 	-- Normalize and lowercase for case-insensitive comparison
-	return SIPPYCUP_TEXT.Normalize(locA:lower()) < SIPPYCUP_TEXT.Normalize(locB:lower());
+	return SC.Utils.Normalize(locA:lower()) < SC.Utils.Normalize(locB:lower());
 end);
 
-function SIPPYCUP_ConfigMixin:OnLoad()
+---OnLoad initializes the config menu frame, creating tabs, panels, and all widget content.
+function SippyCup_ConfigMixin:OnLoad()
 	ButtonFrameTemplate_HidePortrait(self);
 	ButtonFrameTemplate_HideButtonBar(self);
 	tinsert(UISpecialFrames, self:GetName());
 
 	self.Inset:Hide();
 
-	self:SetTitle(SIPPYCUP.AddonMetadata.title .. " " .. MAIN_MENU);
+	self:SetTitle(SC.Globals.addon_title .. " " .. MAIN_MENU);
 
 	self.Tabs = {};
 	self.TabsByName = {};
@@ -1301,7 +1322,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 	self:SetWidth(totalWidth + 0); -- padding
 
 	-- Test content for General tab
-	CreateTitleWithDescription(generalPanel, L.OPTIONS_GENERAL_HEADER, SIPPYCUP.AddonMetadata.notes);
+	CreateTitleWithDescription(generalPanel, L.OPTIONS_GENERAL_HEADER, SC.Globals.addon_notes);
 
 	local generalCheckboxData = {
 		{
@@ -1309,10 +1330,10 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			label = L.OPTIONS_GENERAL_WELCOME_NAME,
 			tooltip = L.OPTIONS_GENERAL_WELCOME_DESC,
 			get = function()
-				return SIPPYCUP.Database:GetGlobalSetting("WelcomeMessage");
+				return SC.Database:GetGlobalSetting("WelcomeMessage");
 			end,
 			set = function(val)
-				SIPPYCUP.Database:SetGlobalSetting("WelcomeMessage", val);
+				SC.Database:SetGlobalSetting("WelcomeMessage", val);
 			end,
 		},
 		{
@@ -1320,14 +1341,14 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			label = L.OPTIONS_GENERAL_MINIMAPBUTTON_NAME,
 			tooltip = L.OPTIONS_GENERAL_MINIMAPBUTTON_DESC,
 			get = function()
-				return not SIPPYCUP.Database:GetGlobalSetting("MinimapButton").Hide;
+				return not SC.Database:GetGlobalSetting("MinimapButton").Hide;
 			end,
 			set = function(val)
 				-- Update with inversion: save 'Hide' as NOT val
-				local minimapSettings = SIPPYCUP.Database:GetGlobalSetting("MinimapButton");
+				local minimapSettings = SC.Database:GetGlobalSetting("MinimapButton");
 				minimapSettings.Hide = not val;
-				SIPPYCUP.Database:SetGlobalSetting("MinimapButton", minimapSettings);
-				SIPPYCUP.Minimap:UpdateMinimapButtons();
+				SC.Database:SetGlobalSetting("MinimapButton", minimapSettings);
+				SC.Minimap:UpdateMinimapButtons();
 			end,
 		},
 		{
@@ -1335,13 +1356,13 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			label = L.OPTIONS_GENERAL_ADDONCOMPARTMENT_NAME,
 			tooltip = L.OPTIONS_GENERAL_ADDONCOMPARTMENT_DESC,
 			get = function()
-				return SIPPYCUP.Database:GetGlobalSetting("MinimapButton").ShowAddonCompartmentButton;
+				return SC.Database:GetGlobalSetting("MinimapButton").ShowAddonCompartmentButton;
 			end,
 			set = function(val)
-				local minimapSettings = SIPPYCUP.Database:GetGlobalSetting("MinimapButton");
+				local minimapSettings = SC.Database:GetGlobalSetting("MinimapButton");
 				minimapSettings.ShowAddonCompartmentButton = val;
-				SIPPYCUP.Database:SetGlobalSetting("MinimapButton", minimapSettings);
-				SIPPYCUP.Minimap:UpdateMinimapButtons();
+				SC.Database:SetGlobalSetting("MinimapButton", minimapSettings);
+				SC.Minimap:UpdateMinimapButtons();
 			end,
 		},
 		{
@@ -1350,12 +1371,12 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			tooltip = L.OPTIONS_GENERAL_NEW_FEATURE_NOTIFICATION_DESC,
 			notificationToggle = true,
 			get = function()
-				return SIPPYCUP.Database:GetGlobalSetting("NewFeatureNotification");
+				return SC.Database:GetGlobalSetting("NewFeatureNotification");
 			end,
 			set = function(val)
-				SIPPYCUP.Popups.CreateReloadPopup(
+				SC.Popups.CreateReloadPopup(
 					function() -- ACCEPT
-						SIPPYCUP.Database:SetGlobalSetting("NewFeatureNotification", val);
+						SC.Database:SetGlobalSetting("NewFeatureNotification", val);
 						ReloadUI();
 					end
 				);
@@ -1377,17 +1398,17 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			label = L.OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE,
 			tooltip = L.OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE_DESC,
 			get = function()
-				return SIPPYCUP.Database:GetGlobalSetting("PreExpirationChecks");
+				return SC.Database:GetGlobalSetting("PreExpirationChecks");
 			end,
 			set = function(val)
-				SIPPYCUP.Database:SetGlobalSetting("PreExpirationChecks", val);
+				SC.Database:SetGlobalSetting("PreExpirationChecks", val);
 				if val then
-					SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.Database:GetGlobalSetting("MSPStatusCheck"), false, true);
+					SC.Options.RefreshStackSizes(SC.MSP.IsEnabled() and SC.Database:GetGlobalSetting("MSPStatusCheck"), false, true);
 				else
-					local reason = SIPPYCUP.Popups.Reason.PRE_EXPIRATION;
-					SIPPYCUP.Auras.CancelAllPreExpirationTimers();
-					SIPPYCUP.Items.CancelAllItemTimers(reason);
-					SIPPYCUP.Popups.HideAllRefreshPopups(reason);
+					local reason = SC.Popups.Reason.PRE_EXPIRATION;
+					SC.Auras.CancelAllPreExpirationTimers();
+					SC.Items.CancelAllItemTimers(reason);
+					SC.Popups.HideAllRefreshPopups(reason);
 				end
 			end,
 		},
@@ -1400,18 +1421,18 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			max = 5,
 			step = 1,
 			disabled = function()
-				return not SIPPYCUP.Database:GetGlobalSetting("PreExpirationChecks");
+				return not SC.Database:GetGlobalSetting("PreExpirationChecks");
 			end,
 			get = function()
-				return SIPPYCUP.Database:GetGlobalSetting("PreExpirationLeadTimer");
+				return SC.Database:GetGlobalSetting("PreExpirationLeadTimer");
 			end,
 			set = function(val)
-				SIPPYCUP.Database:SetGlobalSetting("PreExpirationLeadTimer", val);
-				local reason = SIPPYCUP.Popups.Reason.PRE_EXPIRATION;
-				SIPPYCUP.Auras.CancelAllPreExpirationTimers();
-				SIPPYCUP.Items.CancelAllItemTimers(reason);
-				SIPPYCUP.Popups.HideAllRefreshPopups(reason);
-				SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.Database:GetGlobalSetting("MSPStatusCheck"), false, true);
+				SC.Database:SetGlobalSetting("PreExpirationLeadTimer", val);
+				local reason = SC.Popups.Reason.PRE_EXPIRATION;
+				SC.Auras.CancelAllPreExpirationTimers();
+				SC.Items.CancelAllItemTimers(reason);
+				SC.Popups.HideAllRefreshPopups(reason);
+				SC.Options.RefreshStackSizes(SC.MSP.IsEnabled() and SC.Database:GetGlobalSetting("MSPStatusCheck"), false, true);
 			end,
 		},
 		{
@@ -1419,10 +1440,10 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			label = L.OPTIONS_GENERAL_POPUPS_INSUFFICIENT_REMINDER_ENABLE,
 			tooltip = L.OPTIONS_GENERAL_POPUPS_INSUFFICIENT_REMINDER_ENABLE_DESC,
 			get = function()
-				return SIPPYCUP.Database:GetGlobalSetting("InsufficientReminder");
+				return SC.Database:GetGlobalSetting("InsufficientReminder");
 			end,
 			set = function(val)
-				SIPPYCUP.Database:SetGlobalSetting("InsufficientReminder", val);
+				SC.Database:SetGlobalSetting("InsufficientReminder", val);
 			end,
 		},
 		{
@@ -1431,10 +1452,10 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			tooltip = L.OPTIONS_GENERAL_POPUPS_TRACK_TOY_ITEM_CD_ENABLE_DESC,
 			buildAdded = "0.6.0|120000",
 			get = function()
-				return SIPPYCUP.Database:GetGlobalSetting("UseToyCooldown");
+				return SC.Database:GetGlobalSetting("UseToyCooldown");
 			end,
 			set = function(val)
-				SIPPYCUP.Database:SetGlobalSetting("UseToyCooldown", val);
+				SC.Database:SetGlobalSetting("UseToyCooldown", val);
 			end,
 		},
 		{
@@ -1442,10 +1463,10 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			label = L.OPTIONS_GENERAL_POPUPS_IGNORES,
 			tooltip = L.OPTIONS_GENERAL_POPUPS_IGNORES_TEXT,
 			disabled = function()
-				return SIPPYCUP.Popups.IsEmpty();
+				return SC.Popups.IsEmpty();
 			end,
 			func = function()
-				SIPPYCUP.Popups.ResetIgnored();
+				SC.Popups.ResetIgnored();
 			end,
 		},
 	};
@@ -1468,10 +1489,10 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 				"BOTTOM",
 			},
 			get = function()
-				return SIPPYCUP.Database:GetGlobalSetting("PopupPosition");
+				return SC.Database:GetGlobalSetting("PopupPosition");
 			end,
 			set = function(val)
-				SIPPYCUP.Database:SetGlobalSetting("PopupPosition", val);
+				SC.Database:SetGlobalSetting("PopupPosition", val);
 			end,
 		},
 	};
@@ -1484,10 +1505,10 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			label = BINDING_NAME_TOGGLESOUND,
 			tooltip = L.OPTIONS_GENERAL_POPUPS_SOUND_ENABLE_DESC,
 			get = function()
-				return SIPPYCUP.Database:GetGlobalSetting("AlertSound");
+				return SC.Database:GetGlobalSetting("AlertSound");
 			end,
 			set = function(val)
-				SIPPYCUP.Database:SetGlobalSetting("AlertSound", val);
+				SC.Database:SetGlobalSetting("AlertSound", val);
 			end,
 		},
 		{
@@ -1497,16 +1518,16 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			align = "right",
 			values = soundList,
 			disabled = function()
-				return not SIPPYCUP.Database:GetGlobalSetting("AlertSound");
+				return not SC.Database:GetGlobalSetting("AlertSound");
 			end,
 			get = function()
-				return SIPPYCUP.Database:GetGlobalSetting("AlertSoundID");
+				return SC.Database:GetGlobalSetting("AlertSoundID");
 			end,
 			set = function(val)
 				local soundPath = SharedMedia:Fetch("sound", val);
 				if soundPath then
 					PlaySoundFile(soundPath, "Master");
-					SIPPYCUP.Database:SetGlobalSetting("AlertSoundID", val);
+					SC.Database:SetGlobalSetting("AlertSoundID", val);
 				end
 			end,
 		},
@@ -1515,10 +1536,10 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			label = L.OPTIONS_GENERAL_POPUPS_FLASHTASKBAR_ENABLE,
 			tooltip = L.OPTIONS_GENERAL_POPUPS_FLASHTASKBAR_ENABLE_DESC,
 			get = function()
-				return SIPPYCUP.Database:GetGlobalSetting("FlashTaskbar");
+				return SC.Database:GetGlobalSetting("FlashTaskbar");
 			end,
 			set = function(val)
-				SIPPYCUP.Database:SetGlobalSetting("FlashTaskbar", val);
+				SC.Database:SetGlobalSetting("FlashTaskbar", val);
 			end,
 		},
 	};
@@ -1533,18 +1554,18 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			label = L.OPTIONS_GENERAL_MSP_STATUSCHECK_ENABLE,
 			tooltip = L.OPTIONS_GENERAL_MSP_STATUSCHECK_DESC,
 			disabled = function()
-				return not SIPPYCUP.MSP.IsEnabled();
+				return not SC.MSP.IsEnabled();
 			end,
 			get = function()
-				return SIPPYCUP.Database:GetGlobalSetting("MSPStatusCheck");
+				return SC.Database:GetGlobalSetting("MSPStatusCheck");
 			end,
 			set = function(val)
-				SIPPYCUP.Database:SetGlobalSetting("MSPStatusCheck", val);
-				SIPPYCUP.MSP.CheckRPStatus();
+				SC.Database:SetGlobalSetting("MSPStatusCheck", val);
+				SC.MSP.CheckRPStatus();
 				if val then
-					SIPPYCUP.Options.RefreshStackSizes(val);
+					SC.Options.RefreshStackSizes(val);
 				else
-					SIPPYCUP.Popups.HideAllRefreshPopups();
+					SC.Popups.HideAllRefreshPopups();
 				end
 			end,
 		},
@@ -1558,17 +1579,17 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 		},
 		{
 			type = "title",
-			text = SIPPYCUP.AddonMetadata.title,
+			text = SC.Globals.addon_title,
 		},
 		{
 			type = "version",
-			text = SIPPYCUP.AddonMetadata.version,
+			text = SC.Globals.addon_version,
 		},
 		{
 			type = "build",
-			text = L.OPTIONS_GENERAL_ADDONINFO_BUILD:format(SIPPYCUP_BUILDINFO.Output(true)),
+			text = L.OPTIONS_GENERAL_ADDONINFO_BUILD:format(SC.Utils.GetBuildString(true)),
 			tooltip = function()
-				if SIPPYCUP_BUILDINFO.ValidateLatestBuild() then
+				if SC.Utils.ValidateLatestBuild() then
 					return L.OPTIONS_GENERAL_ADDONINFO_BUILD_CURRENT;
 				else
 					return L.OPTIONS_GENERAL_ADDONINFO_BUILD_OUTDATED;
@@ -1577,7 +1598,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 		},
 		{
 			type = "author",
-			text = SIPPYCUP.AddonMetadata.author,
+			text = SC.Globals.author,
 		},
 		{
 			type = "bsky",
@@ -1598,8 +1619,8 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 
 		local categoryConsumablesData = {};
 
-		for _, optionData in ipairs(SIPPYCUP.Options.Data) do
-			if optionData.category == categoryName and optionData.type == SIPPYCUP.Options.Type.CONSUMABLE then
+		for _, optionData in ipairs(SC.Options.Data) do
+			if optionData.category == categoryName and optionData.type == SC.Options.Type.CONSUMABLE then
 				local consumableAura = optionData.auraID;
 				local consumableName = optionData.name;
 				local consumableID = optionData.itemID;
@@ -1622,11 +1643,11 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 					stacks = optionData.stacks,
 					buildAdded = optionData.buildAdded,
 					get = function()
-						return SIPPYCUP.Database:GetProfileSetting(checkboxProfileKey, "enable");
+						return SC.Database:GetProfileSetting(checkboxProfileKey, "enable");
 					end,
 					set = function(val)
-						SIPPYCUP.Database:SetProfileSetting(checkboxProfileKey, "enable", val);
-						SIPPYCUP.Popups.Toggle(consumableName, consumableAura, val);
+						SC.Database:SetProfileSetting(checkboxProfileKey, "enable", val);
+						SC.Popups.Toggle(consumableName, consumableAura, val);
 					end,
 				};
 
@@ -1643,16 +1664,16 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 						max = optionData.maxStacks,
 						step = 1,
 						disabled = function()
-							return not SIPPYCUP.Database:GetProfileSetting(sliderProfileKey, "enable");
+							return not SC.Database:GetProfileSetting(sliderProfileKey, "enable");
 						end,
 						get = function()
-							return SIPPYCUP.Database:GetProfileSetting(sliderProfileKey, "desiredStacks");
+							return SC.Database:GetProfileSetting(sliderProfileKey, "desiredStacks");
 						end,
 						set = function(val)
-							SIPPYCUP.Database:SetProfileSetting(sliderProfileKey, "desiredStacks", val);
-							local profileOptionData = SIPPYCUP.Database:GetOption(sliderProfileKey);
+							SC.Database:SetProfileSetting(sliderProfileKey, "desiredStacks", val);
+							local profileOptionData = SC.Database:GetOption(sliderProfileKey);
 							if profileOptionData.enable then
-								SIPPYCUP.Popups.Toggle(consumableName, consumableAura, true);
+								SC.Popups.Toggle(consumableName, consumableAura, true);
 							end
 						end
 					};
@@ -1666,7 +1687,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			local prismWidgetData = {
 				{
 					type = "slider",
-					label = L.OPTIONS_TAB_PRISM_TIMER:format(SIPPYCUP.Options.ByItemID[193031].name),
+					label = L.OPTIONS_TAB_PRISM_TIMER:format(SC.Options.ByItemID[193031].name),
 					tooltip = L.OPTIONS_TAB_PRISM_TIMER_TEXT:format(5, 5),
 					buildAdded = "0.7.0|120001",
 					min = 1,
@@ -1674,23 +1695,23 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 					step = 1,
 					height = 35,
 					disabled = function()
-						return not SIPPYCUP.Database:GetGlobalSetting("ProjectionPrismPreExpirationLeadTimer");
+						return not SC.Database:GetGlobalSetting("ProjectionPrismPreExpirationLeadTimer");
 					end,
 					get = function()
-						return SIPPYCUP.Database:GetGlobalSetting("ProjectionPrismPreExpirationLeadTimer");
+						return SC.Database:GetGlobalSetting("ProjectionPrismPreExpirationLeadTimer");
 					end,
 					set = function(val)
-						SIPPYCUP.Database:SetGlobalSetting("ProjectionPrismPreExpirationLeadTimer", val);
-						local reason = SIPPYCUP.Popups.Reason.PRE_EXPIRATION;
-						SIPPYCUP.Auras.CancelAllPreExpirationTimers();
-						SIPPYCUP.Items.CancelAllItemTimers(reason);
-						SIPPYCUP.Popups.HideAllRefreshPopups(reason);
-						SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.Database:GetGlobalSetting("MSPStatusCheck"), false, true);
+						SC.Database:SetGlobalSetting("ProjectionPrismPreExpirationLeadTimer", val);
+						local reason = SC.Popups.Reason.PRE_EXPIRATION;
+						SC.Auras.CancelAllPreExpirationTimers();
+						SC.Items.CancelAllItemTimers(reason);
+						SC.Popups.HideAllRefreshPopups(reason);
+						SC.Options.RefreshStackSizes(SC.MSP.IsEnabled() and SC.Database:GetGlobalSetting("MSPStatusCheck"), false, true);
 					end,
 				},
 				{
 					type = "slider",
-					label = L.OPTIONS_TAB_PRISM_TIMER:format(SIPPYCUP.Options.ByItemID[112384].name),
+					label = L.OPTIONS_TAB_PRISM_TIMER:format(SC.Options.ByItemID[112384].name),
 					tooltip = L.OPTIONS_TAB_PRISM_TIMER_TEXT:format(3, 3),
 					buildAdded = "0.7.0|120001",
 					min = 1,
@@ -1698,18 +1719,18 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 					step = 1,
 					height = 35,
 					disabled = function()
-						return not SIPPYCUP.Database:GetGlobalSetting("ReflectingPrismPreExpirationLeadTimer");
+						return not SC.Database:GetGlobalSetting("ReflectingPrismPreExpirationLeadTimer");
 					end,
 					get = function()
-						return SIPPYCUP.Database:GetGlobalSetting("ReflectingPrismPreExpirationLeadTimer");
+						return SC.Database:GetGlobalSetting("ReflectingPrismPreExpirationLeadTimer");
 					end,
 					set = function(val)
-						SIPPYCUP.Database:SetGlobalSetting("ReflectingPrismPreExpirationLeadTimer", val);
-						local reason = SIPPYCUP.Popups.Reason.PRE_EXPIRATION;
-						SIPPYCUP.Auras.CancelAllPreExpirationTimers();
-						SIPPYCUP.Items.CancelAllItemTimers(reason);
-						SIPPYCUP.Popups.HideAllRefreshPopups(reason);
-						SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.Database:GetGlobalSetting("MSPStatusCheck"), false, true);
+						SC.Database:SetGlobalSetting("ReflectingPrismPreExpirationLeadTimer", val);
+						local reason = SC.Popups.Reason.PRE_EXPIRATION;
+						SC.Auras.CancelAllPreExpirationTimers();
+						SC.Items.CancelAllItemTimers(reason);
+						SC.Popups.HideAllRefreshPopups(reason);
+						SC.Options.RefreshStackSizes(SC.MSP.IsEnabled() and SC.Database:GetGlobalSetting("MSPStatusCheck"), false, true);
 					end,
 				},
 			}
@@ -1731,8 +1752,8 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 
 		local categoryToysData = {};
 
-		for _, optionData in ipairs(SIPPYCUP.Options.Data) do
-			if optionData.category == categoryName and optionData.type == SIPPYCUP.Options.Type.TOY then
+		for _, optionData in ipairs(SC.Options.Data) do
+			if optionData.category == categoryName and optionData.type == SC.Options.Type.TOY then
 				local toyAura = optionData.auraID;
 				local toyName = optionData.name;
 				local toyID = optionData.itemID;
@@ -1758,11 +1779,11 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 						return IsToyDisabled(toyID);
 					end,
 					get = function()
-						return SIPPYCUP.Database:GetProfileSetting(checkboxProfileKey, "enable");
+						return SC.Database:GetProfileSetting(checkboxProfileKey, "enable");
 					end,
 					set = function(val)
-						SIPPYCUP.Database:SetProfileSetting(checkboxProfileKey, "enable", val);
-						SIPPYCUP.Popups.Toggle(toyName, toyAura, val);
+						SC.Database:SetProfileSetting(checkboxProfileKey, "enable", val);
+						SC.Popups.Toggle(toyName, toyAura, val);
 					end,
 				};
 
@@ -1778,16 +1799,16 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 						max = optionData.maxStacks,
 						step = 1,
 						disabled = function()
-							return not SIPPYCUP.Database:GetProfileSetting(sliderProfileKey, "enable");
+							return not SC.Database:GetProfileSetting(sliderProfileKey, "enable");
 						end,
 						get = function()
-							return SIPPYCUP.Database:GetProfileSetting(sliderProfileKey, "desiredStacks");
+							return SC.Database:GetProfileSetting(sliderProfileKey, "desiredStacks");
 						end,
 						set = function(val)
-							SIPPYCUP.Database:SetProfileSetting(sliderProfileKey, "desiredStacks", val);
-							local profileOptionData = SIPPYCUP.Database:GetOption(sliderProfileKey);
+							SC.Database:SetProfileSetting(sliderProfileKey, "desiredStacks", val);
+							local profileOptionData = SC.Database:GetOption(sliderProfileKey);
 							if profileOptionData.enable then
-								SIPPYCUP.Popups.Toggle(toyName, toyAura, true);
+								SC.Popups.Toggle(toyName, toyAura, true);
 							end
 						end
 					};
@@ -1815,7 +1836,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 		{
 			type = "description",
 			name = function()
-				return L.OPTIONS_PROFILES_CURRENTPROFILE:format("|cnNORMAL_FONT_COLOR:" .. SIPPYCUP.Database:GetProfileName() .. "|r");
+				return L.OPTIONS_PROFILES_CURRENTPROFILE:format("|cnNORMAL_FONT_COLOR:" .. SC.Database:GetProfileName() .. "|r");
 			end,
 		},
 		{
@@ -1826,13 +1847,13 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			gearButton = true,
 			buildAdded = "0.7.5|120001",
 			values = function()
-				return SIPPYCUP.Database:GetAllProfiles();
+				return SC.Database:GetAllProfiles();
 			end,
 			get = function()
-				return SIPPYCUP.Database:GetProfileName();
+				return SC.Database:GetProfileName();
 			end,
 			set = function(val)
-				SIPPYCUP.Database:SetProfile(val);
+				SC.Database:SetProfile(val);
 			end,
 		},
 		{
@@ -1845,8 +1866,8 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			maxChars = 32,
 			get = function() end,
 			set = function(val)
-				SIPPYCUP.ConfirmDialog:Show(L.OPTIONS_PROFILES_NEWPROFILE_CONFIRM:format(val), function()
-					SIPPYCUP.Database:CreateProfile(val);
+				SC.ConfirmDialog:Show(L.OPTIONS_PROFILES_NEWPROFILE_CONFIRM:format(val), function()
+					SC.Database:CreateProfile(val);
 				end);
 			end,
 		},
@@ -1856,12 +1877,12 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			tooltip = L.OPTIONS_PROFILES_COPYFROM_DESC,
 			style = "button",
 			values = function()
-				return SIPPYCUP.Database:GetAllProfiles(true, false);
+				return SC.Database:GetAllProfiles(true, false);
 			end,
 			get = function() end,
 			set = function(val)
-				SIPPYCUP.ConfirmDialog:Show(L.OPTIONS_PROFILES_COPYFROM_CONFIRM:format(val), function()
-					SIPPYCUP.Database:CopyProfile(val);
+				SC.ConfirmDialog:Show(L.OPTIONS_PROFILES_COPYFROM_CONFIRM:format(val), function()
+					SC.Database:CopyProfile(val);
 				end);
 			end,
 		},
@@ -1873,8 +1894,8 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			label = L.OPTIONS_PROFILES_RESETBUTTON_NAME,
 			tooltip = L.OPTIONS_PROFILES_RESETBUTTON_DESC,
 			func = function()
-				SIPPYCUP.ConfirmDialog:Show(L.OPTIONS_PROFILES_RESETBUTTON_CONFIRM, function()
-					SIPPYCUP.Database:ResetProfile();
+				SC.ConfirmDialog:Show(L.OPTIONS_PROFILES_RESETBUTTON_CONFIRM, function()
+					SC.Database:ResetProfile();
 				end);
 			end,
 		},
@@ -1884,12 +1905,12 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			tooltip = L.OPTIONS_PROFILES_DELETEPROFILE_DESC,
 			style = "button",
 			values = function()
-				return SIPPYCUP.Database:GetAllProfiles(true, true);
+				return SC.Database:GetAllProfiles(true, true);
 			end,
 			get = function() end,
 			set = function(val)
-				SIPPYCUP.ConfirmDialog:Show(L.OPTIONS_PROFILES_DELETEPROFILE_CONFIRM:format(val), function()
-					SIPPYCUP.Database:DeleteProfile(val);
+				SC.ConfirmDialog:Show(L.OPTIONS_PROFILES_DELETEPROFILE_CONFIRM:format(val), function()
+					SC.Database:DeleteProfile(val);
 				end);
 			end,
 		},
@@ -1897,20 +1918,23 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 
 	self.allWidgets[#self.allWidgets + 1] = CreateWidgetRowContainer(profilesPanel, profilesData, 3, 40);
 
-	SIPPYCUP.ElvUI.RegisterSkinnableElement(self, "frame");
+	SC.ElvUI.RegisterSkinnableElement(self, "frame");
 end
 
-function SIPPYCUP_ConfigMixin:OnDragStart()
+---OnDragStart begins moving the config frame.
+function SippyCup_ConfigMixin:OnDragStart()
 	self:StartMoving();
 	self:SetUserPlaced(false);
 end
 
-function SIPPYCUP_ConfigMixin:OnDragStop()
+---OnDragStop stops moving the config frame.
+function SippyCup_ConfigMixin:OnDragStop()
 	self:StopMovingOrSizing();
 	self:SetUserPlaced(false);
 end
 
-function SIPPYCUP_ConfigMixin:OnShow()
+---OnShow refreshes all widget states and applies ElvUI skinning when the frame is shown.
+function SippyCup_ConfigMixin:OnShow()
 	local totalWidth = 0;
 	for _, tab in ipairs(self.Tabs) do
 		PanelTemplates_TabResize(tab, 15, nil, 65);
@@ -1920,6 +1944,8 @@ function SIPPYCUP_ConfigMixin:OnShow()
 	self:SetWidth(totalWidth + 0); -- padding
 
 	self:RefreshWidgets();
-	SIPPYCUP.ElvUI.SkinRegisteredElements();
+	SC.ElvUI.SkinRegisteredElements();
 	self:SetTab(1);  -- Show first tab by default
 end
+
+SC.Config = Config;

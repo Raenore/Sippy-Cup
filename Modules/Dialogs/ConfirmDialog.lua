@@ -2,7 +2,8 @@
 -- Inspired by Eavesdropper
 -- SPDX-License-Identifier: Apache-2.0
 
-SIPPYCUP.ConfirmDialog = {};
+---@class SippyCupConfirmDialog
+local ConfirmDialog = {};
 
 StaticPopupDialogs["SIPPYCUP_CONFIRM_DIALOG"] = {
 	button1 = ACCEPT,
@@ -26,7 +27,7 @@ StaticPopupDialogs["SIPPYCUP_CONFIRM_DIALOG"] = {
 ---Displays a reusable confirmation dialog with ACCEPT/CANCEL buttons.
 ---@param message string The confirmation message shown to the player.
 ---@param onAccept function Callback invoked when the player clicks ACCEPT or presses Enter.
-function SIPPYCUP.ConfirmDialog:Show(message, onAccept)
+function ConfirmDialog:Show(message, onAccept)
 	StaticPopupDialogs["SIPPYCUP_CONFIRM_DIALOG"].text = message;
 	StaticPopupDialogs["SIPPYCUP_CONFIRM_DIALOG"].onAccept = onAccept;
 	local dialog = StaticPopup_Show("SIPPYCUP_CONFIRM_DIALOG");
@@ -36,3 +37,4 @@ function SIPPYCUP.ConfirmDialog:Show(message, onAccept)
 	end
 end
 
+SC.ConfirmDialog = ConfirmDialog;

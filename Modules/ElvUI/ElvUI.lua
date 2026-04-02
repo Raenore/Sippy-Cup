@@ -1,7 +1,8 @@
 -- Copyright The Sippy Cup Authors
 -- SPDX-License-Identifier: Apache-2.0
 
-SIPPYCUP.ElvUI = {};
+---@class SippyCupElvUI
+SC.ElvUI = {};
 
 local skinnableElements = {};
 
@@ -24,10 +25,10 @@ UpdateElvUICaches();
 ---@param element table UI frame or widget to skin.
 ---@param skinType string Type of UI element (e.g., "button", "checkbox").
 ---@param applyImmediately boolean If true, skinning is triggered immediately.
-function SIPPYCUP.ElvUI.RegisterSkinnableElement(element, skinType, applyImmediately)
+function SC.ElvUI.RegisterSkinnableElement(element, skinType, applyImmediately)
 	table.insert(skinnableElements, { element = element, type = skinType });
 	if applyImmediately then
-		SIPPYCUP.ElvUI.SkinRegisteredElements();
+		SC.ElvUI.SkinRegisteredElements();
 	end
 end
 
@@ -35,7 +36,7 @@ end
 ---It safely checks for ElvUI's presence and required modules.
 ---After applying skins, it clears the queue to prevent duplicate skinning.
 ---@return nil
-function SIPPYCUP.ElvUI.SkinRegisteredElements()
+function SC.ElvUI.SkinRegisteredElements()
 	-- Update cache every time to handle dynamic loading/unloading of ElvUI
 	UpdateElvUICaches();
 	if not ElvUI_E or not SkinsModule then
@@ -88,7 +89,7 @@ end
 
 ---SkinTooltip applies ElvUI's tooltip styling to the given tooltip frame.
 ---@param tooltip table Tooltip frame to style.
-function SIPPYCUP.ElvUI.SkinTooltip(tooltip)
+function SC.ElvUI.SkinTooltip(tooltip)
 	UpdateElvUICaches();
 	if not ElvUI_E or not TooltipModule then
 		return;

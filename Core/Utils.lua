@@ -1,7 +1,11 @@
 -- Copyright The Sippy Cup Authors
 -- SPDX-License-Identifier: Apache-2.0
+---@class SippyCupUtils
+local Utils = {};
 
-SIPPYCUP_BUILDINFO = {};
+-- ============================================================
+-- Build info
+-- ============================================================
 
 ---FormatBuild formats a build version into the major.minor.patch format.
 ---@param build string The raw build version string (6 digits).
@@ -18,9 +22,9 @@ end
 
 ---ValidateLatestBuild compares the live game build with the addon's build version.
 ---@return boolean isLatestBuild True if the live build matches the addon's build, false otherwise.
-function SIPPYCUP_BUILDINFO.ValidateLatestBuild()
+function Utils.ValidateLatestBuild()
 	local liveBuild = tostring(select(4, GetBuildInfo()));
-	local addonBuild = SIPPYCUP.AddonMetadata.addonBuild;
+	local addonBuild = SC.Globals.addon_build;
 
 	if not addonBuild then
 		return false;
@@ -35,12 +39,13 @@ function SIPPYCUP_BUILDINFO.ValidateLatestBuild()
 	return false;
 end
 
----Output formats the addon's build version, optionally colorized based on whether it matches the live build.
+---GetBuildString formats the addon's build version, optionally colorized based on whether it matches the live build.
 ---@param colorized boolean If true, the build version will be colorized based on whether it matches the live build.
 ---@return string formattedBuild The formatted build version, colorized if requested.
-function SIPPYCUP_BUILDINFO.Output(colorized)
+function Utils.GetBuildString(colorized)
 	local liveBuild = tostring(select(4, GetBuildInfo()));
-	local addonBuild = SIPPYCUP.AddonMetadata.addonBuild;
+	local addonBuild = SC.Globals.addon_build;
+
 	if not addonBuild then
 		return "Unknown Build";
 	end
@@ -61,15 +66,18 @@ function SIPPYCUP_BUILDINFO.Output(colorized)
 	end
 
 	if colorized then
-		local color = SIPPYCUP_BUILDINFO.ValidateLatestBuild() and "|cnGREEN_FONT_COLOR:" or "|cnWARNING_FONT_COLOR:";
+		local color = Utils.ValidateLatestBuild() and "|cnGREEN_FONT_COLOR:" or "|cnWARNING_FONT_COLOR:";
 		output = color .. output .. "|r";
 	end
 
 	return output;
 end
 
-function SIPPYCUP_BUILDINFO.CheckNewlyAdded(buildAdded)
-	if not SIPPYCUP.Database:GetGlobalSetting("NewFeatureNotification") then
+---CheckNewlyAdded checks whether a feature was added in the current addon/build version.
+---@param buildAdded string The version string in "addonVersion|blizzardBuild" format.
+---@return boolean?
+function Utils.CheckNewlyAdded(buildAdded)
+	if not SC.Database:GetGlobalSetting("NewFeatureNotification") then
 		return;
 	end
 
@@ -79,12 +87,12 @@ function SIPPYCUP_BUILDINFO.CheckNewlyAdded(buildAdded)
 		return false;
 	end
 
-	if SIPPYCUP.AddonMetadata.version == "@project-version@" then
+	if SC.Globals.addon_version == "@project-version@" then
 		return featureBlizzardBuild == tostring(select(4, GetBuildInfo()));
 	end
 
 	local featureMajor, featureMinor, featurePatch = featureAddonVersion:match("^(%d+)%.(%d+)%.(%d+)$");
-	local addonMajor, addonMinor, addonPatch = SIPPYCUP.AddonMetadata.version:match("^(%d+)%.(%d+)%.(%d+)$");
+	local addonMajor, addonMinor, addonPatch = SC.Globals.addon_version:match("^(%d+)%.(%d+)%.(%d+)$");
 
 	if not featureMajor or not addonMajor then
 		return false;
@@ -101,17 +109,18 @@ function SIPPYCUP_BUILDINFO.CheckNewlyAdded(buildAdded)
 	return false;
 end
 
-SIPPYCUP_OUTPUT = {};
+-- ============================================================
+-- Output
+-- ============================================================
 
 local function Print(msg)
-	print(SIPPYCUP.AddonMetadata.title .. ": " .. tostring(msg));
+	print(SC.Globals.addon_title .. ": " .. tostring(msg));
 end
-
 
 ---Write prints formatted output with an optional command prefix.
 ---@param output string|table The output to be printed, either a string or a table.
 ---@param command? string The optional command prefix to display before the output.
-function SIPPYCUP_OUTPUT.Write(output, command)
+function Utils.Write(output, command)
 	if not output then
 		return;
 	end
@@ -150,11 +159,11 @@ local function formatValue(val, isTop)
 	end
 end
 
----Debug prints formatted output, only works when IS_DEV_BUILD is true.
+---Debug prints formatted debug output, only works when IS_DEV_BUILD is true.
 ---Accepts any number of arguments and joins them with space.
 ---@param ... any Values to print (strings, numbers, tables, etc.)
-function SIPPYCUP_OUTPUT.Debug(...)
-	if not SIPPYCUP.IS_DEV_BUILD or not SIPPYCUP.Database:GetGlobalSetting("DebugOutput") then return; end
+function Utils.Debug(...)
+	if not SC.Globals.IS_DEV_BUILD or not SC.Database:GetGlobalSetting("DebugOutput") then return; end
 
 	local args = {...};
 	local outputLines = {};
@@ -166,9 +175,14 @@ function SIPPYCUP_OUTPUT.Debug(...)
 	Print("|cnTRANSMOGRIFY_FONT_COLOR:" .. finalOutput .. "|r");
 end
 
-SIPPYCUP_TEXT = {};
+-- ============================================================
+-- Text
+-- ============================================================
 
-function SIPPYCUP_TEXT.Normalize(str)
+---Normalize replaces accented and special characters in a string with their ASCII equivalents.
+---@param str string
+---@return string
+function Utils.Normalize(str)
 	return str
 		:gsub("á", "a"):gsub("à", "a"):gsub("ã", "a"):gsub("ä", "a"):gsub("â", "a")
 		:gsub("é", "e"):gsub("è", "e"):gsub("ê", "e"):gsub("ë", "e")
@@ -184,12 +198,14 @@ function SIPPYCUP_TEXT.Normalize(str)
 		:gsub("Ç", "C"):gsub("Ñ", "N");
 end
 
-SIPPYCUP_UTILS = {};
+-- ============================================================
+-- General utilities
+-- ============================================================
 
----Returns a new table with all top-level key-value pairs copied from tbl.
+---ShallowCopy returns a new table with all top-level key-value pairs copied from tbl.
 ---@param tbl table
 ---@return table
-function SIPPYCUP_UTILS.ShallowCopy(tbl)
+function Utils.ShallowCopy(tbl)
 	local copy = {};
 	for k, v in pairs(tbl) do
 		copy[k] = v;
@@ -197,23 +213,21 @@ function SIPPYCUP_UTILS.ShallowCopy(tbl)
 	return copy;
 end
 
----Returns a fully independent recursive copy of tbl, or the value itself if not a table.
+---DeepCopy returns a fully independent recursive copy of tbl, or the value itself if not a table.
 ---@param tbl any
 ---@return any
-function SIPPYCUP_UTILS.DeepCopy(tbl)
+function Utils.DeepCopy(tbl)
 	if type(tbl) ~= "table" then return tbl; end
 	local copy = {};
 	for k, v in pairs(tbl) do
-		copy[k] = SIPPYCUP_UTILS.DeepCopy(v);
+		copy[k] = Utils.DeepCopy(v);
 	end
 	return copy;
 end
 
----GetUnitName Returns the player's full name with realm if available.
----Retrieves the player's unmodified name and normalized realm.
----Returns nil if player name is invalid or realm is missing.
----@return string? fullName Full player name in "Name - Realm" format or nil if unavailable.
-function SIPPYCUP_UTILS.GetUnitName()
+---GetUnitName returns the player's full name with realm if available.
+---@return string? fullName Full player name in "Name-Realm" format, or nil if unavailable.
+function Utils.GetUnitName()
 	local playerName, realm = UnitNameUnmodified("player");
 
 	if not canaccessvalue(playerName) or not playerName or playerName == UNKNOWNOBJECT or playerName:len() == 0 then
@@ -230,3 +244,5 @@ function SIPPYCUP_UTILS.GetUnitName()
 
 	return nil;
 end
+
+SC.Utils = Utils;

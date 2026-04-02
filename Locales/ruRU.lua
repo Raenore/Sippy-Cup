@@ -134,4 +134,4 @@ L = {
 	OPTIONS_PROFILES_DELETEPROFILE_DESC = "Удалить выбранный профиль из базы данных.",
 };
 
-SIPPYCUP.L_RURU = L;
+SC.Localization:RegisterNewLocale("ruRU", "Russian", L);

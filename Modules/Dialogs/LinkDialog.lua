@@ -1,8 +1,10 @@
 -- Copyright The Sippy Cup Authors
 -- SPDX-License-Identifier: Apache-2.0
 
-local L = SIPPYCUP.L;
-SIPPYCUP.LinkDialog = {};
+local L = SC.Localization;
+
+---@class SippyCupLinkDialog
+local LinkDialog = {};
 
 -- Borrowed from Total RP 3
 local function GetDialogEditBox(dialog)
@@ -41,7 +43,7 @@ local function SetupEditBox(editBox, url)
 end
 
 StaticPopupDialogs["SIPPYCUP_LINK_DIALOG"] = {
-	text = SIPPYCUP.AddonMetadata.title .. L.POPUP_LINK,
+	text = SC.Globals.addon_title .. L.POPUP_LINK,
 	button1 = CANCEL,
 	hasEditBox = true,
 	editBoxWidth = 320,
@@ -58,7 +60,7 @@ StaticPopupDialogs["SIPPYCUP_LINK_DIALOG"] = {
 
 ---Displays a static popup dialog containing the given URL in a copyable editBox.
 ---@param url string
-function SIPPYCUP.LinkDialog.CreateExternalLinkDialog(url)
+function LinkDialog.CreateExternalLinkDialog(url)
 	StaticPopupDialogs["SIPPYCUP_LINK_DIALOG"].url = url;
 	local dialog = StaticPopup_Show("SIPPYCUP_LINK_DIALOG");
 	if dialog then
@@ -66,3 +68,5 @@ function SIPPYCUP.LinkDialog.CreateExternalLinkDialog(url)
 		dialog:SetPoint("CENTER", UIParent, "CENTER");
 	end
 end
+
+SC.LinkDialog = LinkDialog;

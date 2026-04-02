@@ -7,7 +7,7 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 
 	<Include file="Popups.lua"/>
 
-	<Frame name="SIPPYCUP_RefreshPopupTemplate" virtual="true" parent="UIParent" toplevel="true" enableMouse="true" frameStrata="DIALOG" hidden="true" inherits="DialogBorderTemplate">
+	<Frame name="SippyCup_RefreshPopupTemplate" virtual="true" parent="UIParent" toplevel="true" enableMouse="true" frameStrata="DIALOG" hidden="true" inherits="DialogBorderTemplate">
 		<Size x="420" y="100"/>
 		<Anchors>
 			<Anchor point="TOP" relativeTo="UIParent" x="0" y="-100"/>
@@ -77,7 +77,7 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 
 	</Frame>
 
-	<Frame name="SIPPYCUP_MissingPopupTemplate" virtual="true" parent="UIParent" toplevel="true" enableMouse="true" frameStrata="DIALOG" hidden="true" inherits="DialogBorderTemplate">
+	<Frame name="SippyCup_MissingPopupTemplate" virtual="true" parent="UIParent" toplevel="true" enableMouse="true" frameStrata="DIALOG" hidden="true" inherits="DialogBorderTemplate">
 		<Size x="370" y="100"/>
 		<Anchors>
 			<Anchor point="TOP" relativeTo="UIParent" x="0" y="-100"/>
@@ -132,7 +132,7 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 
 	</Frame>
 
-	<Frame name="SIPPYCUP_ConfirmPopupTemplate" virtual="true" parent="UIParent" toplevel="true" enableMouse="true" frameStrata="DIALOG" hidden="true" inherits="DialogBorderTemplate">
+	<Frame name="SippyCup_ConfirmPopupTemplate" virtual="true" parent="UIParent" toplevel="true" enableMouse="true" frameStrata="DIALOG" hidden="true" inherits="DialogBorderTemplate">
 		<Size x="340" y="90"/>
 		<Anchors>
 			<Anchor point="TOP" relativeTo="UIParent" x="0" y="-100"/>

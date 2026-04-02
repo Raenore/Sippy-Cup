@@ -6,9 +6,9 @@ exclude_files = {
 
 ignore = {
 	-- Ignore global writes/accesses/mutations on anything prefixed with
-	-- "SIPPYCUP_". This is the standard prefix for all of our global frame names
+	-- "SippyCup_". This is the standard prefix for all of our global frame names
 	-- and mixins.
-	"11./^SIPPYCUP_",
+	"11./^SippyCup_",
 
 	-- Ignore unused self. This would popup for Mixins and Objects
 	"212/self",
@@ -16,8 +16,8 @@ ignore = {
 
 globals = {
 	-- Globals
-	"SIPPYCUP",
-	"SIPPYCUP_Addon",
+	"SC",
+	"SC_Addon",
 	"SippyCupDB",
 	"SippyCupCharDB",
 	"SLASH_SIPPYCUP1",
@@ -377,6 +377,7 @@ stds.wow = {
 		EventUtil = {
 			fields = {
 				"ContinueOnAddOnLoaded",
+				"ContinueOnPlayerLogin",
 			},
 		},
 

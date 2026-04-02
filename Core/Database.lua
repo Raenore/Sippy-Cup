@@ -87,7 +87,7 @@ local DEFAULT_PROFILE = {};
 ---This defines initial tracking settings for each option by its aura ID key.
 ---@return nil
 local function PopulateDefaultProfileOptions()
-	local optionsData = SIPPYCUP.Options.Data;
+	local optionsData = SC.Options.Data;
 	for i = 1, #optionsData do
 		local option = optionsData[i];
 		local spellID = option.auraID;
@@ -128,7 +128,7 @@ local DEFAULT_CHAR = {};
 ---Initializes DEFAULT_CHAR entries for all aura-based options.
 ---@return nil
 local function PopulateDefaultCharOptions()
-	local optionsData = SIPPYCUP.Options.Data;
+	local optionsData = SC.Options.Data;
 	for i = 1, #optionsData do
 		local option = optionsData[i];
 		local spellID = option.auraID;
@@ -148,7 +148,7 @@ end
 ---@class SippyCupProfile : SippyCupProfileSettings, SippyCupCharSettings
 
 Database.currentProfile = nil;
-Database.globalDefaults = SIPPYCUP_UTILS.DeepCopy(GLOBAL_DEFAULTS);
+Database.globalDefaults = SC.Utils.DeepCopy(GLOBAL_DEFAULTS);
 
 ---Returns a new table containing all keys from `base`, with keys from `override` applied on top.
 ---@param base table
@@ -156,7 +156,7 @@ Database.globalDefaults = SIPPYCUP_UTILS.DeepCopy(GLOBAL_DEFAULTS);
 ---@return SippyCupProfile
 local function mergeTables(base, override)
 	-- start with defaults
-	local result = SIPPYCUP_UTILS.ShallowCopy(base);
+	local result =  SC.Utils.ShallowCopy(base);
 	-- apply profile overrides (including keys not in defaults)
 	for k, v in pairs(override) do
 		result[k] = v;
@@ -253,8 +253,8 @@ function Database:RebuildAuraMap()
 			end
 
 			profileOptionData.currentInstanceID = auraInfo and auraInfo.auraInstanceID or nil;
-			profileOptionData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(
-				auraInfo, auraID, SIPPYCUP.Popups.Reason.STARTUP, auraInfo ~= nil
+			profileOptionData.currentStacks = SC.Auras.CalculateCurrentStacks(
+				auraInfo, auraID, SC.Popups.Reason.STARTUP, auraInfo ~= nil
 			);
 
 			if profileOptionData.currentInstanceID then
@@ -262,11 +262,11 @@ function Database:RebuildAuraMap()
 			end
 
 			-- Handle options that are trackable without auras (via itemID)
-			local optionData = SIPPYCUP.Options.ByAuraID[auraID];
+			local optionData = SC.Options.ByAuraID[auraID];
 
 			-- Resolve currentItemID and lastItemCount from live inventory/toy state.
 			if optionData and optionData.itemID then
-				local isToy = SIPPYCUP.Options.Type and (optionData.type == SIPPYCUP.Options.Type.TOY);
+				local isToy = SC.Options.Type and (optionData.type == SC.Options.Type.TOY);
 				local itemIDs = type(optionData.itemID) == "table" and optionData.itemID or { optionData.itemID };
 				local usableItemID;
 				local itemCount = 0;
@@ -310,7 +310,7 @@ function Database:UpdateAuraMapForOption(profileOptionData, enabled)
 
 	local auraID = profileOptionData.aura;
 	local castAuraID = profileOptionData.castAura or auraID;
-	local optionData = SIPPYCUP.Options.ByAuraID[auraID];
+	local optionData = SC.Options.ByAuraID[auraID];
 
 	if enabled then
 		self.auraToProfile[auraID] = profileOptionData;
@@ -320,8 +320,8 @@ function Database:UpdateAuraMapForOption(profileOptionData, enabled)
 		local instanceID = auraInfo and auraInfo.auraInstanceID;
 
 		profileOptionData.currentInstanceID = instanceID;
-		profileOptionData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(
-			auraInfo, auraID, SIPPYCUP.Popups.Reason.STARTUP, auraInfo ~= nil
+		profileOptionData.currentStacks = SC.Auras.CalculateCurrentStacks(
+			auraInfo, auraID, SC.Popups.Reason.STARTUP, auraInfo ~= nil
 		);
 
 		if instanceID then
@@ -330,7 +330,7 @@ function Database:UpdateAuraMapForOption(profileOptionData, enabled)
 
 		-- Resolve currentItemID and lastItemCount from the current inventory/toy state.
 		if optionData and optionData.itemID then
-			local isToy = SIPPYCUP.Options.Type and (optionData.type == SIPPYCUP.Options.Type.TOY);
+			local isToy = SC.Options.Type and (optionData.type == SC.Options.Type.TOY);
 			local itemIDs = type(optionData.itemID) == "table" and optionData.itemID or { optionData.itemID };
 			local usableItemID;
 			local itemCount = 0;
@@ -412,10 +412,10 @@ function Database:Init()
 	PopulateDefaultProfileOptions();
 	PopulateDefaultCharOptions();
 
-	self.defaults = SIPPYCUP_UTILS.DeepCopy(DEFAULT_PROFILE);
-	self.charDefaults = SIPPYCUP_UTILS.DeepCopy(DEFAULT_CHAR);
+	self.defaults =  SC.Utils.DeepCopy(DEFAULT_PROFILE);
+	self.charDefaults =  SC.Utils.DeepCopy(DEFAULT_CHAR);
 
-	local playerKey = SIPPYCUP_UTILS.GetUnitName() or "Unknown";
+	local playerKey =  SC.Utils.GetUnitName() or "Unknown";
 	local profileName = db.profileKeys[playerKey] or "Default";
 
 	db.profiles[profileName] = db.profiles[profileName] or {};
@@ -428,7 +428,7 @@ function Database:Init()
 	end
 
 	self:InitCharacterDatabase();
-	SIPPYCUP.States.databaseLoaded = true;
+	SC.Globals.States.databaseLoaded = true;
 end
 
 ---Initialises or migrates the character-specific chat database, clearing history on version change.
@@ -470,7 +470,7 @@ function Database:ResolveActiveProfile(playerKey)
 	local db = SippyCupDB;
 	if not db then return; end;
 
-	playerKey = playerKey or SIPPYCUP_UTILS.GetUnitName() or "Unknown";
+	playerKey = playerKey or  SC.Utils.GetUnitName() or "Unknown";
 	local profileName = db.profileKeys[playerKey] or "Default";
 
 	db.profiles[profileName] = db.profiles[profileName] or {};
@@ -481,18 +481,18 @@ end
 ---Refreshes the config UI if the configuration frame is loaded.
 ---@return nil
 function Database:refreshUI()
-	if SIPPYCUP.configFrame then
-		SIPPYCUP_ConfigMenuFrame:RefreshWidgets();
-		SIPPYCUP_ConfigMenuFrame:SwitchProfileValues();
+	if SC.configFrame then
+		SippyCup_ConfigMenuFrame:RefreshWidgets();
+		SippyCup_ConfigMenuFrame:SwitchProfileValues();
 	end
 end
 
 ---applyProfileSwitch resets runtime systems after a profile change.
 ---@return nil
 function Database:applyProfileSwitch()
-	SIPPYCUP.Popups.HideAllRefreshPopups();
-	SIPPYCUP.Auras.CancelAllPreExpirationTimers();
-	SIPPYCUP.Items.CancelAllItemTimers();
+	SC.Popups.HideAllRefreshPopups();
+	SC.Auras.CancelAllPreExpirationTimers();
+	SC.Items.CancelAllItemTimers();
 	self:RebuildAuraMap();
 end
 
@@ -514,7 +514,7 @@ end
 ---@return string currentProfile
 function Database:GetProfileName()
 	if not SippyCupDB then return nil; end
-	local playerKey = SIPPYCUP_UTILS.GetUnitName() or "Unknown";
+	local playerKey =  SC.Utils.GetUnitName() or "Unknown";
 	return SippyCupDB.profileKeys[playerKey];
 end
 
@@ -552,14 +552,14 @@ function Database:SetProfile(profileName)
 
 	self.currentProfile = db.profiles[profileName];
 
-	local playerKey = SIPPYCUP_UTILS.GetUnitName();
+	local playerKey =  SC.Utils.GetUnitName();
 	db.profileKeys[playerKey] = profileName;
 
 	self:applyProfileSwitch();
 	self:refreshUI();
 
-	SIPPYCUP.Options.RefreshStackSizes(
-		SIPPYCUP.MSP.IsEnabled() and self:GetGlobalSetting("MSPStatusCheck"),
+	SC.Options.RefreshStackSizes(
+		SC.MSP.IsEnabled() and self:GetGlobalSetting("MSPStatusCheck"),
 		false
 	);
 end
@@ -626,7 +626,7 @@ function Database:CopyProfile(sourceName)
 		current[k] = nil;
 	end
 
-	local copy = SIPPYCUP_UTILS.DeepCopy(source);
+	local copy =  SC.Utils.DeepCopy(source);
 	for k, v in pairs(copy) do
 		current[k] = v;
 	end
@@ -634,8 +634,8 @@ function Database:CopyProfile(sourceName)
 	self:applyProfileSwitch();
 	self:refreshUI();
 
-	SIPPYCUP.Options.RefreshStackSizes(
-		SIPPYCUP.MSP.IsEnabled() and self:GetGlobalSetting("MSPStatusCheck"),
+	SC.Options.RefreshStackSizes(
+		SC.MSP.IsEnabled() and self:GetGlobalSetting("MSPStatusCheck"),
 		false
 	);
 
@@ -701,7 +701,7 @@ function Database:GetProfileSettings(auraID)
 	end
 
 	-- Return a shallow copy of defaults to prevent accidental mutation
-	return SIPPYCUP_UTILS.ShallowCopy(defaults);
+	return  SC.Utils.ShallowCopy(defaults);
 end
 
 ---@param auraID number
@@ -722,7 +722,7 @@ function Database:GetProfileSetting(auraID, key)
 	end
 
 	if type(defValue) == "table" then
-		return SIPPYCUP_UTILS.ShallowCopy(defValue);
+		return  SC.Utils.ShallowCopy(defValue);
 	end
 
 	return defValue;
@@ -776,7 +776,7 @@ function Database:GetCharSettings(auraID)
 	end
 
 	-- Return a shallow copy of defaults to prevent accidental mutation
-	return SIPPYCUP_UTILS.ShallowCopy(defaults);
+	return  SC.Utils.ShallowCopy(defaults);
 end
 
 ---Returns a single value from the character settings for a given auraID.
@@ -800,7 +800,7 @@ function Database:SetCharSetting(auraID, key, value)
 	self.currentChar = self.currentChar or SippyCupCharDB;
 
 	local defaults = self.charDefaults[auraID] or {};
-	self.currentChar[auraID] = self.currentChar[auraID] or SIPPYCUP_UTILS.DeepCopy(defaults);
+	self.currentChar[auraID] = self.currentChar[auraID] or  SC.Utils.DeepCopy(defaults);
 
 	if type(value) == "table" then
 		self.currentChar[auraID][key] = pruneToDefaults(value, defaults[key]);
@@ -837,7 +837,7 @@ function Database:CommitFullState(auraID, profileOptionData)
 	if not profileOptionData then return; end;
 
 	local castAuraID = profileOptionData.castAura or auraID;
-	local optionData = SIPPYCUP.Options.ByAuraID[auraID];
+	local optionData = SC.Options.ByAuraID[auraID];
 
 	if profileOptionData.enable then
 		self.auraToProfile[auraID] = profileOptionData;
@@ -924,7 +924,7 @@ function Database:GetGlobalSetting(key)
 			return mergeTables(def, stored);
 		else
 			-- Initialize stored table with shallow copy to keep live reference
-			local init = SIPPYCUP_UTILS.ShallowCopy(def);
+			local init =  SC.Utils.ShallowCopy(def);
 			SippyCupDB.global[key] = init;
 			return init;
 		end
@@ -960,4 +960,4 @@ function Database:SetGlobalSetting(key, value)
 	self:refreshUI();
 end
 
-SIPPYCUP.Database = Database;
+SC.Database = Database;

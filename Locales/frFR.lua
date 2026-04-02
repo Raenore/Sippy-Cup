@@ -102,7 +102,7 @@ L = {
 
 	-- Placement
 	OPTIONS_TAB_PLACEMENT_TITLE = "Placement",
-	OPTIONS_TAB_PLACEMENT_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables/jouets qui sont placés au sol.", 
+	OPTIONS_TAB_PLACEMENT_INSTRUCTION = "Ces options contrôlent tous les rappels pour les consommables/jouets qui sont placés au sol.",
 
 	-- Prism
 	OPTIONS_TAB_PRISM_TITLE = "Prisme",
@@ -133,4 +133,4 @@ L = {
 	OPTIONS_PROFILES_DELETEPROFILE_DESC = "Supprime le profil sélectionné de la base de données.",
 };
 
-SIPPYCUP.L_FRFR = L;
+SC.Localization:RegisterNewLocale("frFR", "French", L);

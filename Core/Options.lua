@@ -1,20 +1,22 @@
 -- Copyright The Sippy Cup Authors
 -- SPDX-License-Identifier: Apache-2.0
 
-SIPPYCUP.Options = {};
----@type table<number, SIPPYCUPOption>
-SIPPYCUP.Options.ByAuraID = {};
----@type table<number, SIPPYCUPOption>
-SIPPYCUP.Options.ByItemID = {};
----@type table<string, SIPPYCUPOption>
-SIPPYCUP.Options.ByName = {};
+---@class SippyCupOptions
+local Options = {};
 
-SIPPYCUP.Options.Type = {
+---@type table<number, SippyCupOption>
+Options.ByAuraID = {};
+---@type table<number, SippyCupOption>
+Options.ByItemID = {};
+---@type table<string, SippyCupOption>
+Options.ByName = {};
+
+Options.Type = {
 	CONSUMABLE = 0,
 	TOY = 1,
 };
 
----@class SIPPYCUPOption: table
+---@class SippyCupOption: table
 ---@field type number Whether this option is a consumable (0) or toy (1).
 ---@field auraID number The option's aura ID.
 ---@field castAuraID number The option's cast aura ID, if none is set then use auraID.
@@ -36,8 +38,8 @@ SIPPYCUP.Options.Type = {
 ---@field charges boolean Whether the option uses charges.
 
 ---NewOption creates a new object with the specified parameters.
----@param params SIPPYCUPOption A table containing parameters for the new option.
----@return SIPPYCUPOption
+---@param params SippyCupOption A table containing parameters for the new option.
+---@return SippyCupOption
 local function NewOption(params)
 	local itemIDs = params.itemID;
 	if type(itemIDs) == "number" then
@@ -45,7 +47,7 @@ local function NewOption(params)
 	end
 
 	return {
-		type = params.type or SIPPYCUP.Options.Type.CONSUMABLE,
+		type = params.type or Options.Type.CONSUMABLE,
 		auraID = params.auraID,
 		castAuraID = params.castAuraID or params.auraID,
 		itemID = itemIDs, -- always store as a table internally
@@ -73,206 +75,206 @@ Pre-Expiration:
 1 = Can pre-expire (resets to initial max).
 ]]
 
-SIPPYCUP.Options.Data = {
+Options.Data = {
 	-- CONSUMABLES
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1213428, itemID = 234526, category = "HANDHELD", preExpiration = true }, -- ARCHIVISTS_CODEX
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 357489, itemID = 187421, category = "EFFECT", preExpiration = true }, -- ASHEN_LINIMENT
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 382761, itemID = 197767, category = "APPEARANCE", preExpiration = true }, -- BLUBBERY_MUFFIN
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1222839, itemID = 237335, category = "HANDHELD", preExpiration = true }, -- COLLECTIBLE_PINEAPPLETINI_MUG
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 185562, itemID = 124671, category = "SIZE", unrefreshable = true }, -- DARKMOON_FIREWATER
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1213663, itemID = 234282, category = "PLACEMENT", itemTrackable = true }, -- DECORATIVE_YARD_FLAMINGO
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1222835, itemID = 237330, category = "HANDHELD", preExpiration = true }, -- DISPOSABLE_HAMBURGER
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1222833, itemID = 237331, category = "HANDHELD", preExpiration = true }, -- DISPOSABLE_HOTDOG
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 8212, itemID = 6662, category = "SIZE", preExpiration = true }, -- ELIXIR_OF_GIANT_GROWTH
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 2336, itemID = 2460, category = "EFFECT", preExpiration = true }, -- ELIXIR_OF_TONGUES
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 162906, itemID = 112321, category = "EFFECT", preExpiration = true }, -- ENCHANTED_DUST
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 398458, itemID = 202290, category = "SIZE", preExpiration = true, delayedAura = true }, -- FIREWATER_SORBET
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 393977, itemID = 201427, category = "EFFECT" }, -- FLEETING_SANDS
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 454799, itemID = 225253, category = "HANDHELD", preExpiration = true }, -- FLICKERING_FLAME_HOLDER
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 58468, itemID = 43478, category = "SIZE", preExpiration = true, delayedAura = true }, -- GIGANTIC_FEAST
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 244014, itemID = 151257, category = "HANDHELD", preExpiration = true }, -- GREEN_DANCE_STICK
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1222840, itemID = 237334, category = "HANDHELD", preExpiration = true }, -- HALF_EATEN_TAKEOUT
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 443688, itemID = 216708, category = "PLACEMENT", spellTrackable = true }, -- HOLY_CANDLE
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 185394, itemID = 124640, category = "EFFECT", preExpiration = true }, -- INKY_BLACK_POTION
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1218300, itemID = 235703, category = "SIZE", stacks = true, maxStacks = 10, preExpiration = true }, -- NOGGENFOGGER_SELECT_DOWN
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1218297, itemID = 235704, category = "SIZE", stacks = true, maxStacks = 10, preExpiration = true }, -- NOGGENFOGGER_SELECT_UP
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 374959, itemID = {193031, 193030, 193029}, category = "PRISM", preExpiration = true, requiresGroup = true, buildAdded = "0.7.0|120001" }, -- PROJECTION_PRISM
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 368038, itemID = 190739, category = "EFFECT", preExpiration = true }, -- PROVIS_WAX
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 244015, itemID = 151256, category = "HANDHELD", preExpiration = true }, -- PURPLE_DANCE_STICK
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 53805, itemID = 40195, category = "SIZE", stacks = true, maxStacks = 10 }, -- PYGMY_OIL
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 393979, itemID = 201428, category = "EFFECT" }, -- QUICKSILVER_SANDS
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1213974, itemID = 234287, category = "EFFECT", preExpiration = true }, -- RADIANT_FOCUS
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1214287, itemID = 234527, category = "HANDHELD", preExpiration = true }, -- SACREDITES_LEDGER
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 163267, castAuraID = 163219, itemID = 112384, category = "PRISM", preExpiration = true, requiresGroup = true, charges = true, buildAdded = "0.7.0|120001" }, -- REFLECTING_PRISM
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 279742, itemID = 163695, category = "EFFECT" }, -- SCROLL_OF_INNER_TRUTH
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1222834, itemID = 237332, category = "PLACEMENT", spellTrackable = true }, -- SINGLE_USE_GRILL
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 58479, itemID = 43480, category = "SIZE", preExpiration = true, delayedAura = true }, -- SMALL_FEAST
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 382729, itemID = 197766, category = "HANDHELD", preExpiration = true }, -- SNOW_IN_A_CONE
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 442106, itemID = 218107, category = "HANDHELD", preExpiration = true }, -- SPARKBUG_JAR
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 404840, itemID = 204370, category = "EFFECT", preExpiration = true }, -- STINKY_BRIGHT_POTION
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 254544, itemID = 153192, category = "EFFECT", unrefreshable = true }, -- SUNGLOW
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1213975, itemID = 234466, category = "EFFECT", preExpiration = true }, -- TATTERED_ARATHI_PRAYER_SCROLL
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 393989, itemID = 201436, category = "EFFECT", preExpiration = true }, -- TEMPORALLY_LOCKED_SANDS
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 393994, itemID = 201438, category = "EFFECT", preExpiration = true }, -- WEARY_SANDS
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 17038, itemID = 12820, category = "SIZE", preExpiration = true }, -- WINTERFALL_FIREWATER
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1213428, itemID = 234526, category = "HANDHELD", preExpiration = true }, -- ARCHIVISTS_CODEX
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 357489, itemID = 187421, category = "EFFECT", preExpiration = true }, -- ASHEN_LINIMENT
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 382761, itemID = 197767, category = "APPEARANCE", preExpiration = true }, -- BLUBBERY_MUFFIN
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1222839, itemID = 237335, category = "HANDHELD", preExpiration = true }, -- COLLECTIBLE_PINEAPPLETINI_MUG
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 185562, itemID = 124671, category = "SIZE", unrefreshable = true }, -- DARKMOON_FIREWATER
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1213663, itemID = 234282, category = "PLACEMENT", itemTrackable = true }, -- DECORATIVE_YARD_FLAMINGO
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1222835, itemID = 237330, category = "HANDHELD", preExpiration = true }, -- DISPOSABLE_HAMBURGER
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1222833, itemID = 237331, category = "HANDHELD", preExpiration = true }, -- DISPOSABLE_HOTDOG
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 8212, itemID = 6662, category = "SIZE", preExpiration = true }, -- ELIXIR_OF_GIANT_GROWTH
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 2336, itemID = 2460, category = "EFFECT", preExpiration = true }, -- ELIXIR_OF_TONGUES
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 162906, itemID = 112321, category = "EFFECT", preExpiration = true }, -- ENCHANTED_DUST
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 398458, itemID = 202290, category = "SIZE", preExpiration = true, delayedAura = true }, -- FIREWATER_SORBET
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 393977, itemID = 201427, category = "EFFECT" }, -- FLEETING_SANDS
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 454799, itemID = 225253, category = "HANDHELD", preExpiration = true }, -- FLICKERING_FLAME_HOLDER
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 58468, itemID = 43478, category = "SIZE", preExpiration = true, delayedAura = true }, -- GIGANTIC_FEAST
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 244014, itemID = 151257, category = "HANDHELD", preExpiration = true }, -- GREEN_DANCE_STICK
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1222840, itemID = 237334, category = "HANDHELD", preExpiration = true }, -- HALF_EATEN_TAKEOUT
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 443688, itemID = 216708, category = "PLACEMENT", spellTrackable = true }, -- HOLY_CANDLE
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 185394, itemID = 124640, category = "EFFECT", preExpiration = true }, -- INKY_BLACK_POTION
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1218300, itemID = 235703, category = "SIZE", stacks = true, maxStacks = 10, preExpiration = true }, -- NOGGENFOGGER_SELECT_DOWN
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1218297, itemID = 235704, category = "SIZE", stacks = true, maxStacks = 10, preExpiration = true }, -- NOGGENFOGGER_SELECT_UP
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 374959, itemID = {193031, 193030, 193029}, category = "PRISM", preExpiration = true, requiresGroup = true, buildAdded = "0.7.0|120001" }, -- PROJECTION_PRISM
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 368038, itemID = 190739, category = "EFFECT", preExpiration = true }, -- PROVIS_WAX
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 244015, itemID = 151256, category = "HANDHELD", preExpiration = true }, -- PURPLE_DANCE_STICK
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 53805, itemID = 40195, category = "SIZE", stacks = true, maxStacks = 10 }, -- PYGMY_OIL
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 393979, itemID = 201428, category = "EFFECT" }, -- QUICKSILVER_SANDS
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1213974, itemID = 234287, category = "EFFECT", preExpiration = true }, -- RADIANT_FOCUS
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1214287, itemID = 234527, category = "HANDHELD", preExpiration = true }, -- SACREDITES_LEDGER
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 163267, castAuraID = 163219, itemID = 112384, category = "PRISM", preExpiration = true, requiresGroup = true, charges = true, buildAdded = "0.7.0|120001" }, -- REFLECTING_PRISM
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 279742, itemID = 163695, category = "EFFECT" }, -- SCROLL_OF_INNER_TRUTH
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1222834, itemID = 237332, category = "PLACEMENT", spellTrackable = true }, -- SINGLE_USE_GRILL
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 58479, itemID = 43480, category = "SIZE", preExpiration = true, delayedAura = true }, -- SMALL_FEAST
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 382729, itemID = 197766, category = "HANDHELD", preExpiration = true }, -- SNOW_IN_A_CONE
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 442106, itemID = 218107, category = "HANDHELD", preExpiration = true }, -- SPARKBUG_JAR
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 404840, itemID = 204370, category = "EFFECT", preExpiration = true }, -- STINKY_BRIGHT_POTION
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 254544, itemID = 153192, category = "EFFECT", unrefreshable = true }, -- SUNGLOW
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1213975, itemID = 234466, category = "EFFECT", preExpiration = true }, -- TATTERED_ARATHI_PRAYER_SCROLL
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 393989, itemID = 201436, category = "EFFECT", preExpiration = true }, -- TEMPORALLY_LOCKED_SANDS
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 393994, itemID = 201438, category = "EFFECT", preExpiration = true }, -- WEARY_SANDS
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 17038, itemID = 12820, category = "SIZE", preExpiration = true }, -- WINTERFALL_FIREWATER
 	-- TOYS
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 393985, itemID = 201435, category = "EFFECT", cooldownMismatch = true }, -- Shuffling Sands
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 427782, itemID = 210975, category = "EFFECT" }, -- Date Simulation Modulator
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 385792, itemID = 198264, category = "EFFECT" }, -- Centralized Precipitation Emitter
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 385085, itemID = 198206, category = "EFFECT" }, -- Environmental Emulator
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 314988, itemID = 173984, category = "EFFECT", cooldownMismatch = true }, -- Scroll of Aeons
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 279997, itemID = 163742, category = "EFFECT", preExpiration = true }, -- Heartsbane Grimoire
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 409891, itemID = 205418, category = "EFFECT", cooldownMismatch = true }, -- Blazing Shadowflame Cinder
+	NewOption{ type = Options.Type.TOY, auraID = 393985, itemID = 201435, category = "EFFECT", cooldownMismatch = true }, -- Shuffling Sands
+	NewOption{ type = Options.Type.TOY, auraID = 427782, itemID = 210975, category = "EFFECT" }, -- Date Simulation Modulator
+	NewOption{ type = Options.Type.TOY, auraID = 385792, itemID = 198264, category = "EFFECT" }, -- Centralized Precipitation Emitter
+	NewOption{ type = Options.Type.TOY, auraID = 385085, itemID = 198206, category = "EFFECT" }, -- Environmental Emulator
+	NewOption{ type = Options.Type.TOY, auraID = 314988, itemID = 173984, category = "EFFECT", cooldownMismatch = true }, -- Scroll of Aeons
+	NewOption{ type = Options.Type.TOY, auraID = 279997, itemID = 163742, category = "EFFECT", preExpiration = true }, -- Heartsbane Grimoire
+	NewOption{ type = Options.Type.TOY, auraID = 409891, itemID = 205418, category = "EFFECT", cooldownMismatch = true }, -- Blazing Shadowflame Cinder
 
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 453163, itemID = 224552, category = "HANDHELD" }, -- Cave Spelunker's Torch
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 203533, itemID = 133997, category = "HANDHELD" }, -- Black Ice
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 203820, itemID = 134007, category = "HANDHELD" }, -- Eternal Black Diamond Ring
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 203657, itemID = 134004, category = "HANDHELD" }, -- Noble's Eternal Elementium Signet
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 465642, itemID = 228789, category = "HANDHELD" }, -- Coldflame Ring
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 1215495, itemID = 235041, category = "HANDHELD" }, -- Cyrce's Circlet
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 1232024, itemID = 242323, category = "HANDHELD", preExpiration = true }, -- Chowdar's Favorite Ribbon
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 341678, itemID = 182694, category = "HANDHELD", preExpiration = true }, -- Stylish Black Parasol
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 341682, itemID = 182695, category = "HANDHELD", preExpiration = true }, -- Weathered Purple Parasol
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 341624, itemID = 182696, category = "HANDHELD", preExpiration = true }, -- The Countess's Parasol
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 431949, itemID = 212500, category = "HANDHELD", preExpiration = true }, -- Delicate Silk Parasol
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 432001, itemID = 212525, category = "HANDHELD", preExpiration = true }, -- Delicate Ebony Parasol
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 431998, itemID = 212524, category = "HANDHELD", preExpiration = true }, -- Delicate Crimson Parasol
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 431994, itemID = 212523, category = "HANDHELD", preExpiration = true }, -- Delicate Jade Parasol
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 196067, itemID = 130251, category = "HANDHELD" }, -- JewelCraft
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 200015, itemID = 132518, category = "HANDHELD" }, -- Blingtron's Circuit Design Tutorial
+	NewOption{ type = Options.Type.TOY, auraID = 453163, itemID = 224552, category = "HANDHELD" }, -- Cave Spelunker's Torch
+	NewOption{ type = Options.Type.TOY, auraID = 203533, itemID = 133997, category = "HANDHELD" }, -- Black Ice
+	NewOption{ type = Options.Type.TOY, auraID = 203820, itemID = 134007, category = "HANDHELD" }, -- Eternal Black Diamond Ring
+	NewOption{ type = Options.Type.TOY, auraID = 203657, itemID = 134004, category = "HANDHELD" }, -- Noble's Eternal Elementium Signet
+	NewOption{ type = Options.Type.TOY, auraID = 465642, itemID = 228789, category = "HANDHELD" }, -- Coldflame Ring
+	NewOption{ type = Options.Type.TOY, auraID = 1215495, itemID = 235041, category = "HANDHELD" }, -- Cyrce's Circlet
+	NewOption{ type = Options.Type.TOY, auraID = 1232024, itemID = 242323, category = "HANDHELD", preExpiration = true }, -- Chowdar's Favorite Ribbon
+	NewOption{ type = Options.Type.TOY, auraID = 341678, itemID = 182694, category = "HANDHELD", preExpiration = true }, -- Stylish Black Parasol
+	NewOption{ type = Options.Type.TOY, auraID = 341682, itemID = 182695, category = "HANDHELD", preExpiration = true }, -- Weathered Purple Parasol
+	NewOption{ type = Options.Type.TOY, auraID = 341624, itemID = 182696, category = "HANDHELD", preExpiration = true }, -- The Countess's Parasol
+	NewOption{ type = Options.Type.TOY, auraID = 431949, itemID = 212500, category = "HANDHELD", preExpiration = true }, -- Delicate Silk Parasol
+	NewOption{ type = Options.Type.TOY, auraID = 432001, itemID = 212525, category = "HANDHELD", preExpiration = true }, -- Delicate Ebony Parasol
+	NewOption{ type = Options.Type.TOY, auraID = 431998, itemID = 212524, category = "HANDHELD", preExpiration = true }, -- Delicate Crimson Parasol
+	NewOption{ type = Options.Type.TOY, auraID = 431994, itemID = 212523, category = "HANDHELD", preExpiration = true }, -- Delicate Jade Parasol
+	NewOption{ type = Options.Type.TOY, auraID = 196067, itemID = 130251, category = "HANDHELD" }, -- JewelCraft
+	NewOption{ type = Options.Type.TOY, auraID = 200015, itemID = 132518, category = "HANDHELD" }, -- Blingtron's Circuit Design Tutorial
 
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 279076, itemID = 163211, category = "PLACEMENT", spellTrackable = true }, -- Akunda's Firesticks
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 401672, itemID = 203757, category = "PLACEMENT", spellTrackable = true }, -- Brazier of Madness
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 254240, itemID = 153039, category = "PLACEMENT", spellTrackable = true }, -- Crystalline Campfire
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 171549, itemID = 116435, category = "PLACEMENT", spellTrackable = true, cooldownMismatch = true }, -- Cozy Bonfire
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 148553, itemID = 104309, category = "PLACEMENT", spellTrackable = true, cooldownMismatch = true }, -- Eternal Kiln
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 188401, itemID = 127652, category = "PLACEMENT", spellTrackable = true }, -- Felflame Campfire
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 93636, itemID = 67097, category = "PLACEMENT", spellTrackable = true }, -- Grim Campfire
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 223297, itemID = 128536, category = "PLACEMENT", spellTrackable = true }, -- Leylight Brazier
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 172809, itemID = 117573, category = "PLACEMENT", spellTrackable = true, cooldownMismatch = true }, -- Wayfarer's Bonfire
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 383081, itemID = 198402, category = "PLACEMENT", spellTrackable = true }, -- Maruuk Cooking Pot
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 340241, itemID = 182780, category = "PLACEMENT", spellTrackable = true }, -- Muckpool Cookpot
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 171760, itemID = 116757, category = "PLACEMENT", spellTrackable = true }, -- Steamworks Sausage Grill
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 453265, itemID = 219403, category = "PLACEMENT", spellTrackable = true }, -- Stonebound Lantern
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 388258, itemID = 199892, category = "PLACEMENT", spellTrackable = true }, -- Tuskarr Traveling Soup Pot
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 345745, itemID = 184404, category = "PLACEMENT", spellTrackable = true }, -- Ever-Abundant Hearth
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 468291, itemID = 234473, category = "PLACEMENT", preExpiration = true }, -- Soweezi's Comfy Lawn Chair
+	NewOption{ type = Options.Type.TOY, auraID = 279076, itemID = 163211, category = "PLACEMENT", spellTrackable = true }, -- Akunda's Firesticks
+	NewOption{ type = Options.Type.TOY, auraID = 401672, itemID = 203757, category = "PLACEMENT", spellTrackable = true }, -- Brazier of Madness
+	NewOption{ type = Options.Type.TOY, auraID = 254240, itemID = 153039, category = "PLACEMENT", spellTrackable = true }, -- Crystalline Campfire
+	NewOption{ type = Options.Type.TOY, auraID = 171549, itemID = 116435, category = "PLACEMENT", spellTrackable = true, cooldownMismatch = true }, -- Cozy Bonfire
+	NewOption{ type = Options.Type.TOY, auraID = 148553, itemID = 104309, category = "PLACEMENT", spellTrackable = true, cooldownMismatch = true }, -- Eternal Kiln
+	NewOption{ type = Options.Type.TOY, auraID = 188401, itemID = 127652, category = "PLACEMENT", spellTrackable = true }, -- Felflame Campfire
+	NewOption{ type = Options.Type.TOY, auraID = 93636, itemID = 67097, category = "PLACEMENT", spellTrackable = true }, -- Grim Campfire
+	NewOption{ type = Options.Type.TOY, auraID = 223297, itemID = 128536, category = "PLACEMENT", spellTrackable = true }, -- Leylight Brazier
+	NewOption{ type = Options.Type.TOY, auraID = 172809, itemID = 117573, category = "PLACEMENT", spellTrackable = true, cooldownMismatch = true }, -- Wayfarer's Bonfire
+	NewOption{ type = Options.Type.TOY, auraID = 383081, itemID = 198402, category = "PLACEMENT", spellTrackable = true }, -- Maruuk Cooking Pot
+	NewOption{ type = Options.Type.TOY, auraID = 340241, itemID = 182780, category = "PLACEMENT", spellTrackable = true }, -- Muckpool Cookpot
+	NewOption{ type = Options.Type.TOY, auraID = 171760, itemID = 116757, category = "PLACEMENT", spellTrackable = true }, -- Steamworks Sausage Grill
+	NewOption{ type = Options.Type.TOY, auraID = 453265, itemID = 219403, category = "PLACEMENT", spellTrackable = true }, -- Stonebound Lantern
+	NewOption{ type = Options.Type.TOY, auraID = 388258, itemID = 199892, category = "PLACEMENT", spellTrackable = true }, -- Tuskarr Traveling Soup Pot
+	NewOption{ type = Options.Type.TOY, auraID = 345745, itemID = 184404, category = "PLACEMENT", spellTrackable = true }, -- Ever-Abundant Hearth
+	NewOption{ type = Options.Type.TOY, auraID = 468291, itemID = 234473, category = "PLACEMENT", preExpiration = true }, -- Soweezi's Comfy Lawn Chair
 
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 383268, itemID = 198428, category = "EFFECT", preExpiration = true }, -- Tuskarr Dinghy
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 124036, itemID = 85500, category = "EFFECT", preExpiration = true }, -- Anglers Fishing Raft
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 344646, itemID = 183989, category = "EFFECT", itemTrackable = true }, -- Dredger Barrow Racer
+	NewOption{ type = Options.Type.TOY, auraID = 383268, itemID = 198428, category = "EFFECT", preExpiration = true }, -- Tuskarr Dinghy
+	NewOption{ type = Options.Type.TOY, auraID = 124036, itemID = 85500, category = "EFFECT", preExpiration = true }, -- Anglers Fishing Raft
+	NewOption{ type = Options.Type.TOY, auraID = 344646, itemID = 183989, category = "EFFECT", itemTrackable = true }, -- Dredger Barrow Racer
 
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 455494, itemID = 225659, category = "PLACEMENT" }, -- Arathi Book Collection
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 1214519, itemID = 235050, category = "PLACEMENT" }, -- Desk-in-a-Box
+	NewOption{ type = Options.Type.TOY, auraID = 455494, itemID = 225659, category = "PLACEMENT" }, -- Arathi Book Collection
+	NewOption{ type = Options.Type.TOY, auraID = 1214519, itemID = 235050, category = "PLACEMENT" }, -- Desk-in-a-Box
 
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 143034, itemID = 97994, category = "SIZE", preExpiration = true }, -- Darkmoon Seesaw / Childlike Wonder
+	NewOption{ type = Options.Type.TOY, auraID = 143034, itemID = 97994, category = "SIZE", preExpiration = true }, -- Darkmoon Seesaw / Childlike Wonder
 
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 392700, itemID = 200960, category = "APPEARANCE", preExpiration = true }, -- Seed of Renewed Souls
+	NewOption{ type = Options.Type.TOY, auraID = 392700, itemID = 200960, category = "APPEARANCE", preExpiration = true }, -- Seed of Renewed Souls
 
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 451985, itemID = 224192, category = "EFFECT", spellTrackable = true, cooldownMismatch = true }, -- Practice Ravager
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 462934, itemID = 228705, category = "APPEARANCE", spellTrackable = true, cooldownMismatch = true }, -- Arachnoserum
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 462683, itemID = 228698, category = "APPEARANCE", spellTrackable = true }, -- Candleflexer's Dumbbell
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 455426, itemID = 225641, category = "APPEARANCE", spellTrackable = true, cooldownMismatch = true }, -- Illusive Kobyss Lure
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 371470, itemID = 191891, category = "APPEARANCE", spellTrackable = true, cooldownMismatch = true }, -- Professor Chirpsnide's Im-PECK-able Harpy Disguise
+	NewOption{ type = Options.Type.TOY, auraID = 451985, itemID = 224192, category = "EFFECT", spellTrackable = true, cooldownMismatch = true }, -- Practice Ravager
+	NewOption{ type = Options.Type.TOY, auraID = 462934, itemID = 228705, category = "APPEARANCE", spellTrackable = true, cooldownMismatch = true }, -- Arachnoserum
+	NewOption{ type = Options.Type.TOY, auraID = 462683, itemID = 228698, category = "APPEARANCE", spellTrackable = true }, -- Candleflexer's Dumbbell
+	NewOption{ type = Options.Type.TOY, auraID = 455426, itemID = 225641, category = "APPEARANCE", spellTrackable = true, cooldownMismatch = true }, -- Illusive Kobyss Lure
+	NewOption{ type = Options.Type.TOY, auraID = 371470, itemID = 191891, category = "APPEARANCE", spellTrackable = true, cooldownMismatch = true }, -- Professor Chirpsnide's Im-PECK-able Harpy Disguise
 
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 474100, itemID = 233486, category = "HANDHELD", preExpiration = true }, -- Hallowfall Supply Cache
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 1215461, itemID = 235015, category = "HANDHELD", preExpiration = true }, -- Awakened Supply Crate
+	NewOption{ type = Options.Type.TOY, auraID = 474100, itemID = 233486, category = "HANDHELD", preExpiration = true }, -- Hallowfall Supply Cache
+	NewOption{ type = Options.Type.TOY, auraID = 1215461, itemID = 235015, category = "HANDHELD", preExpiration = true }, -- Awakened Supply Crate
 
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 160688, itemID = 108743, category = "EFFECT", spellTrackable = true, cooldownMismatch = true }, -- Deceptia's Smoldering Boots
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 277572, itemID = 159749, category = "EFFECT", spellTrackable = true, cooldownMismatch = true }, -- Haw'li's Hot & Spicy Chili
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 415089, itemID = 206993, category = "EFFECT", preExpiration = true }, -- Investi-gator's Pocketwatch
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 462145, itemID = 228413, category = "EFFECT", spellTrackable = true, cooldownMismatch = true }, -- Lampyridae Lure
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 170869, itemID = 116115, category = "EFFECT", spellTrackable = true, cooldownMismatch = true }, -- Blazing Wings
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 45418, itemID = 188701, category = "EFFECT", spellTrackable = true }, -- Fire Festival Batons
+	NewOption{ type = Options.Type.TOY, auraID = 160688, itemID = 108743, category = "EFFECT", spellTrackable = true, cooldownMismatch = true }, -- Deceptia's Smoldering Boots
+	NewOption{ type = Options.Type.TOY, auraID = 277572, itemID = 159749, category = "EFFECT", spellTrackable = true, cooldownMismatch = true }, -- Haw'li's Hot & Spicy Chili
+	NewOption{ type = Options.Type.TOY, auraID = 415089, itemID = 206993, category = "EFFECT", preExpiration = true }, -- Investi-gator's Pocketwatch
+	NewOption{ type = Options.Type.TOY, auraID = 462145, itemID = 228413, category = "EFFECT", spellTrackable = true, cooldownMismatch = true }, -- Lampyridae Lure
+	NewOption{ type = Options.Type.TOY, auraID = 170869, itemID = 116115, category = "EFFECT", spellTrackable = true, cooldownMismatch = true }, -- Blazing Wings
+	NewOption{ type = Options.Type.TOY, auraID = 45418, itemID = 188701, category = "EFFECT", spellTrackable = true }, -- Fire Festival Batons
 
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 45416, itemID = 188699, category = "EFFECT" }, -- Insulated Dancing Insoles
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 222206, itemID = 141649, category = "EFFECT", spellTrackable = true, cooldownMismatch = true }, -- Set of Matches
+	NewOption{ type = Options.Type.TOY, auraID = 45416, itemID = 188699, category = "EFFECT" }, -- Insulated Dancing Insoles
+	NewOption{ type = Options.Type.TOY, auraID = 222206, itemID = 141649, category = "EFFECT", spellTrackable = true, cooldownMismatch = true }, -- Set of Matches
 
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 222907, itemID = 140231, category = "APPEARANCE", spellTrackable = true }, -- Narcissa's Mirror
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 187356, itemID = 127696, category = "APPEARANCE", spellTrackable = true, cooldownMismatch = true }, -- Magic Pet Mirror
+	NewOption{ type = Options.Type.TOY, auraID = 222907, itemID = 140231, category = "APPEARANCE", spellTrackable = true }, -- Narcissa's Mirror
+	NewOption{ type = Options.Type.TOY, auraID = 187356, itemID = 127696, category = "APPEARANCE", spellTrackable = true, cooldownMismatch = true }, -- Magic Pet Mirror
 
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 465887, itemID = 238850, category = "EFFECT", spellTrackable = true, cooldownMismatch = true }, -- Arathi Entertainer's Flame
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 162402, itemID = 108739, category = "EFFECT", spellTrackable = true, cooldownMismatch = true }, -- Pretty Draenor Pearl
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 166592, itemID = 113375, category = "EFFECT", spellTrackable = true, cooldownMismatch = true }, -- Vindicator's Armor Polish Kit
+	NewOption{ type = Options.Type.TOY, auraID = 465887, itemID = 238850, category = "EFFECT", spellTrackable = true, cooldownMismatch = true }, -- Arathi Entertainer's Flame
+	NewOption{ type = Options.Type.TOY, auraID = 162402, itemID = 108739, category = "EFFECT", spellTrackable = true, cooldownMismatch = true }, -- Pretty Draenor Pearl
+	NewOption{ type = Options.Type.TOY, auraID = 166592, itemID = 113375, category = "EFFECT", spellTrackable = true, cooldownMismatch = true }, -- Vindicator's Armor Polish Kit
 
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 192930, itemID = 129055, category = "EFFECT" }, -- Shoe Shine Kit
+	NewOption{ type = Options.Type.TOY, auraID = 192930, itemID = 129055, category = "EFFECT" }, -- Shoe Shine Kit
 
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 290280, itemID = 166790, category = "APPEARANCE", spellTrackable = true, cooldownMismatch = true }, -- Highborne Memento
+	NewOption{ type = Options.Type.TOY, auraID = 290280, itemID = 166790, category = "APPEARANCE", spellTrackable = true, cooldownMismatch = true }, -- Highborne Memento
 
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 1215373, itemID = 234951, category = "HANDHELD", preExpiration = true }, -- Uncracked Cold Ones / Kaja'Cola Enthusiast
+	NewOption{ type = Options.Type.TOY, auraID = 1215373, itemID = 234951, category = "HANDHELD", preExpiration = true }, -- Uncracked Cold Ones / Kaja'Cola Enthusiast
 
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 373351, itemID = 192495, category = "EFFECT", preExpiration = true }, -- Malfunctioning Stealthman 54
+	NewOption{ type = Options.Type.TOY, auraID = 373351, itemID = 192495, category = "EFFECT", preExpiration = true }, -- Malfunctioning Stealthman 54
 
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 1237584, itemID = 244470, category = "EFFECT", spellTrackable = true, cooldownMismatch = true }, -- Etheric Victory
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 1244178, itemID = 246903, category = "EFFECT", preExpiration = true }, -- Guise of the Phase Diver
+	NewOption{ type = Options.Type.TOY, auraID = 1237584, itemID = 244470, category = "EFFECT", spellTrackable = true, cooldownMismatch = true }, -- Etheric Victory
+	NewOption{ type = Options.Type.TOY, auraID = 1244178, itemID = 246903, category = "EFFECT", preExpiration = true }, -- Guise of the Phase Diver
 
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 47770, itemID = 36863, category = "EFFECT", itemTrackable = true }, -- Decahedral Dwarven Dice
+	NewOption{ type = Options.Type.TOY, auraID = 47770, itemID = 36863, category = "EFFECT", itemTrackable = true }, -- Decahedral Dwarven Dice
 
 	-- Dragonflight
 	--- Ruby Feast
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 391618, itemID = 200891, category = "EFFECT", preExpiration = true, buildAdded = "0.7.3|120001" }, -- Druidic Dreamsalad
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 391594, itemID = 200886, category = "EFFECT", preExpiration = true, buildAdded = "0.7.3|120001" }, -- Lemon Silverleaf Tea
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 392123, itemID = 200889, category = "EFFECT", preExpiration = true, buildAdded = "0.7.3|120001" }, -- Highly Spiced Haunch
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 391618, itemID = 200891, category = "EFFECT", preExpiration = true, buildAdded = "0.7.3|120001" }, -- Druidic Dreamsalad
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 391594, itemID = 200886, category = "EFFECT", preExpiration = true, buildAdded = "0.7.3|120001" }, -- Lemon Silverleaf Tea
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 392123, itemID = 200889, category = "EFFECT", preExpiration = true, buildAdded = "0.7.3|120001" }, -- Highly Spiced Haunch
 
 	-- Midnight
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1250761, itemID = 250325, category = "EFFECT", preExpiration = true, buildAdded = "0.6.0|120000" }, -- Night's Embrace
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1250761, itemID = 250325, category = "EFFECT", preExpiration = true, buildAdded = "0.6.0|120000" }, -- Night's Embrace
 
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1281702, itemID = 268115, category = "HANDHELD", preExpiration = true, buildAdded = "0.6.1|120000" }, -- Overbaked Donut
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1280627, itemID = 267486, category = "HANDHELD", preExpiration = true, buildAdded = "0.6.1|120000" }, -- Simple Cup
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1281702, itemID = 268115, category = "HANDHELD", preExpiration = true, buildAdded = "0.6.1|120000" }, -- Overbaked Donut
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1280627, itemID = 267486, category = "HANDHELD", preExpiration = true, buildAdded = "0.6.1|120000" }, -- Simple Cup
 
 	--- Arcantina
 	---- Bartender Bob
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1280595, itemID = 267379, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Tavern Mug
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1280950, itemID = 267615, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Imperial Mug
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1280849, itemID = 267617, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Sophisticated Goblet
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1281328, itemID = 267618, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Rusty Receptacle
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1281452, itemID = 267619, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Sipping Glass
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1280851, itemID = 267624, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Bamboo Tray
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1280855, itemID = 267626, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Stale Tavern Bread
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1280849, itemID = 267627, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Decorative Tavern Cheese
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1280850, itemID = 268025, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Heavy Stein
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1281013, itemID = 268053, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Rugged Cup
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1281667, itemID = 268110, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Cheese Tray
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1280595, itemID = 267379, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Tavern Mug
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1280950, itemID = 267615, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Imperial Mug
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1280849, itemID = 267617, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Sophisticated Goblet
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1281328, itemID = 267618, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Rusty Receptacle
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1281452, itemID = 267619, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Sipping Glass
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1280851, itemID = 267624, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Bamboo Tray
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1280855, itemID = 267626, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Stale Tavern Bread
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1280849, itemID = 267627, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Decorative Tavern Cheese
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1280850, itemID = 268025, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Heavy Stein
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1281013, itemID = 268053, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Rugged Cup
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1281667, itemID = 268110, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Cheese Tray
 
 	---- Ari
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1280930, itemID = 267652, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Silver Hand Squire's Libram
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1280929, itemID = 267650, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Blood Knight Training Manual
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1280865, itemID = 267628, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Historian's Tome
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1280930, itemID = 267652, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Silver Hand Squire's Libram
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1280929, itemID = 267650, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Blood Knight Training Manual
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1280865, itemID = 267628, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Historian's Tome
 
 	---- Janky
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1280853, itemID = 267625, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Lit Candle
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1281709, itemID = 268116, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Twin-Flame Holder
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1281488, itemID = 267623, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Simple Torch
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1281518, itemID = 268085, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Hand Torch
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1281490, itemID = 268068, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Sturdy Torch
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1281673, itemID = 268111, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Arkonite Beacon
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 1281674, itemID = 268112, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Argunite Beacon
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1280853, itemID = 267625, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Lit Candle
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1281709, itemID = 268116, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Twin-Flame Holder
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1281488, itemID = 267623, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Simple Torch
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1281518, itemID = 268085, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Hand Torch
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1281490, itemID = 268068, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Sturdy Torch
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1281673, itemID = 268111, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Arkonite Beacon
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1281674, itemID = 268112, category = "HANDHELD", preExpiration = true, buildAdded = "0.7.2|120001" }, -- Argunite Beacon
 
-	NewOption{ type = SIPPYCUP.Options.Type.CONSUMABLE, auraID = 987654321, itemID = 987654321, category = "EFFECT", preExpiration = true }, -- Does not exist, test
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 987654321, itemID = 987654321, category = "EFFECT", preExpiration = true }, -- Does not exist, test
 
 	--- Treasures of Zul'aman Achievement
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 1283490, itemID = 268717, category = "APPEARANCE", preExpiration = true, buildAdded = "0.7.4|120001" }, -- Pango Plating
+	NewOption{ type = Options.Type.TOY, auraID = 1283490, itemID = 268717, category = "APPEARANCE", preExpiration = true, buildAdded = "0.7.4|120001" }, -- Pango Plating
 
 	--- Voidstorm Treasure
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 1250729, itemID = 250319, category = "EFFECT", buildAdded = "0.7.4|120001" }, -- Researcher's Shadowgraft
+	NewOption{ type = Options.Type.TOY, auraID = 1250729, itemID = 250319, category = "EFFECT", buildAdded = "0.7.4|120001" }, -- Researcher's Shadowgraft
 
 
-	NewOption{ type = SIPPYCUP.Options.Type.TOY, auraID = 1254376, itemID = 252265, category = "APPEARANCE", cooldownMismatch = true, buildAdded = "0.7.4|120001" }, -- Hexed Potatoad Mucus
+	NewOption{ type = Options.Type.TOY, auraID = 1254376, itemID = 252265, category = "APPEARANCE", cooldownMismatch = true, buildAdded = "0.7.4|120001" }, -- Hexed Potatoad Mucus
 };
 
 ---ResolveTrackingMethod returns whether to track a given option by spell or item cooldown.
----@param optionData SIPPYCUPOption
+---@param optionData SippyCupOption
 ---@return boolean trackBySpell
 ---@return boolean trackByItem
-function SIPPYCUP.Options.ResolveTrackingMethod(optionData)
-	if optionData.type == SIPPYCUP.Options.Type.CONSUMABLE then
+function Options.ResolveTrackingMethod(optionData)
+	if optionData.type == Options.Type.CONSUMABLE then
 		return optionData.spellTrackable, optionData.itemTrackable;
-	elseif optionData.type == SIPPYCUP.Options.Type.TOY then
+	elseif optionData.type == Options.Type.TOY then
 		if optionData.itemTrackable then
 			return false, true;
 		end
 		if optionData.spellTrackable then
-			if SIPPYCUP.Database:GetGlobalSetting("UseToyCooldown") then
+			if SC.Database:GetGlobalSetting("UseToyCooldown") then
 				return false, true;
 			else
 				return true, false;
@@ -286,17 +288,19 @@ local function NormalizeLocName(name)
 	return name:upper():gsub("[^%w]+", "_");
 end
 
-function SIPPYCUP.Options.Setup()
-	local data = SIPPYCUP.Options.Data;
+---Setup builds all lookup tables and asynchronously resolves item names and icons.
+---@return nil
+function Options.Setup()
+	local data = Options.Data;
 	local remaining = {};
 
 	-- Build lookups
 	for _, option in ipairs(data) do
 		for _, id in ipairs(option.itemID) do
-			SIPPYCUP.Options.ByItemID[id] = option;
+			Options.ByItemID[id] = option;
 			remaining[id] = true;
 		end
-		SIPPYCUP.Options.ByAuraID[option.auraID] = option;
+		Options.ByAuraID[option.auraID] = option;
 	end
 
 	-- Fast prune: remove invalid items before async loads
@@ -314,10 +318,10 @@ function SIPPYCUP.Options.Setup()
 		if not valid then
 			-- Remove all itemIDs from lookups
 			for _, id in ipairs(option.itemID) do
-				SIPPYCUP.Options.ByItemID[id] = nil;
+				Options.ByItemID[id] = nil;
 				remaining[id] = nil;
 			end
-			SIPPYCUP.Options.ByAuraID[option.auraID] = nil;
+			Options.ByAuraID[option.auraID] = nil;
 			table.remove(data, i);
 		end
 	end
@@ -325,9 +329,10 @@ function SIPPYCUP.Options.Setup()
 	-- Early complete if nothing left
 	if next(remaining) == nil then
 		table.sort(data, function(a, b)
-			return SIPPYCUP_TEXT.Normalize(a.name:lower()) < SIPPYCUP_TEXT.Normalize(b.name:lower());
+			return SC.Utils.Normalize(a.name:lower()) < SC.Utils.Normalize(b.name:lower());
 		end);
-		SIPPYCUP.Callbacks:TriggerEvent(SIPPYCUP.Events.OPTIONS_LOADED);
+		-- SC.Callbacks:TriggerEvent(SC.Callbacks.Events.OPTIONS_LOADED); TO-DO: Remove
+		SC.Globals.States.optionsLoaded = true;
 		return;
 	end
 
@@ -336,10 +341,11 @@ function SIPPYCUP.Options.Setup()
 		if next(remaining) ~= nil then return end;
 
 		table.sort(data, function(a, b)
-			return SIPPYCUP_TEXT.Normalize(a.name:lower()) < SIPPYCUP_TEXT.Normalize(b.name:lower());
+			return SC.Utils.Normalize(a.name:lower()) < SC.Utils.Normalize(b.name:lower());
 		end);
 
-		SIPPYCUP.Callbacks:TriggerEvent(SIPPYCUP.Events.OPTIONS_LOADED);
+		-- SC.Callbacks:TriggerEvent(SC.Callbacks.Events.OPTIONS_LOADED); TO-DO: Remove
+		SC.Globals.States.optionsLoaded = true;
 	end
 
 	-- Async load for all valid items
@@ -368,7 +374,7 @@ function SIPPYCUP.Options.Setup()
 				end);
 
 				option.icon = item:GetItemIcon();
-				SIPPYCUP.Options.ByName[name] = option;
+				Options.ByName[name] = option;
 
 				-- mark all itemIDs as loaded
 				for _, id in ipairs(option.itemID) do
@@ -386,13 +392,13 @@ end
 ---@param reset boolean? If true, all popups will be reset. Defaults to true
 ---@param preExpireOnly boolean? If true, only handles pre-expirations. Defaults to false
 ---@return nil
-function SIPPYCUP.Options.RefreshStackSizes(checkAll, reset, preExpireOnly)
+function Options.RefreshStackSizes(checkAll, reset, preExpireOnly)
 	reset = (reset ~= false);
 	preExpireOnly = preExpireOnly or false;
 
 	-- Helper to check cooldown startTime for item or spell trackable
 	local function GetCooldownStartTime(option)
-		local trackBySpell, trackByItem = SIPPYCUP.Options.ResolveTrackingMethod(option);
+		local trackBySpell, trackByItem = Options.ResolveTrackingMethod(option);
 
 		if trackByItem then
 			for _, id in ipairs(option.itemID) do
@@ -415,18 +421,18 @@ function SIPPYCUP.Options.RefreshStackSizes(checkAll, reset, preExpireOnly)
 	end
 
 	-- Reset timers and popups
-	SIPPYCUP.Auras.CancelAllPreExpirationTimers();
-	SIPPYCUP.Items.CancelAllItemTimers();
+	SC.Auras.CancelAllPreExpirationTimers();
+	SC.Items.CancelAllItemTimers();
 	if reset then
-		SIPPYCUP.Popups.HideAllRefreshPopups();
+		SC.Popups.HideAllRefreshPopups();
 	end
 
 	-- Rebuild the aura map from the latest database data that we have.
-	SIPPYCUP.Database:RebuildAuraMap();
+	SC.Database:RebuildAuraMap();
 
 	local GetPlayerAuraBySpellID = C_UnitAuras.GetPlayerAuraBySpellID;
-	local auraToProfile = SIPPYCUP.Database.auraToProfile;
-	local ByAuraID = SIPPYCUP.Options.ByAuraID;
+	local auraToProfile = SC.Database.auraToProfile;
+	local ByAuraID = Options.ByAuraID;
 
 	-- auraToProfile will iterate over all the enabled (not active!) options.
 	for _, profileOptionData in pairs(auraToProfile) do
@@ -436,12 +442,12 @@ function SIPPYCUP.Options.RefreshStackSizes(checkAll, reset, preExpireOnly)
 		local startTime = GetCooldownStartTime(optionData);
 		local active = startTime ~= nil;
 
-		if not SIPPYCUP.States.loadingScreen then
+		if not SC.Globals.States.loadingScreen then
 			local preExpireFired;
 			if profileOptionData.untrackableByAura then
-				preExpireFired = SIPPYCUP.Items.CheckNoAuraSingleOption(profileOptionData, auraID, nil, startTime);
+				preExpireFired = SC.Items.CheckNoAuraSingleOption(profileOptionData, auraID, nil, startTime);
 			else
-				preExpireFired = SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData, nil);
+				preExpireFired = SC.Auras.CheckPreExpirationForSingleOption(profileOptionData, nil);
 			end
 
 			if not preExpireFired and not preExpireOnly then
@@ -453,13 +459,15 @@ function SIPPYCUP.Options.RefreshStackSizes(checkAll, reset, preExpireOnly)
 					profileOptionData = profileOptionData,
 				};
 				if auraInfo or active then
-					data.reason = SIPPYCUP.Popups.Reason.ADDITION;
-					SIPPYCUP.Popups.QueuePopupAction(data, "RefreshStackSizes - active");
+					data.reason = SC.Popups.Reason.ADDITION;
+					SC.Popups.QueuePopupAction(data, "RefreshStackSizes - active");
 				elseif checkAll then
-					data.reason = SIPPYCUP.Popups.Reason.REMOVAL;
-					SIPPYCUP.Popups.QueuePopupAction(data, "RefreshStackSizes - checkAll (inactive)");
+					data.reason = SC.Popups.Reason.REMOVAL;
+					SC.Popups.QueuePopupAction(data, "RefreshStackSizes - checkAll (inactive)");
 				end
 			end
 		end
 	end
 end
+
+SC.Options = Options;
