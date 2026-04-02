@@ -153,6 +153,11 @@ SIPPYCUP.Flyway.Patches["2"] = {
 			for _, oldKey in ipairs(toRemove) do
 				SippyCupDB.profileKeys[oldKey] = nil;
 			end
+
+			-- Profile resolution needs to re-run after flyway.
+			if next(toAdd) then
+				SIPPYCUP.States.requiresReinit = true;
+			end
 		end
 	end,
 

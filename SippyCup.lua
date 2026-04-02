@@ -92,7 +92,9 @@ end
 ---OnInitialPlayerInWorld Runs initial setup after the player enters the world for the first time.
 ---Handles MSP checks, DB profile migration, saved variable patches, and minimap setup.
 function SIPPYCUP_Addon:OnInitialPlayerInWorld()
-	-- Do nothing when you are on a PvP-enabled map (Arenas, BGs, etc.)
+	-- Adapt saved variables structures between versions
+	SIPPYCUP.Flyway:ApplyPatches();
+
 	local inPvp = C_RestrictedActions.IsAddOnRestrictionActive(Enum.AddOnRestrictionType.PvPMatch) or C_PvP.IsActiveBattlefield();
 	if inPvp then
 		SIPPYCUP.States.pvpMatch = true;
@@ -101,33 +103,30 @@ function SIPPYCUP_Addon:OnInitialPlayerInWorld()
 
 	-- Prepare our MSP checks.
 	SIPPYCUP.MSP.EnableIfAvailable(); -- True/False if enable successfully, we don't need that info right now.
-	-- Depending on if MSP status checks are on or off, we check differently.
-	SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.Database:GetGlobalSetting("MSPStatusCheck"));
 
+	-- Unknown profile migration
 	local realCharKey = SIPPYCUP_UTILS.GetUnitName();
 	if realCharKey then
 		local db = SippyCupDB;
-
-		-- Check if "Unknown" profile exists and realCharKey does not yet have a profile
 		if db.profiles["Unknown"] and not db.profileKeys[realCharKey] then
-			-- Move the profile data from "Unknown" to realCharKey
 			db.profiles[realCharKey] = db.profiles["Unknown"];
 			db.profiles["Unknown"] = nil;
 
-			-- Update profileKeys mapping
 			for key, profileName in pairs(db.profileKeys) do
 				if profileName == "Unknown" then
 					db.profileKeys[key] = realCharKey;
 				end
 			end
-		end
 
-		-- Re-initialize database so currentProfile points to realCharKey
-		SIPPYCUP.Database:Init();
+			SIPPYCUP.States.requiresReinit = true;
+		end
 	end
 
-	-- Adapt saved variables structures between versions
-	SIPPYCUP.Flyway:ApplyPatches();
+	-- Re-resolve active profile only if flyway or Unknown migration changed things.
+	if SIPPYCUP.States.requiresReinit then
+		SIPPYCUP.States.requiresReinit = false;
+		SIPPYCUP.Database:ResolveActiveProfile();
+	end
 
 	SIPPYCUP.Minimap:SetupMinimapButtons();
 
@@ -137,6 +136,8 @@ function SIPPYCUP_Addon:OnInitialPlayerInWorld()
 	end
 
 	SIPPYCUP.States.addonReady = true;
+	-- Depending on if MSP status checks are on or off, we check differently.
+	SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.Database:GetGlobalSetting("MSPStatusCheck"));
 end
 
 ---BAG_UPDATE_DELAYED Handles delayed bag updates and triggers item update processing.
