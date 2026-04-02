@@ -289,8 +289,9 @@ local function NormalizeLocName(name)
 end
 
 ---Setup builds all lookup tables and asynchronously resolves item names and icons.
+---@param onComplete fun()? Optional callback invoked once all item names are resolved.
 ---@return nil
-function Options.Setup()
+function Options.Setup(onComplete)
 	local data = Options.Data;
 	local remaining = {};
 
@@ -331,8 +332,8 @@ function Options.Setup()
 		table.sort(data, function(a, b)
 			return SC.Utils.Normalize(a.name:lower()) < SC.Utils.Normalize(b.name:lower());
 		end);
-		-- SC.Callbacks:TriggerEvent(SC.Callbacks.Events.OPTIONS_LOADED); TO-DO: Remove
 		SC.Globals.States.optionsLoaded = true;
+		if onComplete then onComplete(); end
 		return;
 	end
 
@@ -344,8 +345,8 @@ function Options.Setup()
 			return SC.Utils.Normalize(a.name:lower()) < SC.Utils.Normalize(b.name:lower());
 		end);
 
-		-- SC.Callbacks:TriggerEvent(SC.Callbacks.Events.OPTIONS_LOADED); TO-DO: Remove
 		SC.Globals.States.optionsLoaded = true;
+		if onComplete then onComplete(); end
 	end
 
 	-- Async load for all valid items

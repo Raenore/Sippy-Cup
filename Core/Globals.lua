@@ -4,7 +4,6 @@
 
 ---@class SippyCupStateFlags
 ---@field addonReady boolean
----@field firstRun boolean
 ---@field optionsLoaded boolean
 ---@field databaseLoaded boolean
 ---@field hasSeenFullUpdate boolean
@@ -62,7 +61,6 @@ SC.Globals = {
 
 	States = {
 		addonReady = false,
-		firstRun = true,
 		optionsLoaded = false,
 		databaseLoaded = false,
 		hasSeenFullUpdate = false,

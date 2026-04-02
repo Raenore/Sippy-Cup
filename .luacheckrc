@@ -340,9 +340,21 @@ stds.wow = {
 
 		Enum = {
 			fields = {
+				AddOnRestrictionState = {
+					fields = {
+						"Inactive",
+						"Activating",
+						"Active",
+					},
+				},
+
 				AddOnRestrictionType = {
 					fields = {
+						"Combat",
+						"Encounter",
+						"ChallengeMode",
 						"PvPMatch",
+						"Map",
 					},
 				},
 
