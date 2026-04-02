@@ -5,6 +5,7 @@
 local Events = CreateFrame("Frame");
 
 local function OnLoadingScreenEnded()
+	SC.Utils.Log("INFO", "OnLoadingScreenEnded");
 	SC.Globals.States.loadingScreen = false;
 
 	local inPvp = C_RestrictedActions.IsAddOnRestrictionActive(Enum.AddOnRestrictionType.PvPMatch) or C_PvP.IsActiveBattlefield();
@@ -95,9 +96,10 @@ end
 
 ---PLAYER_ENTERING_WORLD Handles player entering world or UI reload; triggers loading screen end logic if reloading.
 ---@param event string Event name (ignored)
----@param isInitialLogin boolean Unused
+---@param isInitialLogin boolean Whenever the character logs in.
 ---@param isReloadingUi boolean Whether UI is reloading
-function Events:PLAYER_ENTERING_WORLD(_, _, isReloadingUi)
+function Events:PLAYER_ENTERING_WORLD(event, isInitialLogin, isReloadingUi)
+	SC.Utils.Log("INFO", event, isInitialLogin, isReloadingUi);
 	-- ZONE_CHANGED_NEW_AREA fires on isInitialLogin, but not on isReloadingUi
 	if isReloadingUi then
 		-- Reloading fires PLAYER_ENTERING_WORLD when reload is done, data is fine.
@@ -107,21 +109,13 @@ function Events:PLAYER_ENTERING_WORLD(_, _, isReloadingUi)
 end
 
 ---PLAYER_LEAVING_WORLD Handles leaving the world; triggers loading screen start logic.
-function Events:PLAYER_LEAVING_WORLD()
-	-- SC.Callbacks:TriggerEvent(SC.Callbacks.Events.LOADING_SCREEN_STARTED); TO-DO: Remove
-	SC.Globals.States.loadingScreen = true;
-
-	-- Do not continue if addon is not ready.
-	if not SC.States.addonReady then
-		return;
-	end
-
-	SC.Timers:StopContinuousCheck();
+function Events:PLAYER_LEAVING_WORLD(event)
+	SC.Utils.Log("INFO", event);
 end
 
 ---ZONE_CHANGED_NEW_AREA Handles zone changes and triggers loading screen end logic if needed.
-function Events:ZONE_CHANGED_NEW_AREA()
-	-- SC.Callbacks:TriggerEvent(SC.Callbacks.Events.LOADING_SCREEN_ENDED); TO-DO: Remove
+function Events:ZONE_CHANGED_NEW_AREA(event)
+	SC.Utils.Log("INFO", event);
 	OnLoadingScreenEnded();
 end
 

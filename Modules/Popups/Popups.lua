@@ -723,7 +723,7 @@ local pendingCalls = {};
 ---@param caller string What function called the popup action.
 ---@return nil
 function Popups.QueuePopupAction(data, caller)
-	SC.Utils.Debug("QueuePopupAction -", caller);
+	SC.Utils.Log("DEBUG", "QueuePopupAction -", caller);
 
 	-- Bail out entirely when in PvP Matches, we do not show popups.
 	if SC.Globals.States.pvpMatch then
@@ -768,7 +768,7 @@ end
 ---@param caller string What function called the popup action.
 ---@return nil
 function Popups.HandlePopupAction(data, caller)
-	SC.Utils.Debug("HandlePopupAction -", caller);
+	SC.Utils.Log("DEBUG", "HandlePopupAction -", caller);
 
 	local optionData = data.optionData or SC.Options.ByAuraID[data.auraID];
 	local isFallback = data.profileOptionData == nil;
@@ -800,11 +800,11 @@ function Popups.HandlePopupAction(data, caller)
 	local isToy = optionType == SC.Options.Type.TOY;
 	local isConsumable = optionType == SC.Options.Type.CONSUMABLE;
 
-	SC.Utils.Debug("name:", optionData.name);
+	SC.Utils.Log("DEBUG", "name:", optionData.name);
 	-- Check for a dirty bag state, if so then defer until it is no longer.
 	if isConsumable and data.needsBagCheck then
 		if SC.Bags.bagGeneration < data.auraGeneration then
-			SC.Utils.Debug("Reached HandlePopupAction, but bag state is dirty");
+			SC.Utils.Log("DEBUG", "Reached HandlePopupAction, but bag state is dirty");
 
 			deferredActions[#deferredActions + 1] = {
 				data = data,
@@ -815,7 +815,7 @@ function Popups.HandlePopupAction(data, caller)
 			};
 			return;
 		end
-		SC.Utils.Debug("Reached HandlePopupAction, bag state is fine so continue.");
+		SC.Utils.Log("DEBUG", "Reached HandlePopupAction, bag state is fine so continue.");
 	end
 
 	local itemIDs = type(optionData.itemID) == "table" and optionData.itemID or { optionData.itemID };
@@ -842,7 +842,7 @@ function Popups.HandlePopupAction(data, caller)
 	else
 		-- No usable item available, popup can report zero count
 		profileOptionData.currentItemID = itemIDs[#itemIDs];
-		SC.Utils.Debug("No usable item, reporting last itemID:", profileOptionData.currentItemID);
+		SC.Utils.Log("DEBUG", "No usable item, reporting last itemID:", profileOptionData.currentItemID);
 	end
 
 	-- Always update last known count
@@ -944,7 +944,7 @@ function Popups.HandlePopupAction(data, caller)
 		end
 	end
 
-	SC.Utils.Debug({ caller = caller, auraID = optionData.auraID, itemID = optionData.itemID, name = optionData.name });
+	SC.Utils.Log("DEBUG", { caller = caller, auraID = optionData.auraID, itemID = optionData.itemID, name = optionData.name });
 
 	-- Remove depleted items from optionData.itemID, but always keep at least the last one
 	local newItemIDs = {};

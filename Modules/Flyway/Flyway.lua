@@ -15,7 +15,7 @@ local function ApplyPatches(fromBuild, toBuild)
 
 		if type(patchFn) == "function" then
 			local desc = "Applying patch " .. i .. (patch.description and (": " .. patch.description) or "");
-			SC.Utils.Debug(desc);
+			SC.Utils.Log("INFO", desc);
 			patchFn();
 			patched = true;
 		end
@@ -35,7 +35,7 @@ function Flyway.ApplyPatches()
 
 	-- Prevent running patches if saved data is from a newer version than we support
 	if currentBuild > SCHEMA_VERSION then
-		SC.Utils.Debug("Saved data is from a newer version (" .. currentBuild .. "), skipping Flyway.");
+		SC.Utils.Log("INFO", "Saved data is from a newer version (" .. currentBuild .. "), skipping Flyway.");
 		return;
 	end
 

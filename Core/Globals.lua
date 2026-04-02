@@ -13,6 +13,13 @@
 ---@field pvpMatch boolean
 ---@field requiresReinit boolean
 
+---@class SippyCupLogLevels
+---@field TRACE integer Extremely verbose internal flow debugging
+---@field DEBUG integer General development debugging
+---@field INFO integer Important runtime events
+---@field WARN integer Something unexpected but not fatal
+---@field ERROR integer Actual failure conditions
+
 ---@class SippyCupGlobals
 ---@field IS_DEV_BUILD boolean
 ---@field addon_title string
@@ -24,6 +31,8 @@
 ---@field empty table
 ---@field addon table?
 ---@field States SippyCupStateFlags
+---@field LogLevels SippyCupLogLevels
+---@field log_level integer
 SC.Globals = {
 	--@debug@
 	IS_DEV_BUILD = true,
@@ -39,6 +48,17 @@ SC.Globals = {
 	addon_build = C_AddOns.GetAddOnMetadata("SippyCup", "X-Build"),
 	addon_notes = C_AddOns.GetAddOnMetadata("SippyCup", "Notes"),
 	author = C_AddOns.GetAddOnMetadata("SippyCup", "Author"),
+
+	---@type SippyCupLogLevels
+	LogLevels = {
+		TRACE = 1,
+		DEBUG = 2,
+		INFO  = 3,
+		WARN  = 4,
+		ERROR = 5,
+	},
+
+	log_level = 3,
 
 	States = {
 		addonReady = false,

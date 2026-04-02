@@ -541,17 +541,30 @@ local function CreateInset(parent, insetData)
 			end);
 
 			if SC.Globals.IS_DEV_BUILD then
-				local printCheckbox = CreateFrame("CheckButton", nil, infoInset, "SettingsCheckBoxTemplate");
-				printCheckbox:SetPoint("TOPRIGHT", bsky, "TOPLEFT", -8, 0);
-				printCheckbox:SetSize(22, 22);
-				ElvUI.RegisterSkinnableElement(printCheckbox, "checkbox");
+				local debugDropDown = CreateFrame("DropdownButton", nil, infoInset, "WowStyle1DropdownTemplate");
+				debugDropDown:SetPoint("TOPRIGHT", bsky, "TOPLEFT", -8, 0);
+				debugDropDown:SetPoint("BOTTOMLEFT", bsky, "BOTTOMLEFT", -148, 0);
 
-				printCheckbox:SetChecked(SC.Database:GetGlobalSetting("DebugOutput"));
+				debugDropDown:SetupMenu(function(_, root)
+					root:CreateTitle("Debug Level");
+					root:CreateDivider();
 
-				AttachTooltip(printCheckbox, "Enable Debug Output", "Click this to enable the debug prints.|n|nIf you see this without knowing what debug is, you might've done something wrong!");
+					-- Make the dropdown list have a scrollbar on mainline.
+					if root.SetScrollMode then
+						local optionHeight = 20; -- 20 is the default height.
+						local maxLines = 20;
+						local maxScrollExtent = optionHeight * maxLines;
+						root:SetScrollMode(maxScrollExtent);
+					end
 
-				printCheckbox:SetScript("OnClick", function(self)
-					SC.Database:SetGlobalSetting("DebugOutput", self:GetChecked());
+					local logOrder = {"TRACE", "DEBUG", "INFO", "WARN", "ERROR"};
+					for _, key in ipairs(logOrder) do
+						local value = SC.Globals.LogLevels[key];
+						root:CreateRadio(key, function() return SC.Globals.log_level == value; end, function()
+							SC.Globals.log_level = value;
+							SC.Database:SetGlobalSetting("DebugLevel", value);
+						end, value);
+					end
 				end);
 			end
 		end

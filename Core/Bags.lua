@@ -14,7 +14,7 @@ function Bags.BagUpdateDelayed()
 	Bags.lastBagUpdate = GetTime();
 	Bags.bagGeneration = Bags.bagGeneration + 1;
 
-	SC.Utils.Debug("Bag generation:", Bags.bagGeneration);
+	SC.Utils.Log("DEBUG", "Bag generation:", Bags.bagGeneration);
 	Bags.ClearBagQueue();
 end
 

@@ -11,7 +11,7 @@ local Database = {};
 ---@class SippyCupGlobal
 ---@field AlertSound boolean Whether alert sound is enabled.
 ---@field AlertSoundID string The sound ID to play for alerts.
----@field DebugOutput boolean Whether debug output is enabled.
+---@field DebugLevel integer Level of debug output.
 ---@field FlashTaskbar boolean Whether to flash the taskbar on alerts.
 ---@field Flyway SIPPYCUPFlyway Database patch versioning and migration tracking.
 ---@field InsufficientReminder boolean Whether to show a reminder if not enough consumables are found.
@@ -45,7 +45,7 @@ local Database = {};
 local GLOBAL_DEFAULTS = {
 	AlertSound = true,
 	AlertSoundID = "fx_ship_bell_chime_02",
-	DebugOutput = false,
+	DebugLevel = SC.Globals.LogLevels.INFO,
 	FlashTaskbar = true,
 	Flyway = {
 		CurrentBuild = 0,
@@ -425,6 +425,10 @@ function Database:Init()
 	---Prune all profiles to remove values that match their defaults.
 	for _, profileData in pairs(db.profiles) do
 		pruneProfile(profileData);
+	end
+
+	if SC.Globals.IS_DEV_BUILD then
+		SC.Globals.log_level = SC.Database:GetGlobalSetting("DebugLevel");
 	end
 
 	self:InitCharacterDatabase();
@@ -894,7 +898,7 @@ end
 ---@alias SippyCupGlobalSettingKey
 ---| "AlertSound"
 ---| "AlertSoundID"
----| "DebugOutput"
+---| "DebugLevel"
 ---| "FlashTaskbar"
 ---| "Flyway"
 ---| "InsufficientReminder"

@@ -159,20 +159,39 @@ local function formatValue(val, isTop)
 	end
 end
 
----Debug prints formatted debug output, only works when IS_DEV_BUILD is true.
----Accepts any number of arguments and joins them with space.
+---Log prints formatted output respecting configured log levels.
+---First argument may optionally be a log level string (TRACE, DEBUG, INFO, WARN, ERROR).
 ---@param ... any Values to print (strings, numbers, tables, etc.)
-function Utils.Debug(...)
-	if not SC.Globals.IS_DEV_BUILD or not SC.Database:GetGlobalSetting("DebugOutput") then return; end
+function Utils.Log(...)
+	if not SC.Globals.IS_DEV_BUILD then return; end
 
 	local args = {...};
+	local logLevels = SC.Globals.LogLevels;
+
+	local levelName = "DEBUG"; -- Default level if none is set
+	local logLevel = logLevels.DEBUG;
+	local startIndex = 1;
+
+	if type(args[1]) == "string" then
+		local candidateName = string.upper(args[1]);
+		local candidateLevel = logLevels[candidateName];
+		if candidateLevel then
+			levelName = candidateName;
+			logLevel = candidateLevel;
+			startIndex = 2;
+		end
+	end
+
+	local activeLevel = SC.Globals.log_level or logLevels.DEBUG;
+	if logLevel < activeLevel then return; end
+
 	local outputLines = {};
-	for _, arg in ipairs(args) do
-		table.insert(outputLines, formatValue(arg, true));
+	for i = startIndex, #args do
+		table.insert(outputLines, formatValue(args[i], true));
 	end
 
 	local finalOutput = table.concat(outputLines, " ");
-	Print("|cnTRANSMOGRIFY_FONT_COLOR:" .. finalOutput .. "|r");
+	Print("[" .. levelName .. "] " .. "|cnTRANSMOGRIFY_FONT_COLOR:" .. finalOutput .. "|r");
 end
 
 -- ============================================================

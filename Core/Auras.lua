@@ -42,7 +42,7 @@ local function SkipDuplicatePrismUnitAura(profileOptionData, auraInstanceID)
 
 	-- Skip UNIT_AURA changes within 1s window for prisms, they are most likely duplicates
 	if lastInstance == auraInstanceID and lastTime and (now - lastTime) < 1 then
-		SC.Utils.Debug("SkipDuplicatePrismUnitAura - Duplicate - Skip", auraInstanceID);
+		SC.Utils.Log("DEBUG", "SkipDuplicatePrismUnitAura - Duplicate - Skip", auraInstanceID);
 		return true;
 	end
 
@@ -397,7 +397,7 @@ function Auras.CheckAllActiveOptions()
 					SC.Database:CommitCharState(profileOptionData.aura, profileOptionData);
 					instanceToProfile[newInstanceID] = profileOptionData;
 
-					SC.Utils.Debug("InstanceID Changed!|nName:", auraInfo.name, "|nSpellID:", profileOptionData.aura, "|nOld:", currentInstanceID, "|nNew:", newInstanceID);
+					SC.Utils.Log("DEBUG", "InstanceID Changed!|nName:", auraInfo.name, "|nSpellID:", profileOptionData.aura, "|nOld:", currentInstanceID, "|nNew:", newInstanceID);
 					Convert(Auras.Sources.UPDATE_AURA, { newInstanceID });
 				end
 			else
@@ -441,7 +441,7 @@ function Auras.CheckInstanceIDForAllActiveOptions()
 				SC.Database:CommitCharState(profileOptionData.aura, profileOptionData);
 				instanceToProfile[newInstanceID] = profileOptionData;
 
-				SC.Utils.Debug("InstanceID Changed!|nName:", auraInfo.name, "|nSpellID:", profileOptionData.aura, "|nOld:", oldInstanceID, "|nNew:", newInstanceID);
+				SC.Utils.Log("DEBUG", "InstanceID Changed!|nName:", auraInfo.name, "|nSpellID:", profileOptionData.aura, "|nOld:", oldInstanceID, "|nNew:", newInstanceID);
 				Convert(Auras.Sources.UPDATE_AURA, { newInstanceID });
 			end
 		end

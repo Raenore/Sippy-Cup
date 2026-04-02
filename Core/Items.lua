@@ -215,7 +215,7 @@ function Items.CheckNoAuraSingleOption(profileOptionData, spellID, minSeconds, s
 		end
 	end
 
-	-- SC.Utils.Debug({startTime = startTime, duration = duration, expirationTime = expirationTime, remaining = remaining});
+	-- SC.Utils.Log("DEBUG", {startTime = startTime, duration = duration, expirationTime = expirationTime, remaining = remaining});
 
 	-- Cleanup opened popups, nontrackable auras don't fire stack updates so we can't evaluate it in other places.
 	local existingPopup = SC.Popups.activeByLoc[optionData.loc];
