@@ -19,6 +19,7 @@ globals = {
 	"SIPPYCUP",
 	"SIPPYCUP_Addon",
 	"SippyCupDB",
+	"SippyCupCharDB",
 	"SLASH_SIPPYCUP1",
 	"SLASH_SIPPYCUP2",
 };

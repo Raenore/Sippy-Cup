@@ -46,7 +46,7 @@ function SIPPYCUP.MSP.EnableIfAvailable()
 	if not SIPPYCUP.MSP._callbackRegistered then
 		table.insert(msp.callback["updated"], function(senderID)
 			-- If MSP status checks are off, don't do anything, or if the addon is not ready.
-			if not SIPPYCUP.global.MSPStatusCheck or not SIPPYCUP.States.addonReady then
+			if not SIPPYCUP.Database:GetGlobalSetting("MSPStatusCheck") or not SIPPYCUP.States.addonReady then
 				return;
 			end
 

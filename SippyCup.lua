@@ -14,18 +14,8 @@ end
 
 ---OnInitialize Loads saved variables, sets up database, options, and slash commands.
 function SIPPYCUP_Addon:OnInitialize()
-	if not SippyCupDB then
-		SippyCupDB = {
-			global = {},
-			profileKeys = {},
-			profiles = {},
-		};
-	end
-
-	SIPPYCUP.db = SippyCupDB;
-
 	-- Set up DB internals & Options
-	SIPPYCUP.Database.Setup();
+	SIPPYCUP.Database:Init();
 	SIPPYCUP.Options.Setup();
 
 	-- Register slash commands
@@ -102,7 +92,9 @@ end
 ---OnInitialPlayerInWorld Runs initial setup after the player enters the world for the first time.
 ---Handles MSP checks, DB profile migration, saved variable patches, and minimap setup.
 function SIPPYCUP_Addon:OnInitialPlayerInWorld()
-	-- Do nothing when you are on a PvP-enabled map (Arenas, BGs, etc.)
+	-- Adapt saved variables structures between versions
+	SIPPYCUP.Flyway:ApplyPatches();
+
 	local inPvp = C_RestrictedActions.IsAddOnRestrictionActive(Enum.AddOnRestrictionType.PvPMatch) or C_PvP.IsActiveBattlefield();
 	if inPvp then
 		SIPPYCUP.States.pvpMatch = true;
@@ -111,35 +103,41 @@ function SIPPYCUP_Addon:OnInitialPlayerInWorld()
 
 	-- Prepare our MSP checks.
 	SIPPYCUP.MSP.EnableIfAvailable(); -- True/False if enable successfully, we don't need that info right now.
-	-- Depending on if MSP status checks are on or off, we check differently.
-	SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
 
-	local realCharKey = SIPPYCUP.Database.GetUnitName();
+	-- Unknown profile migration
+	local realCharKey = SIPPYCUP_UTILS.GetUnitName();
 	if realCharKey then
-		local db = SIPPYCUP.db;
-		if db.profileKeys["Unknown"] and not db.profileKeys[realCharKey] then
-			db.profileKeys[realCharKey] = db.profileKeys["Unknown"];
-			db.profileKeys["Unknown"] = nil;
-			-- Optional: move profile data as well if you saved it under Unknown profile
-			-- local profileName = db.profileKeys[realCharKey];
-			-- if db.profiles and db.profiles[profileName] then
-			--     db.profiles[profileName] = db.profiles[profileName] or {};
-			-- end
+		local db = SippyCupDB;
+		if db.profiles["Unknown"] and not db.profileKeys[realCharKey] then
+			db.profiles[realCharKey] = db.profiles["Unknown"];
+			db.profiles["Unknown"] = nil;
+
+			for key, profileName in pairs(db.profileKeys) do
+				if profileName == "Unknown" then
+					db.profileKeys[key] = realCharKey;
+				end
+			end
+
+			SIPPYCUP.States.requiresReinit = true;
 		end
-		SIPPYCUP.Database.Setup();
 	end
 
-	-- Adapt saved variables structures between versions
-	SIPPYCUP.Flyway:ApplyPatches();
+	-- Re-resolve active profile only if flyway or Unknown migration changed things.
+	if SIPPYCUP.States.requiresReinit then
+		SIPPYCUP.States.requiresReinit = false;
+		SIPPYCUP.Database:ResolveActiveProfile(realCharKey);
+	end
 
 	SIPPYCUP.Minimap:SetupMinimapButtons();
 
-	if SIPPYCUP.global.WelcomeMessage then
-		SIPPYCUP_OUTPUT.Write(L.WELCOMEMSG_VERSION:format(SIPPYCUP.Database.GetCurrentProfileName(), SIPPYCUP.AddonMetadata.version));
+	if SIPPYCUP.Database:GetGlobalSetting("WelcomeMessage") then
+		SIPPYCUP_OUTPUT.Write(L.WELCOMEMSG_VERSION:format(SIPPYCUP.Database:GetProfileName(), SIPPYCUP.AddonMetadata.version));
 		SIPPYCUP_OUTPUT.Write(L.WELCOMEMSG_OPTIONS);
 	end
 
 	SIPPYCUP.States.addonReady = true;
+	-- Depending on if MSP status checks are on or off, we check differently.
+	SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.Database:GetGlobalSetting("MSPStatusCheck"));
 end
 
 ---BAG_UPDATE_DELAYED Handles delayed bag updates and triggers item update processing.
@@ -161,7 +159,7 @@ function SIPPYCUP_Addon:ADDON_RESTRICTION_STATE_CHANGED(_, type, state) -- luach
 		self:StartContinuousCheck();
 		SIPPYCUP.Popups.HandleDeferredActions("combat");
 		-- We also fire a refresh, because in BGs/combat options might have changed.
-		SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
+		SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.Database:GetGlobalSetting("MSPStatusCheck"));
 	end
 end
 
@@ -205,7 +203,7 @@ function SIPPYCUP_Addon:PLAYER_REGEN_ENABLED()
 	self:StartContinuousCheck();
 	-- Show 'combat' popups deferred by DeferAllRefreshPopups (reason 1).
 	SIPPYCUP.Popups.HandleDeferredActions("combat");
-	SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
+	SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.Database:GetGlobalSetting("MSPStatusCheck"));
 end
 
 ---UNIT_AURA Handles player aura updates, flags bag desync, and triggers aura conversion.
@@ -301,7 +299,7 @@ SIPPYCUP.Callbacks:RegisterCallback(SIPPYCUP.Events.LOADING_SCREEN_ENDED, functi
 			SIPPYCUP.States.pvpMatch = false;
 			SIPPYCUP.Popups.HandleDeferredActions("combat");
 			-- We also fire a refresh, because during loading screens options can't be changed, but in BGs/combat they might.
-			SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck);
+			SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.Database:GetGlobalSetting("MSPStatusCheck"));
 		end
 
 		-- isFullUpdate can pass through loading screens (but our code can't), so handle it now.

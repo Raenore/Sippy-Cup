@@ -526,12 +526,12 @@ local function CreateInset(parent, insetData)
 				printCheckbox:SetSize(22, 22);
 				ElvUI.RegisterSkinnableElement(printCheckbox, "checkbox");
 
-				printCheckbox:SetChecked(SIPPYCUP.Database.GetGlobalSetting("DebugOutput"));
+				printCheckbox:SetChecked(SIPPYCUP.Database:GetGlobalSetting("DebugOutput"));
 
 				AttachTooltip(printCheckbox, "Enable Debug Output", "Click this to enable the debug prints.|n|nIf you see this without knowing what debug is, you might've done something wrong!");
 
 				printCheckbox:SetScript("OnClick", function(self)
-					SIPPYCUP.Database.SetGlobalSetting("DebugOutput", self:GetChecked());
+					SIPPYCUP.Database:SetGlobalSetting("DebugOutput", self:GetChecked());
 				end);
 			end
 		end
@@ -1127,17 +1127,12 @@ function SIPPYCUP_ConfigMixin:SwitchProfileValues()
 			local data = widget.data;
 			if data and type(data.get) == "function" then
 				local value = data.get();
-				local hasSet = type(data.set) == "function";
 
 				if widget.SetChecked and widget.GetChecked then
 					local oldVal = widget:GetChecked();
 					if oldVal ~= value then
 						widget:SetChecked(value);
 					end
-					if hasSet then
-						data.set(value);
-					end
-
 				elseif widget.SetValue and widget.GetValue then
 					local oldVal = widget:GetValue();
 					if oldVal ~= value then
@@ -1146,11 +1141,6 @@ function SIPPYCUP_ConfigMixin:SwitchProfileValues()
 							widget.Text:SetText(string.format("%s: %d", data.label or "", math.floor(value + 0.5)));
 						end
 					end
-
-					if hasSet then
-						data.set(value);
-					end
-
 					if type(data.disabled) == "function" then
 						local isDisabled = data.disabled();
 						widget:SetEnabled(not isDisabled);
@@ -1319,10 +1309,10 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			label = L.OPTIONS_GENERAL_WELCOME_NAME,
 			tooltip = L.OPTIONS_GENERAL_WELCOME_DESC,
 			get = function()
-				return SIPPYCUP.Database.GetGlobalSetting("WelcomeMessage");
+				return SIPPYCUP.Database:GetGlobalSetting("WelcomeMessage");
 			end,
 			set = function(val)
-				SIPPYCUP.Database.SetGlobalSetting("WelcomeMessage", val);
+				SIPPYCUP.Database:SetGlobalSetting("WelcomeMessage", val);
 			end,
 		},
 		{
@@ -1330,13 +1320,13 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			label = L.OPTIONS_GENERAL_MINIMAPBUTTON_NAME,
 			tooltip = L.OPTIONS_GENERAL_MINIMAPBUTTON_DESC,
 			get = function()
-				return not SIPPYCUP.Database.GetGlobalSetting("MinimapButton").Hide;
+				return not SIPPYCUP.Database:GetGlobalSetting("MinimapButton").Hide;
 			end,
 			set = function(val)
 				-- Update with inversion: save 'Hide' as NOT val
-				local minimapSettings = SIPPYCUP.Database.GetGlobalSetting("MinimapButton");
+				local minimapSettings = SIPPYCUP.Database:GetGlobalSetting("MinimapButton");
 				minimapSettings.Hide = not val;
-				SIPPYCUP.Database.SetGlobalSetting("MinimapButton", minimapSettings);
+				SIPPYCUP.Database:SetGlobalSetting("MinimapButton", minimapSettings);
 				SIPPYCUP.Minimap:UpdateMinimapButtons();
 			end,
 		},
@@ -1345,12 +1335,12 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			label = L.OPTIONS_GENERAL_ADDONCOMPARTMENT_NAME,
 			tooltip = L.OPTIONS_GENERAL_ADDONCOMPARTMENT_DESC,
 			get = function()
-				return SIPPYCUP.Database.GetGlobalSetting("MinimapButton").ShowAddonCompartmentButton;
+				return SIPPYCUP.Database:GetGlobalSetting("MinimapButton").ShowAddonCompartmentButton;
 			end,
 			set = function(val)
-				local minimapSettings = SIPPYCUP.Database.GetGlobalSetting("MinimapButton");
+				local minimapSettings = SIPPYCUP.Database:GetGlobalSetting("MinimapButton");
 				minimapSettings.ShowAddonCompartmentButton = val;
-				SIPPYCUP.Database.SetGlobalSetting("MinimapButton", minimapSettings);
+				SIPPYCUP.Database:SetGlobalSetting("MinimapButton", minimapSettings);
 				SIPPYCUP.Minimap:UpdateMinimapButtons();
 			end,
 		},
@@ -1360,12 +1350,12 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			tooltip = L.OPTIONS_GENERAL_NEW_FEATURE_NOTIFICATION_DESC,
 			notificationToggle = true,
 			get = function()
-				return SIPPYCUP.Database.GetGlobalSetting("NewFeatureNotification");
+				return SIPPYCUP.Database:GetGlobalSetting("NewFeatureNotification");
 			end,
 			set = function(val)
 				SIPPYCUP.Popups.CreateReloadPopup(
 					function() -- ACCEPT
-						SIPPYCUP.Database.SetGlobalSetting("NewFeatureNotification", val);
+						SIPPYCUP.Database:SetGlobalSetting("NewFeatureNotification", val);
 						ReloadUI();
 					end
 				);
@@ -1387,12 +1377,12 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			label = L.OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE,
 			tooltip = L.OPTIONS_GENERAL_POPUPS_PRE_EXPIRATION_CHECKS_ENABLE_DESC,
 			get = function()
-				return SIPPYCUP.Database.GetGlobalSetting("PreExpirationChecks");
+				return SIPPYCUP.Database:GetGlobalSetting("PreExpirationChecks");
 			end,
 			set = function(val)
-				SIPPYCUP.Database.SetGlobalSetting("PreExpirationChecks", val);
+				SIPPYCUP.Database:SetGlobalSetting("PreExpirationChecks", val);
 				if val then
-					SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck, false, true);
+					SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.Database:GetGlobalSetting("MSPStatusCheck"), false, true);
 				else
 					local reason = SIPPYCUP.Popups.Reason.PRE_EXPIRATION;
 					SIPPYCUP.Auras.CancelAllPreExpirationTimers();
@@ -1410,18 +1400,18 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			max = 5,
 			step = 1,
 			disabled = function()
-				return not SIPPYCUP.Database.GetGlobalSetting("PreExpirationChecks");
+				return not SIPPYCUP.Database:GetGlobalSetting("PreExpirationChecks");
 			end,
 			get = function()
-				return SIPPYCUP.Database.GetGlobalSetting("PreExpirationLeadTimer");
+				return SIPPYCUP.Database:GetGlobalSetting("PreExpirationLeadTimer");
 			end,
 			set = function(val)
-				SIPPYCUP.Database.SetGlobalSetting("PreExpirationLeadTimer", val);
+				SIPPYCUP.Database:SetGlobalSetting("PreExpirationLeadTimer", val);
 				local reason = SIPPYCUP.Popups.Reason.PRE_EXPIRATION;
 				SIPPYCUP.Auras.CancelAllPreExpirationTimers();
 				SIPPYCUP.Items.CancelAllItemTimers(reason);
 				SIPPYCUP.Popups.HideAllRefreshPopups(reason);
-				SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck, false, true);
+				SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.Database:GetGlobalSetting("MSPStatusCheck"), false, true);
 			end,
 		},
 		{
@@ -1429,10 +1419,10 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			label = L.OPTIONS_GENERAL_POPUPS_INSUFFICIENT_REMINDER_ENABLE,
 			tooltip = L.OPTIONS_GENERAL_POPUPS_INSUFFICIENT_REMINDER_ENABLE_DESC,
 			get = function()
-				return SIPPYCUP.Database.GetGlobalSetting("InsufficientReminder");
+				return SIPPYCUP.Database:GetGlobalSetting("InsufficientReminder");
 			end,
 			set = function(val)
-				SIPPYCUP.Database.SetGlobalSetting("InsufficientReminder", val);
+				SIPPYCUP.Database:SetGlobalSetting("InsufficientReminder", val);
 			end,
 		},
 		{
@@ -1441,10 +1431,10 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			tooltip = L.OPTIONS_GENERAL_POPUPS_TRACK_TOY_ITEM_CD_ENABLE_DESC,
 			buildAdded = "0.6.0|120000",
 			get = function()
-				return SIPPYCUP.Database.GetGlobalSetting("UseToyCooldown");
+				return SIPPYCUP.Database:GetGlobalSetting("UseToyCooldown");
 			end,
 			set = function(val)
-				SIPPYCUP.Database.SetGlobalSetting("UseToyCooldown", val);
+				SIPPYCUP.Database:SetGlobalSetting("UseToyCooldown", val);
 			end,
 		},
 		{
@@ -1478,10 +1468,10 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 				"BOTTOM",
 			},
 			get = function()
-				return SIPPYCUP.Database.GetGlobalSetting("PopupPosition");
+				return SIPPYCUP.Database:GetGlobalSetting("PopupPosition");
 			end,
 			set = function(val)
-				SIPPYCUP.Database.SetGlobalSetting("PopupPosition", val);
+				SIPPYCUP.Database:SetGlobalSetting("PopupPosition", val);
 			end,
 		},
 	};
@@ -1494,10 +1484,10 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			label = BINDING_NAME_TOGGLESOUND,
 			tooltip = L.OPTIONS_GENERAL_POPUPS_SOUND_ENABLE_DESC,
 			get = function()
-				return SIPPYCUP.Database.GetGlobalSetting("AlertSound");
+				return SIPPYCUP.Database:GetGlobalSetting("AlertSound");
 			end,
 			set = function(val)
-				SIPPYCUP.Database.SetGlobalSetting("AlertSound", val);
+				SIPPYCUP.Database:SetGlobalSetting("AlertSound", val);
 			end,
 		},
 		{
@@ -1507,16 +1497,16 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			align = "right",
 			values = soundList,
 			disabled = function()
-				return not SIPPYCUP.Database.GetGlobalSetting("AlertSound");
+				return not SIPPYCUP.Database:GetGlobalSetting("AlertSound");
 			end,
 			get = function()
-				return SIPPYCUP.Database.GetGlobalSetting("AlertSoundID");
+				return SIPPYCUP.Database:GetGlobalSetting("AlertSoundID");
 			end,
 			set = function(val)
 				local soundPath = SharedMedia:Fetch("sound", val);
 				if soundPath then
 					PlaySoundFile(soundPath, "Master");
-					SIPPYCUP.Database.SetGlobalSetting("AlertSoundID", val);
+					SIPPYCUP.Database:SetGlobalSetting("AlertSoundID", val);
 				end
 			end,
 		},
@@ -1525,10 +1515,10 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			label = L.OPTIONS_GENERAL_POPUPS_FLASHTASKBAR_ENABLE,
 			tooltip = L.OPTIONS_GENERAL_POPUPS_FLASHTASKBAR_ENABLE_DESC,
 			get = function()
-				return SIPPYCUP.Database.GetGlobalSetting("FlashTaskbar");
+				return SIPPYCUP.Database:GetGlobalSetting("FlashTaskbar");
 			end,
 			set = function(val)
-				SIPPYCUP.Database.SetGlobalSetting("FlashTaskbar", val);
+				SIPPYCUP.Database:SetGlobalSetting("FlashTaskbar", val);
 			end,
 		},
 	};
@@ -1546,10 +1536,10 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 				return not SIPPYCUP.MSP.IsEnabled();
 			end,
 			get = function()
-				return SIPPYCUP.Database.GetGlobalSetting("MSPStatusCheck");
+				return SIPPYCUP.Database:GetGlobalSetting("MSPStatusCheck");
 			end,
 			set = function(val)
-				SIPPYCUP.Database.SetGlobalSetting("MSPStatusCheck", val);
+				SIPPYCUP.Database:SetGlobalSetting("MSPStatusCheck", val);
 				SIPPYCUP.MSP.CheckRPStatus();
 				if val then
 					SIPPYCUP.Options.RefreshStackSizes(val);
@@ -1632,10 +1622,10 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 					stacks = optionData.stacks,
 					buildAdded = optionData.buildAdded,
 					get = function()
-						return SIPPYCUP.Database.GetSetting(checkboxProfileKey).enable;
+						return SIPPYCUP.Database:GetProfileSetting(checkboxProfileKey, "enable");
 					end,
 					set = function(val)
-						SIPPYCUP.Database.SetSetting(checkboxProfileKey, { enable = val });
+						SIPPYCUP.Database:SetProfileSetting(checkboxProfileKey, "enable", val);
 						SIPPYCUP.Popups.Toggle(consumableName, consumableAura, val);
 					end,
 				};
@@ -1653,17 +1643,18 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 						max = optionData.maxStacks,
 						step = 1,
 						disabled = function()
-							return not SIPPYCUP.Database.GetSetting(sliderProfileKey).enable;
+							return not SIPPYCUP.Database:GetProfileSetting(sliderProfileKey, "enable");
 						end,
 						get = function()
-							return SIPPYCUP.Database.GetSetting(sliderProfileKey).desiredStacks;
+							return SIPPYCUP.Database:GetProfileSetting(sliderProfileKey, "desiredStacks");
 						end,
 						set = function(val)
-							SIPPYCUP.Database.SetSetting(sliderProfileKey, { desiredStacks = val });
-							if SIPPYCUP.Profile[sliderProfileKey].enable then
+							SIPPYCUP.Database:SetProfileSetting(sliderProfileKey, "desiredStacks", val);
+							local profileOptionData = SIPPYCUP.Database:GetOption(sliderProfileKey);
+							if profileOptionData.enable then
 								SIPPYCUP.Popups.Toggle(consumableName, consumableAura, true);
 							end
-						end,
+						end
 					};
 				end
 			end
@@ -1683,18 +1674,18 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 					step = 1,
 					height = 35,
 					disabled = function()
-						return not SIPPYCUP.Database.GetGlobalSetting("ProjectionPrismPreExpirationLeadTimer");
+						return not SIPPYCUP.Database:GetGlobalSetting("ProjectionPrismPreExpirationLeadTimer");
 					end,
 					get = function()
-						return SIPPYCUP.Database.GetGlobalSetting("ProjectionPrismPreExpirationLeadTimer");
+						return SIPPYCUP.Database:GetGlobalSetting("ProjectionPrismPreExpirationLeadTimer");
 					end,
 					set = function(val)
-						SIPPYCUP.Database.SetGlobalSetting("ProjectionPrismPreExpirationLeadTimer", val);
+						SIPPYCUP.Database:SetGlobalSetting("ProjectionPrismPreExpirationLeadTimer", val);
 						local reason = SIPPYCUP.Popups.Reason.PRE_EXPIRATION;
 						SIPPYCUP.Auras.CancelAllPreExpirationTimers();
 						SIPPYCUP.Items.CancelAllItemTimers(reason);
 						SIPPYCUP.Popups.HideAllRefreshPopups(reason);
-						SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck, false, true);
+						SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.Database:GetGlobalSetting("MSPStatusCheck"), false, true);
 					end,
 				},
 				{
@@ -1707,18 +1698,18 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 					step = 1,
 					height = 35,
 					disabled = function()
-						return not SIPPYCUP.Database.GetGlobalSetting("ReflectingPrismPreExpirationLeadTimer");
+						return not SIPPYCUP.Database:GetGlobalSetting("ReflectingPrismPreExpirationLeadTimer");
 					end,
 					get = function()
-						return SIPPYCUP.Database.GetGlobalSetting("ReflectingPrismPreExpirationLeadTimer");
+						return SIPPYCUP.Database:GetGlobalSetting("ReflectingPrismPreExpirationLeadTimer");
 					end,
 					set = function(val)
-						SIPPYCUP.Database.SetGlobalSetting("ReflectingPrismPreExpirationLeadTimer", val);
+						SIPPYCUP.Database:SetGlobalSetting("ReflectingPrismPreExpirationLeadTimer", val);
 						local reason = SIPPYCUP.Popups.Reason.PRE_EXPIRATION;
 						SIPPYCUP.Auras.CancelAllPreExpirationTimers();
 						SIPPYCUP.Items.CancelAllItemTimers(reason);
 						SIPPYCUP.Popups.HideAllRefreshPopups(reason);
-						SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.global.MSPStatusCheck, false, true);
+						SIPPYCUP.Options.RefreshStackSizes(SIPPYCUP.MSP.IsEnabled() and SIPPYCUP.Database:GetGlobalSetting("MSPStatusCheck"), false, true);
 					end,
 				},
 			}
@@ -1767,10 +1758,10 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 						return IsToyDisabled(toyID);
 					end,
 					get = function()
-						return SIPPYCUP.Database.GetSetting(checkboxProfileKey).enable;
+						return SIPPYCUP.Database:GetProfileSetting(checkboxProfileKey, "enable");
 					end,
 					set = function(val)
-						SIPPYCUP.Database.SetSetting(checkboxProfileKey, { enable = val });
+						SIPPYCUP.Database:SetProfileSetting(checkboxProfileKey, "enable", val);
 						SIPPYCUP.Popups.Toggle(toyName, toyAura, val);
 					end,
 				};
@@ -1787,17 +1778,18 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 						max = optionData.maxStacks,
 						step = 1,
 						disabled = function()
-							return not SIPPYCUP.Database.GetSetting(sliderProfileKey).enable;
+							return not SIPPYCUP.Database:GetProfileSetting(sliderProfileKey, "enable");
 						end,
 						get = function()
-							return SIPPYCUP.Database.GetSetting(sliderProfileKey).desiredStacks;
+							return SIPPYCUP.Database:GetProfileSetting(sliderProfileKey, "desiredStacks");
 						end,
 						set = function(val)
-							SIPPYCUP.Database.SetSetting(sliderProfileKey, { desiredStacks = val });
-							if SIPPYCUP.Profile[sliderProfileKey].enable then
+							SIPPYCUP.Database:SetProfileSetting(sliderProfileKey, "desiredStacks", val);
+							local profileOptionData = SIPPYCUP.Database:GetOption(sliderProfileKey);
+							if profileOptionData.enable then
 								SIPPYCUP.Popups.Toggle(toyName, toyAura, true);
 							end
-						end,
+						end
 					};
 				end
 			end
@@ -1823,7 +1815,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 		{
 			type = "description",
 			name = function()
-				return L.OPTIONS_PROFILES_CURRENTPROFILE:format("|cnNORMAL_FONT_COLOR:" .. SIPPYCUP.Database.GetCurrentProfileName() .. "|r");
+				return L.OPTIONS_PROFILES_CURRENTPROFILE:format("|cnNORMAL_FONT_COLOR:" .. SIPPYCUP.Database:GetProfileName() .. "|r");
 			end,
 		},
 		{
@@ -1834,13 +1826,13 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			gearButton = true,
 			buildAdded = "0.7.5|120001",
 			values = function()
-				return SIPPYCUP.Database.GetAllProfiles();
+				return SIPPYCUP.Database:GetAllProfiles();
 			end,
 			get = function()
-				return SIPPYCUP.Database.GetCurrentProfileName();
+				return SIPPYCUP.Database:GetProfileName();
 			end,
 			set = function(val)
-				SIPPYCUP.Database.SetProfile(val);
+				SIPPYCUP.Database:SetProfile(val);
 			end,
 		},
 		{
@@ -1854,7 +1846,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			get = function() end,
 			set = function(val)
 				SIPPYCUP.ConfirmDialog:Show(L.OPTIONS_PROFILES_NEWPROFILE_CONFIRM:format(val), function()
-					SIPPYCUP.Database.CreateProfile(val);
+					SIPPYCUP.Database:CreateProfile(val);
 				end);
 			end,
 		},
@@ -1864,12 +1856,12 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			tooltip = L.OPTIONS_PROFILES_COPYFROM_DESC,
 			style = "button",
 			values = function()
-				return SIPPYCUP.Database.GetAllProfiles(true, false);
+				return SIPPYCUP.Database:GetAllProfiles(true, false);
 			end,
 			get = function() end,
 			set = function(val)
 				SIPPYCUP.ConfirmDialog:Show(L.OPTIONS_PROFILES_COPYFROM_CONFIRM:format(val), function()
-					SIPPYCUP.Database.CopyProfile(val);
+					SIPPYCUP.Database:CopyProfile(val);
 				end);
 			end,
 		},
@@ -1882,7 +1874,7 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			tooltip = L.OPTIONS_PROFILES_RESETBUTTON_DESC,
 			func = function()
 				SIPPYCUP.ConfirmDialog:Show(L.OPTIONS_PROFILES_RESETBUTTON_CONFIRM, function()
-					SIPPYCUP.Database.ResetProfile();
+					SIPPYCUP.Database:ResetProfile();
 				end);
 			end,
 		},
@@ -1892,12 +1884,12 @@ function SIPPYCUP_ConfigMixin:OnLoad()
 			tooltip = L.OPTIONS_PROFILES_DELETEPROFILE_DESC,
 			style = "button",
 			values = function()
-				return SIPPYCUP.Database.GetAllProfiles(true, true);
+				return SIPPYCUP.Database:GetAllProfiles(true, true);
 			end,
 			get = function() end,
 			set = function(val)
 				SIPPYCUP.ConfirmDialog:Show(L.OPTIONS_PROFILES_DELETEPROFILE_CONFIRM:format(val), function()
-					SIPPYCUP.Database.DeleteProfile(val);
+					SIPPYCUP.Database:DeleteProfile(val);
 				end);
 			end,
 		},

@@ -27,7 +27,7 @@ end
 
 ---SkipDuplicatePrismUnitAura determines if a prism-type aura update should be ignored.
 ---Duplicates are ignored only if they fire within a very short timeframe.
----@param profileOptionData SIPPYCUPProfileOption The option profile data.
+---@param profileOptionData SippyCupProfile The option profile data.
 ---@param auraInstanceID number The aura instance ID being processed.
 ---@return boolean skip True if this aura update should be skipped as a duplicate.
 local function SkipDuplicatePrismUnitAura(profileOptionData, auraInstanceID)
@@ -53,7 +53,7 @@ local function SkipDuplicatePrismUnitAura(profileOptionData, auraInstanceID)
 end
 
 ---QueueAuraAction enqueues a popup action for aura changes.
----@param profileOptionData table The option profile data.
+---@param profileOptionData SippyCupProfile The option profile data.
 ---@param auraInfo table? The aura information, or nil if removed.
 ---@param reason number The reason for the popup (ADDITION, REMOVAL, etc).
 ---@param source string The source description of the action.
@@ -108,12 +108,13 @@ local function ParseAura(updateInfo)
 	local added = updateInfo.addedAuras;
 	if added then
 		for _, auraInfo in ipairs(added) do
-			local profileOptionData = SIPPYCUP.Database.FindMatchingProfile(auraInfo.spellId);
+			local profileOptionData = SIPPYCUP.Database:FindMatchingProfile(auraInfo.spellId);
 			if profileOptionData and profileOptionData.enable then
 				local skip = SkipDuplicatePrismUnitAura(profileOptionData, auraInfo.auraInstanceID);
 
 				if not skip then
 					profileOptionData.currentInstanceID = auraInfo.auraInstanceID;
+					SIPPYCUP.Database:CommitCharState(profileOptionData.aura, profileOptionData);
 					SIPPYCUP.Database.instanceToProfile[auraInfo.auraInstanceID] = profileOptionData;
 
 					SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData);
@@ -128,7 +129,7 @@ local function ParseAura(updateInfo)
 	local updated = updateInfo.updatedAuraInstanceIDs;
 	if updated then
 		for _, auraInstanceID in ipairs(updated) do
-			local profileOptionData = SIPPYCUP.Database.FindMatchingProfile(nil, auraInstanceID);
+			local profileOptionData = SIPPYCUP.Database:FindMatchingProfile(nil, auraInstanceID);
 			if profileOptionData and profileOptionData.enable then
 				local auraInfo = GetAuraDataByAuraInstanceID("player", auraInstanceID);
 				if auraInfo then
@@ -136,6 +137,8 @@ local function ParseAura(updateInfo)
 
 					if not skip then
 						profileOptionData.currentInstanceID = auraInfo.auraInstanceID;
+						profileOptionData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, profileOptionData.aura, SIPPYCUP.Popups.Reason.UPDATE, true);
+						SIPPYCUP.Database:CommitCharState(profileOptionData.aura, profileOptionData);
 						SIPPYCUP.Database.instanceToProfile[auraInfo.auraInstanceID] = profileOptionData;
 
 						SIPPYCUP.Auras.CancelPreExpirationTimer(nil, profileOptionData.aura, auraInstanceID);
@@ -152,10 +155,12 @@ local function ParseAura(updateInfo)
 	local removed = updateInfo.removedAuraInstanceIDs;
 	if removed then
 		for _, auraInstanceID in ipairs(removed) do
-			local profileOptionData = SIPPYCUP.Database.FindMatchingProfile(nil, auraInstanceID);
+			local profileOptionData = SIPPYCUP.Database:FindMatchingProfile(nil, auraInstanceID);
 			if profileOptionData and profileOptionData.enable and profileOptionData.currentInstanceID then
 				SIPPYCUP.Database.instanceToProfile[auraInstanceID] = nil;
 				profileOptionData.currentInstanceID = nil;
+				profileOptionData.currentStacks = 0;
+				SIPPYCUP.Database:CommitCharState(profileOptionData.aura, profileOptionData);
 
 				-- On aura removal, we remove all pre-expiration timers as that's obvious no longer relevant.
 				SIPPYCUP.Auras.CancelPreExpirationTimer(nil, profileOptionData.aura, auraInstanceID);
@@ -243,6 +248,7 @@ local function FlushAuraQueue()
 					-- Update linkage
 					SIPPYCUP.Database.instanceToProfile[removedID] = nil;
 					profileOptionData.currentInstanceID = addID;
+					SIPPYCUP.Database:CommitCharState(auraID, profileOptionData);
 					SIPPYCUP.Database.instanceToProfile[addID] = profileOptionData;
 					break;
 				end
@@ -387,6 +393,7 @@ function SIPPYCUP.Auras.CheckAllActiveOptions()
 				if currentInstanceID ~= newInstanceID then
 					instanceToProfile[currentInstanceID] = nil;
 					profileOptionData.currentInstanceID = newInstanceID;
+					SIPPYCUP.Database:CommitCharState(profileOptionData.aura, profileOptionData);
 					instanceToProfile[newInstanceID] = profileOptionData;
 
 					SIPPYCUP_OUTPUT.Debug("InstanceID Changed!|nName:", auraInfo.name, "|nSpellID:", profileOptionData.aura, "|nOld:", currentInstanceID, "|nNew:", newInstanceID);
@@ -430,6 +437,7 @@ function SIPPYCUP.Auras.CheckInstanceIDForAllActiveOptions()
 			if oldInstanceID ~= newInstanceID then
 				instanceToProfile[oldInstanceID] = nil;
 				profileOptionData.currentInstanceID = newInstanceID;
+				SIPPYCUP.Database:CommitCharState(profileOptionData.aura, profileOptionData);
 				instanceToProfile[newInstanceID] = profileOptionData;
 
 				SIPPYCUP_OUTPUT.Debug("InstanceID Changed!|nName:", auraInfo.name, "|nSpellID:", profileOptionData.aura, "|nOld:", oldInstanceID, "|nNew:", newInstanceID);
@@ -541,7 +549,7 @@ end
 ---@return nil
 function SIPPYCUP.Auras.CheckPreExpirationForAllActiveOptions(minSeconds)
 	-- Data sent through/around loading screens will not be reliable, so skip that.
-	if SIPPYCUP.States.loadingScreen or not SIPPYCUP.global.PreExpirationChecks then
+	if SIPPYCUP.States.loadingScreen or not SIPPYCUP.Database:GetGlobalSetting("PreExpirationChecks") then
 		return;
 	end
 
@@ -552,14 +560,14 @@ function SIPPYCUP.Auras.CheckPreExpirationForAllActiveOptions(minSeconds)
 end
 
 ---CheckPreExpirationForSingleOption sets up pre-expiration warnings for aura-based options.
----@param profileOptionData SIPPYCUPProfileOption Profile data for the option.
+---@param profileOptionData SippyCupProfile Profile data for the option.
 ---@param minSeconds number? Time window to check ahead, defaults to 180.
 ---@return boolean preExpireFired True if a pre-expiration popup was fired.
 function SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData, minSeconds)
 	local preExpireFired = false;
 
 	-- If pre-expiration checks can't be done, why are we even here?
-	if SIPPYCUP.States.loadingScreen or not SIPPYCUP.global.PreExpirationChecks then
+	if SIPPYCUP.States.loadingScreen or not SIPPYCUP.Database:GetGlobalSetting("PreExpirationChecks") then
 		return preExpireFired;
 	end
 
@@ -581,6 +589,7 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData, min
 	end
 
 	profileOptionData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, 0, active);
+	SIPPYCUP.Database:CommitCharState(auraID, profileOptionData);
 
 	-- Some stack items can be pre-expired for refresh but ONLY if the current stacks == maxStacks
 	if optionData.stacks and profileOptionData.currentStacks ~= optionData.maxStacks then
@@ -594,12 +603,12 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData, min
 
 	if profileOptionData.isPrism then
 		if profileOptionData.usesCharges then -- reflecting prism
-			preOffset = SIPPYCUP.global.ReflectingPrismPreExpirationLeadTimer * 60;
+			preOffset = SIPPYCUP.Database:GetGlobalSetting("ReflectingPrismPreExpirationLeadTimer") * 60;
 		else -- projection prism
-			preOffset = SIPPYCUP.global.ProjectionPrismPreExpirationLeadTimer * 60;
+			preOffset = SIPPYCUP.Database:GetGlobalSetting("ProjectionPrismPreExpirationLeadTimer") * 60;
 		end
 	else -- Global
-		preOffset = SIPPYCUP.global.PreExpirationLeadTimer * 60;
+		preOffset = SIPPYCUP.Database:GetGlobalSetting("PreExpirationLeadTimer") * 60;
 	end
 
 	-- If the option only lasts for less than user set, we need to change it.
@@ -644,7 +653,7 @@ end
 
 ---@param auraInfo table? Information about the aura, or nil if not present.
 ---@param auraID number The aura ID.
----@param reason number The situation to calculate stacks for (0 - add/update, 1 = removal, 2 = pre-expire, 3 = toggle)
+---@param reason number The situation to calculate stacks for (0 - add/update, 1 = removal, 2 = pre-expire, 3 = toggle, 4 = startup)
 ---@param active boolean Whether the aura is currently active (false = inactive, true = active).
 ---@return number currentStacks The current stacks for this aura.
 function SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, reason, active)
@@ -668,9 +677,9 @@ function SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, reason, active)
 	-- Case 2: Pre-expiration (return maxStacks - 1 for stackable that require 1 re-application for full)
 	if reason == SIPPYCUP.Popups.Reason.PRE_EXPIRATION then
 		local optionData = SIPPYCUP.Options.ByAuraID[auraID];
-		local profileOptionData = SIPPYCUP.Profile[auraID];
+		local currentStacks = SIPPYCUP.Database:GetCharSetting(auraID, "currentStacks");
 
-		if optionData.stacks and profileOptionData.currentStacks == optionData.maxStacks then
+		if optionData.stacks and currentStacks == optionData.maxStacks then
 			return optionData.maxStacks - 1;
 		end
 

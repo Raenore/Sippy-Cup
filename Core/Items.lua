@@ -140,7 +140,7 @@ function SIPPYCUP.Items.CheckNoAuraItemUsage(minSeconds)
 end
 
 ---CheckNoAuraSingleOption evaluates cooldowns for non-aura items/toys to fire pre-expiration and removal popups.
----@param profileOptionData table? Optional profile data; will be resolved if nil.
+---@param profileOptionData SippyCupProfile? Optional profile data; will be resolved if nil.
 ---@param spellID number The spell ID to track.
 ---@param minSeconds number? Time window to check ahead, defaults to 180.
 ---@param startTime number? Optional cooldown start time.
@@ -155,7 +155,7 @@ function SIPPYCUP.Items.CheckNoAuraSingleOption(profileOptionData, spellID, minS
 	end
 
 	if not profileOptionData then
-		profileOptionData = SIPPYCUP.Database.FindMatchingProfile(spellID);
+		profileOptionData = SIPPYCUP.Database:FindMatchingProfile(spellID);
 	end
 
 	-- Sanity check: if profileOptionData is nil or is not a no aura, bail out
@@ -189,7 +189,7 @@ function SIPPYCUP.Items.CheckNoAuraSingleOption(profileOptionData, spellID, minS
 		end
 
 		if optionData.spellTrackable then
-			if SIPPYCUP.global.UseToyCooldown then
+			if SIPPYCUP.Database:GetGlobalSetting("UseToyCooldown") then
 				trackByItem = true;
 			else
 				trackBySpell = true;
@@ -214,6 +214,7 @@ function SIPPYCUP.Items.CheckNoAuraSingleOption(profileOptionData, spellID, minS
 	-- This is a reliable check, but toys might not immediately report a cooldown. But their usage generally means we can close their popup.
 	if startTime and startTime > 0 or optionData.type == SIPPYCUP.Options.Type.TOY then
 		profileOptionData.currentStacks = 1;
+		SIPPYCUP.Database:CommitCharState(profileOptionData.aura, profileOptionData);
 		SIPPYCUP.Database.untrackableByAuraProfile[optionData.itemID] = profileOptionData;
 
 		if existingPopup and existingPopup:IsShown() then
@@ -222,11 +223,11 @@ function SIPPYCUP.Items.CheckNoAuraSingleOption(profileOptionData, spellID, minS
 	end
 
 	-- If pre-expiration checks are not on, or pre-expiration is not a thing for this item, return false.
-	if not SIPPYCUP.global.PreExpirationChecks or not optionData.preExpiration then
+	if not SIPPYCUP.Database:GetGlobalSetting("PreExpirationChecks") or not optionData.preExpiration then
 		return preExpireFired;
 	end
 
-	local preOffset = SIPPYCUP.global.PreExpirationLeadTimer * 60;
+	local preOffset = SIPPYCUP.Database:GetGlobalSetting("PreExpirationLeadTimer") * 60;
 	-- Calculate how many seconds are left on cooldown right now.
 	local expirationTime = (startTime or 0) + (duration or 0);
 	local remaining = math.max(0, expirationTime - now);
