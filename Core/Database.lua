@@ -464,12 +464,13 @@ function Database:LoadFromSaved()
 end
 
 ---Re-resolves and re-points currentProfile based on the current player key.
+---@param playerKey string? Optional pre-resolved player key.
 ---@return nil
-function Database:ResolveActiveProfile()
+function Database:ResolveActiveProfile(playerKey)
 	local db = SippyCupDB;
 	if not db then return; end;
 
-	local playerKey = SIPPYCUP_UTILS.GetUnitName() or "Unknown";
+	playerKey = playerKey or SIPPYCUP_UTILS.GetUnitName() or "Unknown";
 	local profileName = db.profileKeys[playerKey] or "Default";
 
 	db.profiles[profileName] = db.profiles[profileName] or {};

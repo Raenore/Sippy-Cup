@@ -125,7 +125,7 @@ function SIPPYCUP_Addon:OnInitialPlayerInWorld()
 	-- Re-resolve active profile only if flyway or Unknown migration changed things.
 	if SIPPYCUP.States.requiresReinit then
 		SIPPYCUP.States.requiresReinit = false;
-		SIPPYCUP.Database:ResolveActiveProfile();
+		SIPPYCUP.Database:ResolveActiveProfile(realCharKey);
 	end
 
 	SIPPYCUP.Minimap:SetupMinimapButtons();
