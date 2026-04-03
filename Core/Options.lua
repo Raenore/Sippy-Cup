@@ -478,4 +478,52 @@ function Options.RefreshStackSizes(checkAll, reset, preExpireOnly)
 	end
 end
 
+---TestRefreshStackSpam Spams RefreshStackSizes repeatedly to test re-entrancy / cancellation logic.
+---@param duration number? Duration in seconds to run the test. Defaults to 5
+---@param interval number? Interval between calls. Defaults to 0.05
+---@return nil
+function Options.TestRefreshStackSpam(duration, interval)
+	if not SC.Globals.IS_DEV_BUILD then
+		return;
+	end
+
+	duration = duration or 5;
+	interval = interval or 0.05;
+
+	local elapsed = 0;
+
+	if Options.refreshTestTicker then
+		Options.refreshTestTicker:Cancel();
+		Options.refreshTestTicker = nil;
+	end
+
+	Options.refreshTestTicker = C_Timer.NewTicker(interval, function()
+		elapsed = elapsed + interval;
+
+		Options.RefreshStackSizes(
+			SC.MSP.IsEnabled() and SC.Database:GetGlobalSetting("MSPStatusCheck")
+		);
+
+		if elapsed >= duration then
+			Options.refreshTestTicker:Cancel();
+			Options.refreshTestTicker = nil;
+			SC.Utils.Log("INFO", "RefreshStackSizes spam test finished");
+		end
+	end);
+end
+
+---StopRefreshStackSpam Stops any ongoing RefreshStackSizes spam test.
+---@return nil
+function Options.StopRefreshStackSpam()
+	if not SC.Globals.IS_DEV_BUILD then
+		return;
+	end
+
+	if Options.refreshTestTicker then
+		Options.refreshTestTicker:Cancel();
+		Options.refreshTestTicker = nil;
+		SC.Utils.Log("INFO", "RefreshStackSizes spam test stopped");
+	end
+end
+
 SC.Options = Options;
