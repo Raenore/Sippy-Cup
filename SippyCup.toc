@@ -73,6 +73,8 @@ Modules\Popups\Popups.xml
 Modules\TRP\TRP.lua
 
 ## UI
-UI\Config.xml
+UI\SettingsElements.lua
+UI\SettingsFrame.lua
+UI\SettingsFrame.xml
 
 SippyCup.lua

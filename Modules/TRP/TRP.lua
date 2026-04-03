@@ -21,9 +21,9 @@ local function onStart()
 			tooltipSub = L.ADDON_COMPARTMENT_DESC,
 			onClick = function(_, _, button)
 				if button == "LeftButton" then
-					SC.configFrame:OpenSettings();
+					SC.SettingsFrame:ShowSettings();
 				elseif button == "RightButton" then
-					SC.configFrame:OpenSettings(8);
+					SC.SettingsFrame:ShowSettings(8);
 				end
 			end,
 		};

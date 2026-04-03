@@ -12,9 +12,9 @@ local LibDBIcon = LibStub:GetLibrary("LibDBIcon-1.0");
 
 local function OnClick(self, button)
 	if button == "LeftButton" then
-		SC.configFrame:OpenSettings();
+		SC.SettingsFrame:ShowSettings();
 	elseif button == "RightButton" then
-		SC.configFrame:OpenSettings(8);
+		SC.SettingsFrame:ShowSettings(8);
 	end
 end
 

@@ -12,19 +12,19 @@ function SC.Init()
 		-- Then Options
 		SC.Options.Setup(function()
 			-- With options ready, we init the Config Frame
-			SC.Config.TryCreateConfigFrame();
+			SC.Settings:Init();
 		end);
 
 		-- Register slash commands
 		SLASH_SIPPYCUP1, SLASH_SIPPYCUP2 = "/sc", "/sippycup";
 		SlashCmdList["SIPPYCUP"] = function(msg)
-			if not SC.Globals.States.optionsLoaded then return; end
+			if not SC.SettingsFrame then return; end
 			msg = (msg:match("^%s*(.-)%s*$") or ""):lower();
 
 			if msg == "auras" and SC.Globals.IS_DEV_BUILD then
 				SC.Auras.DebugEnabledAuras();
 			else
-				SC.Config:OpenSettings();
+				SC.Settings:ShowSettings();
 			end
 		end
 	end);

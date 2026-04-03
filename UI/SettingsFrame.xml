@@ -5,9 +5,7 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 
-	<Include file="Config.lua"/>
-
-	<Frame name="SippyCup_ConfigMenuTemplate" mixin="SippyCup_ConfigMixin" virtual="true" enableMouse="true" hidden="true" movable="true" clampedToScreen="true" topLevel="true" inherits="ButtonFrameTemplate">
+	<Frame name="SippyCup_SettingsMenuTemplate" mixin="SippyCup_SettingsMixin" virtual="true" enableMouse="true" hidden="true" movable="true" clampedToScreen="true" topLevel="true" inherits="ButtonFrameTemplate">
 		<Size x="693" y="595"/>
 		<Anchors>
 			<Anchor point="CENTER"/>
@@ -20,7 +18,7 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 		</Scripts>
 	</Frame>
 
-	<Button name="SippyCup_ConfigMenuTabTopTemplate" virtual="true" inherits="PanelTopTabButtonTemplate">
+	<Button name="SippyCup_SettingsMenuTabTopTemplate" virtual="true" inherits="PanelTopTabButtonTemplate">
 	</Button>
 
 </Ui>

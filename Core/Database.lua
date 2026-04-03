@@ -485,9 +485,9 @@ end
 ---Refreshes the config UI if the configuration frame is loaded.
 ---@return nil
 function Database:refreshUI()
-	if SC.configFrame then
-		SippyCup_ConfigMenuFrame:RefreshWidgets();
-		SippyCup_ConfigMenuFrame:SwitchProfileValues();
+	if SC.SettingsFrame then
+		SC.SettingsFrame:RefreshWidgets();
+		SC.SettingsFrame:SwitchProfileValues();
 	end
 end
 

@@ -318,8 +318,8 @@ local function CreatePopup(templateType)
 			popup.IgnoreButton:SetScript("OnClick", function()
 				if sessionData and popup.popupData and popup.popupData.optionData then
 					sessionData[popup.popupData.optionData.auraID] = true;
-					if SC.configFrame then
-						SippyCup_ConfigMenuFrame:RefreshWidgets();
+					if SC.SettingsFrame then
+						SC.SettingsFrame:RefreshWidgets();
 					end
 				end
 				popup:Hide();
