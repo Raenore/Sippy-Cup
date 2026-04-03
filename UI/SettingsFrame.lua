@@ -67,7 +67,7 @@ end
 ---@return table tab The created tab button frame.
 function SippyCup_SettingsMixin:AddTab()
 	local tabs = self.Tabs;
-	local tab = CreateFrame("Button", nil, self, "Eavesdropper_SettingsMenuTabTopTemplate");
+	local tab = CreateFrame("Button", nil, self, "SippyCup_SettingsMenuTabTopTemplate");
 
 	if tIndexOf(tabs, tab) == nil then
 		table.insert(tabs, tab);
