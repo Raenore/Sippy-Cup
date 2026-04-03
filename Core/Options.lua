@@ -388,12 +388,17 @@ function Options.Setup(onComplete)
 	end
 end
 
+Options.refreshStackSizesGeneration = 0;
+
 ---RefreshStackSizes iterates over all enabled Sippy Cup options to set the correct stack sizes (startup / profile change / etc).
 ---@param checkAll boolean? If true, it will also check the inactive enabled ones.
 ---@param reset boolean? If true, all popups will be reset. Defaults to true
 ---@param preExpireOnly boolean? If true, only handles pre-expirations. Defaults to false
 ---@return nil
 function Options.RefreshStackSizes(checkAll, reset, preExpireOnly)
+	Options.refreshStackSizesGeneration = Options.refreshStackSizesGeneration + 1;
+	local generation = Options.refreshStackSizesGeneration;
+
 	reset = (reset ~= false);
 	preExpireOnly = preExpireOnly or false;
 
@@ -437,6 +442,8 @@ function Options.RefreshStackSizes(checkAll, reset, preExpireOnly)
 
 	-- auraToProfile will iterate over all the enabled (not active!) options.
 	for _, profileOptionData in pairs(auraToProfile) do
+		if generation ~= Options.refreshStackSizesGeneration then return; end;
+
 		local auraID = profileOptionData.aura;
 		local auraInfo = GetPlayerAuraBySpellID(auraID);
 		local optionData = ByAuraID[auraID];
