@@ -38,7 +38,7 @@ SC.Globals = {
 	--@end-debug@
 
 	--[===[@non-debug@
-	DEBUG_MODE = false,
+	IS_DEV_BUILD = false,
 	--@end-non-debug@]===]
 
 	addon_title = C_AddOns.GetAddOnMetadata("SippyCup", "Title"),
