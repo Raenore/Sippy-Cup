@@ -220,7 +220,10 @@ end
 ---ZONE_CHANGED_NEW_AREA Handles zone changes and triggers loading screen end logic if needed.
 function Events:ZONE_CHANGED_NEW_AREA(event)
 	SC.Utils.Log("INFO", event);
-	OnLoadingScreenEnded();
+	local stacksRefreshed = OnLoadingScreenEnded();
+	if not stacksRefreshed then
+		refreshStackSizes();
+	end
 end
 
 ---BAG_UPDATE_DELAYED Handles delayed bag updates and triggers item update processing.
