@@ -921,21 +921,17 @@ function Database:GetGlobalSetting(key)
 	if not SippyCupDB.global then SippyCupDB.global = {}; end
 
 	local stored = SippyCupDB.global[key];
-	local def = self.globalDefaults[key];
 
+	if stored ~= nil then return stored; end
+
+	local def = self.globalDefaults[key];
 	if type(def) == "table" then
-		if stored then
-			return mergeTables(def, stored);
-		else
-			-- Initialize stored table with shallow copy to keep live reference
-			local init =  SC.Utils.ShallowCopy(def);
-			SippyCupDB.global[key] = init;
-			return init;
-		end
+		-- Initialise and store the table so LibDBIcon has a live reference to mutate.
+		local init = SC.Utils.ShallowCopy(def);
+		SippyCupDB.global[key] = init;
+		return init;
 	end
 
-	-- Return primitive or nil
-	if stored ~= nil then return stored; end
 	return def;
 end
 
