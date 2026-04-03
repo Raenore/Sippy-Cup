@@ -149,62 +149,64 @@ end
 function Events:PLAYER_ENTERING_WORLD(event, isInitialLogin, isReloadingUi)
 	SC.Utils.Log("INFO", event, isInitialLogin, isReloadingUi);
 
-	-- Adapt saved variables structures between versions
-	SC.Flyway.ApplyPatches();
+	if isInitialLogin or isReloadingUi then
+		-- Adapt saved variables structures between versions
+		SC.Flyway.ApplyPatches();
 
-	local inPvp = C_RestrictedActions.IsAddOnRestrictionActive(Enum.AddOnRestrictionType.PvPMatch)
-		or C_PvP.IsActiveBattlefield();
+		local inPvp = C_RestrictedActions.IsAddOnRestrictionActive(Enum.AddOnRestrictionType.PvPMatch)
+			or C_PvP.IsActiveBattlefield();
 
-	if inPvp then
-		SC.Globals.States.pvpMatch = true;
-		SC.Popups.DeferAllRefreshPopups(1);
-	end
-
-	-- Prepare our MSP checks.
-	SC.MSP.EnableIfAvailable(); -- True/False if enable successfully, we don't need that info right now.
-
-	-- Unknown profile migration
-	local realCharKey = SC.Utils.GetUnitName();
-	if realCharKey then
-		local db = SippyCupDB;
-		if db.profiles["Unknown"] and not db.profileKeys[realCharKey] then
-			db.profiles[realCharKey] = db.profiles["Unknown"];
-			db.profiles["Unknown"] = nil;
-
-			for key, profileName in pairs(db.profileKeys) do
-				if profileName == "Unknown" then
-					db.profileKeys[key] = realCharKey;
-				end
-			end
-
-			SC.Globals.States.requiresReinit = true;
+		if inPvp then
+			SC.Globals.States.pvpMatch = true;
+			SC.Popups.HideAllRefreshPopups();
 		end
-	end
 
-	-- Re-resolve active profile only if flyway or Unknown migration changed things.
-	if SC.Globals.States.requiresReinit then
-		SC.Globals.States.requiresReinit = false;
-		SC.Database:ResolveActiveProfile(realCharKey);
-	end
+		-- Prepare our MSP checks.
+		SC.MSP.EnableIfAvailable(); -- True/False if enable successfully, we don't need that info right now.
 
-	SC.Minimap:SetupMinimapButtons();
+		-- Unknown profile migration
+		local realCharKey = SC.Utils.GetUnitName();
+		if realCharKey then
+			local db = SippyCupDB;
+			if db.profiles["Unknown"] and not db.profileKeys[realCharKey] then
+				db.profiles[realCharKey] = db.profiles["Unknown"];
+				db.profiles["Unknown"] = nil;
 
-	if SC.Database:GetGlobalSetting("WelcomeMessage") then
-		SC.Utils.Write(SC.Localization.WELCOMEMSG_VERSION:format(
-			SC.Database:GetProfileName(),
-			SC.Globals.addon_version
-		));
-		SC.Utils.Write(SC.Localization.WELCOMEMSG_OPTIONS);
-	end
+				for key, profileName in pairs(db.profileKeys) do
+					if profileName == "Unknown" then
+						db.profileKeys[key] = realCharKey;
+					end
+				end
 
-	SC.Globals.States.addonReady = true;
+				SC.Globals.States.requiresReinit = true;
+			end
+		end
 
-	-- ZONE_CHANGED_NEW_AREA fires on isInitialLogin, but not on isReloadingUi
-	if isReloadingUi then
-		-- Reloading fires PLAYER_ENTERING_WORLD when reload is done, data is fine.
-		local stacksRefreshed = OnLoadingScreenEnded();
-		if not stacksRefreshed then
-			refreshStackSizes();
+		-- Re-resolve active profile only if flyway or Unknown migration changed things.
+		if SC.Globals.States.requiresReinit then
+			SC.Globals.States.requiresReinit = false;
+			SC.Database:ResolveActiveProfile(realCharKey);
+		end
+
+		SC.Minimap:SetupMinimapButtons();
+
+		if SC.Database:GetGlobalSetting("WelcomeMessage") then
+			SC.Utils.Write(SC.Localization.WELCOMEMSG_VERSION:format(
+				SC.Database:GetProfileName(),
+				SC.Globals.addon_version
+			));
+			SC.Utils.Write(SC.Localization.WELCOMEMSG_OPTIONS);
+		end
+
+		SC.Globals.States.addonReady = true;
+
+		-- ZONE_CHANGED_NEW_AREA fires on isInitialLogin, but not on isReloadingUi
+		if isReloadingUi then
+			-- Reloading fires PLAYER_ENTERING_WORLD when reload is done, data is fine.
+			local stacksRefreshed = OnLoadingScreenEnded();
+			if not stacksRefreshed then
+				refreshStackSizes();
+			end
 		end
 	end
 end
