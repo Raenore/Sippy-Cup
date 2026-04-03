@@ -23,7 +23,7 @@ end
 ---@return nil
 function Bags.ClearBagQueue()
 	-- Flush deferred popups that were blocked by bag desync
-	SC.Popups.HandleDeferredActions("bag", SC.Items.bagSyncedGeneration);
+	SC.Popups.HandleDeferredActions(SC.Popups.BlockReason.BAG);
 end
 
 SC.Bags = Bags;

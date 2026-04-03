@@ -54,19 +54,19 @@ local function OnLoadingScreenEnded()
 	-- Do nothing when you are on a PvP-enabled map (Arenas, BGs, etc.)
 	if inPvp then
 		SC.Globals.States.pvpMatch = true;
-		SC.Popups.DeferAllRefreshPopups(1);
+		SC.Popups.HideAllRefreshPopups();
 		return;
 	end
 
 	SC.Timers:StartContinuousCheck();
-	SC.Popups.HandleDeferredActions("loading");
+	SC.Popups.HandleDeferredActions(SC.Popups.BlockReason.LOADING);
 
 	local leftPvpMatch = SC.Globals.States.pvpMatch;
 
 	-- If we just came out of a PvP-enabled map, show deferred popups and refresh stacks.
 	if leftPvpMatch then
 		SC.Globals.States.pvpMatch = false;
-		SC.Popups.HandleDeferredActions("combat");
+		SC.Popups.HandleDeferredActions(SC.Popups.BlockReason.COMBAT);
 		refreshStackSizes();
 		stacksRefreshed = true;
 	end
@@ -125,7 +125,7 @@ function Events:PLAYER_REGEN_DISABLED()
 
 	-- Combat is entered when regen is disabled.
 	SC.Timers:StopContinuousCheck();
-	SC.Popups.DeferAllRefreshPopups("combat");
+	SC.Popups.DeferAllRefreshPopups(SC.Popups.BlockReason.COMBAT);
 end
 
 ---PLAYER_REGEN_ENABLED Restarts continuous checks and handles deferred combat actions after leaving combat.
@@ -138,7 +138,7 @@ function Events:PLAYER_REGEN_ENABLED()
 	-- Combat is left when regen is enabled.
 	SC.Timers:StartContinuousCheck();
 	-- Show 'combat' popups deferred by DeferAllRefreshPopups (reason 1).
-	SC.Popups.HandleDeferredActions("combat");
+	SC.Popups.HandleDeferredActions(SC.Popups.BlockReason.COMBAT);
 	refreshStackSizes();
 end
 
@@ -235,7 +235,7 @@ function Events:ADDON_RESTRICTION_STATE_CHANGED(_, type, state) -- luacheck: no 
 		SC.Globals.States.pvpMatch = true;
 
 		SC.Timers:StopContinuousCheck();
-		SC.Popups.DeferAllRefreshPopups(1);
+		SC.Popups.HideAllRefreshPopups();
 	elseif type == Enum.AddOnRestrictionType.PvPMatch
 		and state == Enum.AddOnRestrictionState.Inactive
 		and not C_PvP.IsActiveBattlefield()
@@ -245,7 +245,7 @@ function Events:ADDON_RESTRICTION_STATE_CHANGED(_, type, state) -- luacheck: no 
 		end
 
 		SC.Timers:StartContinuousCheck();
-		SC.Popups.HandleDeferredActions("combat");
+		SC.Popups.HandleDeferredActions(SC.Popups.BlockReason.COMBAT);
 		-- We also fire a refresh, because in BGs/combat options might have changed.
 		refreshStackSizes();
 	end

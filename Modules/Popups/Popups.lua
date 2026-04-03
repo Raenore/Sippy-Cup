@@ -15,6 +15,12 @@ Popups.Reason = {
 	STARTUP = 4,
 };
 
+Popups.BlockReason = {
+    BAG     = "bag",
+    COMBAT  = "combat",
+    LOADING = "loading",
+};
+
 ---PlayPopupSound plays the chosen alert sound during a popup.
 ---@return nil
 local function PlayPopupSound()
@@ -810,7 +816,7 @@ function Popups.HandlePopupAction(data, caller)
 				data = data,
 				caller = caller,
 				blockedBy = {
-					bag = true,
+					[Popups.BlockReason.BAG] = true,
 				},
 			};
 			return;
@@ -869,7 +875,7 @@ function Popups.HandlePopupAction(data, caller)
 			data = data,
 			caller = caller,
 			blockedBy = {
-				combat = true,
+				[Popups.BlockReason.COMBAT] = true,
 			},
 		};
 		return;
@@ -878,7 +884,7 @@ function Popups.HandlePopupAction(data, caller)
 			data = data,
 			caller = caller,
 			blockedBy = {
-				loading = true,
+				[Popups.BlockReason.LOADING] = true,
 			},
 		};
 		return;
@@ -1018,9 +1024,14 @@ function Popups.HideAllRefreshPopups(reason)
 	end
 end
 
+---@alias SippyCupBlockReason
+---|"bag"
+---|"combat"
+---|"loading"
+
 ---DeferAllRefreshPopups defers all active and queued popups to be processed later.
 ---Typically called when popups cannot be shown due to bags, combat, or loading screen.
----@param reasonKey "bag"|"combat"|"loading" The gate reason being deferred.
+---@param reasonKey SippyCupBlockReason The gate reason being deferred.
 ---@return nil
 function Popups.DeferAllRefreshPopups(reasonKey)
 	if not reasonKey then
@@ -1082,7 +1093,7 @@ end
 ---HandleDeferredActions resolves and processes deferred popup actions for a specific gate.
 ---Removes the given reasonKey blocker from deferred entries and executes those
 ---that are no longer blocked and whose bag generation requirement is satisfied.
----@param reasonKey "bag"|"combat"|"loading" The gate reason being cleared.
+---@param reasonKey SippyCupBlockReason The gate reason being cleared.
 ---@return nil
 function Popups.HandleDeferredActions(reasonKey)
 	if not deferredActions or #deferredActions == 0 then
