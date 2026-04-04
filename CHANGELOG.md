@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.  
 
+## [0.8.0] - 2026-04-xx  
+Major architectural overhaul focused on codebase modernization, improved stability, and more reliable addon initialization.  
+
+### Added
+- Added confirmation popups for profile actions to prevent accidental clicks ([#100]https://github.com/Raenore/Sippy-Cup/pull/100).  
+  - "New," "Copy From," "Reset," and "Delete" profile options now ask for confirmation before any changes are made.  
+- You can now rename existing profiles in the profile switching dropdown by clicking the small gear icon when hovering over them ([#100]https://github.com/Raenore/Sippy-Cup/pull/100).  
+
+### Changed  
+- Performed a large-scale internal refactor of the addon’s structure to improve long-term stability and performance ([#103](https://github.com/Raenore/Sippy-Cup/pull/103)).  
+- Updated the addon’s startup sequence to ensure all systems initialize in a more reliable and predictable order during login and area transitions ([#103](https://github.com/Raenore/Sippy-Cup/pull/103)).  
+- Refactored the Settings interface to be more modular, allowing for easier maintenance and future updates to the configuration menu ([#103](https://github.com/Raenore/Sippy-Cup/pull/103)).  
+
+### Fixed  
+- Resolved a rare issue where tracking could occasionally break after switching profiles, which previously required a UI reload, logout, or game restart to fix ([#103](https://github.com/Raenore/Sippy-Cup/pull/103)).  
+- Improved the reliability of the popup deferral system, ensuring notification popups are correctly hidden during combat or busy events and shown afterward ([#103](https://github.com/Raenore/Sippy-Cup/pull/103)).  
+- Resolved an issue with item cooldown tracking when specific consumables or toys were identified by a single Item ID ([#103](https://github.com/Raenore/Sippy-Cup/pull/103)).  
+
 ## [0.7.5] - 2026-04-23  
 Minor patch to update the TOC version for Patch 12.0.5. The larger 0.8.0 overhaul is still in development and will be arriving at a later date.  
 
