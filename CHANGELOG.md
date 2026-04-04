@@ -110,8 +110,8 @@ Given that Sippy Cup never officially supported combat situations, these restric
 ## Full Changelog  
 The complete changelog, including older versions, can always be found on [Sippy Cup's GitHub Wiki](https://github.com/Raenore/Sippy-Cup/wiki/Full-Changelog).  
 
-[unreleased]: https://github.com/Raenore/Sippy-Cup/compare/0.7.5...HEAD
-[0.7.5]: https://github.com/Raenore/Sippy-Cup/compare/0.7.4...0.7.5
+[unreleased]: https://github.com/Raenore/Sippy-Cup/compare/0.8.0...HEAD
+[0.8.0]: https://github.com/Raenore/Sippy-Cup/compare/0.7.4...0.8.0
 [0.7.4]: https://github.com/Raenore/Sippy-Cup/compare/0.7.3...0.7.4
 [0.7.3]: https://github.com/Raenore/Sippy-Cup/compare/0.7.2...0.7.3
 [0.7.2]: https://github.com/Raenore/Sippy-Cup/compare/0.7.1...0.7.2
