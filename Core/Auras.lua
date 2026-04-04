@@ -1,13 +1,14 @@
 -- Copyright The Sippy Cup Authors
 -- SPDX-License-Identifier: Apache-2.0
 
-SIPPYCUP.Auras = {};
+---@class SippyCupAuras
+local Auras = {};
 
 ---DebugEnabledAuras displays data on the currently tracking enabled options (even if they are zero).
 ---@return nil
-function SIPPYCUP.Auras.DebugEnabledAuras()
-	for _, profileOptionData in pairs(SIPPYCUP.Database.auraToProfile) do
-		local optionData = SIPPYCUP.Options.ByAuraID[profileOptionData.aura];
+function Auras.DebugEnabledAuras()
+	for _, profileOptionData in pairs(SC.Database.auraToProfile) do
+		local optionData = SC.Options.ByAuraID[profileOptionData.aura];
 
 		if optionData then
 			local output = table.concat({
@@ -18,9 +19,9 @@ function SIPPYCUP.Auras.DebugEnabledAuras()
 				"AuraInstanceID: " .. tostring(profileOptionData.currentInstanceID),
 			}, "|n");
 
-			SIPPYCUP_OUTPUT.Write(output);
+			SC.Utils.Write(output);
 		else
-			SIPPYCUP_OUTPUT.Write("Missing data for auraID: " .. tostring(profileOptionData.aura));
+			SC.Utils.Write("Missing data for auraID: " .. tostring(profileOptionData.aura));
 		end
 	end
 end
@@ -41,7 +42,7 @@ local function SkipDuplicatePrismUnitAura(profileOptionData, auraInstanceID)
 
 	-- Skip UNIT_AURA changes within 1s window for prisms, they are most likely duplicates
 	if lastInstance == auraInstanceID and lastTime and (now - lastTime) < 1 then
-		SIPPYCUP_OUTPUT.Debug("SkipDuplicatePrismUnitAura - Duplicate - Skip", auraInstanceID);
+		SC.Utils.Log("DEBUG", "SkipDuplicatePrismUnitAura - Duplicate - Skip", auraInstanceID);
 		return true;
 	end
 
@@ -59,10 +60,10 @@ end
 ---@param source string The source description of the action.
 ---@return nil
 local function QueueAuraAction(profileOptionData, auraInfo, reason, source)
-	local optionData = SIPPYCUP.Options.ByAuraID[profileOptionData.aura];
+	local optionData = SC.Options.ByAuraID[profileOptionData.aura];
 	-- Consumables that actually consume bag space/items need a bag check
 	local needsBagCheck = (profileOptionData.type == 0 and not profileOptionData.usesCharges);
-	local shouldIncrement = needsBagCheck and reason == SIPPYCUP.Popups.Reason.ADDITION;
+	local shouldIncrement = needsBagCheck and reason == SC.Popups.Reason.ADDITION;
 
 	local data = {
 		active = auraInfo ~= nil,
@@ -72,14 +73,14 @@ local function QueueAuraAction(profileOptionData, auraInfo, reason, source)
 		profileOptionData = profileOptionData,
 		reason = reason,
 		needsBagCheck = needsBagCheck,
-		auraGeneration = shouldIncrement and (SIPPYCUP.Bags.auraGeneration + 1) or 0,
+		auraGeneration = shouldIncrement and (SC.Bags.auraGeneration + 1) or 0,
 	};
 
 	if shouldIncrement then
-		SIPPYCUP.Bags.auraGeneration = SIPPYCUP.Bags.auraGeneration + 1;
+		SC.Bags.auraGeneration = SC.Bags.auraGeneration + 1;
 	end
 
-	SIPPYCUP.Popups.QueuePopupAction(data, source);
+	SC.Popups.QueuePopupAction(data, source);
 end
 
 ---@class AuraUpdateInfo
@@ -97,10 +98,10 @@ local function ParseAura(updateInfo)
 	-- isFullUpdate true means nil values, invalidate the state.
 	if updateInfo.isFullUpdate then
 		-- If in loading screen, we process this later, otherwise immediately.
-		if SIPPYCUP.States.loadingScreen then
-			SIPPYCUP.States.hasSeenFullUpdate = true;
+		if SC.Globals.States.loadingScreen then
+			SC.Globals.States.hasSeenFullUpdate = true;
 		else
-			SIPPYCUP.Auras.CheckAllActiveOptions();
+			Auras.CheckAllActiveOptions();
 		end
 	end
 
@@ -108,18 +109,18 @@ local function ParseAura(updateInfo)
 	local added = updateInfo.addedAuras;
 	if added then
 		for _, auraInfo in ipairs(added) do
-			local profileOptionData = SIPPYCUP.Database:FindMatchingProfile(auraInfo.spellId);
+			local profileOptionData = SC.Database:FindMatchingProfile(auraInfo.spellId);
 			if profileOptionData and profileOptionData.enable then
 				local skip = SkipDuplicatePrismUnitAura(profileOptionData, auraInfo.auraInstanceID);
 
 				if not skip then
 					profileOptionData.currentInstanceID = auraInfo.auraInstanceID;
-					SIPPYCUP.Database:CommitCharState(profileOptionData.aura, profileOptionData);
-					SIPPYCUP.Database.instanceToProfile[auraInfo.auraInstanceID] = profileOptionData;
+					SC.Database:CommitCharState(profileOptionData.aura, profileOptionData);
+					SC.Database.instanceToProfile[auraInfo.auraInstanceID] = profileOptionData;
 
-					SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData);
+					Auras.CheckPreExpirationForSingleOption(profileOptionData);
 
-					QueueAuraAction(profileOptionData, auraInfo, SIPPYCUP.Popups.Reason.ADDITION, "ParseAura - addition");
+					QueueAuraAction(profileOptionData, auraInfo, SC.Popups.Reason.ADDITION, "ParseAura - addition");
 				end
 			end
 		end
@@ -129,7 +130,7 @@ local function ParseAura(updateInfo)
 	local updated = updateInfo.updatedAuraInstanceIDs;
 	if updated then
 		for _, auraInstanceID in ipairs(updated) do
-			local profileOptionData = SIPPYCUP.Database:FindMatchingProfile(nil, auraInstanceID);
+			local profileOptionData = SC.Database:FindMatchingProfile(nil, auraInstanceID);
 			if profileOptionData and profileOptionData.enable then
 				local auraInfo = GetAuraDataByAuraInstanceID("player", auraInstanceID);
 				if auraInfo then
@@ -137,14 +138,14 @@ local function ParseAura(updateInfo)
 
 					if not skip then
 						profileOptionData.currentInstanceID = auraInfo.auraInstanceID;
-						profileOptionData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, profileOptionData.aura, SIPPYCUP.Popups.Reason.UPDATE, true);
-						SIPPYCUP.Database:CommitCharState(profileOptionData.aura, profileOptionData);
-						SIPPYCUP.Database.instanceToProfile[auraInfo.auraInstanceID] = profileOptionData;
+						profileOptionData.currentStacks = Auras.CalculateCurrentStacks(auraInfo, profileOptionData.aura, SC.Popups.Reason.UPDATE, true);
+						SC.Database:CommitCharState(profileOptionData.aura, profileOptionData);
+						SC.Database.instanceToProfile[auraInfo.auraInstanceID] = profileOptionData;
 
-						SIPPYCUP.Auras.CancelPreExpirationTimer(nil, profileOptionData.aura, auraInstanceID);
-						SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData);
+						Auras.CancelPreExpirationTimer(nil, profileOptionData.aura, auraInstanceID);
+						Auras.CheckPreExpirationForSingleOption(profileOptionData);
 
-						QueueAuraAction(profileOptionData, auraInfo, SIPPYCUP.Popups.Reason.ADDITION, "ParseAura - updated");
+						QueueAuraAction(profileOptionData, auraInfo, SC.Popups.Reason.ADDITION, "ParseAura - updated");
 					end
 				end
 			end
@@ -155,17 +156,17 @@ local function ParseAura(updateInfo)
 	local removed = updateInfo.removedAuraInstanceIDs;
 	if removed then
 		for _, auraInstanceID in ipairs(removed) do
-			local profileOptionData = SIPPYCUP.Database:FindMatchingProfile(nil, auraInstanceID);
+			local profileOptionData = SC.Database:FindMatchingProfile(nil, auraInstanceID);
 			if profileOptionData and profileOptionData.enable and profileOptionData.currentInstanceID then
-				SIPPYCUP.Database.instanceToProfile[auraInstanceID] = nil;
+				SC.Database.instanceToProfile[auraInstanceID] = nil;
 				profileOptionData.currentInstanceID = nil;
 				profileOptionData.currentStacks = 0;
-				SIPPYCUP.Database:CommitCharState(profileOptionData.aura, profileOptionData);
+				SC.Database:CommitCharState(profileOptionData.aura, profileOptionData);
 
 				-- On aura removal, we remove all pre-expiration timers as that's obvious no longer relevant.
-				SIPPYCUP.Auras.CancelPreExpirationTimer(nil, profileOptionData.aura, auraInstanceID);
+				Auras.CancelPreExpirationTimer(nil, profileOptionData.aura, auraInstanceID);
 
-				QueueAuraAction(profileOptionData, nil, SIPPYCUP.Popups.Reason.REMOVAL, "ParseAura - removed");
+				QueueAuraAction(profileOptionData, nil, SC.Popups.Reason.REMOVAL, "ParseAura - removed");
 			end
 		end
 	end
@@ -179,15 +180,15 @@ local function BuildAuraKey(auraID, instanceID)
 	return tostring(auraID) .. "-" .. tostring(instanceID);
 end
 
-SIPPYCUP.Auras.auraQueue = {};
-SIPPYCUP.Auras.auraQueueScheduled = false;
+Auras.auraQueue = {};
+Auras.auraQueueScheduled = false;
 
 ---FlushAuraQueue combines all the UNIT_AURA events in the same frame together, filtering them for weird exceptions.
 ---@return nil
 local function FlushAuraQueue()
-	local queue = SIPPYCUP.Auras.auraQueue;
-	SIPPYCUP.Auras.auraQueue = {};
-	SIPPYCUP.Auras.auraQueueScheduled = false;
+	local queue = Auras.auraQueue;
+	Auras.auraQueue = {};
+	Auras.auraQueueScheduled = false;
 
 	-- Merge all queued updateInfo into one combined table.
 	local combined = {
@@ -233,23 +234,23 @@ local function FlushAuraQueue()
 
 	-- 2) convert any remove+add-of-same-spell into an update
 	for removedID in pairs(seenRemoval) do
-		local profileOptionData = SIPPYCUP.Database.instanceToProfile[removedID];
+		local profileOptionData = SC.Database.instanceToProfile[removedID];
 		if profileOptionData then
 			local auraID = profileOptionData.aura;
 			for addID, auraInfo in pairs(seenAdd) do
 				if canaccessvalue(auraInfo.spellId) and auraInfo.spellId == auraID then
 					-- cancel any pre-expiration timer keyed by this spell+instance
 					local key = BuildAuraKey(auraID, removedID);
-					SIPPYCUP.Auras.CancelPreExpirationTimer(key);
+					Auras.CancelPreExpirationTimer(key);
 
 					seenRemoval[removedID] = nil;
 					seenUpdate[addID] = true;
 
 					-- Update linkage
-					SIPPYCUP.Database.instanceToProfile[removedID] = nil;
+					SC.Database.instanceToProfile[removedID] = nil;
 					profileOptionData.currentInstanceID = addID;
-					SIPPYCUP.Database:CommitCharState(auraID, profileOptionData);
-					SIPPYCUP.Database.instanceToProfile[addID] = profileOptionData;
+					SC.Database:CommitCharState(auraID, profileOptionData);
+					SC.Database.instanceToProfile[addID] = profileOptionData;
 					break;
 				end
 			end
@@ -262,7 +263,7 @@ local function FlushAuraQueue()
 			if canaccessvalue(seenAdd[updatedAuraInstanceIDs].spellId) then
 				-- cancel any pre-expiration timer keyed by this spell+instance
 				local key = BuildAuraKey(seenAdd[updatedAuraInstanceIDs].spellId, updatedAuraInstanceIDs);
-				SIPPYCUP.Auras.CancelPreExpirationTimer(key);
+				Auras.CancelPreExpirationTimer(key);
 				seenAdd[updatedAuraInstanceIDs] = nil;
 			end
 		end
@@ -287,7 +288,7 @@ local function FlushAuraQueue()
 	ParseAura(combined);
 end
 
-SIPPYCUP.Auras.Sources = {
+Auras.Sources = {
 	UNIT_AURA = 1,
 	CLE = 2,
 	ADD_AURA = 3,
@@ -299,10 +300,10 @@ SIPPYCUP.Auras.Sources = {
 ---@param source number The source of the data.
 ---@param data table The data to be converted.
 ---@return nil
-function SIPPYCUP.Auras.Convert(source, data)
+function Auras.Convert(source, data)
 	local updateInfo = {};
 
-	if source == SIPPYCUP.Auras.Sources.UNIT_AURA then
+	if source == Auras.Sources.UNIT_AURA then
 		-- Source 1: UNIT_AURA provides the right shape, but copy to avoid Blizzard table reuse.
 		if data.addedAuras then
 			updateInfo.addedAuras = { unpack(data.addedAuras) };
@@ -314,7 +315,7 @@ function SIPPYCUP.Auras.Convert(source, data)
 			updateInfo.removedAuraInstanceIDs = { unpack(data.removedAuraInstanceIDs) };
 		end
 		updateInfo.isFullUpdate = data.isFullUpdate;
-	elseif source == SIPPYCUP.Auras.Sources.CLE then
+	elseif source == Auras.Sources.CLE then
 		-- Source 2: Combat Log events (e.g., SPELL_AURA_APPLIED).
 		-- Currently unused, but might return at some point.
 		local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(data[2]);
@@ -326,19 +327,19 @@ function SIPPYCUP.Auras.Convert(source, data)
 		elseif data[1] == "SPELL_AURA_REMOVED" and auraInfo then
 			updateInfo.removedAuraInstanceIDs = { auraInfo.auraInstanceID };
 		end
-	elseif source == SIPPYCUP.Auras.Sources.ADD_AURA then
+	elseif source == Auras.Sources.ADD_AURA then
 		-- Source 3: Handle added auras not sent through UNIT_AURA
 		updateInfo.addedAuras = data;
-	elseif source == SIPPYCUP.Auras.Sources.UPDATE_AURA then
+	elseif source == Auras.Sources.UPDATE_AURA then
 		-- Source 4: Handle updates to auras not sent through UNIT_AURA
 		-- e.g. Instance ID Update — simulate updated aura using with a new instance ID.
 		updateInfo.updatedAuraInstanceIDs = { data[1] };
-	elseif source == SIPPYCUP.Auras.Sources.REMOVE_AURA then
+	elseif source == Auras.Sources.REMOVE_AURA then
 		-- Source 5: Handle removed auras not sent through UNIT_AURA
 		updateInfo.removedAuraInstanceIDs = { data[1] };
 	else
 		-- Unknown source passed in — log to user so they can let us know.
-		SIPPYCUP_OUTPUT.Write("Convert called with unknown source: " .. tostring(source));
+		SC.Utils.Write("Convert called with unknown source: " .. tostring(source));
 		return;
 	end
 
@@ -347,11 +348,11 @@ function SIPPYCUP.Auras.Convert(source, data)
 	end
 
 	-- buffer it instead of parsing immediately
-	SIPPYCUP.Auras.auraQueue[#SIPPYCUP.Auras.auraQueue + 1] = updateInfo;
+	Auras.auraQueue[#Auras.auraQueue + 1] = updateInfo;
 
 	-- flush on the next frame (which will run the batched UNIT_AURAs)
-	if not SIPPYCUP.Auras.auraQueueScheduled then
-		SIPPYCUP.Auras.auraQueueScheduled = true;
+	if not Auras.auraQueueScheduled then
+		Auras.auraQueueScheduled = true;
 		RunNextFrame(FlushAuraQueue);
 	end
 end
@@ -359,16 +360,16 @@ end
 ---CheckAllActiveOptions checks enabled options and updates their aura status.
 ---Triggers add, update, or remove conversions based on aura presence and instance ID changes.
 ---@return nil
-function SIPPYCUP.Auras.CheckAllActiveOptions()
+function Auras.CheckAllActiveOptions()
 	-- Data sent through/around loading screens will not be reliable, so skip that.
-	if SIPPYCUP.States.loadingScreen then
+	if SC.Globals.States.loadingScreen then
 		return;
 	end
 
 	local GetPlayerAuraBySpellID = C_UnitAuras.GetPlayerAuraBySpellID;
-	local auraToProfile = SIPPYCUP.Database.auraToProfile;
-	local instanceToProfile = SIPPYCUP.Database.instanceToProfile;
-	local Convert = SIPPYCUP.Auras.Convert;
+	local auraToProfile = SC.Database.auraToProfile;
+	local instanceToProfile = SC.Database.instanceToProfile;
+	local Convert = Auras.Convert;
 
 	-- auraToProfile holds only enabled options (whether they are active or not).
 	for _, profileOptionData in pairs(auraToProfile) do
@@ -382,7 +383,7 @@ function SIPPYCUP.Auras.CheckAllActiveOptions()
 			if canBeActive then
 				-- Prepare this option to get popup'd anew, by faking a "this has expired" call to our system.
 				-- Don't worry about ignored or other stuff, popups handle this later in the chain.
-				Convert(SIPPYCUP.Auras.Sources.REMOVE_AURA, { currentInstanceID });
+				Convert(Auras.Sources.REMOVE_AURA, { currentInstanceID });
 				instanceToProfile[currentInstanceID] = nil;
 			end
 		else
@@ -393,15 +394,15 @@ function SIPPYCUP.Auras.CheckAllActiveOptions()
 				if currentInstanceID ~= newInstanceID then
 					instanceToProfile[currentInstanceID] = nil;
 					profileOptionData.currentInstanceID = newInstanceID;
-					SIPPYCUP.Database:CommitCharState(profileOptionData.aura, profileOptionData);
+					SC.Database:CommitCharState(profileOptionData.aura, profileOptionData);
 					instanceToProfile[newInstanceID] = profileOptionData;
 
-					SIPPYCUP_OUTPUT.Debug("InstanceID Changed!|nName:", auraInfo.name, "|nSpellID:", profileOptionData.aura, "|nOld:", currentInstanceID, "|nNew:", newInstanceID);
-					Convert(SIPPYCUP.Auras.Sources.UPDATE_AURA, { newInstanceID });
+					SC.Utils.Log("DEBUG", "InstanceID Changed!|nName:", auraInfo.name, "|nSpellID:", profileOptionData.aura, "|nOld:", currentInstanceID, "|nNew:", newInstanceID);
+					Convert(Auras.Sources.UPDATE_AURA, { newInstanceID });
 				end
 			else
 				-- There is auraInfo data but the spell was not marked as active, this means it was added but we did not catch it.
-				Convert(SIPPYCUP.Auras.Sources.ADD_AURA, { auraInfo });
+				Convert(Auras.Sources.ADD_AURA, { auraInfo });
 			end
 		end
 	end
@@ -409,15 +410,15 @@ end
 
 ---CheckInstanceIDForAllActiveOptions checks and updates active options aura instance IDs, removing expired ones.
 ---@return nil
-function SIPPYCUP.Auras.CheckInstanceIDForAllActiveOptions()
+function Auras.CheckInstanceIDForAllActiveOptions()
 	-- Data sent through/around loading screens will not be reliable, so skip that.
-	if SIPPYCUP.States.loadingScreen then
+	if SC.Globals.States.loadingScreen then
 		return;
 	end
 
 	local GetPlayerAuraBySpellID = C_UnitAuras.GetPlayerAuraBySpellID;
-	local instanceToProfile = SIPPYCUP.Database.instanceToProfile;
-	local Convert = SIPPYCUP.Auras.Convert;
+	local instanceToProfile = SC.Database.instanceToProfile;
+	local Convert = Auras.Convert;
 
 	-- instanceToProfile holds only enabled and active options (with a known instanceID) AKA the ones our DB thinks are running.
 	for oldInstanceID, profileOptionData in pairs(instanceToProfile) do
@@ -428,7 +429,7 @@ function SIPPYCUP.Auras.CheckInstanceIDForAllActiveOptions()
 		if not auraInfo then
 			-- Prepare this option to get popup'd anew, by faking a "this has expired" call to our system.
 			-- Don't worry about ignored or other stuff, popups handle this later in the chain.
-			Convert(SIPPYCUP.Auras.Sources.REMOVE_AURA, { oldInstanceID });
+			Convert(Auras.Sources.REMOVE_AURA, { oldInstanceID });
 			instanceToProfile[oldInstanceID] = nil;
 		else
 			local newInstanceID = auraInfo.auraInstanceID;
@@ -437,11 +438,11 @@ function SIPPYCUP.Auras.CheckInstanceIDForAllActiveOptions()
 			if oldInstanceID ~= newInstanceID then
 				instanceToProfile[oldInstanceID] = nil;
 				profileOptionData.currentInstanceID = newInstanceID;
-				SIPPYCUP.Database:CommitCharState(profileOptionData.aura, profileOptionData);
+				SC.Database:CommitCharState(profileOptionData.aura, profileOptionData);
 				instanceToProfile[newInstanceID] = profileOptionData;
 
-				SIPPYCUP_OUTPUT.Debug("InstanceID Changed!|nName:", auraInfo.name, "|nSpellID:", profileOptionData.aura, "|nOld:", oldInstanceID, "|nNew:", newInstanceID);
-				Convert(SIPPYCUP.Auras.Sources.UPDATE_AURA, { newInstanceID });
+				SC.Utils.Log("DEBUG", "InstanceID Changed!|nName:", auraInfo.name, "|nSpellID:", profileOptionData.aura, "|nOld:", oldInstanceID, "|nNew:", newInstanceID);
+				Convert(Auras.Sources.UPDATE_AURA, { newInstanceID });
 			end
 		end
 	end
@@ -457,7 +458,7 @@ local scheduledPreExpirationAuraTimers = {};
 ---@param auraID number? Required if key is not provided.
 ---@param auraInstanceID number? Required if key is not provided.
 ---@return nil
-function SIPPYCUP.Auras.CreatePreExpirationTimer(fireIn, auraInfo, key, auraID, auraInstanceID)
+function Auras.CreatePreExpirationTimer(fireIn, auraInfo, key, auraID, auraInstanceID)
 	-- Validate inputs
 	if type(fireIn) ~= "number" or fireIn <= 0 then
 		return;
@@ -491,10 +492,10 @@ function SIPPYCUP.Auras.CreatePreExpirationTimer(fireIn, auraInfo, key, auraID, 
 			auraInfo = auraInfo,
 			optionData = nil,
 			profileOptionData = nil,
-			reason = SIPPYCUP.Popups.Reason.PRE_EXPIRATION,
+			reason = SC.Popups.Reason.PRE_EXPIRATION,
 		};
 		-- Fire the popup
-		SIPPYCUP.Popups.QueuePopupAction(data, "CreatePreExpirationTimer - Aura");
+		SC.Popups.QueuePopupAction(data, "CreatePreExpirationTimer - Aura");
 	end);
 
 	-- Store it for potential cancellation later
@@ -507,7 +508,7 @@ end
 ---@param auraID number? The aura ID (used only if key is nil or if you want to cancel timers by auraID).
 ---@param auraInstanceID number? The instance ID (used only if key is nil).
 ---@return nil
-function SIPPYCUP.Auras.CancelPreExpirationTimer(key, auraID, auraInstanceID)
+function Auras.CancelPreExpirationTimer(key, auraID, auraInstanceID)
 	-- If no key was provided, build it from auraID and auraInstanceID
 	if not key then
 		if auraID and auraInstanceID then
@@ -537,7 +538,7 @@ end
 
 ---CancelAllPreExpirationTimers will cancel every pre-expiration timer currently scheduled.
 ---@return nil
-function SIPPYCUP.Auras.CancelAllPreExpirationTimers()
+function Auras.CancelAllPreExpirationTimers()
 	for key, handle in pairs(scheduledPreExpirationAuraTimers) do
 		handle:Cancel();
 		scheduledPreExpirationAuraTimers[key] = nil;
@@ -547,15 +548,15 @@ end
 ---CheckPreExpirationForAllActiveOptions sets up pre-expiration timers for all active options before popup.
 ---@param minSeconds number? Minimum duration in seconds required before scheduling a timer. Default is 180.
 ---@return nil
-function SIPPYCUP.Auras.CheckPreExpirationForAllActiveOptions(minSeconds)
+function Auras.CheckPreExpirationForAllActiveOptions(minSeconds)
 	-- Data sent through/around loading screens will not be reliable, so skip that.
-	if SIPPYCUP.States.loadingScreen or not SIPPYCUP.Database:GetGlobalSetting("PreExpirationChecks") then
+	if SC.Globals.States.loadingScreen or not SC.Database:GetGlobalSetting("PreExpirationChecks") then
 		return;
 	end
 
 	-- instanceToProfile holds only enabled, active and trackable options (with a known instanceID), as inactive enabled ones shouldn't have timers.
-	for _, profileOptionData in pairs(SIPPYCUP.Database.instanceToProfile) do
-		SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData, minSeconds);
+	for _, profileOptionData in pairs(SC.Database.instanceToProfile) do
+		Auras.CheckPreExpirationForSingleOption(profileOptionData, minSeconds);
 	end
 end
 
@@ -563,11 +564,11 @@ end
 ---@param profileOptionData SippyCupProfile Profile data for the option.
 ---@param minSeconds number? Time window to check ahead, defaults to 180.
 ---@return boolean preExpireFired True if a pre-expiration popup was fired.
-function SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData, minSeconds)
+function Auras.CheckPreExpirationForSingleOption(profileOptionData, minSeconds)
 	local preExpireFired = false;
 
 	-- If pre-expiration checks can't be done, why are we even here?
-	if SIPPYCUP.States.loadingScreen or not SIPPYCUP.Database:GetGlobalSetting("PreExpirationChecks") then
+	if SC.Globals.States.loadingScreen or not SC.Database:GetGlobalSetting("PreExpirationChecks") then
 		return preExpireFired;
 	end
 
@@ -582,14 +583,14 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData, min
 
 	local active = true;
 	local key = BuildAuraKey(auraID, auraInfo.auraInstanceID);
-	local optionData = SIPPYCUP.Options.ByAuraID[auraID];
+	local optionData = SC.Options.ByAuraID[auraID];
 
 	if not optionData.preExpiration or scheduledPreExpirationAuraTimers[key] then
 		return preExpireFired;
 	end
 
-	profileOptionData.currentStacks = SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, 0, active);
-	SIPPYCUP.Database:CommitCharState(auraID, profileOptionData);
+	profileOptionData.currentStacks = Auras.CalculateCurrentStacks(auraInfo, auraID, 0, active);
+	SC.Database:CommitCharState(auraID, profileOptionData);
 
 	-- Some stack items can be pre-expired for refresh but ONLY if the current stacks == maxStacks
 	if optionData.stacks and profileOptionData.currentStacks ~= optionData.maxStacks then
@@ -603,12 +604,12 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData, min
 
 	if profileOptionData.isPrism then
 		if profileOptionData.usesCharges then -- reflecting prism
-			preOffset = SIPPYCUP.Database:GetGlobalSetting("ReflectingPrismPreExpirationLeadTimer") * 60;
+			preOffset = SC.Database:GetGlobalSetting("ReflectingPrismPreExpirationLeadTimer") * 60;
 		else -- projection prism
-			preOffset = SIPPYCUP.Database:GetGlobalSetting("ProjectionPrismPreExpirationLeadTimer") * 60;
+			preOffset = SC.Database:GetGlobalSetting("ProjectionPrismPreExpirationLeadTimer") * 60;
 		end
 	else -- Global
-		preOffset = SIPPYCUP.Database:GetGlobalSetting("PreExpirationLeadTimer") * 60;
+		preOffset = SC.Database:GetGlobalSetting("PreExpirationLeadTimer") * 60;
 	end
 
 	-- If the option only lasts for less than user set, we need to change it.
@@ -621,7 +622,7 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData, min
 		end
 	end
 
-	-- How far out we’ll scan: look‑ahead + warning offset
+	-- How far out we'll scan: look‑ahead + warning offset
 	local windowHigh = minSeconds + preOffset;
 
 	-- Only care about auras that will expire before our next 180s (or custom) scan
@@ -639,25 +640,26 @@ function SIPPYCUP.Auras.CheckPreExpirationForSingleOption(profileOptionData, min
 				auraInfo = auraInfo,
 				optionData = optionData,
 				profileOptionData = profileOptionData,
-				reason = SIPPYCUP.Popups.Reason.PRE_EXPIRATION,
+				reason = SC.Popups.Reason.PRE_EXPIRATION,
 			};
-			SIPPYCUP.Popups.QueuePopupAction(data, "CheckPreExpirationForSingleOption - pre-expiration");
+			SC.Popups.QueuePopupAction(data, "CheckPreExpirationForSingleOption - pre-expiration");
 		else
 			-- Schedule our pre-expiration reminder.
-			SIPPYCUP.Auras.CreatePreExpirationTimer(fireIn, auraInfo, key, auraID);
+			Auras.CreatePreExpirationTimer(fireIn, auraInfo, key, auraID);
 		end
 	end
 
 	return preExpireFired;
 end
 
+---CalculateCurrentStacks calculates the current stacks for a given aura.
 ---@param auraInfo table? Information about the aura, or nil if not present.
 ---@param auraID number The aura ID.
 ---@param reason number The situation to calculate stacks for (0 - add/update, 1 = removal, 2 = pre-expire, 3 = toggle, 4 = startup)
 ---@param active boolean Whether the aura is currently active (false = inactive, true = active).
 ---@return number currentStacks The current stacks for this aura.
-function SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, reason, active)
-	reason = reason or SIPPYCUP.Popups.Reason.ADDITION;
+function Auras.CalculateCurrentStacks(auraInfo, auraID, reason, active)
+	reason = reason or SC.Popups.Reason.ADDITION;
 
 	if not auraInfo then
 		auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(auraID);
@@ -665,19 +667,19 @@ function SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, reason, active)
 
 	-- Deal with possible inacurracies from deferrment
 	if auraInfo and not active then
-		reason = SIPPYCUP.Popups.Reason.TOGGLE;
+		reason = SC.Popups.Reason.TOGGLE;
 		active = true;
 	end
 
 	-- Case 1: Aura removed or missing
-	if not active or reason == SIPPYCUP.Popups.Reason.REMOVAL or not auraInfo then
+	if not active or reason == SC.Popups.Reason.REMOVAL or not auraInfo then
 		return 0;
 	end
 
 	-- Case 2: Pre-expiration (return maxStacks - 1 for stackable that require 1 re-application for full)
-	if reason == SIPPYCUP.Popups.Reason.PRE_EXPIRATION then
-		local optionData = SIPPYCUP.Options.ByAuraID[auraID];
-		local currentStacks = SIPPYCUP.Database:GetCharSetting(auraID, "currentStacks");
+	if reason == SC.Popups.Reason.PRE_EXPIRATION then
+		local optionData = SC.Options.ByAuraID[auraID];
+		local currentStacks = SC.Database:GetCharSetting(auraID, "currentStacks");
 
 		if optionData.stacks and currentStacks == optionData.maxStacks then
 			return optionData.maxStacks - 1;
@@ -689,3 +691,5 @@ function SIPPYCUP.Auras.CalculateCurrentStacks(auraInfo, auraID, reason, active)
 	-- Case 0: Normal add/update (return applications or 1)
 	return math.max(auraInfo.applications or 0, 1);
 end
+
+SC.Auras = Auras;

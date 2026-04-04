@@ -1,7 +1,7 @@
 -- Copyright The Sippy Cup Authors
 -- SPDX-License-Identifier: Apache-2.0
 
-local L = SIPPYCUP.L;
+local L = SC.Localization;
 
 if not C_AddOns.IsAddOnLoaded('totalRP3') then
 	return;
@@ -15,15 +15,15 @@ local function onStart()
 
 		TRP3_API.toolbar.toolbarAddButton{
 			id = "trp3_sippy_cup",
-			icon = SIPPYCUP.AddonMetadata.iconTexture,
-			configText = SIPPYCUP.AddonMetadata.title,
-			tooltip = SIPPYCUP.AddonMetadata.title,
+			icon = SC.Globals.addon_icon_texture,
+			configText = SC.Globals.addon_title,
+			tooltip = SC.Globals.addon_title,
 			tooltipSub = L.ADDON_COMPARTMENT_DESC,
 			onClick = function(_, _, button)
 				if button == "LeftButton" then
-					SIPPYCUP_Addon:OpenSettings();
+					SC.Settings:ShowSettings();
 				elseif button == "RightButton" then
-					SIPPYCUP_Addon:OpenSettings(8);
+					SC.Settings:ShowSettings(8);
 				end
 			end,
 		};
@@ -34,7 +34,7 @@ end
 TRP3_API.module.registerModule({
 	["name"] = "Sippy Cup",
 	["description"] = "Adds a toolbar button to open Sippy Cup easily.",
-	["version"] = SIPPYCUP.AddonMetadata.version,
+	["version"] = SC.Globals.addon_version,
 	["id"] = "trp_sippy_cup",
 	["onStart"] = onStart,
 	["minVersion"] = 3,

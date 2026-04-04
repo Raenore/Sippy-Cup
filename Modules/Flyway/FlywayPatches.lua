@@ -2,9 +2,9 @@
 -- Inspired by Total RP 3
 -- SPDX-License-Identifier: Apache-2.0
 
-SIPPYCUP.Flyway.Patches = {};
+SC.Flyway.Patches = {};
 
-SIPPYCUP.Flyway.Patches["1"] = {
+SC.Flyway.Patches["1"] = {
 	run = function()
 		if not SippyCupDB or not SippyCupDB.profiles then
 			return;
@@ -91,18 +91,18 @@ SIPPYCUP.Flyway.Patches["1"] = {
 		end
 
 		-- Reload current profile so runtime references update
-		local profileName = SIPPYCUP.Database:GetProfileName();
-		SIPPYCUP.Database:SetProfile(profileName);
+		local profileName = SC.Database:GetProfileName();
+		SC.Database:SetProfile(profileName);
 
-		if SIPPYCUP.Database:GetGlobalSetting("PopupIcon") then
-			SIPPYCUP.Database:SetGlobalSetting("PopupIcon", nil);
+		if SC.Database:GetGlobalSetting("PopupIcon") then
+			SC.Database:SetGlobalSetting("PopupIcon", nil);
 		end
 	end,
 
 	description = "Prepare 0.3.0, updated SV profiles to using AuraID/SpellID.",
 };
 
-SIPPYCUP.Flyway.Patches["2"] = {
+SC.Flyway.Patches["2"] = {
 	run = function()
 		if not SippyCupDB then return; end
 
@@ -131,7 +131,7 @@ SIPPYCUP.Flyway.Patches["2"] = {
 			local toAdd = {};
 			local toRemove = {};
 
-			for oldKey, profileName in 	pairs(SippyCupDB.profileKeys) do
+			for oldKey, profileName in pairs(SippyCupDB.profileKeys) do
 				local name, realm = oldKey:match("^(.+) %- (.+)$");
 				if name and realm then
 					local normalizedRealm = realm:gsub("[%s%-%.]+", "");
@@ -156,7 +156,7 @@ SIPPYCUP.Flyway.Patches["2"] = {
 
 			-- Profile resolution needs to re-run after flyway.
 			if next(toAdd) then
-				SIPPYCUP.States.requiresReinit = true;
+				SC.Globals.States.requiresReinit = true;
 			end
 		end
 	end,

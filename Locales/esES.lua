@@ -131,4 +131,4 @@ L = {
 	OPTIONS_PROFILES_DELETEPROFILE_DESC = "Elimina el perfil seleccionado de la base de datos.",
 };
 
-SIPPYCUP.L_ESES = L;
+SC.Localization:RegisterNewLocale("esES", "Spanish", L);

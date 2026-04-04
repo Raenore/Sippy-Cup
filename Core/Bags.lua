@@ -1,22 +1,29 @@
 -- Copyright The Sippy Cup Authors
 -- SPDX-License-Identifier: Apache-2.0
 
-SIPPYCUP.Bags = {};
+---@class SippyCupBags
+local Bags = {};
 
-SIPPYCUP.Bags.auraGeneration = 0;
-SIPPYCUP.Bags.bagGeneration = 0;
+Bags.auraGeneration = 0;
+Bags.bagGeneration = 0;
 
-function SIPPYCUP.Bags.BagUpdateDelayed()
-	SIPPYCUP.Bags.lastBagUpdate = GetTime();
-	SIPPYCUP.Bags.bagGeneration = SIPPYCUP.Bags.bagGeneration + 1;
+---BagUpdateDelayed records the time of the latest bag update and advances the bag generation counter.
+---Fires on BAG_UPDATE_DELAYED, which batches all bag changes after UNIT_AURA.
+---@return nil
+function Bags.BagUpdateDelayed()
+	Bags.lastBagUpdate = GetTime();
+	Bags.bagGeneration = Bags.bagGeneration + 1;
 
-	SIPPYCUP_OUTPUT.Debug("Bag generation:", SIPPYCUP.Bags.bagGeneration);
-	SIPPYCUP.Bags.ClearBagQueue();
+	SC.Utils.Log("DEBUG", "Bag generation:", Bags.bagGeneration);
+	Bags.ClearBagQueue();
 end
 
----HandleBagUpdate marks bag data as synchronized and processes deferred popups.
--- Fires on BAG_UPDATE_DELAYED, which batches all bag changes after UNIT_AURA.
-function SIPPYCUP.Bags.ClearBagQueue()
+---ClearBagQueue marks bag data as synchronized and processes deferred popups.
+---Fires on BAG_UPDATE_DELAYED, which batches all bag changes after UNIT_AURA.
+---@return nil
+function Bags.ClearBagQueue()
 	-- Flush deferred popups that were blocked by bag desync
-	SIPPYCUP.Popups.HandleDeferredActions("bag", SIPPYCUP.Items.bagSyncedGeneration);
+	SC.Popups.HandleDeferredActions(SC.Popups.BlockReason.BAG);
 end
+
+SC.Bags = Bags;

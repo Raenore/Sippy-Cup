@@ -2,19 +2,20 @@
 -- Inspired by Total RP 3
 -- SPDX-License-Identifier: Apache-2.0
 
-SIPPYCUP.Flyway = {};
+---@class SippyCupFlyway
+local Flyway = {};
 
 local SCHEMA_VERSION = 2;
 
 local function ApplyPatches(fromBuild, toBuild)
 	local patched = false;
 	for i = fromBuild, toBuild do
-		local patch = SIPPYCUP.Flyway.Patches[tostring(i)];
+		local patch = Flyway.Patches[tostring(i)];
 		local patchFn = type(patch) == "table" and patch.run or nil;
 
 		if type(patchFn) == "function" then
 			local desc = "Applying patch " .. i .. (patch.description and (": " .. patch.description) or "");
-			SIPPYCUP_OUTPUT.Debug(desc);
+			SC.Utils.Log("INFO", desc);
 			patchFn();
 			patched = true;
 		end
@@ -22,17 +23,19 @@ local function ApplyPatches(fromBuild, toBuild)
 
 	if patched then
 		local logText = ("Patch applied from %s to %s on %s"):format(fromBuild - 1, toBuild, date("%d/%m/%y %H:%M:%S"));
-		SIPPYCUP.Database:SetGlobalSetting("Flyway", { Log = logText });
+		SC.Database:SetGlobalSetting("Flyway", { Log = logText });
 	end
 end
 
-function SIPPYCUP.Flyway:ApplyPatches()
-	local flyway = SIPPYCUP.Database:GetGlobalSetting("Flyway");
+---ApplyPatches runs any outstanding Flyway migration patches against the current saved data.
+---@return nil
+function Flyway.ApplyPatches()
+	local flyway = SC.Database:GetGlobalSetting("Flyway");
 	local currentBuild = flyway and flyway.CurrentBuild or 0;
 
 	-- Prevent running patches if saved data is from a newer version than we support
 	if currentBuild > SCHEMA_VERSION then
-		SIPPYCUP_OUTPUT.Warn("Saved data is from a newer version (%s), skipping Flyway.", currentBuild);
+		SC.Utils.Log("INFO", "Saved data is from a newer version (" .. currentBuild .. "), skipping Flyway.");
 		return;
 	end
 
@@ -40,5 +43,7 @@ function SIPPYCUP.Flyway:ApplyPatches()
 		ApplyPatches(currentBuild + 1, SCHEMA_VERSION);
 	end
 
-	SIPPYCUP.Database:SetGlobalSetting("Flyway", { CurrentBuild = SCHEMA_VERSION });
+	SC.Database:SetGlobalSetting("Flyway", { CurrentBuild = SCHEMA_VERSION });
 end
+
+SC.Flyway = Flyway;
