@@ -604,7 +604,7 @@ function SettingsElements.CreateConfigDropdown(elementContainer, data)
 
 	local labelText = type(data.label) == "function" and data.label() or data.label;
 
-	if data.style == "button" and widget.Text then
+	if (data.style == "button" or data.style == "checkbox") and widget.Text then
 		widget.Text:SetText(labelText or "");
 	end
 
@@ -641,30 +641,53 @@ function SettingsElements.CreateConfigDropdown(elementContainer, data)
 
 		local entries = {};
 
+		---Unpacks a values entry into (label, desc, getter, setter), supporting string and {label, desc, getter, setter} formats.
+		local function unpackValue(v)
+			if type(v) == "table" then
+				return v[1], v[2], v[3], v[4];
+			end
+			return v, nil, nil, nil;
+		end
+
 		if #sorting > 0 then
 			for _, key in ipairs(sorting) do
 				if values[key] then
-					table.insert(entries, {values[key], key});
+					local label, desc, getter, setter = unpackValue(values[key]);
+					table.insert(entries, {label, key, desc, getter, setter});
 				end
 			end
 		else
 			local temp = {};
-			for key, label in pairs(values) do
-				table.insert(temp, {key = key, label = label});
+			for key, v in pairs(values) do
+				local label, desc, getter, setter = unpackValue(v);
+				table.insert(temp, {key = key, label = label, desc = desc, getter = getter, setter = setter});
 			end
 			table.sort(temp, function(a, b) return a.label < b.label end);
 			for _, item in ipairs(temp) do
-				table.insert(entries, {item.label, item.key});
+				table.insert(entries, {item.label, item.key, item.desc, item.getter, item.setter});
 			end
 		end
 
 		for _, entry in ipairs(entries) do
-			local label, value = entry[1], entry[2];
+			local label, value, desc, getter, setter = entry[1], entry[2], entry[3], entry[4], entry[5];
 			local dropdownButton;
 			if data.style == "button" then
 				dropdownButton = root:CreateButton(label, SetSelected, value);
+			elseif data.style == "checkbox" then
+				dropdownButton = root:CreateCheckbox(label, getter, function() setter(not getter()); end);
 			else
 				dropdownButton = root:CreateRadio(label, IsSelected, SetSelected, value);
+			end
+
+			if desc then
+				local function OnTooltipShow(tooltip)
+					local tooltipTitle = MenuUtil.GetElementText(dropdownButton);
+
+					GameTooltip_SetTitle(tooltip, tooltipTitle);
+					GameTooltip_AddNormalLine(tooltip, desc, true);
+				end
+
+				dropdownButton:SetTooltip(OnTooltipShow);
 			end
 
 			if data.gearButton and label ~= "Default" then
@@ -689,7 +712,7 @@ function SettingsElements.CreateConfigDropdown(elementContainer, data)
 			end
 		end
 
-		if data.style == "button" then
+		if data.style == "button" or data.style == "checkbox" then
 			widget:OverrideText(labelText or "");
 		end
 	end);
