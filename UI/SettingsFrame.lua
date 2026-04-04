@@ -380,33 +380,45 @@ function SippyCup_SettingsMixin:OnLoad()
 			end,
 		},
 		{
-			type = "checkbox",
-			label = L.OPTIONS_GENERAL_MINIMAPBUTTON_NAME,
-			tooltip = L.OPTIONS_GENERAL_MINIMAPBUTTON_DESC,
-			get = function()
-				return not SC.Database:GetGlobalSetting("MinimapButton").Hide;
-			end,
-			set = function(val)
-				-- Update with inversion: save 'Hide' as NOT val
-				local minimapSettings = SC.Database:GetGlobalSetting("MinimapButton");
-				minimapSettings.Hide = not val;
-				SC.Database:SetGlobalSetting("MinimapButton", minimapSettings);
-				SC.Minimap:UpdateMinimapButtons();
-			end,
-		},
-		{
-			type = "checkbox",
-			label = L.OPTIONS_GENERAL_ADDONCOMPARTMENT_NAME,
-			tooltip = L.OPTIONS_GENERAL_ADDONCOMPARTMENT_DESC,
-			get = function()
-				return SC.Database:GetGlobalSetting("MinimapButton").ShowAddonCompartmentButton;
-			end,
-			set = function(val)
-				local minimapSettings = SC.Database:GetGlobalSetting("MinimapButton");
-				minimapSettings.ShowAddonCompartmentButton = val;
-				SC.Database:SetGlobalSetting("MinimapButton", minimapSettings);
-				SC.Minimap:UpdateMinimapButtons();
-			end,
+			type = "dropdown",
+			label = L.OPTIONS_GENERAL_MINIMAP_NAME,
+			tooltip = L.OPTIONS_GENERAL_MINIMAP_DESC,
+			style = "checkbox",
+			values = {
+				["MINIMAPBUTTON"] = {
+					L.OPTIONS_GENERAL_MINIMAPBUTTON_NAME,
+					L.OPTIONS_GENERAL_MINIMAPBUTTON_DESC,
+					function()
+						return not SC.Database:GetGlobalSetting("MinimapButton").Hide;
+					end,
+					function(val)
+						-- Update with inversion: save 'Hide' as NOT val
+						local minimapSettings = SC.Database:GetGlobalSetting("MinimapButton");
+						minimapSettings.Hide = not val;
+						SC.Database:SetGlobalSetting("MinimapButton", minimapSettings);
+						SC.Minimap:UpdateMinimapButtons();
+					end,
+				},
+				["ADDONCOMPARTMENT"] = {
+					L.OPTIONS_GENERAL_ADDONCOMPARTMENT_NAME,
+					L.OPTIONS_GENERAL_ADDONCOMPARTMENT_DESC,
+					function()
+						return SC.Database:GetGlobalSetting("MinimapButton").ShowAddonCompartmentButton;
+					end,
+					function(val)
+						local minimapSettings = SC.Database:GetGlobalSetting("MinimapButton");
+						minimapSettings.ShowAddonCompartmentButton = val;
+						SC.Database:SetGlobalSetting("MinimapButton", minimapSettings);
+						SC.Minimap:UpdateMinimapButtons();
+					end,
+				},
+			},
+			sorting = {
+				"MINIMAPBUTTON",
+				"ADDONCOMPARTMENT",
+			},
+			get = function() end,
+			set = function() end,
 		},
 		{
 			type = "checkbox",
