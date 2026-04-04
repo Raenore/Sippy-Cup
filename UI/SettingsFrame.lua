@@ -283,7 +283,8 @@ function SippyCup_SettingsMixin:RefreshWidgets()
 							label = type(data.label) == "function" and data.label() or data.label;
 						else
 							if type(values) == "table" then
-								label = values[currentValue];
+								local v = values[currentValue];
+								label = type(v) == "table" and v[1] or v;
 							end
 							if not label then
 								label = type(data.label) == "function" and data.label() or data.label;
