@@ -385,6 +385,7 @@ function SippyCup_SettingsMixin:OnLoad()
 			label = L.OPTIONS_GENERAL_MINIMAP_NAME,
 			tooltip = L.OPTIONS_GENERAL_MINIMAP_DESC,
 			style = "checkbox",
+			buildAdded = "0.8.0|120005",
 			values = {
 				["MINIMAPBUTTON"] = {
 					L.OPTIONS_GENERAL_MINIMAPBUTTON_NAME,
@@ -412,6 +413,7 @@ function SippyCup_SettingsMixin:OnLoad()
 						SC.Database:SetGlobalSetting("MinimapButton", minimapSettings);
 						SC.Minimap:UpdateMinimapButtons();
 					end,
+					disabled = function() return SC.Database:GetGlobalSetting("MinimapButton").Hide end,
 				},
 			},
 			sorting = {

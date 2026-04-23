@@ -40,7 +40,7 @@ L = {
 	OPTIONS_GENERAL_MINIMAPBUTTON_NAME = "Minimap button",
 	OPTIONS_GENERAL_MINIMAPBUTTON_DESC = "Toggles the display of the minimap button.",
 	OPTIONS_GENERAL_ADDONCOMPARTMENT_NAME = "Addon compartment",
-	OPTIONS_GENERAL_ADDONCOMPARTMENT_DESC = "Toggles the display of the addon compartment button.",
+	OPTIONS_GENERAL_ADDONCOMPARTMENT_DESC = "Toggles the display of the addon compartment button.|n|n|cnWARNING_FONT_COLOR:Note: This requires the 'Minimap Button' option to be enabled.|r",
 	OPTIONS_GENERAL_NEW_FEATURE_NOTIFICATION_NAME = "New Indicator",
 	OPTIONS_GENERAL_NEW_FEATURE_NOTIFICATION_DESC = "Toggles whether new features are indicated by an icon.|n|nThe icon will remain until the next minor version; for example, a feature added in 0.6.1 will retain its indicator until 0.7.0.|n|n|cnWARNING_FONT_COLOR:This option requires a UI reload to take effect.|r",
 

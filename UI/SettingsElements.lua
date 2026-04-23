@@ -641,42 +641,49 @@ function SettingsElements.CreateConfigDropdown(elementContainer, data)
 
 		local entries = {};
 
-		---Unpacks a values entry into (label, desc, getter, setter), supporting string and {label, desc, getter, setter} formats.
+		---Unpacks a values entry into (label, desc, getter, setter, disabled), supporting string and {label, desc, getter, setter, disabled = fn} formats.
 		local function unpackValue(v)
 			if type(v) == "table" then
-				return v[1], v[2], v[3], v[4];
+				return v[1], v[2], v[3], v[4], v.disabled;
 			end
-			return v, nil, nil, nil;
+			return v, nil, nil, nil, nil;
 		end
 
 		if #sorting > 0 then
 			for _, key in ipairs(sorting) do
 				if values[key] then
-					local label, desc, getter, setter = unpackValue(values[key]);
-					table.insert(entries, {label, key, desc, getter, setter});
+					local label, desc, getter, setter, disabled = unpackValue(values[key]);
+					table.insert(entries, {label, key, desc, getter, setter, disabled});
 				end
 			end
 		else
 			local temp = {};
 			for key, v in pairs(values) do
-				local label, desc, getter, setter = unpackValue(v);
-				table.insert(temp, {key = key, label = label, desc = desc, getter = getter, setter = setter});
+				local label, desc, getter, setter, disabled = unpackValue(v);
+				table.insert(temp, {key = key, label = label, desc = desc, getter = getter, setter = setter, disabled = disabled});
 			end
 			table.sort(temp, function(a, b) return a.label < b.label end);
 			for _, item in ipairs(temp) do
-				table.insert(entries, {item.label, item.key, item.desc, item.getter, item.setter});
+				table.insert(entries, {item.label, item.key, item.desc, item.getter, item.setter, item.disabled});
 			end
 		end
 
 		for _, entry in ipairs(entries) do
-			local label, value, desc, getter, setter = entry[1], entry[2], entry[3], entry[4], entry[5];
+			local label, value, desc, getter, setter, disabled = entry[1], entry[2], entry[3], entry[4], entry[5], entry[6];
 			local dropdownButton;
 			if data.style == "button" then
 				dropdownButton = root:CreateButton(label, SetSelected, value);
 			elseif data.style == "checkbox" then
 				dropdownButton = root:CreateCheckbox(label, getter, function() setter(not getter()); end);
+				dropdownButton:SetResponse(data.dropdownButtonResponse ~= nil and data.dropdownButtonResponse or MenuResponse.Refresh);
 			else
 				dropdownButton = root:CreateRadio(label, IsSelected, SetSelected, value);
+			end
+
+			if disabled then
+				dropdownButton:AddInitializer(function(_, description)
+					description:SetEnabled(not disabled());
+				end);
 			end
 
 			if desc then
