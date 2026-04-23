@@ -297,11 +297,11 @@ end
 ---@return FontString description The created description font string.
 function SettingsElements.CreateTitleWithDescription(parent, titleText, descText, optionsPage)
 	local title = parent:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge");
-	title:SetPoint("TOPLEFT", 20, -16);
+	title:SetPoint("TOPLEFT", 20, -8);
 	title:SetText(titleText or "");
 
 	if optionsPage then
-		descText = (descText or "") .. L.OPTIONS_TITLE_EXTRA;
+		descText = (descText or "");
 	end
 
 	local realParent = parent;

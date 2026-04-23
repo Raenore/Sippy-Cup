@@ -461,7 +461,10 @@ function SippyCup_SettingsMixin:OnLoad()
 			set = function(val)
 				SC.Database:SetGlobalSetting("PreExpirationChecks", val);
 				if val then
-					SC.Options.RefreshStackSizes(SC.MSP.IsEnabled() and SC.Database:GetGlobalSetting("MSPStatusCheck"), false, true);
+					SC.Options.RefreshStackSizes(
+						false,
+						true
+					);
 				else
 					local reason = SC.Popups.Reason.PRE_EXPIRATION;
 					SC.Auras.CancelAllPreExpirationTimers();
@@ -490,7 +493,10 @@ function SippyCup_SettingsMixin:OnLoad()
 				SC.Auras.CancelAllPreExpirationTimers();
 				SC.Items.CancelAllItemTimers(reason);
 				SC.Popups.HideAllRefreshPopups(reason);
-				SC.Options.RefreshStackSizes(SC.MSP.IsEnabled() and SC.Database:GetGlobalSetting("MSPStatusCheck"), false, true);
+				SC.Options.RefreshStackSizes(
+					false,
+					true
+				);
 			end,
 		},
 		{
@@ -530,6 +536,44 @@ function SippyCup_SettingsMixin:OnLoad()
 	};
 
 	self.allWidgets[#self.allWidgets + 1] = SettingsElements.CreateWidgetRowContainer(generalPanel, reminderCheckboxData);
+
+	local refreshWidgetData = {
+		{
+			type = "dropdown",
+			label = L.OPTIONS_GENERAL_REMINDER_BEHAVIOR,
+			tooltip = L.OPTIONS_GENERAL_REMINDER_BEHAVIOR_DESC,
+			buildAdded = "0.8.0|120005",
+			values = {
+				[SC.Popups.PopupReminderBehavior.Disabled] = { L.OPTIONS_GENERAL_REMINDER_BEHAVIOR_DISABLED, L.OPTIONS_GENERAL_REMINDER_BEHAVIOR_DISABLED_DESC },
+				[SC.Popups.PopupReminderBehavior.IC] = { L.OPTIONS_GENERAL_REMINDER_BEHAVIOR_IC, L.OPTIONS_GENERAL_REMINDER_BEHAVIOR_IC_DESC, disabled = function() return not SC.MSP.IsEnabled(); end },
+				[SC.Popups.PopupReminderBehavior.Smart] = { L.OPTIONS_GENERAL_REMINDER_BEHAVIOR_SMART, L.OPTIONS_GENERAL_REMINDER_BEHAVIOR_SMART_DESC },
+				[SC.Popups.PopupReminderBehavior.Always] = { L.OPTIONS_GENERAL_REMINDER_BEHAVIOR_ALWAYS, L.OPTIONS_GENERAL_REMINDER_BEHAVIOR_ALWAYS_DESC },
+			},
+			sorting = {
+				SC.Popups.PopupReminderBehavior.Disabled,
+				SC.Popups.PopupReminderBehavior.IC,
+				SC.Popups.PopupReminderBehavior.Smart,
+				SC.Popups.PopupReminderBehavior.Always
+			},
+			get = function()
+				return SC.Database:GetGlobalSetting("PopupReminderBehavior");
+			end,
+			set = function(val)
+				SC.Database:SetGlobalSetting("PopupReminderBehavior", val);
+				if val == 2 then
+					SC.Popups.HideAllRefreshPopups();
+					return;
+				elseif val == 0 then
+					SC.MSP.CheckRPStatus();
+				end
+				SC.Options.RefreshStackSizes();
+			end,
+		},
+	};
+
+	self.allWidgets[#self.allWidgets + 1] = SettingsElements.CreateWidgetRowContainer(generalPanel, refreshWidgetData);
+
+	SettingsElements.CreateCategoryHeader(generalPanel, L.OPTIONS_GENERAL_LAYOUT_NOTIFICATIONS_HEADER);
 
 	local positionWidgetData = {
 		{
@@ -603,33 +647,6 @@ function SippyCup_SettingsMixin:OnLoad()
 	};
 
 	self.allWidgets[#self.allWidgets + 1] = SettingsElements.CreateWidgetRowContainer(generalPanel, alertWidgetData);
-
-	SettingsElements.CreateCategoryHeader(generalPanel, L.OPTIONS_GENERAL_ADDONINTEGRATIONS_HEADER);
-
-	local integrationsWidgetData = {
-		{
-			type = "checkbox",
-			label = L.OPTIONS_GENERAL_MSP_STATUSCHECK_ENABLE,
-			tooltip = L.OPTIONS_GENERAL_MSP_STATUSCHECK_DESC,
-			disabled = function()
-				return not SC.MSP.IsEnabled();
-			end,
-			get = function()
-				return SC.Database:GetGlobalSetting("MSPStatusCheck");
-			end,
-			set = function(val)
-				SC.Database:SetGlobalSetting("MSPStatusCheck", val);
-				SC.MSP.CheckRPStatus();
-				if val then
-					SC.Options.RefreshStackSizes(val);
-				else
-					SC.Popups.HideAllRefreshPopups();
-				end
-			end,
-		},
-	};
-
-	self.allWidgets[#self.allWidgets + 1] = SettingsElements.CreateWidgetRowContainer(generalPanel, integrationsWidgetData);
 
 	local insetData = {
 		{
@@ -764,7 +781,10 @@ function SippyCup_SettingsMixin:OnLoad()
 						SC.Auras.CancelAllPreExpirationTimers();
 						SC.Items.CancelAllItemTimers(reason);
 						SC.Popups.HideAllRefreshPopups(reason);
-						SC.Options.RefreshStackSizes(SC.MSP.IsEnabled() and SC.Database:GetGlobalSetting("MSPStatusCheck"), false, true);
+						SC.Options.RefreshStackSizes(
+							false,
+							true
+						);
 					end,
 				},
 				{
@@ -788,7 +808,10 @@ function SippyCup_SettingsMixin:OnLoad()
 						SC.Auras.CancelAllPreExpirationTimers();
 						SC.Items.CancelAllItemTimers(reason);
 						SC.Popups.HideAllRefreshPopups(reason);
-						SC.Options.RefreshStackSizes(SC.MSP.IsEnabled() and SC.Database:GetGlobalSetting("MSPStatusCheck"), false, true);
+						SC.Options.RefreshStackSizes(
+							false,
+							true
+						);
 					end,
 				},
 			}
