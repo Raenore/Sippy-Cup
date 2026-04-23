@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.  
 
+## [0.7.5] - 2026-04-23  
+Minor patch to update the TOC version for Patch 12.0.5. The larger 0.8.0 overhaul is still in development and will be arriving at a later date.  
+
+### Changed  
+- Updated the TOC for Patch 12.0.5.  
+
 ## [0.7.4] - 2026-03-25  
 Minor patch adding select Midnight consumables.  
 
@@ -86,7 +92,8 @@ Given that Sippy Cup never officially supported combat situations, these restric
 ## Full Changelog  
 The complete changelog, including older versions, can always be found on [Sippy Cup's GitHub Wiki](https://github.com/Raenore/Sippy-Cup/wiki/Full-Changelog).  
 
-[unreleased]: https://github.com/Raenore/Sippy-Cup/compare/0.7.4...HEAD
+[unreleased]: https://github.com/Raenore/Sippy-Cup/compare/0.7.5...HEAD
+[0.7.5]: https://github.com/Raenore/Sippy-Cup/compare/0.7.4...0.7.5
 [0.7.4]: https://github.com/Raenore/Sippy-Cup/compare/0.7.3...0.7.4
 [0.7.3]: https://github.com/Raenore/Sippy-Cup/compare/0.7.2...0.7.3
 [0.7.2]: https://github.com/Raenore/Sippy-Cup/compare/0.7.1...0.7.2
