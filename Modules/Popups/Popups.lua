@@ -7,6 +7,26 @@ local Popups = {};
 local L = SC.Localization;
 local SharedMedia = LibStub("LibSharedMedia-3.0");
 
+---@alias PopupReminderBehaviorEnum
+---| 0 -- Disabled
+---| 1 -- IC
+---| 2 -- Smart
+---| 3 -- Always
+
+---@class PopupReminderBehaviorTable
+---@field Disabled 0
+---@field IC 1
+---@field Smart 2
+---@field Always 3
+
+---@type PopupReminderBehaviorTable
+Popups.PopupReminderBehavior = {
+	Disabled = 0,
+	IC = 1,
+	Smart = 2,
+	Always = 3,
+};
+
 Popups.Reason = {
 	ADDITION = 0,
 	REMOVAL = 1,
@@ -730,6 +750,10 @@ local pendingCalls = {};
 ---@return nil
 function Popups.QueuePopupAction(data, caller)
 	SC.Utils.Log("DEBUG", "QueuePopupAction -", caller);
+	local PopupReminderBehavior = SC.Database:GetGlobalSetting("PopupReminderBehavior");
+	if PopupReminderBehavior == SC.Popups.PopupReminderBehavior.Disabled then
+		return;
+	end
 
 	-- Bail out entirely when in PvP Matches, we do not show popups.
 	if SC.Globals.States.pvpMatch then
@@ -737,7 +761,7 @@ function Popups.QueuePopupAction(data, caller)
 	end
 
 	-- If MSP status checks are on and the character is currently OOC, we skip everything.
-	if SC.MSP.IsEnabled() and SC.Database:GetGlobalSetting("MSPStatusCheck") then
+	if SC.MSP.IsEnabled() and PopupReminderBehavior == Popups.PopupReminderBehavior.IC then
 		local _, _, isIC = SC.MSP.CheckRPStatus();
 		if not isIC then
 			return;
