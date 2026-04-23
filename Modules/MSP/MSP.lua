@@ -51,7 +51,7 @@ function MSP.EnableIfAvailable()
 	if not MSP._callbackRegistered then
 		table.insert(msp.callback["updated"], function(senderID)
 			-- If MSP status checks are off, don't do anything, or if the addon is not ready.
-			if not SC.Database:GetGlobalSetting("MSPStatusCheck") or not SC.Globals.States.addonReady then
+			if SC.Database:GetGlobalSetting("PopupReminderBehavior") ~= SC.Popups.PopupReminderBehavior.IC or not SC.Globals.States.addonReady then
 				return;
 			end
 
@@ -72,7 +72,7 @@ function MSP.EnableIfAvailable()
 			if MSP.FullName == senderID then
 				if isIC then
 					-- Handle IC update, we check if all their enabled (even inactive ones) option stack sizes are in order.
-					SC.Options.RefreshStackSizes(true);
+					SC.Options.RefreshStackSizes();
 				else
 					-- Handle OOC update, we remove all popups.
 					SC.Popups.HideAllRefreshPopups();

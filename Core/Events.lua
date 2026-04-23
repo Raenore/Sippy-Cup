@@ -4,12 +4,6 @@
 ---@class SippyCupEvents : Frame
 local Events = CreateFrame("Frame");
 
----RefreshStackSizes Helper to refresh stack sizes with MSP-aware logic.
----@return nil
-local function refreshStackSizes()
-	SC.Options.RefreshStackSizes(SC.MSP.IsEnabled() and SC.Database:GetGlobalSetting("MSPStatusCheck"));
-end
-
 ---EnableRefreshButtonsForCast Re-enables disabled refresh buttons for a given cast spell.
 ---@param spellID number
 ---@return nil
@@ -67,7 +61,7 @@ local function OnLoadingScreenEnded()
 	if leftPvpMatch then
 		SC.Globals.States.pvpMatch = false;
 		SC.Popups.HandleDeferredActions(SC.Popups.BlockReason.COMBAT);
-		refreshStackSizes();
+		SC.Options.RefreshStackSizes();
 		stacksRefreshed = true;
 	end
 
@@ -139,7 +133,7 @@ function Events:PLAYER_REGEN_ENABLED()
 	SC.Timers:StartContinuousCheck();
 	-- Show 'combat' popups deferred by DeferAllRefreshPopups (reason 1).
 	SC.Popups.HandleDeferredActions(SC.Popups.BlockReason.COMBAT);
-	refreshStackSizes();
+	SC.Options.RefreshStackSizes();
 end
 
 ---PLAYER_ENTERING_WORLD Handles player entering world or UI reload; triggers loading screen end logic if reloading.
@@ -198,6 +192,10 @@ function Events:PLAYER_ENTERING_WORLD(event, isInitialLogin, isReloadingUi)
 			SC.Utils.Write(SC.Localization.WELCOMEMSG_OPTIONS);
 		end
 
+		if SC.Database:GetGlobalSetting("PopupReminderBehavior") == SC.Popups.PopupReminderBehavior.Disabled then
+			SC.Utils.Write(SC.Localization.STARTUPMSG_REMINDER_BEHAVIOR_DISABLED);
+		end
+
 		SC.Globals.States.addonReady = true;
 
 		-- ZONE_CHANGED_NEW_AREA fires on isInitialLogin, but not on isReloadingUi
@@ -205,7 +203,7 @@ function Events:PLAYER_ENTERING_WORLD(event, isInitialLogin, isReloadingUi)
 			-- Reloading fires PLAYER_ENTERING_WORLD when reload is done, data is fine.
 			local stacksRefreshed = OnLoadingScreenEnded();
 			if not stacksRefreshed then
-				refreshStackSizes();
+				SC.Options.RefreshStackSizes();
 			end
 		end
 	end
@@ -222,7 +220,7 @@ function Events:ZONE_CHANGED_NEW_AREA(event)
 	SC.Utils.Log("INFO", event);
 	local stacksRefreshed = OnLoadingScreenEnded();
 	if not stacksRefreshed then
-		refreshStackSizes();
+		SC.Options.RefreshStackSizes();
 	end
 end
 
@@ -252,7 +250,7 @@ function Events:ADDON_RESTRICTION_STATE_CHANGED(_, type, state) -- luacheck: no 
 		SC.Timers:StartContinuousCheck();
 		SC.Popups.HandleDeferredActions(SC.Popups.BlockReason.COMBAT);
 		-- We also fire a refresh, because in BGs/combat options might have changed.
-		refreshStackSizes();
+		SC.Options.RefreshStackSizes();
 	end
 end
 
