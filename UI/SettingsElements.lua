@@ -948,11 +948,12 @@ function SettingsElements.CreateInset(parent, insetData)
 
 	-- Distance from bottom
 	local bottomOffset = 10;
+	local sidesOffset = 20;
 
 	infoInset:SetPoint("BOTTOM", parent, "BOTTOM", 0, bottomOffset);
 
-	infoInset:SetPoint("LEFT", parent, "LEFT", 10, 0);
-	infoInset:SetPoint("RIGHT", parent, "RIGHT", -10, 0);
+	infoInset:SetPoint("LEFT", parent, "LEFT", sidesOffset, 0);
+	infoInset:SetPoint("RIGHT", parent, "RIGHT", -sidesOffset, 0);
 	infoInset:SetHeight(75);
 
 	local logo, title, author, version, build, bsky;
