@@ -617,7 +617,6 @@ function SippyCup_SettingsMixin:OnLoad()
 			type = "dropdown",
 			label = SOUND,
 			tooltip = L.OPTIONS_GENERAL_POPUPS_ALERT_SOUND_DESC,
-			align = "right",
 			values = soundList,
 			disabled = function()
 				return not SC.Database:GetGlobalSetting("AlertSound");
