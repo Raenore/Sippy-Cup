@@ -317,31 +317,37 @@ function SettingsElements.CreateTitleWithDescription(parent, titleText, descText
 
 	-- Add the legenda
 	if optionsPage then
-		local function CreateLegendaButton(icon, pointTo, tooltipName, tooltipDesc)
-			local btn = CreateFrame("Button", nil, parent, "UIPanelDynamicResizeButtonTemplate");
+		local function CreateLegendaIcon(icon, pointTo, tooltipName, tooltipDesc)
+			local frame = CreateFrame("Frame", nil, parent);
+			frame:SetSize(16, 16);
+			frame:SetPoint("TOPLEFT", pointTo, "TOPRIGHT", 12, 0);
+			frame:EnableMouse(true);
+			local label = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
+			label:SetAllPoints();
+			label:SetJustifyH("LEFT");
 			if icon:sub(1, 2) == "|T" then
-				btn:SetText(icon);
+				label:SetText(icon);
 			else
-				btn:SetText("|A:" .. icon .. ":16:16|a");
+				label:SetText("|A:" .. icon .. ":16:16|a");
 			end
-			btn:SetWidth(30);
-			btn:SetPoint("TOPLEFT", pointTo, "TOPRIGHT", 5, 0);
-			SC.ElvUI.RegisterSkinnableElement(btn, "button");
-			AttachTooltip(btn, tooltipName, tooltipDesc);
-			return btn;
+			AttachTooltip(frame, tooltipName, tooltipDesc);
+			return frame;
 		end
 
-		local preExpirationButton = CreateFrame("Button", nil, parent, "UIPanelDynamicResizeButtonTemplate");
-		preExpirationButton:SetText("|A:uitools-icon-refresh:16:16|a");
-		preExpirationButton:SetPoint("TOPLEFT", description, "BOTTOMLEFT", 0, -10);
-		preExpirationButton:SetWidth(30);
-		SC.ElvUI.RegisterSkinnableElement(preExpirationButton, "button");
+		local preExpirationButton = CreateFrame("Frame", nil, parent);
+		preExpirationButton:SetSize(16, 16);
+		preExpirationButton:SetPoint("TOPLEFT", description, "BOTTOMLEFT", 8, -10);
+		preExpirationButton:EnableMouse(true);
+		local preExpirationLabel = preExpirationButton:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
+		preExpirationLabel:SetAllPoints();
+		preExpirationLabel:SetJustifyH("LEFT");
+		preExpirationLabel:SetText("|A:uitools-icon-refresh:16:16|a");
 		AttachTooltip(preExpirationButton, L.OPTIONS_LEGENDA_PRE_EXPIRATION_NAME, L.OPTIONS_LEGENDA_PRE_EXPIRATION_DESC);
 
-		local nonRefreshableButton = CreateLegendaButton("uitools-icon-close", preExpirationButton, L.OPTIONS_LEGENDA_NON_REFRESHABLE_NAME, L.OPTIONS_LEGENDA_NON_REFRESHABLE_DESC);
-		local stacksButton = CreateLegendaButton("uitools-icon-plus", nonRefreshableButton, L.OPTIONS_LEGENDA_STACKS_NAME, L.OPTIONS_LEGENDA_STACKS_DESC);
-		local noAuraButton = CreateLegendaButton("uitools-icon-minus", stacksButton, L.OPTIONS_LEGENDA_NO_AURA_NAME, L.OPTIONS_LEGENDA_NO_AURA_DESC);
-		local cooldownMismatchButton = CreateLegendaButton(MISMATCH_ICON, noAuraButton, L.OPTIONS_LEGENDA_COOLDOWN_NAME, L.OPTIONS_LEGENDA_COOLDOWN_DESC); -- luacheck: no unused (cooldownButton)
+		local nonRefreshableButton = CreateLegendaIcon("uitools-icon-close", preExpirationButton, L.OPTIONS_LEGENDA_NON_REFRESHABLE_NAME, L.OPTIONS_LEGENDA_NON_REFRESHABLE_DESC);
+		local stacksButton = CreateLegendaIcon("uitools-icon-plus", nonRefreshableButton, L.OPTIONS_LEGENDA_STACKS_NAME, L.OPTIONS_LEGENDA_STACKS_DESC);
+		local noAuraButton = CreateLegendaIcon("uitools-icon-minus", stacksButton, L.OPTIONS_LEGENDA_NO_AURA_NAME, L.OPTIONS_LEGENDA_NO_AURA_DESC);
+		local cooldownMismatchButton = CreateLegendaIcon(MISMATCH_ICON, noAuraButton, L.OPTIONS_LEGENDA_COOLDOWN_NAME, L.OPTIONS_LEGENDA_COOLDOWN_DESC); -- luacheck: no unused (cooldownMismatchButton)
 	end
 
 	return title, description;
