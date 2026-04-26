@@ -283,7 +283,8 @@ function SippyCup_SettingsMixin:RefreshWidgets()
 							label = type(data.label) == "function" and data.label() or data.label;
 						else
 							if type(values) == "table" then
-								label = values[currentValue];
+								local v = values[currentValue];
+								label = type(v) == "table" and v[1] or v;
 							end
 							if not label then
 								label = type(data.label) == "function" and data.label() or data.label;
@@ -380,33 +381,47 @@ function SippyCup_SettingsMixin:OnLoad()
 			end,
 		},
 		{
-			type = "checkbox",
-			label = L.OPTIONS_GENERAL_MINIMAPBUTTON_NAME,
-			tooltip = L.OPTIONS_GENERAL_MINIMAPBUTTON_DESC,
-			get = function()
-				return not SC.Database:GetGlobalSetting("MinimapButton").Hide;
-			end,
-			set = function(val)
-				-- Update with inversion: save 'Hide' as NOT val
-				local minimapSettings = SC.Database:GetGlobalSetting("MinimapButton");
-				minimapSettings.Hide = not val;
-				SC.Database:SetGlobalSetting("MinimapButton", minimapSettings);
-				SC.Minimap:UpdateMinimapButtons();
-			end,
-		},
-		{
-			type = "checkbox",
-			label = L.OPTIONS_GENERAL_ADDONCOMPARTMENT_NAME,
-			tooltip = L.OPTIONS_GENERAL_ADDONCOMPARTMENT_DESC,
-			get = function()
-				return SC.Database:GetGlobalSetting("MinimapButton").ShowAddonCompartmentButton;
-			end,
-			set = function(val)
-				local minimapSettings = SC.Database:GetGlobalSetting("MinimapButton");
-				minimapSettings.ShowAddonCompartmentButton = val;
-				SC.Database:SetGlobalSetting("MinimapButton", minimapSettings);
-				SC.Minimap:UpdateMinimapButtons();
-			end,
+			type = "dropdown",
+			label = L.OPTIONS_GENERAL_MINIMAP_NAME,
+			tooltip = L.OPTIONS_GENERAL_MINIMAP_DESC,
+			style = "checkbox",
+			buildAdded = "0.8.0|120005",
+			values = {
+				["MINIMAPBUTTON"] = {
+					L.OPTIONS_GENERAL_MINIMAPBUTTON_NAME,
+					L.OPTIONS_GENERAL_MINIMAPBUTTON_DESC,
+					function()
+						return not SC.Database:GetGlobalSetting("MinimapButton").Hide;
+					end,
+					function(val)
+						-- Update with inversion: save 'Hide' as NOT val
+						local minimapSettings = SC.Database:GetGlobalSetting("MinimapButton");
+						minimapSettings.Hide = not val;
+						SC.Database:SetGlobalSetting("MinimapButton", minimapSettings);
+						SC.Minimap:UpdateMinimapButtons();
+					end,
+				},
+				["ADDONCOMPARTMENT"] = {
+					L.OPTIONS_GENERAL_ADDONCOMPARTMENT_NAME,
+					L.OPTIONS_GENERAL_ADDONCOMPARTMENT_DESC,
+					function()
+						return SC.Database:GetGlobalSetting("MinimapButton").ShowAddonCompartmentButton;
+					end,
+					function(val)
+						local minimapSettings = SC.Database:GetGlobalSetting("MinimapButton");
+						minimapSettings.ShowAddonCompartmentButton = val;
+						SC.Database:SetGlobalSetting("MinimapButton", minimapSettings);
+						SC.Minimap:UpdateMinimapButtons();
+					end,
+					disabled = function() return SC.Database:GetGlobalSetting("MinimapButton").Hide end,
+				},
+			},
+			sorting = {
+				"MINIMAPBUTTON",
+				"ADDONCOMPARTMENT",
+			},
+			get = function() end,
+			set = function() end,
 		},
 		{
 			type = "checkbox",
@@ -446,7 +461,10 @@ function SippyCup_SettingsMixin:OnLoad()
 			set = function(val)
 				SC.Database:SetGlobalSetting("PreExpirationChecks", val);
 				if val then
-					SC.Options.RefreshStackSizes(SC.MSP.IsEnabled() and SC.Database:GetGlobalSetting("MSPStatusCheck"), false, true);
+					SC.Options.RefreshStackSizes(
+						false,
+						true
+					);
 				else
 					local reason = SC.Popups.Reason.PRE_EXPIRATION;
 					SC.Auras.CancelAllPreExpirationTimers();
@@ -475,7 +493,10 @@ function SippyCup_SettingsMixin:OnLoad()
 				SC.Auras.CancelAllPreExpirationTimers();
 				SC.Items.CancelAllItemTimers(reason);
 				SC.Popups.HideAllRefreshPopups(reason);
-				SC.Options.RefreshStackSizes(SC.MSP.IsEnabled() and SC.Database:GetGlobalSetting("MSPStatusCheck"), false, true);
+				SC.Options.RefreshStackSizes(
+					false,
+					true
+				);
 			end,
 		},
 		{
@@ -515,6 +536,44 @@ function SippyCup_SettingsMixin:OnLoad()
 	};
 
 	self.allWidgets[#self.allWidgets + 1] = SettingsElements.CreateWidgetRowContainer(generalPanel, reminderCheckboxData);
+
+	local refreshWidgetData = {
+		{
+			type = "dropdown",
+			label = L.OPTIONS_GENERAL_REMINDER_BEHAVIOR,
+			tooltip = L.OPTIONS_GENERAL_REMINDER_BEHAVIOR_DESC,
+			buildAdded = "0.8.0|120005",
+			values = {
+				[SC.Popups.PopupReminderBehavior.Disabled] = { L.OPTIONS_GENERAL_REMINDER_BEHAVIOR_DISABLED, L.OPTIONS_GENERAL_REMINDER_BEHAVIOR_DISABLED_DESC },
+				[SC.Popups.PopupReminderBehavior.IC] = { L.OPTIONS_GENERAL_REMINDER_BEHAVIOR_IC, L.OPTIONS_GENERAL_REMINDER_BEHAVIOR_IC_DESC, disabled = function() return not SC.MSP.IsEnabled(); end },
+				[SC.Popups.PopupReminderBehavior.Smart] = { L.OPTIONS_GENERAL_REMINDER_BEHAVIOR_SMART, L.OPTIONS_GENERAL_REMINDER_BEHAVIOR_SMART_DESC },
+				[SC.Popups.PopupReminderBehavior.Always] = { L.OPTIONS_GENERAL_REMINDER_BEHAVIOR_ALWAYS, L.OPTIONS_GENERAL_REMINDER_BEHAVIOR_ALWAYS_DESC },
+			},
+			sorting = {
+				SC.Popups.PopupReminderBehavior.Disabled,
+				SC.Popups.PopupReminderBehavior.IC,
+				SC.Popups.PopupReminderBehavior.Smart,
+				SC.Popups.PopupReminderBehavior.Always
+			},
+			get = function()
+				return SC.Database:GetGlobalSetting("PopupReminderBehavior");
+			end,
+			set = function(val)
+				SC.Database:SetGlobalSetting("PopupReminderBehavior", val);
+				if val == 2 then
+					SC.Popups.HideAllRefreshPopups();
+					return;
+				elseif val == 0 then
+					SC.MSP.CheckRPStatus();
+				end
+				SC.Options.RefreshStackSizes();
+			end,
+		},
+	};
+
+	self.allWidgets[#self.allWidgets + 1] = SettingsElements.CreateWidgetRowContainer(generalPanel, refreshWidgetData);
+
+	SettingsElements.CreateCategoryHeader(generalPanel, L.OPTIONS_GENERAL_LAYOUT_NOTIFICATIONS_HEADER);
 
 	local positionWidgetData = {
 		{
@@ -558,7 +617,6 @@ function SippyCup_SettingsMixin:OnLoad()
 			type = "dropdown",
 			label = SOUND,
 			tooltip = L.OPTIONS_GENERAL_POPUPS_ALERT_SOUND_DESC,
-			align = "right",
 			values = soundList,
 			disabled = function()
 				return not SC.Database:GetGlobalSetting("AlertSound");
@@ -588,33 +646,6 @@ function SippyCup_SettingsMixin:OnLoad()
 	};
 
 	self.allWidgets[#self.allWidgets + 1] = SettingsElements.CreateWidgetRowContainer(generalPanel, alertWidgetData);
-
-	SettingsElements.CreateCategoryHeader(generalPanel, L.OPTIONS_GENERAL_ADDONINTEGRATIONS_HEADER);
-
-	local integrationsWidgetData = {
-		{
-			type = "checkbox",
-			label = L.OPTIONS_GENERAL_MSP_STATUSCHECK_ENABLE,
-			tooltip = L.OPTIONS_GENERAL_MSP_STATUSCHECK_DESC,
-			disabled = function()
-				return not SC.MSP.IsEnabled();
-			end,
-			get = function()
-				return SC.Database:GetGlobalSetting("MSPStatusCheck");
-			end,
-			set = function(val)
-				SC.Database:SetGlobalSetting("MSPStatusCheck", val);
-				SC.MSP.CheckRPStatus();
-				if val then
-					SC.Options.RefreshStackSizes(val);
-				else
-					SC.Popups.HideAllRefreshPopups();
-				end
-			end,
-		},
-	};
-
-	self.allWidgets[#self.allWidgets + 1] = SettingsElements.CreateWidgetRowContainer(generalPanel, integrationsWidgetData);
 
 	local insetData = {
 		{
@@ -749,7 +780,10 @@ function SippyCup_SettingsMixin:OnLoad()
 						SC.Auras.CancelAllPreExpirationTimers();
 						SC.Items.CancelAllItemTimers(reason);
 						SC.Popups.HideAllRefreshPopups(reason);
-						SC.Options.RefreshStackSizes(SC.MSP.IsEnabled() and SC.Database:GetGlobalSetting("MSPStatusCheck"), false, true);
+						SC.Options.RefreshStackSizes(
+							false,
+							true
+						);
 					end,
 				},
 				{
@@ -773,7 +807,10 @@ function SippyCup_SettingsMixin:OnLoad()
 						SC.Auras.CancelAllPreExpirationTimers();
 						SC.Items.CancelAllItemTimers(reason);
 						SC.Popups.HideAllRefreshPopups(reason);
-						SC.Options.RefreshStackSizes(SC.MSP.IsEnabled() and SC.Database:GetGlobalSetting("MSPStatusCheck"), false, true);
+						SC.Options.RefreshStackSizes(
+							false,
+							true
+						);
 					end,
 				},
 			}

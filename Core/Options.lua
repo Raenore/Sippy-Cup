@@ -388,43 +388,61 @@ function Options.Setup(onComplete)
 	end
 end
 
+---ShouldCheckAll Returns whether RefreshStackSizes should process all enabled options.
+---@return boolean
+function Options.ShouldCheckAll()
+	local behavior = SC.Database:GetGlobalSetting("PopupReminderBehavior");
+
+	if behavior == SC.Popups.PopupReminderBehavior.Always then
+		return true;
+	end
+
+	if behavior == SC.Popups.PopupReminderBehavior.IC then
+		return SC.MSP.IsEnabled();
+	end
+
+	-- Smart and Never fall through (default behavior in Options.RefreshStackSizes)
+	return false;
+end
+
+local function GetCooldownStartTime(option)
+	local trackBySpell, trackByItem = Options.ResolveTrackingMethod(option);
+
+	if trackByItem then
+		for _, id in ipairs(option.itemID) do
+			local startTimeSeconds = C_Item.GetItemCooldown(id);
+			if startTimeSeconds and startTimeSeconds > 0 then
+				return startTimeSeconds;
+			end
+		end
+	end
+
+	if trackBySpell then
+		local spellCooldownInfo = C_Spell.GetSpellCooldown(option.auraID);
+		local startTime = spellCooldownInfo and spellCooldownInfo.startTime;
+		if startTime and startTime > 0 then
+			return startTime;
+		end
+	end
+
+	return nil;
+end
+
 Options.refreshStackSizesGeneration = 0;
 
 ---RefreshStackSizes iterates over all enabled Sippy Cup options to set the correct stack sizes (startup / profile change / etc).
----@param checkAll boolean? If true, it will also check the inactive enabled ones.
 ---@param reset boolean? If true, all popups will be reset. Defaults to true
 ---@param preExpireOnly boolean? If true, only handles pre-expirations. Defaults to false
 ---@return nil
-function Options.RefreshStackSizes(checkAll, reset, preExpireOnly)
+function Options.RefreshStackSizes(reset, preExpireOnly)
 	Options.refreshStackSizesGeneration = Options.refreshStackSizesGeneration + 1;
 	local generation = Options.refreshStackSizesGeneration;
 
+	local checkAll = Options.ShouldCheckAll(); -- If true, it will also check the inactive enabled ones.
 	reset = (reset ~= false);
 	preExpireOnly = preExpireOnly or false;
 
-	-- Helper to check cooldown startTime for item or spell trackable
-	local function GetCooldownStartTime(option)
-		local trackBySpell, trackByItem = Options.ResolveTrackingMethod(option);
-
-		if trackByItem then
-			for _, id in ipairs(option.itemID) do
-				local startTimeSeconds = C_Item.GetItemCooldown(id);
-				if startTimeSeconds and startTimeSeconds > 0 then
-					return startTimeSeconds;
-				end
-			end
-		end
-
-		if trackBySpell then
-			local spellCooldownInfo = C_Spell.GetSpellCooldown(option.auraID);
-			local startTime = spellCooldownInfo and spellCooldownInfo.startTime;
-			if startTime and startTime > 0 then
-				return startTime;
-			end
-		end
-
-		return nil;
-	end
+	if SC.Globals.States.loadingScreen then return; end
 
 	-- Reset timers and popups
 	SC.Auras.CancelAllPreExpirationTimers();
@@ -445,35 +463,47 @@ function Options.RefreshStackSizes(checkAll, reset, preExpireOnly)
 		if generation ~= Options.refreshStackSizesGeneration then return; end;
 
 		local auraID = profileOptionData.aura;
-		local auraInfo = GetPlayerAuraBySpellID(auraID);
 		local optionData = ByAuraID[auraID];
-		local startTime = GetCooldownStartTime(optionData);
-		local active = startTime ~= nil;
+		local auraInfo = GetPlayerAuraBySpellID(auraID);
 
-		if not SC.Globals.States.loadingScreen then
-			local preExpireFired;
-			if profileOptionData.untrackableByAura then
-				preExpireFired = SC.Items.CheckNoAuraSingleOption(profileOptionData, auraID, nil, startTime);
-			else
-				preExpireFired = SC.Auras.CheckPreExpirationForSingleOption(profileOptionData, nil);
-			end
+		local startTime;
+		local active;
 
-			if not preExpireFired and not preExpireOnly then
-				local data = {
-					active = auraInfo and true or active,
+		if auraInfo then
+			active = true;
+		else
+			startTime = GetCooldownStartTime(optionData);
+			active = startTime ~= nil;
+		end
+
+		local preExpireFired;
+		if profileOptionData.untrackableByAura then
+			preExpireFired = SC.Items.CheckNoAuraSingleOption(profileOptionData, auraID, nil, startTime);
+		else
+			preExpireFired = SC.Auras.CheckPreExpirationForSingleOption(profileOptionData, nil);
+		end
+
+		if not preExpireFired and not preExpireOnly then
+			if active then -- SMART
+				SC.Popups.QueuePopupAction({
+					active = true,
 					auraID = auraID,
 					auraInfo = auraInfo,
 					optionData = optionData,
 					profileOptionData = profileOptionData,
-				};
-				if auraInfo or active then
-					data.reason = SC.Popups.Reason.ADDITION;
-					SC.Popups.QueuePopupAction(data, "RefreshStackSizes - active");
-				elseif checkAll then
-					data.reason = SC.Popups.Reason.REMOVAL;
-					SC.Popups.QueuePopupAction(data, "RefreshStackSizes - checkAll (inactive)");
-				end
+					reason = SC.Popups.Reason.ADDITION,
+				}, "RefreshStackSizes - active");
+			elseif checkAll then -- IC (with MSP enabled) and ALWAYS
+				SC.Popups.QueuePopupAction({
+					active = false,
+					auraID = auraID,
+					auraInfo = auraInfo,
+					optionData = optionData,
+					profileOptionData = profileOptionData,
+					reason = SC.Popups.Reason.REMOVAL,
+				}, "RefreshStackSizes - checkAll (inactive)");
 			end
+			-- NEVER is tossed
 		end
 	end
 end
@@ -500,9 +530,7 @@ function Options.TestRefreshStackSpam(duration, interval)
 	Options.refreshTestTicker = C_Timer.NewTicker(interval, function()
 		elapsed = elapsed + interval;
 
-		Options.RefreshStackSizes(
-			SC.MSP.IsEnabled() and SC.Database:GetGlobalSetting("MSPStatusCheck")
-		);
+		Options.RefreshStackSizes();
 
 		if elapsed >= duration then
 			Options.refreshTestTicker:Cancel();

@@ -16,9 +16,9 @@ local Database = {};
 ---@field Flyway SIPPYCUPFlyway Database patch versioning and migration tracking.
 ---@field InsufficientReminder boolean Whether to show a reminder if not enough consumables are found.
 ---@field MinimapButton SIPPYCUPMinimapSettings Configuration for the minimap button.
----@field MSPStatusCheck boolean Whether to check MSP OOC status before alerting.
 ---@field NewFeatureNotification boolean Whether to show the new feature notification in the options.
 ---@field PopupPosition string Position of the popup ("TOP", "BOTTOM", etc.).
+---@field PopupReminderBehavior PopupReminderBehaviorEnum The behavior for when stack popups should fire.
 ---@field PreExpirationChecks boolean Whether to perform checks shortly before aura expiration.
 ---@field PreExpirationLeadTimer number Time (in minutes) before a pre-expiration reminder should fire.
 ---@field ProjectionPrismPreExpirationLeadTimer number Time (in minutes) before a projection prism pre-expiration reminder should fire.
@@ -56,9 +56,9 @@ local GLOBAL_DEFAULTS = {
 		Hide = false,
 		ShowAddonCompartmentButton = true,
 	},
-	MSPStatusCheck = true,
 	NewFeatureNotification = true,
 	PopupPosition = "TOP",
+	PopupReminderBehavior = 3, -- ALWAYS
 	PreExpirationChecks = true,
 	PreExpirationLeadTimer = 1,
 	ProjectionPrismPreExpirationLeadTimer = 5,
@@ -562,10 +562,7 @@ function Database:SetProfile(profileName)
 	self:applyProfileSwitch();
 	self:refreshUI();
 
-	SC.Options.RefreshStackSizes(
-		SC.MSP.IsEnabled() and self:GetGlobalSetting("MSPStatusCheck"),
-		false
-	);
+	SC.Options.RefreshStackSizes(false);
 end
 
 ---Creates a new profile and switches to it. If the profile already exists, switches to it.
@@ -638,10 +635,7 @@ function Database:CopyProfile(sourceName)
 	self:applyProfileSwitch();
 	self:refreshUI();
 
-	SC.Options.RefreshStackSizes(
-		SC.MSP.IsEnabled() and self:GetGlobalSetting("MSPStatusCheck"),
-		false
-	);
+	SC.Options.RefreshStackSizes(false);
 
 	return true;
 end
@@ -903,9 +897,9 @@ end
 ---| "Flyway"
 ---| "InsufficientReminder"
 ---| "MinimapButton"
----| "MSPStatusCheck"
 ---| "NewFeatureNotification"
 ---| "PopupPosition"
+---| "PopupReminderBehavior"
 ---| "PreExpirationChecks"
 ---| "PreExpirationLeadTimer"
 ---| "ProjectionPrismPreExpirationLeadTimer"

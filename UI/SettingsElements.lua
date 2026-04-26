@@ -297,11 +297,11 @@ end
 ---@return FontString description The created description font string.
 function SettingsElements.CreateTitleWithDescription(parent, titleText, descText, optionsPage)
 	local title = parent:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge");
-	title:SetPoint("TOPLEFT", 20, -16);
+	title:SetPoint("TOPLEFT", 20, -8);
 	title:SetText(titleText or "");
 
 	if optionsPage then
-		descText = (descText or "") .. L.OPTIONS_TITLE_EXTRA;
+		descText = (descText or "");
 	end
 
 	local realParent = parent;
@@ -317,31 +317,37 @@ function SettingsElements.CreateTitleWithDescription(parent, titleText, descText
 
 	-- Add the legenda
 	if optionsPage then
-		local function CreateLegendaButton(icon, pointTo, tooltipName, tooltipDesc)
-			local btn = CreateFrame("Button", nil, parent, "UIPanelDynamicResizeButtonTemplate");
+		local function CreateLegendaIcon(icon, pointTo, tooltipName, tooltipDesc)
+			local frame = CreateFrame("Frame", nil, parent);
+			frame:SetSize(16, 16);
+			frame:SetPoint("TOPLEFT", pointTo, "TOPRIGHT", 12, 0);
+			frame:EnableMouse(true);
+			local label = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
+			label:SetAllPoints();
+			label:SetJustifyH("LEFT");
 			if icon:sub(1, 2) == "|T" then
-				btn:SetText(icon);
+				label:SetText(icon);
 			else
-				btn:SetText("|A:" .. icon .. ":16:16|a");
+				label:SetText("|A:" .. icon .. ":16:16|a");
 			end
-			btn:SetWidth(30);
-			btn:SetPoint("TOPLEFT", pointTo, "TOPRIGHT", 5, 0);
-			SC.ElvUI.RegisterSkinnableElement(btn, "button");
-			AttachTooltip(btn, tooltipName, tooltipDesc);
-			return btn;
+			AttachTooltip(frame, tooltipName, tooltipDesc);
+			return frame;
 		end
 
-		local preExpirationButton = CreateFrame("Button", nil, parent, "UIPanelDynamicResizeButtonTemplate");
-		preExpirationButton:SetText("|A:uitools-icon-refresh:16:16|a");
-		preExpirationButton:SetPoint("TOPLEFT", description, "BOTTOMLEFT", 0, -10);
-		preExpirationButton:SetWidth(30);
-		SC.ElvUI.RegisterSkinnableElement(preExpirationButton, "button");
+		local preExpirationButton = CreateFrame("Frame", nil, parent);
+		preExpirationButton:SetSize(16, 16);
+		preExpirationButton:SetPoint("TOPLEFT", description, "BOTTOMLEFT", 8, -10);
+		preExpirationButton:EnableMouse(true);
+		local preExpirationLabel = preExpirationButton:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
+		preExpirationLabel:SetAllPoints();
+		preExpirationLabel:SetJustifyH("LEFT");
+		preExpirationLabel:SetText("|A:uitools-icon-refresh:16:16|a");
 		AttachTooltip(preExpirationButton, L.OPTIONS_LEGENDA_PRE_EXPIRATION_NAME, L.OPTIONS_LEGENDA_PRE_EXPIRATION_DESC);
 
-		local nonRefreshableButton = CreateLegendaButton("uitools-icon-close", preExpirationButton, L.OPTIONS_LEGENDA_NON_REFRESHABLE_NAME, L.OPTIONS_LEGENDA_NON_REFRESHABLE_DESC);
-		local stacksButton = CreateLegendaButton("uitools-icon-plus", nonRefreshableButton, L.OPTIONS_LEGENDA_STACKS_NAME, L.OPTIONS_LEGENDA_STACKS_DESC);
-		local noAuraButton = CreateLegendaButton("uitools-icon-minus", stacksButton, L.OPTIONS_LEGENDA_NO_AURA_NAME, L.OPTIONS_LEGENDA_NO_AURA_DESC);
-		local cooldownMismatchButton = CreateLegendaButton(MISMATCH_ICON, noAuraButton, L.OPTIONS_LEGENDA_COOLDOWN_NAME, L.OPTIONS_LEGENDA_COOLDOWN_DESC); -- luacheck: no unused (cooldownButton)
+		local nonRefreshableButton = CreateLegendaIcon("uitools-icon-close", preExpirationButton, L.OPTIONS_LEGENDA_NON_REFRESHABLE_NAME, L.OPTIONS_LEGENDA_NON_REFRESHABLE_DESC);
+		local stacksButton = CreateLegendaIcon("uitools-icon-plus", nonRefreshableButton, L.OPTIONS_LEGENDA_STACKS_NAME, L.OPTIONS_LEGENDA_STACKS_DESC);
+		local noAuraButton = CreateLegendaIcon("uitools-icon-minus", stacksButton, L.OPTIONS_LEGENDA_NO_AURA_NAME, L.OPTIONS_LEGENDA_NO_AURA_DESC);
+		local cooldownMismatchButton = CreateLegendaIcon(MISMATCH_ICON, noAuraButton, L.OPTIONS_LEGENDA_COOLDOWN_NAME, L.OPTIONS_LEGENDA_COOLDOWN_DESC); -- luacheck: no unused (cooldownMismatchButton)
 	end
 
 	return title, description;
@@ -604,7 +610,7 @@ function SettingsElements.CreateConfigDropdown(elementContainer, data)
 
 	local labelText = type(data.label) == "function" and data.label() or data.label;
 
-	if data.style == "button" and widget.Text then
+	if (data.style == "button" or data.style == "checkbox") and widget.Text then
 		widget.Text:SetText(labelText or "");
 	end
 
@@ -641,30 +647,60 @@ function SettingsElements.CreateConfigDropdown(elementContainer, data)
 
 		local entries = {};
 
+		---Unpacks a values entry into (label, desc, getter, setter, disabled), supporting string and {label, desc, getter, setter, disabled = fn} formats.
+		local function unpackValue(v)
+			if type(v) == "table" then
+				return v[1], v[2], v[3], v[4], v.disabled;
+			end
+			return v, nil, nil, nil, nil;
+		end
+
 		if #sorting > 0 then
 			for _, key in ipairs(sorting) do
 				if values[key] then
-					table.insert(entries, {values[key], key});
+					local label, desc, getter, setter, disabled = unpackValue(values[key]);
+					table.insert(entries, {label, key, desc, getter, setter, disabled});
 				end
 			end
 		else
 			local temp = {};
-			for key, label in pairs(values) do
-				table.insert(temp, {key = key, label = label});
+			for key, v in pairs(values) do
+				local label, desc, getter, setter, disabled = unpackValue(v);
+				table.insert(temp, {key = key, label = label, desc = desc, getter = getter, setter = setter, disabled = disabled});
 			end
 			table.sort(temp, function(a, b) return a.label < b.label end);
 			for _, item in ipairs(temp) do
-				table.insert(entries, {item.label, item.key});
+				table.insert(entries, {item.label, item.key, item.desc, item.getter, item.setter, item.disabled});
 			end
 		end
 
 		for _, entry in ipairs(entries) do
-			local label, value = entry[1], entry[2];
+			local label, value, desc, getter, setter, disabled = entry[1], entry[2], entry[3], entry[4], entry[5], entry[6];
 			local dropdownButton;
 			if data.style == "button" then
 				dropdownButton = root:CreateButton(label, SetSelected, value);
+			elseif data.style == "checkbox" then
+				dropdownButton = root:CreateCheckbox(label, getter, function() setter(not getter()); end);
+				dropdownButton:SetResponse(data.dropdownButtonResponse ~= nil and data.dropdownButtonResponse or MenuResponse.Refresh);
 			else
 				dropdownButton = root:CreateRadio(label, IsSelected, SetSelected, value);
+			end
+
+			if disabled then
+				dropdownButton:AddInitializer(function(_, description)
+					description:SetEnabled(not disabled());
+				end);
+			end
+
+			if desc then
+				local function OnTooltipShow(tooltip)
+					local tooltipTitle = MenuUtil.GetElementText(dropdownButton);
+
+					GameTooltip_SetTitle(tooltip, tooltipTitle);
+					GameTooltip_AddNormalLine(tooltip, desc, true);
+				end
+
+				dropdownButton:SetTooltip(OnTooltipShow);
 			end
 
 			if data.gearButton and label ~= "Default" then
@@ -689,7 +725,7 @@ function SettingsElements.CreateConfigDropdown(elementContainer, data)
 			end
 		end
 
-		if data.style == "button" then
+		if data.style == "button" or data.style == "checkbox" then
 			widget:OverrideText(labelText or "");
 		end
 	end);
@@ -918,11 +954,12 @@ function SettingsElements.CreateInset(parent, insetData)
 
 	-- Distance from bottom
 	local bottomOffset = 10;
+	local sidesOffset = 20;
 
 	infoInset:SetPoint("BOTTOM", parent, "BOTTOM", 0, bottomOffset);
 
-	infoInset:SetPoint("LEFT", parent, "LEFT", 10, 0);
-	infoInset:SetPoint("RIGHT", parent, "RIGHT", -10, 0);
+	infoInset:SetPoint("LEFT", parent, "LEFT", sidesOffset, 0);
+	infoInset:SetPoint("RIGHT", parent, "RIGHT", -sidesOffset, 0);
 	infoInset:SetHeight(75);
 
 	local logo, title, author, version, build, bsky;
