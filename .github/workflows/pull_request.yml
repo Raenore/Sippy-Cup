@@ -15,6 +15,7 @@ jobs:
           submodules: recursive
 
       - name: Run Luacheck
+        if: contains(github.event.pull_request.labels.*.name, 'documentation') == false
         uses: nebularg/actions-luacheck@v1
         with:
           args: --no-color -q
@@ -22,6 +23,7 @@ jobs:
           annotate: warning
 
       - name: Run editorconfig-checker
+        if: contains(github.event.pull_request.labels.*.name, 'documentation') == false
         uses: wow-rp-addons/actions-editorconfig-check@v1.0.2
         with:
           args: -no-color
