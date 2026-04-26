@@ -1,0 +1,62 @@
+name: Bug Report
+description: Create a report to help us improve
+title: "[BUG]: "
+labels: ["bug", "needs triage"]
+assignees:
+  - Raenore
+body:
+- type: checkboxes
+  attributes:
+    label: Is there an existing issue for this?
+    description: Please search to see if an issue already exists for the bug you encountered.
+    options:
+    - label: I have searched the existing issues
+      required: true
+- type: textarea
+  attributes:
+    label: Current Behavior
+    description: A concise description of what you're experiencing.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Expected Behavior
+    description: A concise description of what you expected to happen.
+  validations:
+    required: true
+- type: checkboxes
+  attributes:
+    label: Issue checklist
+    description: Please select any applicable options.
+    options:
+      - label: The issue occurs with the latest version of the addon.
+      - label: The issue occurs with Sippy Cup as the only enabled addon.
+      - label: The issue occurs only with other addon(s) enabled (please provide a list).
+- type: textarea
+  attributes:
+    label: Steps To Reproduce
+    description: Steps to reproduce the behavior.
+    placeholder: |
+      1. Go to '...'
+      2. Click on '....'
+      3. Scroll down to '....'
+      4. See error
+  validations:
+    required: true
+- type: upload
+  id: attachments
+  attributes:
+    label: Attach files (logs, screenshots)
+    description: |
+      Upload any relevant files such as error logs or screenshots.
+
+      Error logs: https://www.curseforge.com/wow/addons/bugsack
+      Latest version: https://www.curseforge.com/wow/addons/sippy-cup/files
+  validations:
+    required: false
+- type: textarea
+  attributes:
+    label: Additional context
+    description: Add any extra context about the attached files.
+  validations:
+    required: false
