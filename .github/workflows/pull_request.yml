@@ -4,6 +4,10 @@ on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review] # pull_request default is opened, reopened, synchronize
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
 jobs:
   add-reviews:
     if: github.event.action == 'opened' || github.event.action == 'ready_for_review'
