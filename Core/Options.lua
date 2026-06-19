@@ -260,6 +260,10 @@ Options.Data = {
 
 
 	NewOption{ type = Options.Type.TOY, auraID = 1254376, itemID = 252265, category = "APPEARANCE", cooldownMismatch = true, buildAdded = "0.7.4|120001" }, -- Hexed Potatoad Mucus
+
+	--- 12.0.7
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1299518, itemID = 276374, category = "EFFECT", preExpiration = true, buildAdded = "0.8.0|120007" }, -- Lightveil Rune Reader
+	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1299519, itemID = 276375, category = "EFFECT", preExpiration = true, buildAdded = "0.8.0|120007" }, -- Technomancer's Scrying Matrix
 };
 
 ---ResolveTrackingMethod returns whether to track a given option by spell or item cooldown.
