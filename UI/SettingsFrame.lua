@@ -579,6 +579,11 @@ function SippyCup_SettingsMixin:OnLoad()
 			end,
 			set = function(val)
 				SC.Database:SetGlobalSetting("DisableInCombatInstances", val);
+				if SC.Utils.EvaluateSippyCupRestricted() then
+					SC.Popups.HideAllRefreshPopups();
+				else
+					SC.Options.RefreshStackSizes();
+				end
 			end,
 		},
 	};

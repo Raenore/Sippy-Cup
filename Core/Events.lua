@@ -4,14 +4,6 @@
 ---@class SippyCupEvents : Frame
 local Events = CreateFrame("Frame");
 
-local function shouldCheckCombatInstance()
-	if not SC.Database:GetGlobalSetting("DisableInCombatInstances") then
-		return false;
-	end
-
-	return SC.Utils.IsInCombatInstance();
-end
-
 ---EnableRefreshButtonsForCast Re-enables disabled refresh buttons for a given cast spell.
 ---@param spellID number
 ---@return nil
@@ -46,16 +38,12 @@ local function OnLoadingScreenEnded()
 	SC.Globals.States.loadingScreen = false;
 	local stacksRefreshed = false;
 
-	local inPvp = C_RestrictedActions.IsAddOnRestrictionActive(Enum.AddOnRestrictionType.PvPMatch)
-		or C_PvP.IsActiveBattlefield();
-
 	if not SC.Globals.States.addonReady then
 		return;
 	end
 
 	-- Do nothing when you are on an instanced (if chosen) / PvP-enabled map (Arenas, BGs, etc.)
-	if inPvp or shouldCheckCombatInstance() then
-		SC.Globals.States.inSippyCupRestricted = true;
+	if SC.Utils.EvaluateSippyCupRestricted() then
 		SC.Popups.HideAllRefreshPopups();
 		return;
 	end
@@ -155,11 +143,7 @@ function Events:PLAYER_ENTERING_WORLD(event, isInitialLogin, isReloadingUi)
 		-- Adapt saved variables structures between versions
 		SC.Flyway.ApplyPatches();
 
-		local inPvp = C_RestrictedActions.IsAddOnRestrictionActive(Enum.AddOnRestrictionType.PvPMatch)
-			or C_PvP.IsActiveBattlefield();
-
-		if inPvp or shouldCheckCombatInstance() then
-			SC.Globals.States.inSippyCupRestricted = true;
+		if SC.Utils.EvaluateSippyCupRestricted() then
 			SC.Popups.HideAllRefreshPopups();
 		end
 
@@ -253,7 +237,7 @@ function Events:ADDON_RESTRICTION_STATE_CHANGED(event, type, state) -- luacheck:
 		and not C_PvP.IsActiveBattlefield()
 	then
 		-- Unrestrict when PvP is over and we don't end up in a combat instance (who knows?)
-		if SC.Globals.States.inSippyCupRestricted and not shouldCheckCombatInstance() then
+		if SC.Globals.States.inSippyCupRestricted and not SC.Utils.ShouldCheckCombatInstance() then
 			SC.Globals.States.inSippyCupRestricted = false;
 		end
 

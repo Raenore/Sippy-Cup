@@ -271,4 +271,29 @@ function Utils.IsInCombatInstance()
 	return inInstance and instanceType ~= "neighborhood" and instanceType ~= "interior";
 end
 
+---ShouldCheckCombatInstance returns whether combat instances should currently restrict Sippy Cup, per the DisableInCombatInstances setting.
+---@return boolean shouldCheck True if the setting is enabled and the player is inside a combat instance.
+function Utils.ShouldCheckCombatInstance()
+	if not SC.Database:GetGlobalSetting("DisableInCombatInstances") then
+		return false;
+	end
+
+	return Utils.IsInCombatInstance();
+end
+
+---EvaluateSippyCupRestricted evaluates and updates the current PvP/combat-instance restriction state.
+---@return boolean inSippyCupRestricted True if Sippy Cup is currently restricted (PvP match or, if enabled, a combat instance).
+function Utils.EvaluateSippyCupRestricted()
+	local inPvp = C_RestrictedActions.IsAddOnRestrictionActive(Enum.AddOnRestrictionType.PvPMatch)
+		or C_PvP.IsActiveBattlefield();
+
+	if inPvp or Utils.ShouldCheckCombatInstance() then
+		SC.Globals.States.inSippyCupRestricted = true;
+	else
+		SC.Globals.States.inSippyCupRestricted = false;
+	end
+
+	return SC.Globals.States.inSippyCupRestricted;
+end
+
 SC.Utils = Utils;
