@@ -614,6 +614,18 @@ function SippyCup_SettingsMixin:OnLoad()
 				SC.Database:SetGlobalSetting("PopupPosition", val);
 			end,
 		},
+		{
+			type = "checkbox",
+			label = L.OPTIONS_GENERAL_POPUPS_SHOW_AURA_ICON,
+			tooltip = L.OPTIONS_GENERAL_POPUPS_SHOW_AURA_ICON_DESC,
+			get = function()
+				return SC.Database:GetGlobalSetting("ShowAuraIcon");
+			end,
+			set = function(val)
+				SC.Database:SetGlobalSetting("ShowAuraIcon", val);
+				SC.Options.RefreshStackSizes();
+			end,
+		},
 	};
 
 	self.allWidgets[#self.allWidgets + 1] = SettingsElements.CreateWidgetRowContainer(generalPanel, positionWidgetData);

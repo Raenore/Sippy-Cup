@@ -24,6 +24,7 @@ local Database = {};
 ---@field PreExpirationLeadTimer number Time (in minutes) before a pre-expiration reminder should fire.
 ---@field ProjectionPrismPreExpirationLeadTimer number Time (in minutes) before a projection prism pre-expiration reminder should fire.
 ---@field ReflectingPrismPreExpirationLeadTimer number Time (in minutes) before a reflecting prism pre-expiration reminder should fire.
+---@field ShowAuraIcon boolean Whether to show the aura icon on the right side of the reminder popup.
 ---@field UseToyCooldown boolean Whether to use toy cooldowns for popups instead.
 ---@field WelcomeMessage boolean Whether to display a welcome message on login.
 
@@ -65,6 +66,7 @@ local GLOBAL_DEFAULTS = {
 	PreExpirationLeadTimer = 1,
 	ProjectionPrismPreExpirationLeadTimer = 5,
 	ReflectingPrismPreExpirationLeadTimer = 3,
+	ShowAuraIcon = false,
 	UseToyCooldown = true,
 	WelcomeMessage = true,
 };
@@ -907,6 +909,7 @@ end
 ---| "PreExpirationLeadTimer"
 ---| "ProjectionPrismPreExpirationLeadTimer"
 ---| "ReflectingPrismPreExpirationLeadTimer"
+---| "ShowAuraIcon"
 ---| "UseToyCooldown"
 ---| "WelcomeMessage"
 

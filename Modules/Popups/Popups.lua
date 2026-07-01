@@ -220,7 +220,26 @@ local function CreatePopup(templateType)
 			end);
 		end);
 
+		popup.AuraIcon:SetScript("OnEnter", function(self)
+			local currentPopup = self:GetParent();
+			local data = currentPopup and currentPopup.popupData;
+			if not SC.Database:GetGlobalSetting("ShowAuraIcon") then return; end
+			local auraID = data and data.optionData and data.optionData.auraID;
+			if not auraID then return; end
+
+			local spell = Spell:CreateFromSpellID(auraID);
+			spell:ContinueOnSpellLoad(function()
+				GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+				GameTooltip:SetHyperlink("spell:" .. spell:GetSpellID());
+				GameTooltip:Show();
+			end);
+		end);
+
 		popup.ItemIcon:SetScript("OnLeave", function()
+			GameTooltip:Hide();
+		end);
+
+		popup.AuraIcon:SetScript("OnLeave", function()
 			GameTooltip:Hide();
 		end);
 
@@ -429,6 +448,7 @@ end
 local function UpdatePopupVisuals(popup, data)
 	local optionData = data.optionData;
 	local profileOptionData = data.profileOptionData;
+	local auraID = data and data.optionData and data.optionData.auraID;
 
 	-- Determine which itemID to use for tooltip/icon/cooldown
 	local itemID;
@@ -455,6 +475,13 @@ local function UpdatePopupVisuals(popup, data)
 
 	item:ContinueOnItemLoad(function()
 		local icon = item:GetItemIcon();
+		if SC.Database:GetGlobalSetting("ShowAuraIcon") then
+			local spell = Spell:CreateFromSpellID(auraID);
+			popup.AuraIcon:SetTexture(spell:GetSpellTexture());
+			popup.AuraIcon:Show();
+		else
+			popup.AuraIcon:Hide();
+		end
 		-- If for some reason itemName or itemLink is still not valid by now, pull it again.
 		if not itemName or not itemLink then
 			itemName = item:GetItemName();

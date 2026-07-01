@@ -34,6 +34,13 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 						<Anchor point="LEFT" x="50"/>
 					</Anchors>
 				</Texture>
+				<Texture parentKey="AuraIcon" hidden="true">
+					<Size x="36" y="36"/>
+					<Anchors>
+						<Anchor point="TOP" y="-20"/>
+						<Anchor point="RIGHT" x="-50"/>
+					</Anchors>
+				</Texture>
 				<FontString parentKey="Text" inherits="GameFontNormal" wordwrap="false">
 					<Anchors>
 						<Anchor point="TOP" relativeKey="$parent.Name" relativePoint="BOTTOM" y="-5"/>
@@ -102,6 +109,13 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 					<Anchors>
 						<Anchor point="CENTER"/>
 						<Anchor point="LEFT" x="25"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="AuraIcon" hidden="true">
+					<Size x="36" y="36"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+						<Anchor point="RIGHT" x="-25"/>
 					</Anchors>
 				</Texture>
 				<FontString parentKey="Text" inherits="GameFontNormal" wordwrap="false">
