@@ -164,7 +164,7 @@ SC.Flyway.Patches["2"] = {
 	description = "Strip character-specific keys from profiles, migrate profileKeys to normalized realm format.",
 };
 
-SC.Flyway.Patches["2"] = {
+SC.Flyway.Patches["3"] = {
 	run = function()
 		if not SippyCupDB or not SippyCupDB.global then return; end
 
