@@ -263,6 +263,10 @@ Options.Data = {
 
 	NewOption{ type = Options.Type.TOY, auraID = 261981, itemID = 156871, category = "EFFECT", preExpiration = true, buildAdded = "0.8.0|120005" }, -- Spitzy
 
+	--- BFA Timewalking
+	NewOption{ type = Options.Type.TOY, auraID = 1240406, itemID = 246227, category = "APPEARANCE", preExpiration = true, buildAdded = "0.8.0|120007" }, -- Lightning Mother's Gaze (Lightning-Blessed Spire)
+	NewOption{ type = Options.Type.TOY, auraID = 1240091, itemID = 245942, category = "APPEARANCE", preExpiration = true, buildAdded = "0.8.0|120007" }, -- Darkened Waters (Sea-Blessed Shrine)
+
 	--- 12.0.7
 	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1299518, itemID = 276374, category = "EFFECT", preExpiration = true, buildAdded = "0.8.0|120007" }, -- Lightveil Rune Reader
 	NewOption{ type = Options.Type.CONSUMABLE, auraID = 1299519, itemID = 276375, category = "EFFECT", preExpiration = true, buildAdded = "0.8.0|120007" }, -- Technomancer's Scrying Matrix
