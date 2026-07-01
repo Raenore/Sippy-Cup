@@ -168,10 +168,10 @@ SC.Flyway.Patches["3"] = {
 	run = function()
 		if not SippyCupDB or not SippyCupDB.global then return; end
 
+		-- MSPStatusCheck is nil when it is true (as we only save minimal diffs)
 		local stored = SippyCupDB.global.MSPStatusCheck;
-		if stored == nil then return; end
 
-		if stored == true then
+		if not stored then
 			SC.Database:SetGlobalSetting("PopupReminderBehavior", SC.Popups.PopupReminderBehavior.IC);
 		elseif stored == false then
 			SC.Database:SetGlobalSetting("PopupReminderBehavior", SC.Popups.PopupReminderBehavior.Smart);
