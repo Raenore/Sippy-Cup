@@ -180,5 +180,5 @@ SC.Flyway.Patches["3"] = {
 		SippyCupDB.global.MSPStatusCheck = nil;
 	end,
 
-	description = "Deprecate MSPStatusCheck in favor of PopupReminderBehavior, true becomes 0 (default) and false becomes 1.",
+	description = "Deprecate MSPStatusCheck in favor of PopupReminderBehavior, true becomes 1 (IC) and false becomes 2 (Smart).",
 };
