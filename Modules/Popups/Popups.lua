@@ -36,9 +36,11 @@ Popups.Reason = {
 };
 
 Popups.BlockReason = {
-	BAG     = "bag",
-	COMBAT  = "combat",
-	LOADING = "loading",
+	BAG        = "bag",
+	COMBAT     = "combat",
+	LOADING    = "loading",
+	INSTANCED  = "instanced", -- unused for now
+	RESTRICTED = "restricted", -- unused for now
 };
 
 ---PlayPopupSound plays the chosen alert sound during a popup.
