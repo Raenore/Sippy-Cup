@@ -68,6 +68,9 @@ L = {
 	OPTIONS_GENERAL_REMINDER_BEHAVIOR_ALWAYS = "Always (All Options)",
 	OPTIONS_GENERAL_REMINDER_BEHAVIOR_ALWAYS_DESC = "Triggers reminder popups for every enabled option, regardless of whether it is currently active.|n|n|cnWARNING_FONT_COLOR:Note: This can be very frequent as it evaluates every configured option.|r",
 
+	OPTIONS_GENERAL_REMINDER_DISABLE_COMBAT_INSTANCE = "Disable in Combat Instances",
+	OPTIONS_GENERAL_REMINDER_DISABLE_COMBAT_INSTANCE_DESC = "Combat instances (Dungeons, Raids, etc.) can hide aura information necessary for tracking consumables and toys, making these zones officially unsupported.|n|n|cnWARNING_FONT_COLOR:Note: Issues with popup reminders occurring in these zones while this setting is turned off will not be fixed.|r",
+
 	OPTIONS_GENERAL_LAYOUT_NOTIFICATIONS_HEADER = "Layout & Notifications",
 	OPTIONS_GENERAL_POPUPS_POSITION_NAME = "Position",
 	OPTIONS_GENERAL_POPUPS_POSITION_DESC = "Select where reminder popups appear on your screen.",

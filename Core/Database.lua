@@ -12,6 +12,7 @@ local Database = {};
 ---@field AlertSound boolean Whether alert sound is enabled.
 ---@field AlertSoundID string The sound ID to play for alerts.
 ---@field DebugLevel integer Level of debug output.
+---@field DisableInCombatInstances boolean Whether Sippy Cup should ignore Combat Instances.
 ---@field FlashTaskbar boolean Whether to flash the taskbar on alerts.
 ---@field Flyway SIPPYCUPFlyway Database patch versioning and migration tracking.
 ---@field InsufficientReminder boolean Whether to show a reminder if not enough consumables are found.
@@ -46,6 +47,7 @@ local GLOBAL_DEFAULTS = {
 	AlertSound = true,
 	AlertSoundID = "fx_ship_bell_chime_02",
 	DebugLevel = SC.Globals.LogLevels.INFO,
+	DisableInCombatInstances = true,
 	FlashTaskbar = true,
 	Flyway = {
 		CurrentBuild = 0,
@@ -893,6 +895,7 @@ end
 ---| "AlertSound"
 ---| "AlertSoundID"
 ---| "DebugLevel"
+---| "DisableInCombatInstances"
 ---| "FlashTaskbar"
 ---| "Flyway"
 ---| "InsufficientReminder"

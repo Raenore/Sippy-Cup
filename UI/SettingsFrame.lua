@@ -569,6 +569,18 @@ function SippyCup_SettingsMixin:OnLoad()
 				SC.Options.RefreshStackSizes();
 			end,
 		},
+		{
+			type = "checkbox",
+			label = L.OPTIONS_GENERAL_REMINDER_DISABLE_COMBAT_INSTANCE,
+			tooltip = L.OPTIONS_GENERAL_REMINDER_DISABLE_COMBAT_INSTANCE_DESC,
+			buildAdded = "0.8.0|120007",
+			get = function()
+				return SC.Database:GetGlobalSetting("DisableInCombatInstances");
+			end,
+			set = function(val)
+				SC.Database:SetGlobalSetting("DisableInCombatInstances", val);
+			end,
+		},
 	};
 
 	self.allWidgets[#self.allWidgets + 1] = SettingsElements.CreateWidgetRowContainer(generalPanel, refreshWidgetData);

@@ -264,4 +264,11 @@ function Utils.GetUnitName()
 	return nil;
 end
 
+---IsInCombatInstance returns whether the player is inside a combat-relevant instance.
+---@return boolean inCombatInstance True if inside an instance other than a neighborhood or interior.
+function Utils.IsInCombatInstance()
+	local inInstance, instanceType = IsInInstance();
+	return inInstance and instanceType ~= "neighborhood" and instanceType ~= "interior";
+end
+
 SC.Utils = Utils;

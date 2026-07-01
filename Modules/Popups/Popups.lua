@@ -639,8 +639,8 @@ end
 ---@param enabled boolean Whether the option tracking is enabled or disabled.
 ---@return nil
 function Popups.Toggle(itemName, auraID, enabled)
-	-- Bail out entirely when in PvP Matches, we do not show popups.
-	if SC.Globals.States.pvpMatch then
+	-- Bail out entirely when in instanced content (if chosen) & PvP Matches, we do not show popups.
+	if SC.Globals.States.inSippyCupRestricted then
 		return;
 	end
 
@@ -755,8 +755,8 @@ function Popups.QueuePopupAction(data, caller)
 		return;
 	end
 
-	-- Bail out entirely when in PvP Matches, we do not show popups.
-	if SC.Globals.States.pvpMatch then
+	-- Bail out entirely when in instanced content (if chosen) & PvP Matches, we do not show popups.
+	if SC.Globals.States.inSippyCupRestricted then
 		return;
 	end
 

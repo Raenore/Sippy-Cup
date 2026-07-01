@@ -55,8 +55,8 @@ function MSP.EnableIfAvailable()
 				return;
 			end
 
-			-- If in combat, set MSP.IC but don't handle anything else.
-			if InCombatLockdown() or SC.Globals.States.pvpMatch then
+			-- If in instanced content (if chosen) or combat, set MSP.IC but don't handle anything else.
+			if InCombatLockdown() or SC.Globals.States.inSippyCupRestricted then
 				MSP.CheckRPStatus();
 				return;
 			end

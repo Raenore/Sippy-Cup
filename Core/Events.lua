@@ -4,6 +4,14 @@
 ---@class SippyCupEvents : Frame
 local Events = CreateFrame("Frame");
 
+local function shouldCheckCombatInstance()
+	if not SC.Database:GetGlobalSetting("DisableInCombatInstances") then
+		return false;
+	end
+
+	return SC.Utils.IsInCombatInstance();
+end
+
 ---EnableRefreshButtonsForCast Re-enables disabled refresh buttons for a given cast spell.
 ---@param spellID number
 ---@return nil
@@ -45,9 +53,9 @@ local function OnLoadingScreenEnded()
 		return;
 	end
 
-	-- Do nothing when you are on a PvP-enabled map (Arenas, BGs, etc.)
-	if inPvp then
-		SC.Globals.States.pvpMatch = true;
+	-- Do nothing when you are on an instanced (if chosen) / PvP-enabled map (Arenas, BGs, etc.)
+	if inPvp or shouldCheckCombatInstance() then
+		SC.Globals.States.inSippyCupRestricted = true;
 		SC.Popups.HideAllRefreshPopups();
 		return;
 	end
@@ -55,11 +63,11 @@ local function OnLoadingScreenEnded()
 	SC.Timers:StartContinuousCheck();
 	SC.Popups.HandleDeferredActions(SC.Popups.BlockReason.LOADING);
 
-	local leftPvpMatch = SC.Globals.States.pvpMatch;
+	local leftRestricted = SC.Globals.States.inSippyCupRestricted;
 
-	-- If we just came out of a PvP-enabled map, show deferred popups and refresh stacks.
-	if leftPvpMatch then
-		SC.Globals.States.pvpMatch = false;
+	-- If we just came out of an instanced (if chosen) / PvP-enabled map, show deferred popups and refresh stacks.
+	if leftRestricted then
+		SC.Globals.States.inSippyCupRestricted = false;
 		SC.Popups.HandleDeferredActions(SC.Popups.BlockReason.COMBAT);
 		SC.Options.RefreshStackSizes();
 		stacksRefreshed = true;
@@ -112,8 +120,8 @@ Events:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", "player");
 
 ---PLAYER_REGEN_DISABLED Stops continuous checks when entering combat and defers all active popups.
 function Events:PLAYER_REGEN_DISABLED()
-	-- PvP Matches don't support most of Sippy Cup's options (aura checking etc.).
-	if SC.Globals.States.pvpMatch then
+	-- Not every situation supports Sippy Cup's options (aura checking etc.).
+	if SC.Globals.States.inSippyCupRestricted then
 		return;
 	end
 
@@ -124,8 +132,8 @@ end
 
 ---PLAYER_REGEN_ENABLED Restarts continuous checks and handles deferred combat actions after leaving combat.
 function Events:PLAYER_REGEN_ENABLED()
-	-- PvP Matches don't support most of Sippy Cup's options (aura checking etc.).
-	if SC.Globals.States.pvpMatch then
+	-- Not every situation supports Sippy Cup's options (aura checking etc.).
+	if SC.Globals.States.inSippyCupRestricted then
 		return;
 	end
 
@@ -150,8 +158,8 @@ function Events:PLAYER_ENTERING_WORLD(event, isInitialLogin, isReloadingUi)
 		local inPvp = C_RestrictedActions.IsAddOnRestrictionActive(Enum.AddOnRestrictionType.PvPMatch)
 			or C_PvP.IsActiveBattlefield();
 
-		if inPvp then
-			SC.Globals.States.pvpMatch = true;
+		if inPvp or shouldCheckCombatInstance() then
+			SC.Globals.States.inSippyCupRestricted = true;
 			SC.Popups.HideAllRefreshPopups();
 		end
 
@@ -230,12 +238,13 @@ function Events:BAG_UPDATE_DELAYED()
 end
 
 ---ADDON_RESTRICTION_STATE_CHANGED Handles PvP match restriction state changes.
-function Events:ADDON_RESTRICTION_STATE_CHANGED(_, type, state) -- luacheck: no unused (type)
+function Events:ADDON_RESTRICTION_STATE_CHANGED(event, type, state) -- luacheck: no unused (type)
+	SC.Utils.Log("INFO", event, type, state);
 	if type == Enum.AddOnRestrictionType.PvPMatch
 		and (state == Enum.AddOnRestrictionState.Activating or state == Enum.AddOnRestrictionState.Active)
 		and C_PvP.IsActiveBattlefield()
 	then
-		SC.Globals.States.pvpMatch = true;
+		SC.Globals.States.inSippyCupRestricted = true;
 
 		SC.Timers:StopContinuousCheck();
 		SC.Popups.HideAllRefreshPopups();
@@ -243,8 +252,9 @@ function Events:ADDON_RESTRICTION_STATE_CHANGED(_, type, state) -- luacheck: no 
 		and state == Enum.AddOnRestrictionState.Inactive
 		and not C_PvP.IsActiveBattlefield()
 	then
-		if SC.Globals.States.pvpMatch then
-			SC.Globals.States.pvpMatch = false;
+		-- Unrestrict when PvP is over and we don't end up in a combat instance (who knows?)
+		if SC.Globals.States.inSippyCupRestricted and not shouldCheckCombatInstance() then
+			SC.Globals.States.inSippyCupRestricted = false;
 		end
 
 		SC.Timers:StartContinuousCheck();
@@ -259,7 +269,7 @@ end
 ---@param unitTarget string Unit affected, automatically "player" through RegisterUnitEvent.
 ---@param updateInfo any Update data passed to aura conversion
 function Events:UNIT_AURA(_, unitTarget, updateInfo) -- luacheck: no unused (unitTarget)
-	if InCombatLockdown() or C_Secrets and C_Secrets.ShouldAurasBeSecret() or SC.Globals.States.pvpMatch then
+	if InCombatLockdown() or C_Secrets and C_Secrets.ShouldAurasBeSecret() or SC.Globals.States.inSippyCupRestricted then
 		return;
 	end
 
