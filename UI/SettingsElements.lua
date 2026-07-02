@@ -323,7 +323,7 @@ function SettingsElements.CreateTitleWithDescription(parent, titleText, descText
 			frame:SetPoint("TOPLEFT", pointTo, "TOPRIGHT", 12, 0);
 			frame:EnableMouse(true);
 			local label = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
-			label:SetAllPoints();
+			label:SetPoint("CENTER", 0, 0);
 			label:SetJustifyH("LEFT");
 			if icon:sub(1, 2) == "|T" then
 				label:SetText(icon);
@@ -339,7 +339,7 @@ function SettingsElements.CreateTitleWithDescription(parent, titleText, descText
 		preExpirationButton:SetPoint("TOPLEFT", description, "BOTTOMLEFT", 8, -10);
 		preExpirationButton:EnableMouse(true);
 		local preExpirationLabel = preExpirationButton:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
-		preExpirationLabel:SetAllPoints();
+		preExpirationLabel:SetPoint("CENTER", 0, 0);
 		preExpirationLabel:SetJustifyH("LEFT");
 		preExpirationLabel:SetText("|A:uitools-icon-refresh:16:16|a");
 		AttachTooltip(preExpirationButton, L.OPTIONS_LEGENDA_PRE_EXPIRATION_NAME, L.OPTIONS_LEGENDA_PRE_EXPIRATION_DESC);
