@@ -14,6 +14,9 @@ Major architectural overhaul focused on codebase modernization, improved stabili
 - Added a dedicated Minimap Options dropdown, gathering all minimap-related settings in one place ([#104](https://github.com/Raenore/Sippy-Cup/pull/104)).  
 
 ### Changed  
+- **Sippy Cup is now licensed under GNU GPLv3** instead of Apache 2.0 (as required by our relicensing process) ([#112](https://github.com/Raenore/Sippy-Cup/pull/112)).   
+  - The core change is that GPLv3 strictly disallows closed-source variants. It ensures the software remains completely free and open for users, while protecting the codebase from being locked behind proprietary walls.
+  - Sippy Cup was made to be forever free and maintained by whoever might take over after me and to achieve that future forks or derivatives should be (legally) required to remain open-source forever.
 - Performed a large-scale internal refactor of the addon’s structure to improve long-term stability and performance ([#103](https://github.com/Raenore/Sippy-Cup/pull/103)).  
 - Updated the addon’s startup sequence to ensure all systems initialize in a more reliable and predictable order during login and area transitions ([#103](https://github.com/Raenore/Sippy-Cup/pull/103)).  
 - Refactored the Settings interface to be more modular, allowing for easier maintenance and future updates to the configuration menu ([#103](https://github.com/Raenore/Sippy-Cup/pull/103)).  
