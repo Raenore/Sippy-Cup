@@ -270,8 +270,12 @@ function Events:UNIT_SPELLCAST_SUCCEEDED(_, unitTarget, _, spellID) -- luacheck:
 	SC.Items.CheckNoAuraSingleOption(nil, spellID);
 end
 
----UNIT_SPELLCAST_RETICLE_CLEAR Re-enables the refresh button if a prism cast was cancelled.
-function Events:UNIT_SPELLCAST_RETICLE_CLEAR(_, unitTarget, _, spellID) -- luacheck: no unused (unitTarget)
+---OnCastCancelledOrInterrupted Re-enables the refresh button if a tracked cast was cancelled or interrupted.
+---@param event string Event name (ignored)
+---@param unitTarget string Unit affected, automatically "player" through RegisterUnitEvent.
+---@param _ any Ignored parameter
+---@param spellID number Spell identifier
+local function OnCastCancelledOrInterrupted(self, event, unitTarget, _, spellID) -- luacheck: no unused (event, unitTarget)
 	if InCombatLockdown() or not canaccessvalue(spellID) then
 		return;
 	end
@@ -279,13 +283,7 @@ function Events:UNIT_SPELLCAST_RETICLE_CLEAR(_, unitTarget, _, spellID) -- luach
 	enableRefreshButtonsForCast(spellID);
 end
 
----UNIT_SPELLCAST_INTERRUPTED Re-enables the refresh button if a prism cast was interrupted.
-function Events:UNIT_SPELLCAST_INTERRUPTED(_, unitTarget, _, spellID) -- luacheck: no unused (unitTarget)
-	if InCombatLockdown() or not canaccessvalue(spellID) then
-		return;
-	end
-
-	enableRefreshButtonsForCast(spellID);
-end
+Events.UNIT_SPELLCAST_RETICLE_CLEAR = OnCastCancelledOrInterrupted;
+Events.UNIT_SPELLCAST_INTERRUPTED = OnCastCancelledOrInterrupted;
 
 SC.Events = Events;
