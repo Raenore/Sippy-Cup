@@ -79,6 +79,14 @@ local function FinishLoadingScreenEnded()
 	end
 end
 
+---ResumeAfterRestriction Restarts continuous checks, handles deferred combat popups, and refreshes stacks.
+---@return nil
+local function ResumeAfterRestriction()
+	SC.Timers:StartContinuousCheck();
+	SC.Popups.HandleDeferredActions(SC.Popups.BlockReason.COMBAT);
+	SC.Options.RefreshStackSizes();
+end
+
 ---Set up event handler to call methods on Events by event name.
 ---Guard here covers all handlers except PLAYER_ENTERING_WORLD.
 Events:SetScript("OnEvent", function(self, event, ...)
@@ -135,10 +143,8 @@ function Events:PLAYER_REGEN_ENABLED()
 	end
 
 	-- Combat is left when regen is enabled.
-	SC.Timers:StartContinuousCheck();
 	-- Show 'combat' popups deferred by DeferAllRefreshPopups (reason 1).
-	SC.Popups.HandleDeferredActions(SC.Popups.BlockReason.COMBAT);
-	SC.Options.RefreshStackSizes();
+	ResumeAfterRestriction();
 end
 
 ---PLAYER_ENTERING_WORLD Handles player entering world or UI reload; triggers loading screen end logic if reloading.
@@ -244,10 +250,8 @@ function Events:ADDON_RESTRICTION_STATE_CHANGED(event, type, state) -- luacheck:
 			SC.Globals.States.inSippyCupRestricted = false;
 		end
 
-		SC.Timers:StartContinuousCheck();
-		SC.Popups.HandleDeferredActions(SC.Popups.BlockReason.COMBAT);
 		-- We also fire a refresh, because in BGs/combat options might have changed.
-		SC.Options.RefreshStackSizes();
+		ResumeAfterRestriction();
 	end
 end
 
