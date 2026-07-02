@@ -1,6 +1,6 @@
 -- Copyright The Sippy Cup Authors
 -- Inspired by Eavesdropper
--- SPDX-License-Identifier: Apache-2.0
+-- SPDX-License-Identifier: GPL-3.0-or-later
 
 local DEFAULT_LOCALE_CODE = "enUS";
 

@@ -1,6 +1,6 @@
 -- Copyright The Sippy Cup Authors
 -- Inspired by Total RP 3
--- SPDX-License-Identifier: Apache-2.0
+-- SPDX-License-Identifier: GPL-3.0-or-later
 
 ---@class SippyCupFlyway
 local Flyway = {};
