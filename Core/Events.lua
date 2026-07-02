@@ -70,6 +70,15 @@ local function OnLoadingScreenEnded()
 	return stacksRefreshed;
 end
 
+---FinishLoadingScreenEnded Runs loading-screen-ended logic, refreshing stacks only if it didn't already happen.
+---@return nil
+local function FinishLoadingScreenEnded()
+	local stacksRefreshed = OnLoadingScreenEnded();
+	if not stacksRefreshed then
+		SC.Options.RefreshStackSizes();
+	end
+end
+
 ---Set up event handler to call methods on Events by event name.
 ---Guard here covers all handlers except PLAYER_ENTERING_WORLD.
 Events:SetScript("OnEvent", function(self, event, ...)
@@ -193,10 +202,7 @@ function Events:PLAYER_ENTERING_WORLD(event, isInitialLogin, isReloadingUi)
 		-- ZONE_CHANGED_NEW_AREA fires on isInitialLogin, but not on isReloadingUi
 		if isReloadingUi then
 			-- Reloading fires PLAYER_ENTERING_WORLD when reload is done, data is fine.
-			local stacksRefreshed = OnLoadingScreenEnded();
-			if not stacksRefreshed then
-				SC.Options.RefreshStackSizes();
-			end
+			FinishLoadingScreenEnded();
 		end
 	end
 end
@@ -210,10 +216,7 @@ end
 ---ZONE_CHANGED_NEW_AREA Handles zone changes and triggers loading screen end logic if needed.
 function Events:ZONE_CHANGED_NEW_AREA(event)
 	SC.Utils.Log("INFO", event);
-	local stacksRefreshed = OnLoadingScreenEnded();
-	if not stacksRefreshed then
-		SC.Options.RefreshStackSizes();
-	end
+	FinishLoadingScreenEnded();
 end
 
 ---BAG_UPDATE_DELAYED Handles delayed bag updates and triggers item update processing.
