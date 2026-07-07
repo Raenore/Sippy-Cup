@@ -4,12 +4,6 @@
 ---@class SippyCupEvents : Frame
 local Events = CreateFrame("Frame");
 
----RefreshStackSizes Helper to refresh stack sizes with MSP-aware logic.
----@return nil
-local function refreshStackSizes()
-	SC.Options.RefreshStackSizes(SC.MSP.IsEnabled() and SC.Database:GetGlobalSetting("MSPStatusCheck"));
-end
-
 ---EnableRefreshButtonsForCast Re-enables disabled refresh buttons for a given cast spell.
 ---@param spellID number
 ---@return nil
@@ -44,16 +38,12 @@ local function OnLoadingScreenEnded()
 	SC.Globals.States.loadingScreen = false;
 	local stacksRefreshed = false;
 
-	local inPvp = C_RestrictedActions.IsAddOnRestrictionActive(Enum.AddOnRestrictionType.PvPMatch)
-		or C_PvP.IsActiveBattlefield();
-
 	if not SC.Globals.States.addonReady then
 		return;
 	end
 
-	-- Do nothing when you are on a PvP-enabled map (Arenas, BGs, etc.)
-	if inPvp then
-		SC.Globals.States.pvpMatch = true;
+	-- Do nothing when you are on an instanced (if chosen) / PvP-enabled map (Arenas, BGs, etc.)
+	if SC.Utils.EvaluateSippyCupRestricted() then
 		SC.Popups.HideAllRefreshPopups();
 		return;
 	end
@@ -61,13 +51,13 @@ local function OnLoadingScreenEnded()
 	SC.Timers:StartContinuousCheck();
 	SC.Popups.HandleDeferredActions(SC.Popups.BlockReason.LOADING);
 
-	local leftPvpMatch = SC.Globals.States.pvpMatch;
+	local leftRestricted = SC.Globals.States.inSippyCupRestricted;
 
-	-- If we just came out of a PvP-enabled map, show deferred popups and refresh stacks.
-	if leftPvpMatch then
-		SC.Globals.States.pvpMatch = false;
+	-- If we just came out of an instanced (if chosen) / PvP-enabled map, show deferred popups and refresh stacks.
+	if leftRestricted then
+		SC.Globals.States.inSippyCupRestricted = false;
 		SC.Popups.HandleDeferredActions(SC.Popups.BlockReason.COMBAT);
-		refreshStackSizes();
+		SC.Options.RefreshStackSizes();
 		stacksRefreshed = true;
 	end
 
@@ -78,6 +68,23 @@ local function OnLoadingScreenEnded()
 	end
 
 	return stacksRefreshed;
+end
+
+---FinishLoadingScreenEnded Runs loading-screen-ended logic, refreshing stacks only if it didn't already happen.
+---@return nil
+local function FinishLoadingScreenEnded()
+	local stacksRefreshed = OnLoadingScreenEnded();
+	if not stacksRefreshed then
+		SC.Options.RefreshStackSizes();
+	end
+end
+
+---ResumeAfterRestriction Restarts continuous checks, handles deferred combat popups, and refreshes stacks.
+---@return nil
+local function ResumeAfterRestriction()
+	SC.Timers:StartContinuousCheck();
+	SC.Popups.HandleDeferredActions(SC.Popups.BlockReason.COMBAT);
+	SC.Options.RefreshStackSizes();
 end
 
 ---Set up event handler to call methods on Events by event name.
@@ -118,8 +125,8 @@ Events:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", "player");
 
 ---PLAYER_REGEN_DISABLED Stops continuous checks when entering combat and defers all active popups.
 function Events:PLAYER_REGEN_DISABLED()
-	-- PvP Matches don't support most of Sippy Cup's options (aura checking etc.).
-	if SC.Globals.States.pvpMatch then
+	-- Not every situation supports Sippy Cup's options (aura checking etc.).
+	if SC.Globals.States.inSippyCupRestricted then
 		return;
 	end
 
@@ -130,16 +137,14 @@ end
 
 ---PLAYER_REGEN_ENABLED Restarts continuous checks and handles deferred combat actions after leaving combat.
 function Events:PLAYER_REGEN_ENABLED()
-	-- PvP Matches don't support most of Sippy Cup's options (aura checking etc.).
-	if SC.Globals.States.pvpMatch then
+	-- Not every situation supports Sippy Cup's options (aura checking etc.).
+	if SC.Globals.States.inSippyCupRestricted then
 		return;
 	end
 
 	-- Combat is left when regen is enabled.
-	SC.Timers:StartContinuousCheck();
 	-- Show 'combat' popups deferred by DeferAllRefreshPopups (reason 1).
-	SC.Popups.HandleDeferredActions(SC.Popups.BlockReason.COMBAT);
-	refreshStackSizes();
+	ResumeAfterRestriction();
 end
 
 ---PLAYER_ENTERING_WORLD Handles player entering world or UI reload; triggers loading screen end logic if reloading.
@@ -153,11 +158,7 @@ function Events:PLAYER_ENTERING_WORLD(event, isInitialLogin, isReloadingUi)
 		-- Adapt saved variables structures between versions
 		SC.Flyway.ApplyPatches();
 
-		local inPvp = C_RestrictedActions.IsAddOnRestrictionActive(Enum.AddOnRestrictionType.PvPMatch)
-			or C_PvP.IsActiveBattlefield();
-
-		if inPvp then
-			SC.Globals.States.pvpMatch = true;
+		if SC.Utils.EvaluateSippyCupRestricted() then
 			SC.Popups.HideAllRefreshPopups();
 		end
 
@@ -198,15 +199,16 @@ function Events:PLAYER_ENTERING_WORLD(event, isInitialLogin, isReloadingUi)
 			SC.Utils.Write(SC.Localization.WELCOMEMSG_OPTIONS);
 		end
 
+		if SC.Database:GetGlobalSetting("PopupReminderBehavior") == SC.Popups.PopupReminderBehavior.Disabled then
+			SC.Utils.Write(SC.Localization.STARTUPMSG_REMINDER_BEHAVIOR_DISABLED);
+		end
+
 		SC.Globals.States.addonReady = true;
 
 		-- ZONE_CHANGED_NEW_AREA fires on isInitialLogin, but not on isReloadingUi
 		if isReloadingUi then
 			-- Reloading fires PLAYER_ENTERING_WORLD when reload is done, data is fine.
-			local stacksRefreshed = OnLoadingScreenEnded();
-			if not stacksRefreshed then
-				refreshStackSizes();
-			end
+			FinishLoadingScreenEnded();
 		end
 	end
 end
@@ -220,10 +222,7 @@ end
 ---ZONE_CHANGED_NEW_AREA Handles zone changes and triggers loading screen end logic if needed.
 function Events:ZONE_CHANGED_NEW_AREA(event)
 	SC.Utils.Log("INFO", event);
-	local stacksRefreshed = OnLoadingScreenEnded();
-	if not stacksRefreshed then
-		refreshStackSizes();
-	end
+	FinishLoadingScreenEnded();
 end
 
 ---BAG_UPDATE_DELAYED Handles delayed bag updates and triggers item update processing.
@@ -232,12 +231,13 @@ function Events:BAG_UPDATE_DELAYED()
 end
 
 ---ADDON_RESTRICTION_STATE_CHANGED Handles PvP match restriction state changes.
-function Events:ADDON_RESTRICTION_STATE_CHANGED(_, type, state) -- luacheck: no unused (type)
+function Events:ADDON_RESTRICTION_STATE_CHANGED(event, type, state) -- luacheck: no unused (type)
+	SC.Utils.Log("INFO", event, type, state);
 	if type == Enum.AddOnRestrictionType.PvPMatch
 		and (state == Enum.AddOnRestrictionState.Activating or state == Enum.AddOnRestrictionState.Active)
 		and C_PvP.IsActiveBattlefield()
 	then
-		SC.Globals.States.pvpMatch = true;
+		SC.Globals.States.inSippyCupRestricted = true;
 
 		SC.Timers:StopContinuousCheck();
 		SC.Popups.HideAllRefreshPopups();
@@ -245,14 +245,13 @@ function Events:ADDON_RESTRICTION_STATE_CHANGED(_, type, state) -- luacheck: no 
 		and state == Enum.AddOnRestrictionState.Inactive
 		and not C_PvP.IsActiveBattlefield()
 	then
-		if SC.Globals.States.pvpMatch then
-			SC.Globals.States.pvpMatch = false;
+		-- Unrestrict when PvP is over and we don't end up in a combat instance (who knows?)
+		if SC.Globals.States.inSippyCupRestricted and not SC.Utils.ShouldCheckCombatInstance() then
+			SC.Globals.States.inSippyCupRestricted = false;
 		end
 
-		SC.Timers:StartContinuousCheck();
-		SC.Popups.HandleDeferredActions(SC.Popups.BlockReason.COMBAT);
 		-- We also fire a refresh, because in BGs/combat options might have changed.
-		refreshStackSizes();
+		ResumeAfterRestriction();
 	end
 end
 
@@ -261,7 +260,7 @@ end
 ---@param unitTarget string Unit affected, automatically "player" through RegisterUnitEvent.
 ---@param updateInfo any Update data passed to aura conversion
 function Events:UNIT_AURA(_, unitTarget, updateInfo) -- luacheck: no unused (unitTarget)
-	if InCombatLockdown() or C_Secrets and C_Secrets.ShouldAurasBeSecret() or SC.Globals.States.pvpMatch then
+	if InCombatLockdown() or C_Secrets and C_Secrets.ShouldAurasBeSecret() or SC.Globals.States.inSippyCupRestricted then
 		return;
 	end
 
@@ -278,8 +277,12 @@ function Events:UNIT_SPELLCAST_SUCCEEDED(_, unitTarget, _, spellID) -- luacheck:
 	SC.Items.CheckNoAuraSingleOption(nil, spellID);
 end
 
----UNIT_SPELLCAST_RETICLE_CLEAR Re-enables the refresh button if a prism cast was cancelled.
-function Events:UNIT_SPELLCAST_RETICLE_CLEAR(_, unitTarget, _, spellID) -- luacheck: no unused (unitTarget)
+---OnCastCancelledOrInterrupted Re-enables the refresh button if a tracked cast was cancelled or interrupted.
+---@param event string Event name (ignored)
+---@param unitTarget string Unit affected, automatically "player" through RegisterUnitEvent.
+---@param _ any Ignored parameter
+---@param spellID number Spell identifier
+local function OnCastCancelledOrInterrupted(self, event, unitTarget, _, spellID) -- luacheck: no unused (event, unitTarget)
 	if InCombatLockdown() or not canaccessvalue(spellID) then
 		return;
 	end
@@ -287,13 +290,7 @@ function Events:UNIT_SPELLCAST_RETICLE_CLEAR(_, unitTarget, _, spellID) -- luach
 	enableRefreshButtonsForCast(spellID);
 end
 
----UNIT_SPELLCAST_INTERRUPTED Re-enables the refresh button if a prism cast was interrupted.
-function Events:UNIT_SPELLCAST_INTERRUPTED(_, unitTarget, _, spellID) -- luacheck: no unused (unitTarget)
-	if InCombatLockdown() or not canaccessvalue(spellID) then
-		return;
-	end
-
-	enableRefreshButtonsForCast(spellID);
-end
+Events.UNIT_SPELLCAST_RETICLE_CLEAR = OnCastCancelledOrInterrupted;
+Events.UNIT_SPELLCAST_INTERRUPTED = OnCastCancelledOrInterrupted;
 
 SC.Events = Events;

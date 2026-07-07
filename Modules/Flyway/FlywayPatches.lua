@@ -163,3 +163,22 @@ SC.Flyway.Patches["2"] = {
 
 	description = "Strip character-specific keys from profiles, migrate profileKeys to normalized realm format.",
 };
+
+SC.Flyway.Patches["3"] = {
+	run = function()
+		if not SippyCupDB or not SippyCupDB.global then return; end
+
+		-- MSPStatusCheck is nil when it is true (as we only save minimal diffs)
+		local stored = SippyCupDB.global.MSPStatusCheck;
+
+		if not stored then
+			SC.Database:SetGlobalSetting("PopupReminderBehavior", SC.Popups.PopupReminderBehavior.IC);
+		elseif stored == false then
+			SC.Database:SetGlobalSetting("PopupReminderBehavior", SC.Popups.PopupReminderBehavior.Smart);
+		end
+
+		SippyCupDB.global.MSPStatusCheck = nil;
+	end,
+
+	description = "Deprecate MSPStatusCheck in favor of PopupReminderBehavior, true becomes 1 (IC) and false becomes 2 (Smart).",
+};
