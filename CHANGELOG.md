@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file.  
 
-## [0.8.0] - 2026-08-03 
+## [0.8.1] - 2026-08-03  
+Small hotfix fixing the new feature indicators for the changed options.
+
+### Fixed  
+- Resolved a small issue where new feature indicators would not show up for the 0.8.x changes ([#103](https://github.com/Raenore/Sippy-Cup/pull/103)).  
+
+## [0.8.0] - 2026-08-03  
 Major architectural overhaul focused on codebase modernization, improved stability, and more reliable addon initialization.  
 
 ### Added
