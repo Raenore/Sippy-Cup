@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.  
 
-## [0.8.0] - 2026-04-xx  
+## [0.8.0] - 2026-08-03 
 Major architectural overhaul focused on codebase modernization, improved stability, and more reliable addon initialization.  
 
 ### Added
