@@ -101,7 +101,8 @@ Major patch as we move further into the Midnight pre-patch, with improved Prism 
 ## Full Changelog  
 The complete changelog, including older versions, can always be found on [Sippy Cup's GitHub Wiki](https://github.com/Raenore/Sippy-Cup/wiki/Full-Changelog).  
 
-[unreleased]: https://github.com/Raenore/Sippy-Cup/compare/0.8.0...HEAD
+[unreleased]: https://github.com/Raenore/Sippy-Cup/compare/0.8.1...HEAD
+[0.8.1]: https://github.com/Raenore/Sippy-Cup/compare/0.8.0...0.8.1
 [0.8.0]: https://github.com/Raenore/Sippy-Cup/compare/0.7.4...0.8.0
 [0.7.4]: https://github.com/Raenore/Sippy-Cup/compare/0.7.3...0.7.4
 [0.7.3]: https://github.com/Raenore/Sippy-Cup/compare/0.7.2...0.7.3
