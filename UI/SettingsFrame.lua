@@ -385,7 +385,7 @@ function SippyCup_SettingsMixin:OnLoad()
 			label = L.OPTIONS_GENERAL_MINIMAP_NAME,
 			tooltip = L.OPTIONS_GENERAL_MINIMAP_DESC,
 			style = "checkbox",
-			buildAdded = "0.8.0|120005",
+			buildAdded = "0.8.1|120007",
 			values = {
 				["MINIMAPBUTTON"] = {
 					L.OPTIONS_GENERAL_MINIMAPBUTTON_NAME,
@@ -542,7 +542,7 @@ function SippyCup_SettingsMixin:OnLoad()
 			type = "dropdown",
 			label = L.OPTIONS_GENERAL_REMINDER_BEHAVIOR,
 			tooltip = L.OPTIONS_GENERAL_REMINDER_BEHAVIOR_DESC,
-			buildAdded = "0.8.0|120005",
+			buildAdded = "0.8.1|120007",
 			values = {
 				[SC.Popups.PopupReminderBehavior.Disabled] = { L.OPTIONS_GENERAL_REMINDER_BEHAVIOR_DISABLED, L.OPTIONS_GENERAL_REMINDER_BEHAVIOR_DISABLED_DESC },
 				[SC.Popups.PopupReminderBehavior.IC] = { L.OPTIONS_GENERAL_REMINDER_BEHAVIOR_IC, L.OPTIONS_GENERAL_REMINDER_BEHAVIOR_IC_DESC, disabled = function() return not SC.MSP.IsEnabled(); end },
@@ -573,7 +573,7 @@ function SippyCup_SettingsMixin:OnLoad()
 			type = "checkbox",
 			label = L.OPTIONS_GENERAL_REMINDER_DISABLE_COMBAT_INSTANCE,
 			tooltip = L.OPTIONS_GENERAL_REMINDER_DISABLE_COMBAT_INSTANCE_DESC,
-			buildAdded = "0.8.0|120007",
+			buildAdded = "0.8.1|120007",
 			get = function()
 				return SC.Database:GetGlobalSetting("DisableInCombatInstances");
 			end,
@@ -618,6 +618,7 @@ function SippyCup_SettingsMixin:OnLoad()
 			type = "checkbox",
 			label = L.OPTIONS_GENERAL_POPUPS_SHOW_AURA_ICON,
 			tooltip = L.OPTIONS_GENERAL_POPUPS_SHOW_AURA_ICON_DESC,
+			buildAdded = "0.8.1|120007",
 			get = function()
 				return SC.Database:GetGlobalSetting("ShowAuraIcon");
 			end,

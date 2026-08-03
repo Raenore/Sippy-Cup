@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file.  
 
-## [0.8.0] - 2026-08-03 
+## [0.8.1] - 2026-08-03  
+Small hotfix fixing the new feature indicators for the changed options.
+
+### Fixed  
+- Resolved a small issue where new feature indicators would not show up for the 0.8.x changes ([#103](https://github.com/Raenore/Sippy-Cup/pull/103)).  
+
+## [0.8.0] - 2026-08-03  
 Major architectural overhaul focused on codebase modernization, improved stability, and more reliable addon initialization.  
 
 ### Added
@@ -95,7 +101,8 @@ Major patch as we move further into the Midnight pre-patch, with improved Prism 
 ## Full Changelog  
 The complete changelog, including older versions, can always be found on [Sippy Cup's GitHub Wiki](https://github.com/Raenore/Sippy-Cup/wiki/Full-Changelog).  
 
-[unreleased]: https://github.com/Raenore/Sippy-Cup/compare/0.8.0...HEAD
+[unreleased]: https://github.com/Raenore/Sippy-Cup/compare/0.8.1...HEAD
+[0.8.1]: https://github.com/Raenore/Sippy-Cup/compare/0.8.0...0.8.1
 [0.8.0]: https://github.com/Raenore/Sippy-Cup/compare/0.7.4...0.8.0
 [0.7.4]: https://github.com/Raenore/Sippy-Cup/compare/0.7.3...0.7.4
 [0.7.3]: https://github.com/Raenore/Sippy-Cup/compare/0.7.2...0.7.3
