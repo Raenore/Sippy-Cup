@@ -12,6 +12,12 @@ Major architectural overhaul focused on codebase modernization, improved stabili
 - Added a "Disable in Combat Instances" option (enabled by default), so Sippy Cup stays quiet while you're in a combat-enabled instance ([#104](https://github.com/Raenore/Sippy-Cup/pull/104)).  
 - Added a "Show Aura Icon" option to refresh popups (disabled by default), showing the aura's own icon separately from the consumable/toy's icon. This is handy since a consumable/toy's link doesn't always match the aura it actually grants ([#104](https://github.com/Raenore/Sippy-Cup/pull/104)).  
 - Added a dedicated Minimap Options dropdown, gathering all minimap-related settings in one place ([#104](https://github.com/Raenore/Sippy-Cup/pull/104)).  
+- Added 5 new toys ([#108](https://github.com/Raenore/Sippy-Cup/pull/108), [#110](https://github.com/Raenore/Sippy-Cup/pull/110) and [#111](https://github.com/Raenore/Sippy-Cup/pull/111)):
+  - [Spitzy](https://www.wowhead.com/item=156871)
+  - [Lightning-Blessed Spire](https://www.wowhead.com/item=246227) (BFA TW)
+  - [Sea-Blessed Shrine](https://www.wowhead.com/item=245942) (BFA TW)
+  - [Lightveil Rune Reader](https://www.wowhead.com/item=276374)
+  - [Technomancer's Scrying Matrix](https://www.wowhead.com/item=276375)
 
 ### Changed  
 - **Sippy Cup is now licensed under GNU GPLv3** instead of Apache 2.0 (as required by our relicensing process) ([#112](https://github.com/Raenore/Sippy-Cup/pull/112)).   
