@@ -261,7 +261,7 @@ Options.Data = {
 
 	NewOption{ type = Options.Type.TOY, auraID = 1254376, itemID = 252265, category = "APPEARANCE", cooldownMismatch = true, buildAdded = "0.7.4|120001" }, -- Hexed Potatoad Mucus
 
-	NewOption{ type = Options.Type.TOY, auraID = 261981, itemID = 156871, category = "EFFECT", preExpiration = true, buildAdded = "0.8.0|120005" }, -- Spitzy
+	NewOption{ type = Options.Type.TOY, auraID = 261981, itemID = 156871, category = "EFFECT", preExpiration = true, buildAdded = "0.8.0|120007" }, -- Spitzy
 
 	--- BFA Timewalking
 	NewOption{ type = Options.Type.TOY, auraID = 1240406, itemID = 246227, category = "APPEARANCE", preExpiration = true, buildAdded = "0.8.0|120007" }, -- Lightning Mother's Gaze (Lightning-Blessed Spire)
