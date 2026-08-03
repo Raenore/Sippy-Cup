@@ -15,8 +15,8 @@ local CONTINUOUS_CHECK_INTERVAL = 180.0;
 ---StartContinuousCheck begins repeating timers (3 minutes interval) for pre-expiration aura checks and no-aura item usage, if not in combat.
 ---@return nil
 function Timers:StartContinuousCheck()
-	-- don't run if we're in combat or addon is not loaded fully.
-	if InCombatLockdown() or not SC.Globals.States.addonReady or SC.Globals.States.pvpMatch then
+	-- don't run if we're in instanced content (if chosen), combat or addon is not loaded fully.
+	if InCombatLockdown() or not SC.Globals.States.addonReady or SC.Globals.States.inSippyCupRestricted then
 		return;
 	end
 

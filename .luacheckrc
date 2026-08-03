@@ -452,6 +452,12 @@ stds.wow = {
 			},
 		},
 
+		Spell = {
+			fields = {
+				"CreateFromSpellID",
+			},
+		},
+
 		TimerunningUtil = {
 			fields = {
 				"AddSmallIcon",

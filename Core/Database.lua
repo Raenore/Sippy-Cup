@@ -12,17 +12,19 @@ local Database = {};
 ---@field AlertSound boolean Whether alert sound is enabled.
 ---@field AlertSoundID string The sound ID to play for alerts.
 ---@field DebugLevel integer Level of debug output.
+---@field DisableInCombatInstances boolean Whether Sippy Cup should ignore Combat Instances.
 ---@field FlashTaskbar boolean Whether to flash the taskbar on alerts.
 ---@field Flyway SIPPYCUPFlyway Database patch versioning and migration tracking.
 ---@field InsufficientReminder boolean Whether to show a reminder if not enough consumables are found.
 ---@field MinimapButton SIPPYCUPMinimapSettings Configuration for the minimap button.
----@field MSPStatusCheck boolean Whether to check MSP OOC status before alerting.
 ---@field NewFeatureNotification boolean Whether to show the new feature notification in the options.
 ---@field PopupPosition string Position of the popup ("TOP", "BOTTOM", etc.).
+---@field PopupReminderBehavior PopupReminderBehaviorEnum The behavior for when stack popups should fire.
 ---@field PreExpirationChecks boolean Whether to perform checks shortly before aura expiration.
 ---@field PreExpirationLeadTimer number Time (in minutes) before a pre-expiration reminder should fire.
 ---@field ProjectionPrismPreExpirationLeadTimer number Time (in minutes) before a projection prism pre-expiration reminder should fire.
 ---@field ReflectingPrismPreExpirationLeadTimer number Time (in minutes) before a reflecting prism pre-expiration reminder should fire.
+---@field ShowAuraIcon boolean Whether to show the aura icon on the right side of the reminder popup.
 ---@field UseToyCooldown boolean Whether to use toy cooldowns for popups instead.
 ---@field WelcomeMessage boolean Whether to display a welcome message on login.
 
@@ -46,6 +48,7 @@ local GLOBAL_DEFAULTS = {
 	AlertSound = true,
 	AlertSoundID = "fx_ship_bell_chime_02",
 	DebugLevel = SC.Globals.LogLevels.INFO,
+	DisableInCombatInstances = true,
 	FlashTaskbar = true,
 	Flyway = {
 		CurrentBuild = 0,
@@ -56,13 +59,14 @@ local GLOBAL_DEFAULTS = {
 		Hide = false,
 		ShowAddonCompartmentButton = true,
 	},
-	MSPStatusCheck = true,
 	NewFeatureNotification = true,
 	PopupPosition = "TOP",
+	PopupReminderBehavior = 3, -- ALWAYS
 	PreExpirationChecks = true,
 	PreExpirationLeadTimer = 1,
 	ProjectionPrismPreExpirationLeadTimer = 5,
 	ReflectingPrismPreExpirationLeadTimer = 3,
+	ShowAuraIcon = false,
 	UseToyCooldown = true,
 	WelcomeMessage = true,
 };
@@ -562,10 +566,7 @@ function Database:SetProfile(profileName)
 	self:applyProfileSwitch();
 	self:refreshUI();
 
-	SC.Options.RefreshStackSizes(
-		SC.MSP.IsEnabled() and self:GetGlobalSetting("MSPStatusCheck"),
-		false
-	);
+	SC.Options.RefreshStackSizes(false);
 end
 
 ---Creates a new profile and switches to it. If the profile already exists, switches to it.
@@ -638,10 +639,7 @@ function Database:CopyProfile(sourceName)
 	self:applyProfileSwitch();
 	self:refreshUI();
 
-	SC.Options.RefreshStackSizes(
-		SC.MSP.IsEnabled() and self:GetGlobalSetting("MSPStatusCheck"),
-		false
-	);
+	SC.Options.RefreshStackSizes(false);
 
 	return true;
 end
@@ -899,17 +897,19 @@ end
 ---| "AlertSound"
 ---| "AlertSoundID"
 ---| "DebugLevel"
+---| "DisableInCombatInstances"
 ---| "FlashTaskbar"
 ---| "Flyway"
 ---| "InsufficientReminder"
 ---| "MinimapButton"
----| "MSPStatusCheck"
 ---| "NewFeatureNotification"
 ---| "PopupPosition"
+---| "PopupReminderBehavior"
 ---| "PreExpirationChecks"
 ---| "PreExpirationLeadTimer"
 ---| "ProjectionPrismPreExpirationLeadTimer"
 ---| "ReflectingPrismPreExpirationLeadTimer"
+---| "ShowAuraIcon"
 ---| "UseToyCooldown"
 ---| "WelcomeMessage"
 

@@ -11,6 +11,8 @@
 ---@field playerLoggedIn boolean
 ---@field pvpMatch boolean
 ---@field requiresReinit boolean
+---@field inCombatInstance boolean
+---@field inSippyCupRestricted boolean
 
 ---@class SippyCupLogLevels
 ---@field TRACE integer Extremely verbose internal flow debugging
@@ -66,8 +68,10 @@ SC.Globals = {
 		hasSeenFullUpdate = false,
 		loadingScreen = true,
 		playerLoggedIn = false,
-		pvpMatch = false,
+		pvpMatch = false, -- unused for now, see inSippyCupRestricted
 		requiresReinit = false,
+		inCombatInstance = false, -- unused for now, see inSippyCupRestricted
+		inSippyCupRestricted = false,
 	},
 
 	empty = {},

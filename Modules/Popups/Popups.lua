@@ -7,6 +7,26 @@ local Popups = {};
 local L = SC.Localization;
 local SharedMedia = LibStub("LibSharedMedia-3.0");
 
+---@alias PopupReminderBehaviorEnum
+---| 0 -- Disabled
+---| 1 -- IC
+---| 2 -- Smart
+---| 3 -- Always
+
+---@class PopupReminderBehaviorTable
+---@field Disabled 0
+---@field IC 1
+---@field Smart 2
+---@field Always 3
+
+---@type PopupReminderBehaviorTable
+Popups.PopupReminderBehavior = {
+	Disabled = 0,
+	IC = 1,
+	Smart = 2,
+	Always = 3,
+};
+
 Popups.Reason = {
 	ADDITION = 0,
 	REMOVAL = 1,
@@ -16,9 +36,11 @@ Popups.Reason = {
 };
 
 Popups.BlockReason = {
-	BAG     = "bag",
-	COMBAT  = "combat",
-	LOADING = "loading",
+	BAG        = "bag",
+	COMBAT     = "combat",
+	LOADING    = "loading",
+	INSTANCED  = "instanced", -- unused for now
+	RESTRICTED = "restricted", -- unused for now
 };
 
 ---PlayPopupSound plays the chosen alert sound during a popup.
@@ -198,7 +220,26 @@ local function CreatePopup(templateType)
 			end);
 		end);
 
+		popup.AuraIcon:SetScript("OnEnter", function(self)
+			local currentPopup = self:GetParent();
+			local data = currentPopup and currentPopup.popupData;
+			if not SC.Database:GetGlobalSetting("ShowAuraIcon") then return; end
+			local auraID = data and data.optionData and data.optionData.auraID;
+			if not auraID then return; end
+
+			local spell = Spell:CreateFromSpellID(auraID);
+			spell:ContinueOnSpellLoad(function()
+				GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+				GameTooltip:SetHyperlink("spell:" .. spell:GetSpellID());
+				GameTooltip:Show();
+			end);
+		end);
+
 		popup.ItemIcon:SetScript("OnLeave", function()
+			GameTooltip:Hide();
+		end);
+
+		popup.AuraIcon:SetScript("OnLeave", function()
 			GameTooltip:Hide();
 		end);
 
@@ -407,6 +448,7 @@ end
 local function UpdatePopupVisuals(popup, data)
 	local optionData = data.optionData;
 	local profileOptionData = data.profileOptionData;
+	local auraID = data and data.optionData and data.optionData.auraID;
 
 	-- Determine which itemID to use for tooltip/icon/cooldown
 	local itemID;
@@ -433,6 +475,13 @@ local function UpdatePopupVisuals(popup, data)
 
 	item:ContinueOnItemLoad(function()
 		local icon = item:GetItemIcon();
+		if SC.Database:GetGlobalSetting("ShowAuraIcon") then
+			local spell = Spell:CreateFromSpellID(auraID);
+			popup.AuraIcon:SetTexture(spell:GetSpellTexture());
+			popup.AuraIcon:Show();
+		else
+			popup.AuraIcon:Hide();
+		end
 		-- If for some reason itemName or itemLink is still not valid by now, pull it again.
 		if not itemName or not itemLink then
 			itemName = item:GetItemName();
@@ -619,8 +668,8 @@ end
 ---@param enabled boolean Whether the option tracking is enabled or disabled.
 ---@return nil
 function Popups.Toggle(itemName, auraID, enabled)
-	-- Bail out entirely when in PvP Matches, we do not show popups.
-	if SC.Globals.States.pvpMatch then
+	-- Bail out entirely when in instanced content (if chosen) & PvP Matches, we do not show popups.
+	if SC.Globals.States.inSippyCupRestricted then
 		return;
 	end
 
@@ -730,14 +779,18 @@ local pendingCalls = {};
 ---@return nil
 function Popups.QueuePopupAction(data, caller)
 	SC.Utils.Log("DEBUG", "QueuePopupAction -", caller);
+	local PopupReminderBehavior = SC.Database:GetGlobalSetting("PopupReminderBehavior");
+	if PopupReminderBehavior == SC.Popups.PopupReminderBehavior.Disabled then
+		return;
+	end
 
-	-- Bail out entirely when in PvP Matches, we do not show popups.
-	if SC.Globals.States.pvpMatch then
+	-- Bail out entirely when in instanced content (if chosen) & PvP Matches, we do not show popups.
+	if SC.Globals.States.inSippyCupRestricted then
 		return;
 	end
 
 	-- If MSP status checks are on and the character is currently OOC, we skip everything.
-	if SC.MSP.IsEnabled() and SC.Database:GetGlobalSetting("MSPStatusCheck") then
+	if SC.MSP.IsEnabled() and PopupReminderBehavior == Popups.PopupReminderBehavior.IC then
 		local _, _, isIC = SC.MSP.CheckRPStatus();
 		if not isIC then
 			return;

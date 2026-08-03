@@ -6,7 +6,7 @@
 https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 
 	<Frame name="SippyCup_SettingsMenuTemplate" mixin="SippyCup_SettingsMixin" virtual="true" enableMouse="true" hidden="true" movable="true" clampedToScreen="true" topLevel="true" inherits="ButtonFrameTemplate">
-		<Size x="693" y="595"/>
+		<Size x="693" y="545"/>
 		<Anchors>
 			<Anchor point="CENTER"/>
 		</Anchors>

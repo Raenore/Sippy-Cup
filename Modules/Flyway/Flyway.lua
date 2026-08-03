@@ -5,7 +5,7 @@
 ---@class SippyCupFlyway
 local Flyway = {};
 
-local SCHEMA_VERSION = 2;
+local SCHEMA_VERSION = 3;
 
 local function ApplyPatches(fromBuild, toBuild)
 	local patched = false;
