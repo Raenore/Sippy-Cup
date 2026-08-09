@@ -62,8 +62,13 @@ function SC.ElvUI.SkinRegisteredElements()
 						SkinsModule:HandleButton(child);
 					end
 				end
-				if element.ItemIcon and SkinsModule.HandleIcon then
-					SkinsModule:HandleIcon(element.ItemIcon);
+				if SkinsModule.HandleIcon then
+					if element.ItemIcon then
+						SkinsModule:HandleIcon(element.ItemIcon);
+					end
+					if element.AuraIcon then
+						SkinsModule:HandleIcon(element.AuraIcon);
+					end
 				end
 			elseif skinType == "icon" and SkinsModule.HandleIcon then
 				SkinsModule:HandleIcon(element);
