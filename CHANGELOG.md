@@ -5,8 +5,11 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
-- Added 1 new toy:
+- Added 1 new toy ([#120](https://github.com/Raenore/Sippy-Cup/pull/120)):  
   - [Cursed Badge of the Soulcoilers](https://www.wowhead.com/item=280419)
+
+### Fixed  
+- Fixed ElvUI styling for the popup's new Aura Icon ([#118](https://github.com/Raenore/Sippy-Cup/pull/118)).  
 
 ## [0.8.1] - 2026-08-03  
 Small hotfix fixing the new feature indicators for the changed options.
