@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
-- Added 1 new toy:
+- Added 1 new toy ([#120](https://github.com/Raenore/Sippy-Cup/pull/120)):  
   - [Cursed Badge of the Soulcoilers](https://www.wowhead.com/item=280419)
 
 ### Fixed  
