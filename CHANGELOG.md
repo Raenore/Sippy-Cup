@@ -2,11 +2,15 @@
 
 All notable changes to this project will be documented in this file.  
 
-## [Unreleased]
+## [0.8.2] - 2026-08-12  
+Minor patch adding a new toy, updating support for Patch 12.1.0, and resolving ElvUI integration issues.  
 
 ### Added
 - Added 1 new toy ([#120](https://github.com/Raenore/Sippy-Cup/pull/120)):  
   - [Cursed Badge of the Soulcoilers](https://www.wowhead.com/item=280419)
+
+### Changed  
+- Updated the TOC to support WoW 12.1.0 ([#121](https://github.com/Raenore/Sippy-Cup/pull/121)).  
 
 ### Fixed  
 - Fixed ElvUI styling for the popup's new Aura Icon ([#118](https://github.com/Raenore/Sippy-Cup/pull/118)).  
@@ -110,7 +114,8 @@ Major patch as we move further into the Midnight pre-patch, with improved Prism 
 ## Full Changelog  
 The complete changelog, including older versions, can always be found on [Sippy Cup's GitHub Wiki](https://github.com/Raenore/Sippy-Cup/wiki/Full-Changelog).  
 
-[unreleased]: https://github.com/Raenore/Sippy-Cup/compare/0.8.1...HEAD
+[unreleased]: https://github.com/Raenore/Sippy-Cup/compare/0.8.2...HEAD
+[0.8.2]: https://github.com/Raenore/Sippy-Cup/compare/0.8.1...0.8.2
 [0.8.1]: https://github.com/Raenore/Sippy-Cup/compare/0.8.0...0.8.1
 [0.8.0]: https://github.com/Raenore/Sippy-Cup/compare/0.7.4...0.8.0
 [0.7.4]: https://github.com/Raenore/Sippy-Cup/compare/0.7.3...0.7.4
