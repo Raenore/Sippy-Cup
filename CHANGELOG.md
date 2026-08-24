@@ -39,7 +39,7 @@ Major architectural overhaul focused on codebase modernization, improved stabili
   - [Technomancer's Scrying Matrix](https://www.wowhead.com/item=276375)
 
 ### Changed  
-- **Sippy Cup is now licensed under GNU GPLv3** instead of Apache 2.0 (as required by our relicensing process) ([#112](https://github.com/Raenore/Sippy-Cup/pull/112)).   
+- **Sippy Cup is now licensed under GNU GPLv3** instead of Apache 2.0 (as required by our relicensing process) ([#112](https://github.com/Raenore/Sippy-Cup/pull/112)).  
   - The core change is that GPLv3 strictly disallows closed-source variants. It ensures the software remains completely free and open for users, while protecting the codebase from being locked behind proprietary walls.
   - Sippy Cup was made to be forever free and maintained by whoever might take over after me and to achieve that future forks or derivatives should be (legally) required to remain open-source forever.
 - Performed a large-scale internal refactor of the addon’s structure to improve long-term stability and performance ([#103](https://github.com/Raenore/Sippy-Cup/pull/103)).  
@@ -97,7 +97,7 @@ Major patch as we move further into the Midnight pre-patch, with improved Prism 
 - Proper Prism support! ([#86](https://github.com/Raenore/Sippy-Cup/pull/86))  
   - Both prism types now track properly, unlike the previous implementation.  
   - Both Projecting and Reflecting Prism have separate pre-expiration timers that you can adjust.  
-  - Projection Prism works with all quality variants. It will prioritize Gold, then Silver, and finally Bronze quality.   
+  - Projection Prism works with all quality variants. It will prioritize Gold, then Silver, and finally Bronze quality.  
 - If an option requires a party, this will now be mentioned on the refresh button while it is disabled (until a party is formed).  
 - If an option is channeled and gets interrupted, the button will properly re-enable so you can refresh it again.  
 
