@@ -10,15 +10,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.13'
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.4'
-      - uses: actions/checkout@v6
-        with:
-          submodules: recursive
+      - uses: actions/checkout@v7
+
+      - name: Install validation dependencies
+        run: python -m pip install -r .github/scripts/requirements.txt
 
       - name: Run Luacheck
         id: luacheck
@@ -39,11 +37,17 @@ jobs:
           args: -no-color
           files: $(git ls-files '*.lua' '*.sh' '*.xml' ':!:Locales/*.lua')
 
+      - name: Run XML schema validation
+        id: validate_xml
+        continue-on-error: true
+        run: python .github/scripts/validate_xml.py $(git ls-files '*.xml' ':!:Bindings.xml')
+
       - name: Check lint results
-        if: steps.luacheck.outcome == 'failure' || steps.editorconfig.outcome == 'failure'
+        if: steps.luacheck.outcome == 'failure' || steps.editorconfig.outcome == 'failure' || steps.validate_xml.outcome == 'failure'
         run: |
           echo "Luacheck: ${{ steps.luacheck.outcome }}"
           echo "editorconfig-checker: ${{ steps.editorconfig.outcome }}"
+          echo "XML validation: ${{ steps.validate_xml.outcome }}"
           exit 1
 
       - name: Create Package
@@ -57,3 +61,9 @@ jobs:
           path: .release/
           archive: true
           include-hidden-files: true
+
+      - name: Send Webhook Notification
+        if: failure()
+        uses: ./.github/actions/send-webhook-notification
+        with:
+          webhook-url: ${{ secrets.WEBHOOK_URL }}

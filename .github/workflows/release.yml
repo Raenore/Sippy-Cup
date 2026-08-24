@@ -23,3 +23,9 @@ jobs:
           WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
           GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
           WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
+
+      - name: Send Webhook Notification
+        if: failure()
+        uses: ./.github/actions/send-webhook-notification
+        with:
+          webhook-url: ${{ secrets.WEBHOOK_URL }}
