@@ -223,6 +223,11 @@ function Database:RebuildAuraMap()
 	wipe(self.untrackableByAuraProfile);
 	wipe(self.castAuraToProfile);
 
+	-- Aura data is secret during combat; bail and let the next RefreshStackSizes catch up.
+	if InCombatLockdown() or (C_Secrets and C_Secrets.ShouldAurasBeSecret()) then
+		return;
+	end
+
 	local GetAuraDataByAuraInstanceID = C_UnitAuras.GetAuraDataByAuraInstanceID;
 
 	-- Iterate over all defaults to ensure full merged profile
@@ -320,7 +325,11 @@ function Database:UpdateAuraMapForOption(profileOptionData, enabled)
 		self.auraToProfile[auraID] = profileOptionData;
 		self.castAuraToProfile[castAuraID] = profileOptionData;
 
-		local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(auraID);
+		-- Aura data is secret during combat; skip the query, same guard as RebuildAuraMap.
+		local auraInfo;
+		if not (InCombatLockdown() or (C_Secrets and C_Secrets.ShouldAurasBeSecret())) then
+			auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(auraID);
+		end
 		local instanceID = auraInfo and auraInfo.auraInstanceID;
 
 		profileOptionData.currentInstanceID = instanceID;
