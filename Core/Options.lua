@@ -210,6 +210,10 @@ Options.Data = {
 
 	NewOption{ type = Options.Type.TOY, auraID = 47770, itemID = 36863, category = "EFFECT", itemTrackable = true }, -- Decahedral Dwarven Dice
 
+	-- Shadowlands
+	--- Guise of the Changeling
+	NewOption{ type = Options.Type.TOY, auraID = 356284, itemID = 187155, category = "APPEARANCE", cooldownMismatch = true, buildAdded = "0.8.3|120100" }, -- Guise of the Changeling
+
 	-- Dragonflight
 	--- Ruby Feast
 	NewOption{ type = Options.Type.CONSUMABLE, auraID = 391618, itemID = 200891, category = "EFFECT", preExpiration = true, buildAdded = "0.7.3|120001" }, -- Druidic Dreamsalad
