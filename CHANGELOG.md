@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.  
 
+## [0.8.3] - 2026-09-xx
+Minor patch adding a Shadowlands toy and fixing a minor combat-related issue with secrets.
+
+### Added
+- Added 1 new toy ([#123](https://github.com/Raenore/Sippy-Cup/pull/123)):  
+  - [Guise of the Changeling](https://www.wowhead.com/item=187155)
+
+### Fixed  
+- Fixed a rare issue in relation to secrets in combat, thanks to [TenaarFeiri](https://github.com/TenaarFeiri) for reporting it ([#125](https://github.com/Raenore/Sippy-Cup/pull/125)).  
+
 ## [0.8.2] - 2026-08-12  
 Minor patch adding a new toy, updating support for Patch 12.1.0, and resolving ElvUI integration issues.  
 
