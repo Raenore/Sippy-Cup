@@ -366,6 +366,11 @@ function Auras.CheckAllActiveOptions()
 		return;
 	end
 
+	-- Aura data is secret during combat; bail and let the next RefreshStackSizes catch up.
+	if InCombatLockdown() or (C_Secrets and C_Secrets.ShouldAurasBeSecret()) then
+		return;
+	end
+
 	local GetPlayerAuraBySpellID = C_UnitAuras.GetPlayerAuraBySpellID;
 	local auraToProfile = SC.Database.auraToProfile;
 	local instanceToProfile = SC.Database.instanceToProfile;
