@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.  
 
+## [0.8.3] - 2026-09-12
+Minor patch adding a Shadowlands toy and fixing several issues related to secrets in combat and other hidden-aura moments.
+
+### Added
+- Added 1 new toy ([#123](https://github.com/Raenore/Sippy-Cup/pull/123)):  
+  - [Guise of the Changeling](https://www.wowhead.com/item=187155)
+
+### Fixed  
+- Fixed additional situations involving secrets in combat (and other moments where aura data is hidden, like Challenge Mode) that could cause incorrect tracking or refresh popups, thanks to [TenaarFeiri](https://github.com/TenaarFeiri) for reporting the original issue ([#125](https://github.com/Raenore/Sippy-Cup/pull/125), [#127](https://github.com/Raenore/Sippy-Cup/pull/127), [#128](https://github.com/Raenore/Sippy-Cup/pull/128), [#129](https://github.com/Raenore/Sippy-Cup/pull/129)).  
+
 ## [0.8.2] - 2026-08-12  
 Minor patch adding a new toy, updating support for Patch 12.1.0, and resolving ElvUI integration issues.  
 
@@ -114,7 +124,8 @@ Major patch as we move further into the Midnight pre-patch, with improved Prism 
 ## Full Changelog  
 The complete changelog, including older versions, can always be found on [Sippy Cup's GitHub Wiki](https://github.com/Raenore/Sippy-Cup/wiki/Full-Changelog).  
 
-[unreleased]: https://github.com/Raenore/Sippy-Cup/compare/0.8.2...HEAD
+[unreleased]: https://github.com/Raenore/Sippy-Cup/compare/0.8.3...HEAD
+[0.8.3]: https://github.com/Raenore/Sippy-Cup/compare/0.8.2...0.8.3
 [0.8.2]: https://github.com/Raenore/Sippy-Cup/compare/0.8.1...0.8.2
 [0.8.1]: https://github.com/Raenore/Sippy-Cup/compare/0.8.0...0.8.1
 [0.8.0]: https://github.com/Raenore/Sippy-Cup/compare/0.7.4...0.8.0
