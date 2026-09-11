@@ -920,10 +920,10 @@ function Popups.HandlePopupAction(data, caller)
 
 	-- We defer popups in three situations:
 	-- > Bag data is desynch'd from UNIT_AURA. (Already done).
-	-- > We're in combat.
+	-- > We're in combat (or aura data is otherwise secret, e.g. Challenge Mode).
 	-- > We're in a loading screen.
 	-- This should be handled before any other logic, as there's no point to calculate deferred logic.
-	if InCombatLockdown() then
+	if InCombatLockdown() or (C_Secrets and C_Secrets.ShouldAurasBeSecret()) then
 		deferredActions[#deferredActions + 1] = {
 			data = data,
 			caller = caller,
