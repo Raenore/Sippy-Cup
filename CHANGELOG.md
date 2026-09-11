@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.  
 
-## [0.8.3] - 2026-09-xx
+## [0.8.3] - 2026-09-12
 Minor patch adding a Shadowlands toy and fixing several issues related to secrets in combat and other hidden-aura moments.
 
 ### Added
