@@ -786,12 +786,15 @@ function SippyCup_SettingsMixin:OnLoad()
 		end
 
 		if categoryName == "PRISM" then
-			SettingsElements.CreateCategoryHeader(categoryPanel, SETTINGS);
+			-- Either prism may be pruned (e.g. on Forever).
+			local projectionPrism = SC.Options.ByItemID[193031];
+			local reflectingPrism = SC.Options.ByItemID[112384];
+			local prismWidgetData = {};
 
-			local prismWidgetData = {
-				{
+			if projectionPrism then
+				prismWidgetData[#prismWidgetData + 1] = {
 					type = "slider",
-					label = L.OPTIONS_TAB_PRISM_TIMER:format(SC.Options.ByItemID[193031].name),
+					label = L.OPTIONS_TAB_PRISM_TIMER:format(projectionPrism.name),
 					tooltip = L.OPTIONS_TAB_PRISM_TIMER_TEXT:format(5, 5),
 					buildAdded = "0.7.0|120001",
 					min = 1,
@@ -815,10 +818,13 @@ function SippyCup_SettingsMixin:OnLoad()
 							true
 						);
 					end,
-				},
-				{
+				};
+			end
+
+			if reflectingPrism then
+				prismWidgetData[#prismWidgetData + 1] = {
 					type = "slider",
-					label = L.OPTIONS_TAB_PRISM_TIMER:format(SC.Options.ByItemID[112384].name),
+					label = L.OPTIONS_TAB_PRISM_TIMER:format(reflectingPrism.name),
 					tooltip = L.OPTIONS_TAB_PRISM_TIMER_TEXT:format(3, 3),
 					buildAdded = "0.7.0|120001",
 					min = 1,
@@ -842,13 +848,17 @@ function SippyCup_SettingsMixin:OnLoad()
 							true
 						);
 					end,
-				},
-			}
+				};
+			end
 
-			local widgets = SettingsElements.CreateWidgetRowContainer(categoryPanel, prismWidgetData, 2, 40, 20, true);
+			if #prismWidgetData > 0 then
+				SettingsElements.CreateCategoryHeader(categoryPanel, SETTINGS);
 
-			self.profileWidgets[#self.profileWidgets + 1] = widgets;
-			self.allWidgets[#self.allWidgets + 1] = widgets;
+				local widgets = SettingsElements.CreateWidgetRowContainer(categoryPanel, prismWidgetData, 2, 40, 20, true);
+
+				self.profileWidgets[#self.profileWidgets + 1] = widgets;
+				self.allWidgets[#self.allWidgets + 1] = widgets;
+			end
 		end
 
 		if #categoryConsumablesData > 0 then
