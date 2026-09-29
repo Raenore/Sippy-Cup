@@ -315,6 +315,23 @@ local function NormalizeLocName(name)
 	return name:upper():gsub("[^%w]+", "_");
 end
 
+---RemoveOption removes an option from the data list and all of its lookups.
+---@param data table
+---@param index number
+---@param remaining table<number, boolean> Pending item loads, keyed by itemID.
+---@return nil
+local function RemoveOption(data, index, remaining)
+	local option = data[index];
+
+	-- Remove all itemIDs from lookups
+	for _, id in ipairs(option.itemID) do
+		Options.ByItemID[id] = nil;
+		remaining[id] = nil;
+	end
+	Options.ByAuraID[option.auraID] = nil;
+	table.remove(data, index);
+end
+
 ---Setup builds all lookup tables and asynchronously resolves item names and icons.
 ---@param onComplete fun()? Optional callback invoked once all item names are resolved.
 ---@return nil
@@ -344,13 +361,7 @@ function Options.Setup(onComplete)
 		end
 
 		if not valid then
-			-- Remove all itemIDs from lookups
-			for _, id in ipairs(option.itemID) do
-				Options.ByItemID[id] = nil;
-				remaining[id] = nil;
-			end
-			Options.ByAuraID[option.auraID] = nil;
-			table.remove(data, i);
+			RemoveOption(data, i, remaining);
 		end
 	end
 
@@ -364,9 +375,14 @@ function Options.Setup(onComplete)
 		return;
 	end
 
+	local requested = {}; -- itemIDs passed to ContinueOnItemLoad
+	local loadResultFrame = CreateFrame("Frame");
+
 	-- Finalize when no entries remain
 	local function Finalize()
 		if next(remaining) ~= nil then return end;
+
+		loadResultFrame:UnregisterAllEvents();
 
 		table.sort(data, function(a, b)
 			return SC.Utils.Normalize(a.name:lower()) < SC.Utils.Normalize(b.name:lower());
@@ -375,6 +391,15 @@ function Options.Setup(onComplete)
 		SC.Globals.States.optionsLoaded = true;
 		if onComplete then onComplete(); end
 	end
+
+	-- ContinueOnItemLoad never fires for items that fail to load (e.g. on Forever), so prune those here.
+	loadResultFrame:RegisterEvent("ITEM_DATA_LOAD_RESULT");
+	loadResultFrame:SetScript("OnEvent", function(_, _, itemID, success)
+		if success or not requested[itemID] or not remaining[itemID] then return; end
+
+		RemoveOption(data, tIndexOf(data, Options.ByItemID[itemID]), remaining);
+		Finalize();
+	end);
 
 	-- Async load for all valid items
 	for _, option in ipairs(data) do
@@ -388,6 +413,7 @@ function Options.Setup(onComplete)
 		end
 
 		if firstID then
+			requested[firstID] = true;
 			local item = Item:CreateFromItemID(firstID);
 
 			item:ContinueOnItemLoad(function()
