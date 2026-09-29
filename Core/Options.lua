@@ -401,8 +401,9 @@ function Options.Setup(onComplete)
 		Finalize();
 	end);
 
-	-- Async load for all valid items
-	for _, option in ipairs(data) do
+	-- Async load for all valid items (backwards, as a failed load can prune the current option)
+	for i = #data, 1, -1 do
+		local option = data[i];
 		-- pick first valid itemID number to feed into Item:CreateFromItemID
 		local firstID;
 		for _, id in ipairs(option.itemID) do
