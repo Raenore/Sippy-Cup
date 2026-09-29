@@ -121,6 +121,8 @@ local function AttachTooltip(frames, title, description, style, anchor) -- luach
 	end);
 end
 
+SettingsElements.AttachTooltip = AttachTooltip;
+
 ---AttachItemTooltip adds mouseover tooltips showing item info by itemID to one or multiple frames.
 ---It sets up OnEnter and OnLeave scripts to show and hide the item tooltip anchored as specified.
 ---@param frames table|table[] The single frame or list of frames to attach the tooltip to.

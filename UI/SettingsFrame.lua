@@ -84,7 +84,10 @@ function SippyCup_SettingsMixin:AddTab()
 
 	local function OnShow(tabButton)
 		PanelTemplates_TabResize(tabButton, 15, nil, 65);
-		PanelTemplates_DeselectTab(tabButton);
+		-- DeselectTab would re-enable an empty category's tab.
+		if not tabButton.isDisabled then
+			PanelTemplates_DeselectTab(tabButton);
+		end
 	end
 
 	local function OnClick()
@@ -943,6 +946,15 @@ function SippyCup_SettingsMixin:OnLoad()
 
 			self.profileWidgets[#self.profileWidgets + 1] = widgets;
 			self.allWidgets[#self.allWidgets + 1] = widgets;
+		end
+
+		-- Every option in this category was pruned (e.g. on Forever).
+		if #categoryConsumablesData == 0 and #categoryToysData == 0 then
+			local categoryTab = self.TabsByName[categoryName];
+
+			categoryTab:SetMotionScriptsWhileDisabled(true); -- Tooltip on a disabled tab.
+			SettingsElements.AttachTooltip(categoryTab, title, L.OPTIONS_TAB_EMPTY_TOOLTIP);
+			PanelTemplates_DisableTab(self, tIndexOf(self.Tabs, categoryTab));
 		end
 
 		-- Optional if references are ever required:
