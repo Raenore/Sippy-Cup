@@ -3,8 +3,11 @@
 All notable changes to this project will be documented in this file.  
 
 ## [0.9.0] - 2026-xx-xx
+Feature update adding early support for World of Warcraft Forever.
 
 ### Added
+- Added early support for **World of Warcraft Forever**, alongside Standard.  
+  - On Forever, items that don't exist there are left out of the settings, and categories with no items are greyed out with a tooltip explaining why.  
 - Added 6 new toys ([#132](https://github.com/Raenore/Sippy-Cup/pull/132)):  
   - [Vrykul Drinking Horn](https://www.wowhead.com/item=69775)
   - ["Purple Phantom" Contender's Costume](https://www.wowhead.com/item=116889)
