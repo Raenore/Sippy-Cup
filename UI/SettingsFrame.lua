@@ -1088,6 +1088,8 @@ end
 ---ShowSettings Toggles the main config frame and optionally switches to a specified tab.
 ---@param view number? Optional tab index, defaults to 1.
 function Settings:ShowSettings(view)
+	if not SC.Globals.States.optionsLoaded then return; end
+
 	if not SC.SettingsFrame then
 		SC.Settings:Init();
 	end
