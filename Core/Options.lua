@@ -354,7 +354,7 @@ function Options.Setup(onComplete)
 		local valid = false;
 
 		for _, id in ipairs(option.itemID) do
-			if C_Item.GetItemInfoInstant(id) ~= nil then
+			if C_Item.DoesItemExistByID(id) then
 				valid = true;
 				break;
 			end
@@ -375,14 +375,9 @@ function Options.Setup(onComplete)
 		return;
 	end
 
-	local requested = {}; -- itemIDs passed to ContinueOnItemLoad
-	local loadResultFrame = CreateFrame("Frame");
-
 	-- Finalize when no entries remain
 	local function Finalize()
 		if next(remaining) ~= nil then return end;
-
-		loadResultFrame:UnregisterAllEvents();
 
 		table.sort(data, function(a, b)
 			return SC.Utils.Normalize(a.name:lower()) < SC.Utils.Normalize(b.name:lower());
@@ -391,15 +386,6 @@ function Options.Setup(onComplete)
 		SC.Globals.States.optionsLoaded = true;
 		if onComplete then onComplete(); end
 	end
-
-	-- ContinueOnItemLoad never fires for items that fail to load (e.g. on Forever), so prune those here.
-	loadResultFrame:RegisterEvent("ITEM_DATA_LOAD_RESULT");
-	loadResultFrame:SetScript("OnEvent", function(_, _, itemID, success)
-		if success or not requested[itemID] or not remaining[itemID] then return; end
-
-		RemoveOption(data, tIndexOf(data, Options.ByItemID[itemID]), remaining);
-		Finalize();
-	end);
 
 	-- Async load for all valid items (backwards, as a failed load can prune the current option)
 	for i = #data, 1, -1 do
@@ -414,21 +400,19 @@ function Options.Setup(onComplete)
 		end
 
 		if firstID then
-			requested[firstID] = true;
 			local item = Item:CreateFromItemID(firstID);
 
-			item:ContinueOnItemLoad(function()
+			-- Also fires for failed loads, so prune those here.
+			item:ContinueOnItemLoad(function(_, success)
 				if not remaining[firstID] then return; end;
 
-				local name = item:GetItemName();
-
-				-- Can fire for failed loads on Forever, so prune those here.
-				if not name then
+				if not success then
 					RemoveOption(data, tIndexOf(data, option), remaining);
 					Finalize();
 					return;
 				end
 
+				local name = item:GetItemName();
 				option.name = name;
 				option.loc = NormalizeLocName(name);
 
