@@ -27,6 +27,9 @@
 ## X-Build: 16001 [AllowLoadGameType camelot]
 ## X-Build: 120100 [AllowLoadGameType standard]
 ## X-Category: Roleplay
+## X-Game: [Game]
+## X-Family: [Family]
+
 ## X-Curse-Project-ID: 1245290
 ## X-Wago-ID: 96doOnNO
 ## X-WoWI-ID: 26933
