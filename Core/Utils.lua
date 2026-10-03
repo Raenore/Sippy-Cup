@@ -305,4 +305,13 @@ function Utils.EvaluateSippyCupRestricted()
 	return SC.Globals.States.inSippyCupRestricted;
 end
 
+-- We prefer WOW_PROJECT_MAINLINE over WOW_PROJECT_CAMELOT, which might not be on Standard yet.
+local IS_MAINLINE = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE;
+
+---GetFlavor returns the game flavor, from the client's project ID.
+---@return "Retail"|"Forever" flavor
+function Utils.GetFlavor()
+	return IS_MAINLINE and "Retail" or "Forever";
+end
+
 SC.Utils = Utils;

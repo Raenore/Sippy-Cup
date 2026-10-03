@@ -321,6 +321,14 @@ function SippyCup_SettingsMixin:OnLoad()
 
 	self.Inset:Hide();
 
+	if SC.Utils.GetFlavor() == "Forever" then
+		-- Profession art for the page itself, we keep the normal Bg behind the tab list/band.
+		local page = self:CreateTexture(nil, "BORDER", nil, 1);
+		page:SetPoint("TOPLEFT", 2, -50);
+		page:SetPoint("BOTTOMRIGHT", -2, 2);
+		page:SetAtlas("Profession-Background-Overview");
+	end
+
 	self:SetTitle(SC.Globals.addon_title .. " " .. MAIN_MENU);
 
 	self.Tabs = {};
@@ -714,7 +722,9 @@ function SippyCup_SettingsMixin:OnLoad()
 		},
 	};
 
-	self.allWidgets[#self.allWidgets + 1] = SettingsElements.CreateInset(generalPanel, insetData);
+	local infoInset, extraHeight = SettingsElements.CreateInset(generalPanel, insetData);
+	self.allWidgets[#self.allWidgets + 1] = infoInset;
+	self:SetHeight(self:GetHeight() + extraHeight);
 
 	for _, category in ipairs(categories) do
 		local categoryName = string.upper(category);

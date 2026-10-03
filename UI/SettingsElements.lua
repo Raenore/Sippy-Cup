@@ -951,6 +951,7 @@ end
 ---@param parent table The parent frame to attach the inset frame to.
 ---@param insetData table List of widget data entries describing the inset contents.
 ---@return Frame infoInset The created inset frame containing the widgets.
+---@return number extraHeight Height added beyond the default inset, for the caller to add to its frame.
 function SettingsElements.CreateInset(parent, insetData)
 	local infoInset = CreateFrame("Frame", nil, parent, "InsetFrameTemplate");
 
@@ -1044,9 +1045,32 @@ function SettingsElements.CreateInset(parent, insetData)
 		end
 	end
 
+	-- Forever uses Blizzard's profession card FOR NOW (142 tall), except under ElvUI.
+	-- We also tweak the values of where things are for this temporary Forever 'card'.
+	local extraHeight = 0;
+	if SC.Utils.GetFlavor() == "Forever" and not C_AddOns.IsAddOnLoaded("ElvUI") then
+		extraHeight = 142 - infoInset:GetHeight();
+		infoInset:SetHeight(142);
+		infoInset.NineSlice:Hide();
+		infoInset.Bg:Hide();
+
+		local card = infoInset:CreateTexture(nil, "BACKGROUND");
+		card:SetAllPoints();
+		card:SetAtlas("Profession-overview-Card");
+
+		logo:SetPoint("LEFT", 20, 0);
+		for _, region in ipairs({ title, author, build, bsky }) do
+			region:ClearAllPoints();
+		end
+		title:SetPoint("TOPLEFT", 20, -20);
+		author:SetPoint("TOPRIGHT", -20, -20);
+		build:SetPoint("BOTTOMLEFT", 20, 15);
+		bsky:SetPoint("BOTTOMRIGHT", -20, 15);
+	end
+
 	SC.ElvUI.RegisterSkinnableElement(infoInset, "inset");
 
-	return infoInset;
+	return infoInset, extraHeight;
 end
 
 SC.SettingsElements = SettingsElements;
