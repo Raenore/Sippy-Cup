@@ -365,20 +365,15 @@ function Options.Setup(onComplete)
 		end
 	end
 
-	-- Early complete if nothing left
-	if next(remaining) == nil then
-		table.sort(data, function(a, b)
-			return SC.Utils.Normalize(a.name:lower()) < SC.Utils.Normalize(b.name:lower());
-		end);
-		SC.Globals.States.optionsLoaded = true;
-		if onComplete then onComplete(); end
-		return;
-	end
+	local requested = {}; -- itemIDs passed to ContinueOnItemLoad
+	local loadResultFrame = CreateFrame("Frame");
 
 	-- Finalize when no entries remain
 	local function Finalize()
 		if next(remaining) ~= nil then return end;
 
+		loadResultFrame:UnregisterAllEvents();
+
 		table.sort(data, function(a, b)
 			return SC.Utils.Normalize(a.name:lower()) < SC.Utils.Normalize(b.name:lower());
 		end);
@@ -386,6 +381,24 @@ function Options.Setup(onComplete)
 		SC.Globals.States.optionsLoaded = true;
 		if onComplete then onComplete(); end
 	end
+
+	local function PruneFailed(itemID)
+		if not remaining[itemID] then return; end
+
+		RemoveOption(data, tIndexOf(data, Options.ByItemID[itemID]), remaining);
+		Finalize();
+	end
+
+	-- TODO: Remove once Live fires item callbacks for failed loads (Forever already does, expected in 12.1.7).
+	loadResultFrame:RegisterEvent("ITEM_DATA_LOAD_RESULT");
+	loadResultFrame:SetScript("OnEvent", function(_, _, itemID, success)
+		if not success and requested[itemID] then
+			PruneFailed(itemID);
+		end
+	end);
+
+	-- Early complete if nothing left
+	Finalize();
 
 	-- Async load for all valid items (backwards, as a failed load can prune the current option)
 	for i = #data, 1, -1 do
@@ -400,15 +413,15 @@ function Options.Setup(onComplete)
 		end
 
 		if firstID then
+			requested[firstID] = true;
 			local item = Item:CreateFromItemID(firstID);
 
-			-- Also fires for failed loads, so prune those here.
+			-- success is only passed on Forever
 			item:ContinueOnItemLoad(function(_, success)
 				if not remaining[firstID] then return; end;
 
-				if not success then
-					RemoveOption(data, tIndexOf(data, option), remaining);
-					Finalize();
+				if success == false then
+					PruneFailed(firstID);
 					return;
 				end
 
