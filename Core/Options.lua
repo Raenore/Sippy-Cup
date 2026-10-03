@@ -421,6 +421,14 @@ function Options.Setup(onComplete)
 				if not remaining[firstID] then return; end;
 
 				local name = item:GetItemName();
+
+				-- Can fire for failed loads on Forever, so prune those here.
+				if not name then
+					RemoveOption(data, tIndexOf(data, option), remaining);
+					Finalize();
+					return;
+				end
+
 				option.name = name;
 				option.loc = NormalizeLocName(name);
 
