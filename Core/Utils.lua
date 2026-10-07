@@ -221,29 +221,6 @@ end
 -- General utilities
 -- ============================================================
 
----ShallowCopy returns a new table with all top-level key-value pairs copied from tbl.
----@param tbl table
----@return table
-function Utils.ShallowCopy(tbl)
-	local copy = {};
-	for k, v in pairs(tbl) do
-		copy[k] = v;
-	end
-	return copy;
-end
-
----DeepCopy returns a fully independent recursive copy of tbl, or the value itself if not a table.
----@param tbl any
----@return any
-function Utils.DeepCopy(tbl)
-	if type(tbl) ~= "table" then return tbl; end
-	local copy = {};
-	for k, v in pairs(tbl) do
-		copy[k] = Utils.DeepCopy(v);
-	end
-	return copy;
-end
-
 ---GetUnitName returns the player's full name with realm if available.
 ---@return string? fullName Full player name in "Name-Realm" format, or nil if unavailable.
 function Utils.GetUnitName()

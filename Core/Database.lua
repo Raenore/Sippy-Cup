@@ -152,7 +152,7 @@ end
 ---@class SippyCupProfile : SippyCupProfileSettings, SippyCupCharSettings
 
 Database.currentProfile = nil;
-Database.globalDefaults = SC.Utils.DeepCopy(GLOBAL_DEFAULTS);
+Database.globalDefaults = CopyTable(GLOBAL_DEFAULTS);
 
 ---Returns a new table containing all keys from `base`, with keys from `override` applied on top.
 ---@param base table
@@ -160,7 +160,7 @@ Database.globalDefaults = SC.Utils.DeepCopy(GLOBAL_DEFAULTS);
 ---@return SippyCupProfile
 local function mergeTables(base, override)
 	-- start with defaults
-	local result =  SC.Utils.ShallowCopy(base);
+	local result = CopyTable(base, true);
 	-- apply profile overrides (including keys not in defaults)
 	for k, v in pairs(override) do
 		result[k] = v;
@@ -425,8 +425,8 @@ function Database:Init()
 	PopulateDefaultProfileOptions();
 	PopulateDefaultCharOptions();
 
-	self.defaults =  SC.Utils.DeepCopy(DEFAULT_PROFILE);
-	self.charDefaults =  SC.Utils.DeepCopy(DEFAULT_CHAR);
+	self.defaults = CopyTable(DEFAULT_PROFILE);
+	self.charDefaults = CopyTable(DEFAULT_CHAR);
 
 	local playerKey =  SC.Utils.GetUnitName() or "Unknown";
 	local profileName = db.profileKeys[playerKey] or "Default";
@@ -640,7 +640,7 @@ function Database:CopyProfile(sourceName)
 		current[k] = nil;
 	end
 
-	local copy =  SC.Utils.DeepCopy(source);
+	local copy = CopyTable(source);
 	for k, v in pairs(copy) do
 		current[k] = v;
 	end
@@ -712,7 +712,7 @@ function Database:GetProfileSettings(auraID)
 	end
 
 	-- Return a shallow copy of defaults to prevent accidental mutation
-	return  SC.Utils.ShallowCopy(defaults);
+	return CopyTable(defaults, true);
 end
 
 ---@param auraID number
@@ -733,7 +733,7 @@ function Database:GetProfileSetting(auraID, key)
 	end
 
 	if type(defValue) == "table" then
-		return  SC.Utils.ShallowCopy(defValue);
+		return CopyTable(defValue, true);
 	end
 
 	return defValue;
@@ -787,7 +787,7 @@ function Database:GetCharSettings(auraID)
 	end
 
 	-- Return a shallow copy of defaults to prevent accidental mutation
-	return  SC.Utils.ShallowCopy(defaults);
+	return CopyTable(defaults, true);
 end
 
 ---Returns a single value from the character settings for a given auraID.
@@ -811,7 +811,7 @@ function Database:SetCharSetting(auraID, key, value)
 	self.currentChar = self.currentChar or SippyCupCharDB;
 
 	local defaults = self.charDefaults[auraID] or {};
-	self.currentChar[auraID] = self.currentChar[auraID] or  SC.Utils.DeepCopy(defaults);
+	self.currentChar[auraID] = self.currentChar[auraID] or CopyTable(defaults);
 
 	if type(value) == "table" then
 		self.currentChar[auraID][key] = pruneToDefaults(value, defaults[key]);
@@ -936,7 +936,7 @@ function Database:GetGlobalSetting(key)
 	local def = self.globalDefaults[key];
 	if type(def) == "table" then
 		-- Initialise and store the table so LibDBIcon has a live reference to mutate.
-		local init = SC.Utils.ShallowCopy(def);
+		local init = CopyTable(def, true);
 		SippyCupDB.global[key] = init;
 		return init;
 	end
