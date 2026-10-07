@@ -393,7 +393,7 @@ end
 ---@param itemID number? Item ID to match `untrackableByAuraProfile`.
 ---@return SippyCupProfile? profileOptionData
 function Database:FindMatchingProfile(spellId, instanceID, itemID)
-	if canaccessvalue == nil or canaccessvalue(spellId) then
+	if canaccessvalue(spellId) then
 		if spellId ~= nil then
 			return self.auraToProfile[spellId];
 		end
