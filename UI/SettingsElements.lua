@@ -648,7 +648,7 @@ function SettingsElements.CreateConfigDropdown(elementContainer, data)
 		local entries = {};
 
 		---Unpacks a values entry into (label, desc, getter, setter, disabled), supporting string and {label, desc, getter, setter, disabled = fn} formats.
-		local function unpackValue(v)
+		local function UnpackValue(v)
 			if type(v) == "table" then
 				return v[1], v[2], v[3], v[4], v.disabled;
 			end
@@ -658,14 +658,14 @@ function SettingsElements.CreateConfigDropdown(elementContainer, data)
 		if #sorting > 0 then
 			for _, key in ipairs(sorting) do
 				if values[key] then
-					local label, desc, getter, setter, disabled = unpackValue(values[key]);
+					local label, desc, getter, setter, disabled = UnpackValue(values[key]);
 					table.insert(entries, {label, key, desc, getter, setter, disabled});
 				end
 			end
 		else
 			local temp = {};
 			for key, v in pairs(values) do
-				local label, desc, getter, setter, disabled = unpackValue(v);
+				local label, desc, getter, setter, disabled = UnpackValue(v);
 				table.insert(temp, {key = key, label = label, desc = desc, getter = getter, setter = setter, disabled = disabled});
 			end
 			table.sort(temp, function(a, b) return a.label < b.label end);
@@ -983,7 +983,7 @@ function SettingsElements.CreateInset(parent, insetData)
 		elseif entryType == "version" then
 			version = infoInset:CreateFontString(nil, "ARTWORK", "GameFontHighlight");
 			version:SetText(data.text or "");
-			version:SetPoint("BOTTOMLEFT", title, "BOTTOMRIGHT", 5, 0)
+			version:SetPoint("BOTTOMLEFT", title, "BOTTOMRIGHT", 5, 0);
 		elseif entryType == "build" then
 			build = CreateFrame("Button", nil, infoInset, "UIPanelDynamicResizeButtonTemplate");
 			build:SetText(data.text or "");

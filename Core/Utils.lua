@@ -134,19 +134,19 @@ function Utils.Write(output, command)
 	Print(formattedOutput);
 end
 
-local function formatValue(val, isTop)
+local function FormatValue(val, isTop)
 	if type(val) == "table" then
 		local isArray = (#val > 0);
 		if isArray then
 			local items = {};
 			for _, v in ipairs(val) do
-				table.insert(items, formatValue(v));
+				table.insert(items, FormatValue(v));
 			end
 			return "{" .. table.concat(items, ",") .. "}";
 		else
 			local items = {};
 			for k, v in pairs(val) do
-				table.insert(items, tostring(k) .. ": " .. formatValue(v));
+				table.insert(items, tostring(k) .. ": " .. FormatValue(v));
 			end
 			if isTop then
 				return table.concat(items, ", ");
@@ -187,7 +187,7 @@ function Utils.Log(...)
 
 	local outputLines = {};
 	for i = startIndex, #args do
-		table.insert(outputLines, formatValue(args[i], true));
+		table.insert(outputLines, FormatValue(args[i], true));
 	end
 
 	local finalOutput = table.concat(outputLines, " ");

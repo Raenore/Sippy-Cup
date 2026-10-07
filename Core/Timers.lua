@@ -4,7 +4,7 @@
 ---@class SippyCupTimers
 local Timers = {};
 
-local function createTicker(self, handleField, interval, callback)
+local function CreateTicker(self, handleField, interval, callback)
 	if not self[handleField] then
 		self[handleField] = C_Timer.NewTicker(interval, callback);
 	end
@@ -22,11 +22,11 @@ function Timers:StartContinuousCheck()
 
 	-- Both below timers don't need an immediate run as startup + new enables run these partially.
 
-	createTicker(self, "preExpTicker", CONTINUOUS_CHECK_INTERVAL, function()
+	CreateTicker(self, "preExpTicker", CONTINUOUS_CHECK_INTERVAL, function()
 		SC.Auras.CheckPreExpirationForAllActiveOptions();
 	end);
 
-	createTicker(self, "itemTicker", CONTINUOUS_CHECK_INTERVAL, function()
+	CreateTicker(self, "itemTicker", CONTINUOUS_CHECK_INTERVAL, function()
 		SC.Items.CheckNoAuraItemUsage();
 	end);
 end

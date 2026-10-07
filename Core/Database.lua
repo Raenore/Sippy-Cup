@@ -158,7 +158,7 @@ Database.globalDefaults = SC.Utils.DeepCopy(GLOBAL_DEFAULTS);
 ---@param base table
 ---@param override table
 ---@return SippyCupProfile
-local function mergeTables(base, override)
+local function MergeTables(base, override)
 	-- start with defaults
 	local result =  SC.Utils.ShallowCopy(base);
 	-- apply profile overrides (including keys not in defaults)
@@ -174,7 +174,7 @@ end
 ---@param value table
 ---@param def table?
 ---@return table?
-local function pruneToDefaults(value, def)
+local function PruneToDefaults(value, def)
 	local newTable = {};
 	-- store only keys that differ from defaults
 	for k, v in pairs(value) do
@@ -190,14 +190,14 @@ end
 ---Primitives matching defaults are nilled; table values are pruned key-by-key
 ---and removed entirely when every key matches the default.
 ---@param profile table
-local function pruneProfile(profile)
+local function PruneProfile(profile)
 	for key, value in pairs(profile) do
 		local def = DEFAULT_PROFILE[key];
 		if def == nil then -- luacheck: ignore 542 (empty if branch)
 			-- No default exists for this key; leave it untouched.
 		elseif type(value) == "table" then
 			if type(def) == "table" then
-				profile[key] = pruneToDefaults(value, def);
+				profile[key] = PruneToDefaults(value, def);
 			end
 		elseif value == def then
 			profile[key] = nil;
@@ -234,7 +234,7 @@ function Database:RebuildAuraMap()
 	for auraID, defaultData in pairs(self.defaults or {}) do
 		local profileOverride = (self.currentProfile or {})[auraID] or {};
 		-- Merge default values with any user overrides
-		local profileOptionData = mergeTables(defaultData, profileOverride);
+		local profileOptionData = MergeTables(defaultData, profileOverride);
 
 		-- Only track enabled auras
 		if profileOptionData.enable and auraID then
@@ -393,7 +393,7 @@ end
 ---@param itemID number? Item ID to match `untrackableByAuraProfile`.
 ---@return SippyCupProfile? profileOptionData
 function Database:FindMatchingProfile(spellId, instanceID, itemID)
-	if canaccessvalue == nil or canaccessvalue(spellId) then
+	if canaccessvalue(spellId) then
 		if spellId ~= nil then
 			return self.auraToProfile[spellId];
 		end
@@ -437,7 +437,7 @@ function Database:Init()
 
 	---Prune all profiles to remove values that match their defaults.
 	for _, profileData in pairs(db.profiles) do
-		pruneProfile(profileData);
+		PruneProfile(profileData);
 	end
 
 	if SC.Globals.IS_DEV_BUILD then
@@ -497,16 +497,16 @@ end
 
 ---Refreshes the config UI if the configuration frame is loaded.
 ---@return nil
-function Database:refreshUI()
+function Database:RefreshUI()
 	if SC.SettingsFrame then
 		SC.SettingsFrame:RefreshWidgets();
 		SC.SettingsFrame:SwitchProfileValues();
 	end
 end
 
----applyProfileSwitch resets runtime systems after a profile change.
+---ApplyProfileSwitch resets runtime systems after a profile change.
 ---@return nil
-function Database:applyProfileSwitch()
+function Database:ApplyProfileSwitch()
 	SC.Popups.HideAllRefreshPopups();
 	SC.Auras.CancelAllPreExpirationTimers();
 	SC.Items.CancelAllItemTimers();
@@ -572,8 +572,8 @@ function Database:SetProfile(profileName)
 	local playerKey =  SC.Utils.GetUnitName();
 	db.profileKeys[playerKey] = profileName;
 
-	self:applyProfileSwitch();
-	self:refreshUI();
+	self:ApplyProfileSwitch();
+	self:RefreshUI();
 
 	SC.Options.RefreshStackSizes(false);
 end
@@ -611,7 +611,7 @@ function Database:RenameProfile(oldName, newName)
 		end
 	end
 
-	self:refreshUI();
+	self:RefreshUI();
 
 	return true;
 end
@@ -645,8 +645,8 @@ function Database:CopyProfile(sourceName)
 		current[k] = v;
 	end
 
-	self:applyProfileSwitch();
-	self:refreshUI();
+	self:ApplyProfileSwitch();
+	self:RefreshUI();
 
 	SC.Options.RefreshStackSizes(false);
 
@@ -682,8 +682,8 @@ function Database:ResetProfile()
 		current[k] = nil;
 	end
 
-	self:applyProfileSwitch();
-	self:refreshUI();
+	self:ApplyProfileSwitch();
+	self:RefreshUI();
 
 	return true;
 end
@@ -708,7 +708,7 @@ function Database:GetProfileSettings(auraID)
 
 	local profile = self.currentProfile and self.currentProfile[auraID];
 	if profile then
-		return mergeTables(defaults, profile);
+		return MergeTables(defaults, profile);
 	end
 
 	-- Return a shallow copy of defaults to prevent accidental mutation
@@ -727,7 +727,7 @@ function Database:GetProfileSetting(auraID, key)
 
 	if profile and profile[key] ~= nil then
 		if type(defValue) == "table" then
-			return mergeTables(defValue, profile[key]);
+			return MergeTables(defValue, profile[key]);
 		end
 		return profile[key];
 	end
@@ -753,7 +753,7 @@ function Database:SetProfileSetting(auraID, key, value)
 	local defValue = defaults[key];
 
 	if type(value) == "table" then
-		profileEntry[key] = pruneToDefaults(value, defValue);
+		profileEntry[key] = PruneToDefaults(value, defValue);
 	elseif value == defValue then
 		profileEntry[key] = nil;
 	else
@@ -765,7 +765,7 @@ function Database:SetProfileSetting(auraID, key, value)
 		self.currentProfile[auraID] = nil;
 	end
 
-	self:refreshUI();
+	self:RefreshUI();
 end
 
 ---@alias SippyCupCharSettingKey
@@ -783,7 +783,7 @@ function Database:GetCharSettings(auraID)
 
 	local charSettings = self.currentChar and self.currentChar[auraID];
 	if charSettings then
-		return mergeTables(defaults, charSettings);
+		return MergeTables(defaults, charSettings);
 	end
 
 	-- Return a shallow copy of defaults to prevent accidental mutation
@@ -814,7 +814,7 @@ function Database:SetCharSetting(auraID, key, value)
 	self.currentChar[auraID] = self.currentChar[auraID] or  SC.Utils.DeepCopy(defaults);
 
 	if type(value) == "table" then
-		self.currentChar[auraID][key] = pruneToDefaults(value, defaults[key]);
+		self.currentChar[auraID][key] = PruneToDefaults(value, defaults[key]);
 	elseif value == defaults[key] then
 		self.currentChar[auraID][key] = nil;
 	else
@@ -888,12 +888,12 @@ function Database:GetOption(auraID)
 	if not profileDefaults then return nil; end
 
 	local profileOverride = self.currentProfile and self.currentProfile[auraID];
-	local result = mergeTables(profileDefaults, profileOverride or {});
+	local result = MergeTables(profileDefaults, profileOverride or {});
 
 	local charDefaults = self.charDefaults[auraID];
 	if charDefaults then
 		local charOverride = self.currentChar and self.currentChar[auraID];
-		local charMerged = mergeTables(charDefaults, charOverride or {});
+		local charMerged = MergeTables(charDefaults, charOverride or {});
 		for k, v in pairs(charMerged) do
 			result[k] = v;
 		end
@@ -966,7 +966,7 @@ function Database:SetGlobalSetting(key, value)
 		SippyCupDB.global[key] = value;
 	end
 
-	self:refreshUI();
+	self:RefreshUI();
 end
 
 SC.Database = Database;
