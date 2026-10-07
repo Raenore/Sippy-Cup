@@ -277,6 +277,9 @@ Options.Data = {
 
 	--- 12.1.0
 	NewOption{ type = Options.Type.TOY, auraID = 1308693, itemID = 280419, category = "APPEARANCE", preExpiration = true, buildAdded = "0.8.2|120100" }, -- Cursed Badge of the Soulcoilers
+
+	--- Cata
+	NewOption{ type = Options.Type.TOY, auraID = 98444, itemID = 69775, category = "SIZE", preExpiration = true, buildAdded = "0.9.0|120100,16001" }, -- Vrykul Drinking Horn
 };
 
 ---ResolveTrackingMethod returns whether to track a given option by spell or item cooldown.
