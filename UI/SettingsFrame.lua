@@ -32,7 +32,7 @@ local defaultSounds = {
 
 -- Register default sounds
 for _, sound in ipairs(defaultSounds) do
-	SharedMedia:Register("sound", sound.key, sound.fid)
+	SharedMedia:Register("sound", sound.key, sound.fid);
 end
 
 -- Build soundList with keys = values for quick lookup/use

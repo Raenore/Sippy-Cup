@@ -332,13 +332,13 @@ function Auras.Convert(source, data)
 		updateInfo.addedAuras = data;
 	elseif source == Auras.Sources.UPDATE_AURA then
 		-- Source 4: Handle updates to auras not sent through UNIT_AURA
-		-- e.g. Instance ID Update — simulate updated aura using with a new instance ID.
+		-- e.g. Instance ID Update: simulate updated aura using with a new instance ID.
 		updateInfo.updatedAuraInstanceIDs = { data[1] };
 	elseif source == Auras.Sources.REMOVE_AURA then
 		-- Source 5: Handle removed auras not sent through UNIT_AURA
 		updateInfo.removedAuraInstanceIDs = { data[1] };
 	else
-		-- Unknown source passed in — log to user so they can let us know.
+		-- Unknown source passed in, log to user so they can let us know.
 		SC.Utils.Write("Convert called with unknown source: " .. tostring(source));
 		return;
 	end

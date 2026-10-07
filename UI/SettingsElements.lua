@@ -983,7 +983,7 @@ function SettingsElements.CreateInset(parent, insetData)
 		elseif entryType == "version" then
 			version = infoInset:CreateFontString(nil, "ARTWORK", "GameFontHighlight");
 			version:SetText(data.text or "");
-			version:SetPoint("BOTTOMLEFT", title, "BOTTOMRIGHT", 5, 0)
+			version:SetPoint("BOTTOMLEFT", title, "BOTTOMRIGHT", 5, 0);
 		elseif entryType == "build" then
 			build = CreateFrame("Button", nil, infoInset, "UIPanelDynamicResizeButtonTemplate");
 			build:SetText(data.text or "");
