@@ -277,6 +277,16 @@ Options.Data = {
 
 	--- 12.1.0
 	NewOption{ type = Options.Type.TOY, auraID = 1308693, itemID = 280419, category = "APPEARANCE", preExpiration = true, buildAdded = "0.8.2|120100" }, -- Cursed Badge of the Soulcoilers
+
+	--- Cata
+	NewOption{ type = Options.Type.TOY, auraID = 98444, itemID = 69775, category = "SIZE", preExpiration = true, buildAdded = "0.9.0|120100,16001" }, -- Vrykul Drinking Horn
+
+	-- Day of the Dead
+	NewOption{ type = Options.Type.TOY, auraID = 172047, itemID = 116889, category = "APPEARANCE", buildAdded = "0.9.0|120100,16001" }, -- "Purple Phantom" Contender's Costume
+	NewOption{ type = Options.Type.TOY, auraID = 172052, itemID = 116888, category = "APPEARANCE", buildAdded = "0.9.0|120100,16001" }, -- "Night Demon" Contender's Costume
+	NewOption{ type = Options.Type.TOY, auraID = 172053, itemID = 116891, category = "APPEARANCE", buildAdded = "0.9.0|120100,16001" }, -- "Snowy Owl" Contender's Costume
+	NewOption{ type = Options.Type.TOY, auraID = 172049, itemID = 116890, category = "APPEARANCE", buildAdded = "0.9.0|120100,16001" }, -- "Santo's Sun" Contender's Costume
+	NewOption{ type = Options.Type.TOY, auraID = 172027, itemID = 116856, category = "APPEARANCE", buildAdded = "0.9.0|120100,16001" }, -- "Blooming Rose" Contender's Costume
 };
 
 ---ResolveTrackingMethod returns whether to track a given option by spell or item cooldown.

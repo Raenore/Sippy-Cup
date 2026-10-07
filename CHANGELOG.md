@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.  
 
+## [0.9.0] - 2026-xx-xx
+
+### Added
+- Added 6 new toys ([#132](https://github.com/Raenore/Sippy-Cup/pull/132)):  
+  - [Vrykul Drinking Horn](https://www.wowhead.com/item=69775)
+  - ["Purple Phantom" Contender's Costume](https://www.wowhead.com/item=116889)
+  - ["Night Demon" Contender's Costume](https://www.wowhead.com/item=116888)
+  - ["Snowy Owl" Contender's Costume](https://www.wowhead.com/item=116891)
+  - ["Santo's Sun" Contender's Costume](https://www.wowhead.com/item=116890)
+  - ["Blooming Rose" Contender's Costume](https://www.wowhead.com/item=116856)
+
 ## [0.8.3] - 2026-09-12
 Minor patch adding a Shadowlands toy and fixing several issues related to secrets in combat and other hidden-aura moments.
 
