@@ -84,7 +84,10 @@ function SippyCup_SettingsMixin:AddTab()
 
 	local function OnShow(tabButton)
 		PanelTemplates_TabResize(tabButton, 15, nil, 65);
-		PanelTemplates_DeselectTab(tabButton);
+		-- DeselectTab would re-enable an empty category's tab.
+		if not tabButton.isDisabled then
+			PanelTemplates_DeselectTab(tabButton);
+		end
 	end
 
 	local function OnClick()
@@ -317,6 +320,14 @@ function SippyCup_SettingsMixin:OnLoad()
 	tinsert(UISpecialFrames, self:GetName());
 
 	self.Inset:Hide();
+
+	if SC.Utils.GetFlavor() == "Forever" then
+		-- Profession art for the page itself, we keep the normal Bg behind the tab list/band.
+		local page = self:CreateTexture(nil, "BORDER", nil, 1);
+		page:SetPoint("TOPLEFT", 2, -50);
+		page:SetPoint("BOTTOMRIGHT", -2, 2);
+		page:SetAtlas("Profession-Background-Overview");
+	end
 
 	self:SetTitle(SC.Globals.addon_title .. " " .. MAIN_MENU);
 
@@ -711,7 +722,9 @@ function SippyCup_SettingsMixin:OnLoad()
 		},
 	};
 
-	self.allWidgets[#self.allWidgets + 1] = SettingsElements.CreateInset(generalPanel, insetData);
+	local infoInset, extraHeight = SettingsElements.CreateInset(generalPanel, insetData);
+	self.allWidgets[#self.allWidgets + 1] = infoInset;
+	self:SetHeight(self:GetHeight() + extraHeight);
 
 	for _, category in ipairs(categories) do
 		local categoryName = string.upper(category);
@@ -786,12 +799,15 @@ function SippyCup_SettingsMixin:OnLoad()
 		end
 
 		if categoryName == "PRISM" then
-			SettingsElements.CreateCategoryHeader(categoryPanel, SETTINGS);
+			-- Either prism may be pruned (e.g. on Forever).
+			local projectionPrism = SC.Options.ByItemID[193031];
+			local reflectingPrism = SC.Options.ByItemID[112384];
+			local prismWidgetData = {};
 
-			local prismWidgetData = {
-				{
+			if projectionPrism then
+				prismWidgetData[#prismWidgetData + 1] = {
 					type = "slider",
-					label = L.OPTIONS_TAB_PRISM_TIMER:format(SC.Options.ByItemID[193031].name),
+					label = L.OPTIONS_TAB_PRISM_TIMER:format(projectionPrism.name),
 					tooltip = L.OPTIONS_TAB_PRISM_TIMER_TEXT:format(5, 5),
 					buildAdded = "0.7.0|120001",
 					min = 1,
@@ -815,10 +831,13 @@ function SippyCup_SettingsMixin:OnLoad()
 							true
 						);
 					end,
-				},
-				{
+				};
+			end
+
+			if reflectingPrism then
+				prismWidgetData[#prismWidgetData + 1] = {
 					type = "slider",
-					label = L.OPTIONS_TAB_PRISM_TIMER:format(SC.Options.ByItemID[112384].name),
+					label = L.OPTIONS_TAB_PRISM_TIMER:format(reflectingPrism.name),
 					tooltip = L.OPTIONS_TAB_PRISM_TIMER_TEXT:format(3, 3),
 					buildAdded = "0.7.0|120001",
 					min = 1,
@@ -842,13 +861,17 @@ function SippyCup_SettingsMixin:OnLoad()
 							true
 						);
 					end,
-				},
-			}
+				};
+			end
 
-			local widgets = SettingsElements.CreateWidgetRowContainer(categoryPanel, prismWidgetData, 2, 40, 20, true);
+			if #prismWidgetData > 0 then
+				SettingsElements.CreateCategoryHeader(categoryPanel, SETTINGS);
 
-			self.profileWidgets[#self.profileWidgets + 1] = widgets;
-			self.allWidgets[#self.allWidgets + 1] = widgets;
+				local widgets = SettingsElements.CreateWidgetRowContainer(categoryPanel, prismWidgetData, 2, 40, 20, true);
+
+				self.profileWidgets[#self.profileWidgets + 1] = widgets;
+				self.allWidgets[#self.allWidgets + 1] = widgets;
+			end
 		end
 
 		if #categoryConsumablesData > 0 then
@@ -933,6 +956,15 @@ function SippyCup_SettingsMixin:OnLoad()
 
 			self.profileWidgets[#self.profileWidgets + 1] = widgets;
 			self.allWidgets[#self.allWidgets + 1] = widgets;
+		end
+
+		-- Every option in this category was pruned (e.g. on Forever).
+		if #categoryConsumablesData == 0 and #categoryToysData == 0 then
+			local categoryTab = self.TabsByName[categoryName];
+
+			categoryTab:SetMotionScriptsWhileDisabled(true); -- Tooltip on a disabled tab.
+			SettingsElements.AttachTooltip(categoryTab, title, L.OPTIONS_TAB_EMPTY_TOOLTIP);
+			PanelTemplates_DisableTab(self, tIndexOf(self.Tabs, categoryTab));
 		end
 
 		-- Optional if references are ever required:
@@ -1066,6 +1098,8 @@ end
 ---ShowSettings Toggles the main config frame and optionally switches to a specified tab.
 ---@param view number? Optional tab index, defaults to 1.
 function Settings:ShowSettings(view)
+	if not SC.Globals.States.optionsLoaded then return; end
+
 	if not SC.SettingsFrame then
 		SC.Settings:Init();
 	end

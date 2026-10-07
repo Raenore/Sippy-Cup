@@ -590,6 +590,7 @@ stds.wow = {
 		"nop",
 		"OpenWorldMap",
 		"PanelTemplates_DeselectTab",
+		"PanelTemplates_DisableTab",
 		"PanelTemplates_SetTab",
 		"PanelTemplates_SetNumTabs",
 		"PanelTemplates_TabResize",

@@ -112,6 +112,9 @@ L = {
 	OPTIONS_TAB_SIZE_TITLE = "Tamaño",
 	OPTIONS_TAB_SIZE_INSTRUCTION = "Estas opciones controlan todos los recordatorios para los consumibles/juguetes que cambian el tamaño de tu personaje.",
 
+	-- Shared
+	OPTIONS_TAB_EMPTY_TOOLTIP = "There are no items for this category in this WoW flavor.", -- (NEW)
+
 	--/ Addon Compartment /--
 	ADDON_COMPARTMENT_DESC = "|cnGREEN_FONT_COLOR:Click: abrir opciones|nClick derecho: abrir perfiles|r",
 

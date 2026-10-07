@@ -7,15 +7,16 @@ local Utils = {};
 -- Build info
 -- ============================================================
 
----FormatBuild formats a build version into the major.minor.patch format.
----@param build string The raw build version string (6 digits).
+---FormatBuild formats an interface number into the major.minor.patch format (120100 is 12.1.0, 16001 is 1.60.1).
+---@param build string The raw interface number; only the first number is used.
 ---@return string formattedBuild The formatted build version in the format "major.minor.patch".
 local function FormatBuild(build)
-	build = tostring(build);
+	local interface = tonumber(string.match(tostring(build), "%d+"));
+	if not interface then return tostring(build); end
 
-	local major = tonumber(string.sub(build, 1, 2));  -- First 2 digits, convert to number to remove leading zeros
-	local minor = tonumber(string.sub(build, 3, 4));  -- Next 2 digits, convert to number to remove leading zeros
-	local patch = tonumber(string.sub(build, 5, 6));  -- Last 2 digits, convert to number to remove leading zeros
+	local major = math.floor(interface / 10000);
+	local minor = math.floor(interface / 100) % 100;
+	local patch = interface % 100;
 
 	return major .. "." .. minor .. "." .. patch;
 end
@@ -74,7 +75,7 @@ function Utils.GetBuildString(colorized)
 end
 
 ---CheckNewlyAdded checks whether a feature was added in the current addon/build version.
----@param buildAdded string The version string in "addonVersion|blizzardBuild" format.
+---@param buildAdded string The version string in "addonVersion|blizzardBuild" format; one build per flavor is allowed (e.g. "0.9.0|120105,120100,16001").
 ---@return boolean?
 function Utils.CheckNewlyAdded(buildAdded)
 	if not SC.Database:GetGlobalSetting("NewFeatureNotification") then
@@ -88,7 +89,15 @@ function Utils.CheckNewlyAdded(buildAdded)
 	end
 
 	if SC.Globals.addon_version == "@project-version@" then
-		return featureBlizzardBuild == tostring(select(4, GetBuildInfo()));
+		local liveBuild = tostring(select(4, GetBuildInfo()));
+
+		for token in string.gmatch(featureBlizzardBuild, "[^,%s]+") do
+			if token == liveBuild then
+				return true;
+			end
+		end
+
+		return false;
 	end
 
 	local featureMajor, featureMinor, featurePatch = featureAddonVersion:match("^(%d+)%.(%d+)%.(%d+)$");
@@ -294,6 +303,15 @@ function Utils.EvaluateSippyCupRestricted()
 	end
 
 	return SC.Globals.States.inSippyCupRestricted;
+end
+
+-- We prefer WOW_PROJECT_MAINLINE over WOW_PROJECT_CAMELOT, which might not be on Standard yet.
+local IS_MAINLINE = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE;
+
+---GetFlavor returns the game flavor, from the client's project ID.
+---@return "Retail"|"Forever" flavor
+function Utils.GetFlavor()
+	return IS_MAINLINE and "Retail" or "Forever";
 end
 
 SC.Utils = Utils;
