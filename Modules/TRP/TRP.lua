@@ -7,7 +7,7 @@ if not C_AddOns.IsAddOnLoaded('totalRP3') then
 	return;
 end
 
-local function onStart()
+local function OnStart()
 	TRP3_API.RegisterCallback(TRP3_Addon, TRP3_Addon.Events.WORKFLOW_ON_LOADED, function()
 		if not TRP3_API.toolbar then
 			return;
@@ -36,6 +36,6 @@ TRP3_API.module.registerModule({
 	["description"] = "Adds a toolbar button to open Sippy Cup easily.",
 	["version"] = SC.Globals.addon_version,
 	["id"] = "trp_sippy_cup",
-	["onStart"] = onStart,
+	["onStart"] = OnStart,
 	["minVersion"] = 3,
 })
