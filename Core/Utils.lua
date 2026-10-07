@@ -75,7 +75,7 @@ function Utils.GetBuildString(colorized)
 end
 
 ---CheckNewlyAdded checks whether a feature was added in the current addon/build version.
----@param buildAdded string The version string in "addonVersion|blizzardBuild" format; one build per flavor is allowed (e.g. "0.9.0|120100,16001").
+---@param buildAdded string The version string in "addonVersion|blizzardBuild" format; one build per flavor is allowed (e.g. "0.9.0|120105,120100,16001").
 ---@return boolean?
 function Utils.CheckNewlyAdded(buildAdded)
 	if not SC.Database:GetGlobalSetting("NewFeatureNotification") then

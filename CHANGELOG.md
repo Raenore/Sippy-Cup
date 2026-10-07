@@ -16,6 +16,9 @@ Feature update adding early support for World of Warcraft Forever.
   - ["Santo's Sun" Contender's Costume](https://www.wowhead.com/item=116890)
   - ["Blooming Rose" Contender's Costume](https://www.wowhead.com/item=116856)
 
+### Changed
+- Updated the TOC for Patch 12.1.5.  
+
 ## [0.8.3] - 2026-09-12
 Minor patch adding a Shadowlands toy and fixing several issues related to secrets in combat and other hidden-aura moments.
 
