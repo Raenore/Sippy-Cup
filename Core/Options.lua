@@ -279,14 +279,14 @@ Options.Data = {
 	NewOption{ type = Options.Type.TOY, auraID = 1308693, itemID = 280419, category = "APPEARANCE", preExpiration = true, buildAdded = "0.8.2|120100" }, -- Cursed Badge of the Soulcoilers
 
 	--- Cata
-	NewOption{ type = Options.Type.TOY, auraID = 98444, itemID = 69775, category = "SIZE", preExpiration = true, buildAdded = "0.9.0|120100,16001" }, -- Vrykul Drinking Horn
+	NewOption{ type = Options.Type.TOY, auraID = 98444, itemID = 69775, category = "SIZE", preExpiration = true, buildAdded = "0.9.0|120105,120100,16001" }, -- Vrykul Drinking Horn
 
 	-- Day of the Dead
-	NewOption{ type = Options.Type.TOY, auraID = 172047, itemID = 116889, category = "APPEARANCE", buildAdded = "0.9.0|120100,16001" }, -- "Purple Phantom" Contender's Costume
-	NewOption{ type = Options.Type.TOY, auraID = 172052, itemID = 116888, category = "APPEARANCE", buildAdded = "0.9.0|120100,16001" }, -- "Night Demon" Contender's Costume
-	NewOption{ type = Options.Type.TOY, auraID = 172053, itemID = 116891, category = "APPEARANCE", buildAdded = "0.9.0|120100,16001" }, -- "Snowy Owl" Contender's Costume
-	NewOption{ type = Options.Type.TOY, auraID = 172049, itemID = 116890, category = "APPEARANCE", buildAdded = "0.9.0|120100,16001" }, -- "Santo's Sun" Contender's Costume
-	NewOption{ type = Options.Type.TOY, auraID = 172027, itemID = 116856, category = "APPEARANCE", buildAdded = "0.9.0|120100,16001" }, -- "Blooming Rose" Contender's Costume
+	NewOption{ type = Options.Type.TOY, auraID = 172047, itemID = 116889, category = "APPEARANCE", buildAdded = "0.9.0|120105,120100,16001" }, -- "Purple Phantom" Contender's Costume
+	NewOption{ type = Options.Type.TOY, auraID = 172052, itemID = 116888, category = "APPEARANCE", buildAdded = "0.9.0|120105,120100,16001" }, -- "Night Demon" Contender's Costume
+	NewOption{ type = Options.Type.TOY, auraID = 172053, itemID = 116891, category = "APPEARANCE", buildAdded = "0.9.0|120105,120100,16001" }, -- "Snowy Owl" Contender's Costume
+	NewOption{ type = Options.Type.TOY, auraID = 172049, itemID = 116890, category = "APPEARANCE", buildAdded = "0.9.0|120105,120100,16001" }, -- "Santo's Sun" Contender's Costume
+	NewOption{ type = Options.Type.TOY, auraID = 172027, itemID = 116856, category = "APPEARANCE", buildAdded = "0.9.0|120105,120100,16001" }, -- "Blooming Rose" Contender's Costume
 };
 
 ---ResolveTrackingMethod returns whether to track a given option by spell or item cooldown.
@@ -315,6 +315,23 @@ local function NormalizeLocName(name)
 	return name:upper():gsub("[^%w]+", "_");
 end
 
+---RemoveOption removes an option from the data list and all of its lookups.
+---@param data table
+---@param index number
+---@param remaining table<number, boolean> Pending item loads, keyed by itemID.
+---@return nil
+local function RemoveOption(data, index, remaining)
+	local option = data[index];
+
+	-- Remove all itemIDs from lookups
+	for _, id in ipairs(option.itemID) do
+		Options.ByItemID[id] = nil;
+		remaining[id] = nil;
+	end
+	Options.ByAuraID[option.auraID] = nil;
+	table.remove(data, index);
+end
+
 ---Setup builds all lookup tables and asynchronously resolves item names and icons.
 ---@param onComplete fun()? Optional callback invoked once all item names are resolved.
 ---@return nil
@@ -337,37 +354,26 @@ function Options.Setup(onComplete)
 		local valid = false;
 
 		for _, id in ipairs(option.itemID) do
-			if C_Item.GetItemInfoInstant(id) ~= nil then
+			if C_Item.DoesItemExistByID(id) then
 				valid = true;
 				break;
 			end
 		end
 
 		if not valid then
-			-- Remove all itemIDs from lookups
-			for _, id in ipairs(option.itemID) do
-				Options.ByItemID[id] = nil;
-				remaining[id] = nil;
-			end
-			Options.ByAuraID[option.auraID] = nil;
-			table.remove(data, i);
+			RemoveOption(data, i, remaining);
 		end
 	end
 
-	-- Early complete if nothing left
-	if next(remaining) == nil then
-		table.sort(data, function(a, b)
-			return SC.Utils.Normalize(a.name:lower()) < SC.Utils.Normalize(b.name:lower());
-		end);
-		SC.Globals.States.optionsLoaded = true;
-		if onComplete then onComplete(); end
-		return;
-	end
+	local requested = {}; -- itemIDs passed to ContinueOnItemLoad
+	local loadResultFrame = CreateFrame("Frame");
 
 	-- Finalize when no entries remain
 	local function Finalize()
 		if next(remaining) ~= nil then return end;
 
+		loadResultFrame:UnregisterAllEvents();
+
 		table.sort(data, function(a, b)
 			return SC.Utils.Normalize(a.name:lower()) < SC.Utils.Normalize(b.name:lower());
 		end);
@@ -376,8 +382,27 @@ function Options.Setup(onComplete)
 		if onComplete then onComplete(); end
 	end
 
-	-- Async load for all valid items
-	for _, option in ipairs(data) do
+	local function PruneFailed(itemID)
+		if not remaining[itemID] then return; end
+
+		RemoveOption(data, tIndexOf(data, Options.ByItemID[itemID]), remaining);
+		Finalize();
+	end
+
+	-- TODO: Remove once Live fires item callbacks for failed loads (Forever already does, expected in 12.1.7).
+	loadResultFrame:RegisterEvent("ITEM_DATA_LOAD_RESULT");
+	loadResultFrame:SetScript("OnEvent", function(_, _, itemID, success)
+		if not success and requested[itemID] then
+			PruneFailed(itemID);
+		end
+	end);
+
+	-- Early complete if nothing left
+	Finalize();
+
+	-- Async load for all valid items (backwards, as a failed load can prune the current option)
+	for i = #data, 1, -1 do
+		local option = data[i];
 		-- pick first valid itemID number to feed into Item:CreateFromItemID
 		local firstID;
 		for _, id in ipairs(option.itemID) do
@@ -388,10 +413,17 @@ function Options.Setup(onComplete)
 		end
 
 		if firstID then
+			requested[firstID] = true;
 			local item = Item:CreateFromItemID(firstID);
 
-			item:ContinueOnItemLoad(function()
+			-- success is only passed on Forever
+			item:ContinueOnItemLoad(function(_, success)
 				if not remaining[firstID] then return; end;
+
+				if success == false then
+					PruneFailed(firstID);
+					return;
+				end
 
 				local name = item:GetItemName();
 				option.name = name;

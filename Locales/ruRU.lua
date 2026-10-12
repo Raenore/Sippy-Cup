@@ -115,6 +115,9 @@ L = {
 	OPTIONS_TAB_SIZE_TITLE = "Размер",
 	OPTIONS_TAB_SIZE_INSTRUCTION = "Эти настройки управляют всеми напоминаниями о расходуемых предметах, которые изменяют размер персонажа.",
 
+	-- Shared
+	OPTIONS_TAB_EMPTY_TOOLTIP = "There are no items for this category in this WoW flavor.", -- (NEW)
+
 	--/ Addon Compartment /--
 	ADDON_COMPARTMENT_DESC = "|cnGREEN_FONT_COLOR:ЛКМ: Открыть настройки|nПКМ: Открыть профили|r",
 
