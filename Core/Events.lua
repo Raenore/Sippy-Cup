@@ -7,7 +7,7 @@ local Events = CreateFrame("Frame");
 ---EnableRefreshButtonsForCast Re-enables disabled refresh buttons for a given cast spell.
 ---@param spellID number
 ---@return nil
-local function enableRefreshButtonsForCast(spellID)
+local function EnableRefreshButtonsForCast(spellID)
 	if not SC.Database.castAuraToProfile[spellID] then
 		return;
 	end
@@ -287,7 +287,7 @@ local function OnCastCancelledOrInterrupted(self, event, unitTarget, _, spellID)
 		return;
 	end
 
-	enableRefreshButtonsForCast(spellID);
+	EnableRefreshButtonsForCast(spellID);
 end
 
 Events.UNIT_SPELLCAST_RETICLE_CLEAR = OnCastCancelledOrInterrupted;

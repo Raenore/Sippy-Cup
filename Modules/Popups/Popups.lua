@@ -731,7 +731,7 @@ function Popups.Toggle(itemName, auraID, enabled)
 	-- If item can be tracked through the spell cooldown (fine).
 	elseif trackBySpell then
 		local spellCooldownInfo = C_Spell.GetSpellCooldown(optionData.auraID);
-		if canaccessvalue == nil or canaccessvalue(spellCooldownInfo) then
+		if canaccessvalue(spellCooldownInfo) then
 			startTime = spellCooldownInfo and spellCooldownInfo.startTime;
 		end
 		if startTime and startTime > 0 then
@@ -946,7 +946,7 @@ function Popups.HandlePopupAction(data, caller)
 	-- At this point, we're certain that we're safe to execute further!
 
 	-- Recover auraInfo if possible (perhaps triggered through combat or other means)
-	local auraInfoAccessible = canaccessvalue == nil or (auraInfo and canaccessvalue(auraInfo));
+	local auraInfoAccessible = auraInfo and canaccessvalue(auraInfo);
 
 	if auraInfo == nil or not auraInfoAccessible then
 		if currentInstanceID then
@@ -991,7 +991,7 @@ function Popups.HandlePopupAction(data, caller)
 		elseif trackBySpell then
 			local spellCooldownInfo = C_Spell.GetSpellCooldown(optionData.auraID);
 			local startTime;
-			if canaccessvalue == nil or canaccessvalue(spellCooldownInfo) then
+			if canaccessvalue(spellCooldownInfo) then
 				startTime = spellCooldownInfo and spellCooldownInfo.startTime;
 			end
 			if startTime and startTime > 0 then

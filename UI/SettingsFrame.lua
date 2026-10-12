@@ -32,7 +32,7 @@ local defaultSounds = {
 
 -- Register default sounds
 for _, sound in ipairs(defaultSounds) do
-	SharedMedia:Register("sound", sound.key, sound.fid)
+	SharedMedia:Register("sound", sound.key, sound.fid);
 end
 
 -- Build soundList with keys = values for quick lookup/use
@@ -976,7 +976,7 @@ function SippyCup_SettingsMixin:OnLoad()
 			maxChars = 32,
 			get = function() end,
 			set = function(val)
-				SC.ConfirmDialog:Show(L.OPTIONS_PROFILES_NEWPROFILE_CONFIRM:format(val), function()
+				SC.ConfirmDialog.Show(L.OPTIONS_PROFILES_NEWPROFILE_CONFIRM:format(val), function()
 					SC.Database:CreateProfile(val);
 				end);
 			end,
@@ -991,7 +991,7 @@ function SippyCup_SettingsMixin:OnLoad()
 			end,
 			get = function() end,
 			set = function(val)
-				SC.ConfirmDialog:Show(L.OPTIONS_PROFILES_COPYFROM_CONFIRM:format(val), function()
+				SC.ConfirmDialog.Show(L.OPTIONS_PROFILES_COPYFROM_CONFIRM:format(val), function()
 					SC.Database:CopyProfile(val);
 				end);
 			end,
@@ -1004,7 +1004,7 @@ function SippyCup_SettingsMixin:OnLoad()
 			label = L.OPTIONS_PROFILES_RESETBUTTON_NAME,
 			tooltip = L.OPTIONS_PROFILES_RESETBUTTON_DESC,
 			func = function()
-				SC.ConfirmDialog:Show(L.OPTIONS_PROFILES_RESETBUTTON_CONFIRM, function()
+				SC.ConfirmDialog.Show(L.OPTIONS_PROFILES_RESETBUTTON_CONFIRM, function()
 					SC.Database:ResetProfile();
 				end);
 			end,
@@ -1019,7 +1019,7 @@ function SippyCup_SettingsMixin:OnLoad()
 			end,
 			get = function() end,
 			set = function(val)
-				SC.ConfirmDialog:Show(L.OPTIONS_PROFILES_DELETEPROFILE_CONFIRM:format(val), function()
+				SC.ConfirmDialog.Show(L.OPTIONS_PROFILES_DELETEPROFILE_CONFIRM:format(val), function()
 					SC.Database:DeleteProfile(val);
 				end);
 			end,
@@ -1065,9 +1065,9 @@ end
 
 ---ShowSettings Toggles the main config frame and optionally switches to a specified tab.
 ---@param view number? Optional tab index, defaults to 1.
-function Settings:ShowSettings(view)
+function Settings.ShowSettings(view)
 	if not SC.SettingsFrame then
-		SC.Settings:Init();
+		SC.Settings.Init();
 	end
 
 	SC.SettingsFrame:SetShown(not SC.SettingsFrame:IsShown());
@@ -1080,7 +1080,7 @@ end
 
 ---TryCreateConfigFrame creates the config menu frame if it does not already exist.
 ---@return nil
-function Settings:Init()
+function Settings.Init()
 	local frame = CreateFrame("Frame", "SippyCup_Settings", UIParent, "SippyCup_SettingsMenuTemplate");
 	SC.SettingsFrame = frame;
 end

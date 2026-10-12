@@ -12,7 +12,7 @@ function SC.Init()
 		-- Then Options
 		SC.Options.Setup(function()
 			-- With options ready, we init the Config Frame
-			SC.Settings:Init();
+			SC.Settings.Init();
 		end);
 
 		-- Register slash commands
@@ -24,7 +24,7 @@ function SC.Init()
 			if msg == "auras" and SC.Globals.IS_DEV_BUILD then
 				SC.Auras.DebugEnabledAuras();
 			else
-				SC.Settings:ShowSettings();
+				SC.Settings.ShowSettings();
 			end
 		end
 	end);

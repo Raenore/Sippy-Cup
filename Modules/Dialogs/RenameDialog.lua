@@ -11,7 +11,7 @@ local MaxProfileNameLength = 32;
 ---@param newName string
 ---@param oldName string
 ---@return boolean isValid
-local function validateNewName(newName, oldName)
+local function ValidateNewName(newName, oldName)
 	if newName == "" then return false; end
 	if newName == oldName then return false; end
 	if SC.Database:ProfileExists(newName) then return false; end
@@ -51,7 +51,7 @@ StaticPopupDialogs["SIPPYCUP_RENAME_PROFILE"] = {
 		local newName = string.trim(self:GetText());
 		local oldName = data and data.oldName or "";
 
-		button1:SetEnabled(validateNewName(newName, oldName));
+		button1:SetEnabled(ValidateNewName(newName, oldName));
 	end,
 	EditBoxOnEscapePressed = function(self)
 		StaticPopup_Hide("SIPPYCUP_RENAME_PROFILE");
@@ -60,7 +60,7 @@ StaticPopupDialogs["SIPPYCUP_RENAME_PROFILE"] = {
 		if not data or not data.oldName then return; end
 
 		local newName = string.trim(self:GetText());
-		if validateNewName(newName, data.oldName) then
+		if ValidateNewName(newName, data.oldName) then
 			SC.Database:RenameProfile(data.oldName, newName);
 			StaticPopup_Hide("SIPPYCUP_RENAME_PROFILE");
 		end
