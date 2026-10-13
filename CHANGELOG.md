@@ -82,72 +82,12 @@ Major architectural overhaul focused on codebase modernization, improved stabili
 - Fixed a display issue in the Settings menu where certain option labels wouldn't refresh correctly ([#104](https://github.com/Raenore/Sippy-Cup/pull/104)).  
 - Fixed an issue with an internal data migration that could leave your settings in an inconsistent state ([#104](https://github.com/Raenore/Sippy-Cup/pull/104)).  
 
-## [0.7.5] - 2026-04-23  
-Minor patch to update the TOC version for Patch 12.0.5. The larger 0.8.0 overhaul is still in development and will be arriving at a later date.  
-
-### Changed  
-- Updated the TOC for Patch 12.0.5.  
-
-## [0.7.4] - 2026-03-25  
-Minor patch adding select Midnight consumables.  
-
-### Added
-- Added [Pango Plating](https://www.wowhead.com/item=268717) (Appearance) ([#96](https://github.com/Raenore/Sippy-Cup/pull/96)).  
-- Added [Hexed Potatoad Mucus](https://www.wowhead.com/item=252265) (Appearance) and [Researcher's Shadowgraft](https://www.wowhead.com/item=250319) (Effect) ([#97](https://github.com/Raenore/Sippy-Cup/pull/97)).  
-
-## [0.7.3] - 2026-03-05  
-Minor patch adding select Ruby Feast (Dragonflight) consumables and resolving user-submitted bugs.  
-
-### Added
-- Added 3 new effect consumables from Dragonflight's Ruby Feast, with more to be added as testing continues ([#95](https://github.com/Raenore/Sippy-Cup/pull/95)).  
-
-### Fixed  
-- Fixed an issue where "insufficient reminders" would pop up randomly despite having sufficient consumables ([#93](https://github.com/Raenore/Sippy-Cup/pull/93)).  
-- Fixed a rare occurrence where rapidly adding and removing prisms could cause the refresh popup to remain stuck ([#92](https://github.com/Raenore/Sippy-Cup/pull/92)).  
-
-## [0.7.2] - 2026-02-28  
-Minor patch that adds newly-added handheld items from Midnight.  
-
-### Added
-- Added 21 new handheld consumables found in Midnight's Arcantina.  
-
-## [0.7.1] - 2026-02-24  
-Minor patch to fix checking and unchecking global settings.  
-
-### Fixed  
-- Fixed global settings not checking or unchecking due to previous DB updates ([#90](https://github.com/Raenore/Sippy-Cup/pull/90)).  
-
-## [0.7.0] - 2026-02-23  
-Major patch as we move further into the Midnight pre-patch, with improved Prism (Projecting & Reflecting) support and additional secret-related fixes.  
-
-### Added
-- Proper Prism support! ([#86](https://github.com/Raenore/Sippy-Cup/pull/86))  
-  - Both prism types now track properly, unlike the previous implementation.  
-  - Both Projecting and Reflecting Prism have separate pre-expiration timers that you can adjust.  
-  - Projection Prism works with all quality variants. It will prioritize Gold, then Silver, and finally Bronze quality.  
-- If an option requires a party, this will now be mentioned on the refresh button while it is disabled (until a party is formed).  
-- If an option is channeled and gets interrupted, the button will properly re-enable so you can refresh it again.  
-
-### Changed  
-- Updated Spanish translation thanks to [Romanv](https://bsky.app/profile/romanv88.bsky.social) ([#85](https://github.com/Raenore/Sippy-Cup/pull/85)).  
-- Sippy Cup will now fully bail out in Battlegrounds. Supporting auras/buffs there is too complex (due to Midnight's secrets) and has no real RP value ([#83](https://github.com/Raenore/Sippy-Cup/pull/83)).  
-- The system that tracks dirty bag states (for proper item counts) and buff events has been rewritten to be more efficient. No user-facing changes. ([#86](https://github.com/Raenore/Sippy-Cup/pull/86))  
-- Updated Russian translation thanks to [Hubbotu](https://github.com/Hubbotu).  
-
-### Fixed  
-- Fixed additional spellID secrets ([#84](https://github.com/Raenore/Sippy-Cup/pull/84)).  
-- Fixed a rare issue where certain settings would not save globally or per profile ([#89](https://github.com/Raenore/Sippy-Cup/pull/89)).  
-
 ## Full Changelog  
 The complete changelog, including older versions, can always be found on [Sippy Cup's GitHub Wiki](https://github.com/Raenore/Sippy-Cup/wiki/Full-Changelog).  
 
-[unreleased]: https://github.com/Raenore/Sippy-Cup/compare/0.8.3...HEAD
+[unreleased]: https://github.com/Raenore/Sippy-Cup/compare/0.9.0...HEAD
+[0.9.0]: https://github.com/Raenore/Sippy-Cup/compare/0.8.3...0.9.0
 [0.8.3]: https://github.com/Raenore/Sippy-Cup/compare/0.8.2...0.8.3
 [0.8.2]: https://github.com/Raenore/Sippy-Cup/compare/0.8.1...0.8.2
 [0.8.1]: https://github.com/Raenore/Sippy-Cup/compare/0.8.0...0.8.1
 [0.8.0]: https://github.com/Raenore/Sippy-Cup/compare/0.7.4...0.8.0
-[0.7.4]: https://github.com/Raenore/Sippy-Cup/compare/0.7.3...0.7.4
-[0.7.3]: https://github.com/Raenore/Sippy-Cup/compare/0.7.2...0.7.3
-[0.7.2]: https://github.com/Raenore/Sippy-Cup/compare/0.7.1...0.7.2
-[0.7.1]: https://github.com/Raenore/Sippy-Cup/compare/0.7.0...0.7.1
-[0.7.0]: https://github.com/Raenore/Sippy-Cup/compare/0.6.1...0.7.0
