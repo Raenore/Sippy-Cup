@@ -1,4 +1,4 @@
-## Interface: 120105, 120100, 16001
+## Interface: 120107, 120105, 16001
 ## Title: |cnCONTEXT_FEEDBACK_COLOR:Sippy Cup|r
 ## Author: Raenore (Argent Dawn EU)
 ## Version: @project-version@
@@ -27,8 +27,8 @@
 ## X-Build: 16001 [AllowLoadGameType camelot]
 ## X-Build: 120105, 120100 [AllowLoadGameType standard]
 ## X-Category: Roleplay
-## X-Game: [Game]
-## X-Family: [Family]
+## X-GameType: Standard [AllowLoadGameType standard]
+## X-GameType: Camelot [AllowLoadGameType camelot]
 
 ## X-Curse-Project-ID: 1245290
 ## X-Wago-ID: 96doOnNO
